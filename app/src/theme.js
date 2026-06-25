@@ -1,12 +1,13 @@
-export const PORTALS = {
-  teacher:    { key:'teacher',    label:'Teacher',    color:'#16A34A', soft:'#E9F8EF', icon:'GraduationCap' },
-  admin:      { key:'admin',      label:'Admin',      color:'#2563EB', soft:'#E8F0FE', icon:'LayoutDashboard' },
-  owner:      { key:'owner',      label:'Owner',      color:'#7C3AED', soft:'#F1EAFE', icon:'LineChart' },
-  parent:     { key:'parent',     label:'Parent',     color:'#EA580C', soft:'#FDEBE0', icon:'Heart' },
-  superadmin: { key:'superadmin', label:'Platform',   color:'#0F766E', soft:'#E2F4F1', icon:'Building2' },
+export const ROLE = {
+  owner:      { label:'Product Owner', color:'#6C5CE7', soft:'#EEEBFF' },
+  schooladmin:{ label:'School Admin',  color:'#6C5CE7', soft:'#EEEBFF' },
+  admin:      { label:'Admin',         color:'#36C5F0', soft:'#E4F7FE' },
+  teacher:    { label:'Teacher',       color:'#2BD9A8', soft:'#E2FBF3' },
+  supervisor: { label:'Supervisor',    color:'#FFA62B', soft:'#FFF1DD' },
+  parent:     { label:'Parent',        color:'#FF6B81', soft:'#FFE8EC' },
 }
-export function applyAccent(p){
-  const el = document.documentElement
-  el.style.setProperty('--accent', p.color)
-  el.style.setProperty('--accent-soft', p.soft)
+export function applyAccent(role){
+  const r = ROLE[role] || ROLE.admin
+  document.documentElement.style.setProperty('--accent', r.color)
+  document.documentElement.style.setProperty('--accent-soft', r.soft)
 }

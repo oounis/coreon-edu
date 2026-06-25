@@ -1,22 +1,26 @@
 @import "tailwindcss";
 @theme {
-  --color-ink: #0F172A;
-  --color-muted: #64748B;
-  --color-line: #E8EDF2;
-  --color-canvas: #F6F8FB;
+  --color-ink: #1E2433;
+  --color-muted: #8A93A6;
+  --color-line: #EDEFF5;
+  --color-canvas: #F6F7FB;
+  /* brand + pastel palette (beautiful, soft) */
+  --color-brand: #6C5CE7;        --color-brand-soft: #EEEBFF;
+  --color-sky: #36C5F0;          --color-sky-soft: #E4F7FE;
+  --color-butter: #FFC24B;       --color-butter-soft: #FFF4DD;
+  --color-mint: #2BD9A8;         --color-mint-soft: #E2FBF3;
+  --color-coral: #FF6B81;        --color-coral-soft: #FFE8EC;
+  --color-grape: #A78BFA;        --color-grape-soft: #F1ECFE;
   --font-sans: "Inter Variable", system-ui, sans-serif;
 }
-html { scroll-behavior: smooth; }
-body { font-family: var(--font-sans); color: var(--color-ink); background:#fff; -webkit-font-smoothing: antialiased; }
-/* portal accent is injected per-portal as --accent / --accent-soft */
-.accent-bg { background: var(--accent); }
-.accent-text { color: var(--accent); }
-.accent-soft { background: var(--accent-soft); }
-.accent-border { border-color: var(--accent); }
-/* dnd helpers */
-.dragging { opacity:.4; }
-.drop-hot { outline: 2px dashed var(--accent); outline-offset: 2px; background: var(--accent-soft); }
-.no-select { user-select:none; -webkit-user-select:none; }
-@keyframes pop { 0%{transform:scale(.9);opacity:0} 100%{transform:scale(1);opacity:1} }
-.pop { animation: pop .18s ease; }
-@media (prefers-reduced-motion: reduce){ .pop{animation:none} }
+html{scroll-behavior:smooth}
+body{font-family:var(--font-sans);color:var(--color-ink);background:var(--color-canvas);-webkit-font-smoothing:antialiased}
+.card{background:#fff;border:1px solid var(--color-line);border-radius:1rem}
+.accent-bg{background:var(--accent)} .accent-text{color:var(--accent)} .accent-soft{background:var(--accent-soft)}
+.accent-ring:focus{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent)}
+.drop-hot{outline:2px dashed var(--accent);outline-offset:2px;background:var(--accent-soft)}
+.no-select{user-select:none;-webkit-user-select:none}
+@keyframes pop{0%{transform:scale(.92);opacity:0}100%{transform:scale(1);opacity:1}}
+.pop{animation:pop .18s ease}
+.scroll-thin::-webkit-scrollbar{width:8px;height:8px}.scroll-thin::-webkit-scrollbar-thumb{background:#E2E6EF;border-radius:8px}
+@media (prefers-reduced-motion:reduce){.pop{animation:none}}
