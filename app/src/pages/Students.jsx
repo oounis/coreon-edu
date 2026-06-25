@@ -3,9 +3,11 @@ import { current } from '../auth.js'
 import { db, mutate, uid, classById, userById, CYCLES } from '../db.js'
 import { PageHead, Table, Avatar, Btn, Modal, Field, Input, Select, Section } from '../components/ui.jsx'
 import { studentColor } from '../data.js'
-import { UserPlus, Eye, Droplet, Search } from 'lucide-react'
+import { GOVERNORATES, DOC_TYPES, LEGAL, idLabelFor } from '../tunisia.js'
+import Attach from '../components/Attach.jsx'
+import { UserPlus, Eye, Droplet, Search, ShieldCheck } from 'lucide-react'
 import toast from 'react-hot-toast'
-const BLANK={name:'',gender:'Garçon',dob:'',bloodGroup:'O+',nationality:'Tunisienne',grade:'5ème année',section:'A',rollNo:'',admissionDate:'',prevSchool:'',fatherName:'',motherName:'',guardianPhone:'',parentId:'',address:'',phone:'',email:'',medical:'Aucune',allergies:'Aucune',emergencyName:'',emergencyPhone:''}
+const BLANK={name:'',gender:'Garçon',dob:'',bloodGroup:'O+',nationality:'Tunisienne',grade:'5ème année',section:'A',rollNo:'',admissionDate:'',prevSchool:'',fatherName:'',motherName:'',guardianPhone:'',parentId:'',address:'',phone:'',email:'',medical:'Aucune',allergies:'Aucune',emergencyName:'',emergencyPhone:'',cin:'',governorate:'Tunis',attachments:[],consent:false}
 const cycleOf=g=>CYCLES.find(c=>c.grades.includes(g))?.cycle||'Primaire'
 export default function Students(){
   const u=current(); const canEdit=['schooladmin','admin'].includes(u.role)
@@ -13,7 +15,7 @@ export default function Students(){
   const [open,setOpen]=useState(false); const [view,setView]=useState(null); const [q,setQ]=useState(''); const [f,setF]=useState(BLANK)
   const d=db(); const parents=d.users.filter(x=>x.role==='parent')
   const list=d.students.filter(s=>s.name.toLowerCase().includes(q.toLowerCase()))
-  const add=()=>{ if(!f.name.trim())return toast.error('Le nom est requis')
+  const add=()=>{ if(!f.name.trim())return toast.error('Le nom est requis'); if(!f.consent)return toast.error('Veuillez accepter le consentement (loi 2004-63)')
     const className=`${f.grade.replace(/ /g,'').slice(0,6)} ${f.section}`
     let cid
     mutate(db=>{ let cls=db.classes.find(c=>c.grade===f.grade && c.name.endsWith(' '+f.section))
@@ -50,6 +52,8 @@ export default function Students(){
         <Field label="N° d'inscription"><Input value={f.rollNo} onChange={e=>setF({...f,rollNo:e.target.value})}/></Field>
         <Field label="Date d'inscription"><Input type="date" value={f.admissionDate} onChange={e=>setF({...f,admissionDate:e.target.value})}/></Field>
         <Field label="École précédente"><Input value={f.prevSchool} onChange={e=>setF({...f,prevSchool:e.target.value})}/></Field>
+        <Field label="N° acte de naissance"><Input value={f.cin} onChange={e=>setF({...f,cin:e.target.value})} placeholder="ACTE-..."/></Field>
+        <Field label="Gouvernorat"><Select value={f.governorate} onChange={e=>setF({...f,governorate:e.target.value})}>{GOVERNORATES.map(g=><option key={g}>{g}</option>)}</Select></Field>
       </Section>
       <Section title="Tuteur / parent">
         <Field label="Nom du père"><Input value={f.fatherName} onChange={e=>setF({...f,fatherName:e.target.value})}/></Field>
@@ -68,10 +72,13 @@ export default function Students(){
         <Field label="Contact d'urgence"><Input value={f.emergencyName} onChange={e=>setF({...f,emergencyName:e.target.value})}/></Field>
         <Field label="Téléphone d'urgence"><Input value={f.emergencyPhone} onChange={e=>setF({...f,emergencyPhone:e.target.value})}/></Field>
       </Section>
+      <div className="mb-3"><div className="text-xs font-bold uppercase tracking-wide accent-text mb-2">Pièces à fournir</div>
+        <Attach types={DOC_TYPES.student} value={f.attachments} onChange={a=>setF({...f,attachments:a})}/></div>
+      <label className="flex items-start gap-2 text-xs text-muted bg-canvas rounded-xl p-3"><input type="checkbox" checked={f.consent} onChange={e=>setF({...f,consent:e.target.checked})} className="mt-0.5"/><span><ShieldCheck size={13} className="inline accent-text"/> {LEGAL.consent}</span></label>
     </Modal>
     <Modal open={!!view} onClose={()=>setView(null)} title="Fiche élève" size="xl">
       {view&&(<div><div className="flex items-center gap-4 mb-5"><Avatar name={view.name} color={studentColor(view.id)} size={56}/><div><div className="text-xl font-extrabold">{view.name}</div><div className="text-muted text-sm">{classById(view.classId)?.name} · N° {view.rollNo} · {view.gender}</div></div></div>
-        <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">{[['Naissance',view.dob],['Groupe sanguin',view.bloodGroup],['Nationalité',view.nationality],['Inscription',view.admissionDate],['École préc.',view.prevSchool],['Père',view.fatherName],['Mère',view.motherName],['Tél. tuteur',view.guardianPhone],['Compte parent',userById(view.parentId)?.name||'—'],['Adresse',view.address],['Téléphone',view.phone],['E-mail',view.email||'—'],['Médical',view.medical],['Allergies',view.allergies],['Urgence',`${view.emergencyName} · ${view.emergencyPhone}`]].map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium text-right">{v||'—'}</span></div>)}</div></div>)}
+        <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">{[['Naissance',view.dob],['Groupe sanguin',view.bloodGroup],['Nationalité',view.nationality],['Inscription',view.admissionDate],['École préc.',view.prevSchool],['Père',view.fatherName],['Mère',view.motherName],['Tél. tuteur',view.guardianPhone],['Compte parent',userById(view.parentId)?.name||'—'],['Adresse',view.address],['Téléphone',view.phone],['E-mail',view.email||'—'],['Médical',view.medical],['Allergies',view.allergies],['CIN/Acte',view.cin],['Gouvernorat',view.governorate],['Urgence',`${view.emergencyName} · ${view.emergencyPhone}`]].map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium text-right">{v||'—'}</span></div>)}</div></div>)}
     </Modal>
   </>)
 }

@@ -3,9 +3,11 @@ import { current } from '../auth.js'
 import { db, mutate, uid } from '../db.js'
 import { PageHead, Table, Avatar, Btn, Modal, Field, Input, Select, Section } from '../components/ui.jsx'
 import { studentColor } from '../data.js'
+import { GOVERNORATES, DOC_TYPES, validCIN } from '../tunisia.js'
+import Attach from '../components/Attach.jsx'
 import { UserPlus, Eye } from 'lucide-react'
 import toast from 'react-hot-toast'
-const BLANK={name:'',gender:'Male',dob:'',subject:'',qualification:'',experience:'',joiningDate:'',designation:'Teacher',phone:'',email:'',address:'',salary:''}
+const BLANK={name:'',gender:'Male',dob:'',subject:'',qualification:'',experience:'',joiningDate:'',designation:'Teacher',phone:'',email:'',address:'',salary:'',cin:'',governorate:'Tunis',attachments:[]}
 export default function Teachers(){
   const u=current(); const canEdit=['schooladmin','admin'].includes(u.role)
   const [,force]=useState(0); const [open,setOpen]=useState(false); const [view,setView]=useState(null); const [f,setF]=useState(BLANK)
@@ -30,6 +32,8 @@ export default function Teachers(){
         <Field label="Full name *"><Input value={f.name} onChange={e=>setF({...f,name:e.target.value})}/></Field>
         <Field label="Gender"><Select value={f.gender} onChange={e=>setF({...f,gender:e.target.value})}><option>Male</option><option>Female</option></Select></Field>
         <Field label="Date of birth"><Input type="date" value={f.dob} onChange={e=>setF({...f,dob:e.target.value})}/></Field>
+        <Field label="CIN (8 chiffres)"><Input value={f.cin} onChange={e=>setF({...f,cin:e.target.value})} maxLength={8}/></Field>
+        <Field label="Gouvernorat"><Select value={f.governorate} onChange={e=>setF({...f,governorate:e.target.value})}>{GOVERNORATES.map(g=><option key={g}>{g}</option>)}</Select></Field>
       </Section>
       <Section title="Professional">
         <Field label="Subject"><Input value={f.subject} onChange={e=>setF({...f,subject:e.target.value})} placeholder="Mathematics"/></Field>
@@ -44,10 +48,12 @@ export default function Teachers(){
         <Field label="Address"><Input value={f.address} onChange={e=>setF({...f,address:e.target.value})}/></Field>
         <Field label="Monthly salary (DT)"><Input type="number" value={f.salary} onChange={e=>setF({...f,salary:e.target.value})}/></Field>
       </Section>
+      <div className="mt-1"><div className="text-xs font-bold uppercase tracking-wide accent-text mb-2">Pièces à fournir</div>
+        <Attach types={DOC_TYPES.teacher} value={f.attachments} onChange={a=>setF({...f,attachments:a})}/></div>
     </Modal>
     <Modal open={!!view} onClose={()=>setView(null)} title="Staff profile" size="xl">
       {view&&(<div><div className="flex items-center gap-4 mb-5"><Avatar name={view.name} color={studentColor(view.id)} size={56}/><div><div className="text-xl font-extrabold">{view.name}</div><div className="text-muted text-sm">{view.designation} · {view.subject}</div></div></div>
-        <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">{[['Gender',view.gender],['Date of birth',view.dob],['Qualification',view.qualification],['Experience',`${view.experience} yrs`],['Joining date',view.joiningDate],['Phone',view.phone],['Email',view.email],['Address',view.address],['Salary',view.salary?`${view.salary} DT`:'—']].map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium text-right">{v||'—'}</span></div>)}</div></div>)}
+        <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">{[['Gender',view.gender],['CIN',view.cin],['Gouvernorat',view.governorate],['Date of birth',view.dob],['Qualification',view.qualification],['Experience',`${view.experience} yrs`],['Joining date',view.joiningDate],['Phone',view.phone],['Email',view.email],['Address',view.address],['Salary',view.salary?`${view.salary} DT`:'—']].map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium text-right">{v||'—'}</span></div>)}</div></div>)}
     </Modal>
   </>)
 }

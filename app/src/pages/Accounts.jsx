@@ -2,57 +2,74 @@ import { useState } from 'react'
 import { db, mutate, uid } from '../db.js'
 import { ROLE } from '../theme.js'
 import { notify } from '../notify.js'
+import { STAFF_POSITIONS, GOVERNORATES, docTypesFor, validCIN } from '../tunisia.js'
 import { PageHead, Table, Avatar, Btn, Modal, Field, Input, Select, Section } from '../components/ui.jsx'
+import Attach from '../components/Attach.jsx'
 import { studentColor } from '../data.js'
-import { UserPlus } from 'lucide-react'
+import { UserPlus, Eye, ShieldCheck } from 'lucide-react'
 import toast from 'react-hot-toast'
-const BLANK={role:'teacher',name:'',email:'',pw:'',phone:'',gender:'Male',address:'',occupation:'',subject:'',designation:'Teacher',childIds:[]}
+const BLANK={role:'teacher',name:'',email:'',pw:'',cin:'',gender:'Garçon',governorate:'Tunis',position:'Instituteur',phone:'',address:'',occupation:'',subject:'',childIds:[],attachments:[]}
 export default function Accounts(){
-  const [,force]=useState(0); const [open,setOpen]=useState(false); const [f,setF]=useState(BLANK)
+  const [,force]=useState(0); const [open,setOpen]=useState(false); const [view,setView]=useState(null); const [f,setF]=useState(BLANK)
   const d=db()
   const create=()=>{
-    if(!f.name.trim()||!f.email.trim())return toast.error('Name and email are required')
+    if(!f.name.trim()||!f.email.trim())return toast.error('Nom et e-mail requis')
+    if(f.cin && !validCIN(f.cin))return toast.error('CIN invalide (8 chiffres)')
     const id=uid('u')
     mutate(db=>{
-      const user={id,role:f.role,name:f.name.trim(),email:f.email.trim(),pw:f.pw||'1234',phone:f.phone,gender:f.gender,address:f.address}
-      if(f.role==='teacher'){ const tid=uid('t'); db.teachers.push({id:tid,name:user.name,subject:f.subject||'—',designation:f.designation,classes:[],experience:0,phone:f.phone,email:user.email}); user.teacherId=tid }
+      const user={id,role:f.role,name:f.name.trim(),email:f.email.trim(),pw:f.pw||'1234',cin:f.cin,gender:f.gender,governorate:f.governorate,phone:f.phone,address:f.address,attachments:f.attachments}
       if(f.role==='parent'){ user.occupation=f.occupation; user.childIds=f.childIds }
+      else { user.position=f.position }
+      if(f.role==='teacher'){ const tid=uid('t'); db.teachers.push({id:tid,name:user.name,subject:f.subject||'—',designation:f.position,classes:[],experience:0,phone:f.phone,email:user.email,cin:f.cin,governorate:f.governorate,position:f.position,attachments:f.attachments}); user.teacherId=tid }
       db.users.push(user)
     })
-    notify({to:id,kind:'info',title:'Welcome to Coreon Edu',body:`Your ${ROLE[f.role].label} account is ready.`,link:'/app'})
-    toast.success(`${ROLE[f.role].label} account created`); setOpen(false); setF(BLANK); force(x=>x+1)
+    notify({to:id,kind:'info',actor:'Direction',title:'compte créé',body:`Bienvenue — rôle ${ROLE[f.role].label}.`,link:'/app'})
+    toast.success(`Compte ${ROLE[f.role].label} créé`); setOpen(false); setF(BLANK); force(x=>x+1)
   }
   const toggleChild=sid=>setF(p=>({...p,childIds:p.childIds.includes(sid)?p.childIds.filter(x=>x!==sid):[...p.childIds,sid]}))
+  const isStaff=['teacher','admin','supervisor'].includes(f.role)
   return (<>
-    <PageHead title="Accounts" sub="Create logins for staff and parents." action={<Btn onClick={()=>{setF(BLANK);setOpen(true)}}><UserPlus size={16}/> Create account</Btn>}/>
-    <Table head={['User','Role','Email','Phone','Password']}>
+    <PageHead title="Comptes & personnel" sub="Créez les accès et les profils (avec pièces jointes)." action={<Btn onClick={()=>{setF(BLANK);setOpen(true)}}><UserPlus size={16}/> Créer un compte</Btn>}/>
+    <Table head={['Utilisateur','Rôle / Fonction','CIN','Gouvernorat','Pièces','']}>
       {d.users.filter(u=>u.role!=='owner').map(u=>(
         <tr key={u.id} className="hover:bg-canvas">
-          <td className="px-4 py-3"><div className="flex items-center gap-3"><Avatar name={u.name} color={ROLE[u.role]?.color||studentColor(u.id)}/><span className="font-medium">{u.name}</span></div></td>
-          <td className="px-4 py-3"><span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{background:ROLE[u.role]?.soft,color:ROLE[u.role]?.color}}>{ROLE[u.role]?.label}</span></td>
-          <td className="px-4 py-3 text-muted">{u.email}</td><td className="px-4 py-3 text-muted">{u.phone||'—'}</td><td className="px-4 py-3 text-muted"><code>{u.pw}</code></td>
+          <td className="px-4 py-3"><div className="flex items-center gap-3"><Avatar name={u.name} color={ROLE[u.role]?.color||studentColor(u.id)}/><div><div className="font-medium">{u.name}</div><div className="text-xs text-muted">{u.email}</div></div></div></td>
+          <td className="px-4 py-3"><span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{background:ROLE[u.role]?.soft,color:ROLE[u.role]?.color}}>{ROLE[u.role]?.label}</span>{u.position&&<div className="text-xs text-muted mt-1">{u.position}</div>}</td>
+          <td className="px-4 py-3 text-muted">{u.cin||'—'}</td><td className="px-4 py-3 text-muted">{u.governorate||'—'}</td>
+          <td className="px-4 py-3 text-muted">{(u.attachments||[]).length} 📎</td>
+          <td className="px-4 py-3"><button onClick={()=>setView(u)} className="text-muted hover:accent-text"><Eye size={17}/></button></td>
         </tr>
       ))}
     </Table>
-    <Modal open={open} onClose={()=>setOpen(false)} title="Create account" size="xl" footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Cancel</Btn><Btn onClick={create}>Create account</Btn></>}>
-      <Section title="Account">
-        <Field label="Role"><Select value={f.role} onChange={e=>setF({...f,role:e.target.value})}>{['admin','teacher','supervisor','parent'].map(r=><option key={r} value={r}>{ROLE[r].label}</option>)}</Select></Field>
-        <Field label="Full name *"><Input value={f.name} onChange={e=>setF({...f,name:e.target.value})}/></Field>
-        <Field label="Email *"><Input value={f.email} onChange={e=>setF({...f,email:e.target.value})} placeholder="name@alnoor.edu"/></Field>
-        <Field label="Temporary password"><Input value={f.pw} onChange={e=>setF({...f,pw:e.target.value})} placeholder="default 1234"/></Field>
+    <Modal open={open} onClose={()=>setOpen(false)} title="Créer un compte / profil" size="2xl" footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={create}>Créer le compte</Btn></>}>
+      <Section title="Compte">
+        <Field label="Rôle"><Select value={f.role} onChange={e=>setF({...f,role:e.target.value})}>{['admin','teacher','supervisor','parent'].map(r=><option key={r} value={r}>{ROLE[r].label}</option>)}</Select></Field>
+        <Field label="Nom complet *"><Input value={f.name} onChange={e=>setF({...f,name:e.target.value})}/></Field>
+        <Field label="E-mail *"><Input value={f.email} onChange={e=>setF({...f,email:e.target.value})} placeholder="nom@alnour.tn"/></Field>
+        <Field label="Mot de passe temporaire"><Input value={f.pw} onChange={e=>setF({...f,pw:e.target.value})} placeholder="défaut 1234"/></Field>
       </Section>
-      <Section title="Contact">
-        <Field label="Phone"><Input value={f.phone} onChange={e=>setF({...f,phone:e.target.value})}/></Field>
-        <Field label="Gender"><Select value={f.gender} onChange={e=>setF({...f,gender:e.target.value})}><option>Male</option><option>Female</option></Select></Field>
-        <Field label="Address"><Input value={f.address} onChange={e=>setF({...f,address:e.target.value})}/></Field>
+      <Section title="Identité (Tunisie)">
+        <Field label="CIN (8 chiffres)"><Input value={f.cin} onChange={e=>setF({...f,cin:e.target.value})} placeholder="12345678" maxLength={8}/></Field>
+        <Field label="Genre"><Select value={f.gender} onChange={e=>setF({...f,gender:e.target.value})}><option>Garçon</option><option>Fille</option></Select></Field>
+        <Field label="Gouvernorat"><Select value={f.governorate} onChange={e=>setF({...f,governorate:e.target.value})}>{GOVERNORATES.map(g=><option key={g}>{g}</option>)}</Select></Field>
       </Section>
-      {f.role==='teacher'&&<Section title="Teaching"><Field label="Subject"><Input value={f.subject} onChange={e=>setF({...f,subject:e.target.value})}/></Field>
-        <Field label="Designation"><Select value={f.designation} onChange={e=>setF({...f,designation:e.target.value})}>{['Teacher','Senior Teacher','Head of Dept.','Coordinator'].map(x=><option key={x}>{x}</option>)}</Select></Field></Section>}
-      {f.role==='parent'&&<div className="mb-2"><div className="text-xs font-bold uppercase tracking-wide accent-text mb-2">Parent details</div>
-        <Field label="Occupation"><Input value={f.occupation} onChange={e=>setF({...f,occupation:e.target.value})}/></Field>
-        <div className="mt-2 text-xs font-semibold text-muted">Link children</div>
-        <div className="flex flex-wrap gap-2 mt-1">{d.students.filter(s=>!s.parentId).map(s=>(
-          <button key={s.id} onClick={()=>toggleChild(s.id)} className={`text-sm px-3 py-1.5 rounded-full border ${f.childIds.includes(s.id)?'accent-soft accent-text':'border-line'}`}>{s.name}</button>))}</div></div>}
+      {isStaff && <Section title="Fonction" cols={2}>
+        <Field label="Poste / fonction"><Select value={f.position} onChange={e=>setF({...f,position:e.target.value})}>{STAFF_POSITIONS.map(g=><optgroup key={g.group} label={g.group}>{g.items.map(p=><option key={p}>{p}</option>)}</optgroup>)}</Select></Field>
+        {f.role==='teacher'&&<Field label="Matière"><Input value={f.subject} onChange={e=>setF({...f,subject:e.target.value})} placeholder="Mathématiques"/></Field>}
+      </Section>}
+      <Section title="Contact"><Field label="Téléphone"><Input value={f.phone} onChange={e=>setF({...f,phone:e.target.value})}/></Field><Field label="Adresse"><Input value={f.address} onChange={e=>setF({...f,address:e.target.value})}/></Field>
+        {f.role==='parent'&&<Field label="Profession"><Input value={f.occupation} onChange={e=>setF({...f,occupation:e.target.value})}/></Field>}</Section>
+      {f.role==='parent'&&<div className="mb-4"><div className="text-xs font-bold uppercase tracking-wide accent-text mb-2">Enfants</div>
+        <div className="flex flex-wrap gap-2">{d.students.filter(s=>!s.parentId).map(s=><button key={s.id} onClick={()=>toggleChild(s.id)} className={`text-sm px-3 py-1.5 rounded-full border ${f.childIds.includes(s.id)?'accent-soft accent-text':'border-line'}`}>{s.name}</button>)}</div></div>}
+      <div className="mb-2"><div className="text-xs font-bold uppercase tracking-wide accent-text mb-2">Pièces à fournir</div>
+        <Attach types={docTypesFor(f.role)} value={f.attachments} onChange={a=>setF({...f,attachments:a})}/></div>
+    </Modal>
+    <Modal open={!!view} onClose={()=>setView(null)} title="Profil" size="xl">
+      {view&&(<div><div className="flex items-center gap-4 mb-4"><Avatar name={view.name} color={ROLE[view.role]?.color} size={52}/><div><div className="text-xl font-extrabold">{view.name}</div><div className="text-muted text-sm">{ROLE[view.role]?.label}{view.position&&` · ${view.position}`}</div></div></div>
+        <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm mb-4">{[['E-mail',view.email],['CIN',view.cin],['Gouvernorat',view.governorate],['Téléphone',view.phone],['Adresse',view.address],['Profession',view.occupation]].filter(x=>x[1]).map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium">{v}</span></div>)}</div>
+        <div className="text-xs font-bold uppercase text-muted mb-2">Pièces jointes</div>
+        {(view.attachments||[]).length? <div className="space-y-1">{view.attachments.map((a,i)=><div key={i} className="flex justify-between text-sm border border-line rounded-lg px-3 py-1.5"><span className="text-muted">{a.type}</span><span className="font-medium">📎 {a.name}</span></div>)}</div> : <div className="text-sm text-muted">Aucune pièce.</div>}
+      </div>)}
     </Modal>
   </>)
 }
