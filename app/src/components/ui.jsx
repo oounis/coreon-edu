@@ -53,3 +53,9 @@ export function Table({ head, children }){
 export function PageHead({ title, sub, action }){
   return <div className="flex items-end justify-between gap-3 mb-5 flex-wrap"><div><h1 className="text-2xl font-extrabold">{title}</h1>{sub&&<p className="text-muted mt-0.5">{sub}</p>}</div>{action}</div>
 }
+export function Mark({ size=34 }){
+  return (<svg viewBox="0 0 68 72" width={size} height={size} aria-hidden="true">
+    <defs><linearGradient id="kmark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#6C5CE7"/><stop offset="1" stopColor="#36C5F0"/></linearGradient></defs>
+    <path d="M34 62 C31 52 28 47 22 43 C15 38 10 31 7 22 C18 27 28 33 31 41 L34 46 L37 41 C40 33 50 27 61 22 C58 31 53 38 46 43 C40 47 37 52 34 62 Z" fill="url(#kmark)"/>
+  </svg>)
+}

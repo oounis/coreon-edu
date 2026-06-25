@@ -3,14 +3,14 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Menu } from '@headlessui/react'
 import { applyAccent, ROLE } from '../theme.js'
 import { current, logout } from '../auth.js'
-import { inboxFor, unreadFor, markRead } from '../notify.js'
-import { formatDistanceToNow } from 'date-fns'
+import { inboxFor, unreadFor, markRead, markAllRead } from '../notify.js'
+import { NotifRow } from './NotifItem.jsx'
+import { Mark } from './ui.jsx'
 import {
   LayoutDashboard, Users, GraduationCap, UserCog, ClipboardCheck, Wallet, CreditCard,
   ShieldAlert, FileText, Megaphone, Building2, Bell, Search, LogOut, ChevronDown, Menu as MenuIcon,
-  CalendarCheck, BookOpen, BookMarked, Bus, CalendarDays, MessageSquare, Award
+  CalendarCheck, BookOpen, BookMarked, Bus, CalendarDays, MessageSquare, Award, CheckCheck
 } from 'lucide-react'
-
 const NAV=[
   { to:'/app', label:'Tableau de bord', icon:LayoutDashboard, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
   { to:'/app/schools', label:'Écoles', icon:Building2, roles:['owner'] },
@@ -31,7 +31,6 @@ const NAV=[
   { to:'/app/messages', label:'Messages', icon:MessageSquare, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
   { to:'/app/notices', label:'Annonces', icon:Megaphone, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
 ]
-
 export default function AppShell({ children }){
   const u=current(); const loc=useLocation(); const nav=useNavigate(); const [open,setOpen]=useState(false)
   useEffect(()=>{ if(u) applyAccent(u.role) },[u])
@@ -40,12 +39,12 @@ export default function AppShell({ children }){
   return (
     <div className="min-h-screen flex">
       <aside className={`fixed lg:static z-40 inset-y-0 left-0 w-64 bg-white border-r border-line p-4 flex flex-col transition-transform ${open?'translate-x-0':'-translate-x-full lg:translate-x-0'}`}>
-        <div className="flex items-center gap-2 px-2 mb-5"><span className="w-9 h-9 rounded-xl grid place-items-center text-white font-extrabold accent-bg">K</span><div className="font-extrabold">Coreon <span className="accent-text">Edu</span></div></div>
+        <div className="flex items-center gap-2 px-2 mb-5"><Mark size={30}/><div className="font-extrabold lowercase tracking-tight">kogia <span className="accent-text font-normal text-sm">edu</span></div></div>
         <nav className="flex-1 space-y-1 overflow-y-auto scroll-thin -mr-2 pr-2">
           {items.map(n=>{ const active=loc.pathname===n.to; return (
             <Link key={n.to} to={n.to} onClick={()=>setOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${active?'accent-soft accent-text':'text-muted hover:bg-canvas'}`}><n.icon size={18}/> {n.label}</Link>) })}
         </nav>
-        <div className="rounded-2xl p-4 text-white text-sm mt-3" style={{background:`linear-gradient(135deg,${role.color},#1E2433)`}}><div className="font-bold">{role.label}</div><div className="opacity-80 text-xs mt-1">Al-Noor School</div></div>
+        <div className="rounded-2xl p-4 text-white text-sm mt-3" style={{background:`linear-gradient(135deg,${role.color},#10162B)`}}><div className="font-bold">{role.label}</div><div className="opacity-80 text-xs mt-1">École Al-Nour · Tunis</div></div>
       </aside>
       <div className="flex-1 min-w-0">
         <header className="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-line">
@@ -61,26 +60,23 @@ export default function AppShell({ children }){
     </div>
   )
 }
-
 function BellMenu({ user }){
-  const nav=useNavigate(); const unread=unreadFor(user); const list=inboxFor(user).slice(0,6)
+  const nav=useNavigate(); const [,force]=useState(0); const unread=unreadFor(user); const list=inboxFor(user).slice(0,7)
   const openN=n=>{ markRead(n.id); nav(n.link||'/app/notifications') }
   return (
     <Menu as="div" className="relative">
       <Menu.Button className="relative w-10 h-10 grid place-items-center rounded-xl hover:bg-canvas">
         <Bell size={19} className="text-muted"/>
-        {unread>0&&<span className="absolute top-1.5 right-1.5 min-w-4 h-4 px-1 grid place-items-center text-[10px] font-bold text-white rounded-full" style={{background:'#FF6B81'}}>{unread}</span>}
+        {unread>0&&<span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 grid place-items-center text-[10px] font-bold text-white rounded-full" style={{background:'#FF3B5C'}}>{unread}</span>}
       </Menu.Button>
-      <Menu.Items className="absolute right-0 mt-2 w-80 card p-2 shadow-xl z-50 focus:outline-none">
-        <div className="px-2 py-1.5 text-xs font-bold text-muted flex justify-between"><span>Notifications</span>{unread>0&&<span className="accent-text">{unread} nouv.</span>}</div>
-        {list.length? list.map(n=>(
-          <Menu.Item key={n.id}>{()=>(
-            <button onClick={()=>openN(n)} className={`w-full text-left px-3 py-2 rounded-xl ${!n.read?'accent-soft':''}`}>
-              <div className="text-sm font-semibold">{n.title}</div><div className="text-xs text-muted truncate">{n.body}</div>
-              <div className="text-[10px] text-muted mt-0.5">{formatDistanceToNow(n.at,{addSuffix:true})}{n.link&&' · open →'}</div>
-            </button>)}</Menu.Item>
-        )) : <div className="px-3 py-6 text-center text-sm text-muted">Aucune notification</div>}
-        <Menu.Item>{()=> <button onClick={()=>nav('/app/notifications')} className="w-full text-center text-sm font-semibold accent-text py-2 mt-1 border-t border-line">Voir toutes les notifications</button>}</Menu.Item>
+      <Menu.Items className="absolute right-0 mt-2 w-[360px] max-w-[92vw] card p-0 shadow-2xl z-50 focus:outline-none overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-line"><span className="font-bold">Notifications</span>
+          {unread>0&&<button onClick={()=>{markAllRead(user);force(x=>x+1)}} className="text-xs font-semibold accent-text flex items-center gap-1"><CheckCheck size={13}/> Tout lire</button>}</div>
+        <div className="max-h-[60vh] overflow-y-auto scroll-thin p-2">
+          {list.length? list.map(n=><Menu.Item key={n.id}>{()=> <NotifRow n={n} compact onClick={()=>openN(n)}/>}</Menu.Item>)
+           : <div className="px-3 py-8 text-center text-sm text-muted">Aucune notification</div>}
+        </div>
+        <Menu.Item>{()=> <button onClick={()=>nav('/app/notifications')} className="w-full text-center text-sm font-semibold accent-text py-3 border-t border-line">Voir toutes les notifications</button>}</Menu.Item>
       </Menu.Items>
     </Menu>
   )

@@ -12,7 +12,7 @@ export default function Login(){
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       <div className="hidden lg:flex flex-col justify-between p-12 text-white" style={{background:'linear-gradient(150deg,#6C5CE7,#36C5F0)'}}>
-        <div className="flex items-center gap-2 font-extrabold text-lg"><span className="w-9 h-9 rounded-xl grid place-items-center bg-white/20">K</span> Coreon Edu</div>
+        <div className="flex items-center gap-2 font-extrabold text-lg"><span className="w-9 h-9 rounded-xl grid place-items-center bg-white/20" style={{padding:4}}><svg viewBox="0 0 68 72" width="22" height="22"><path d="M34 62 C31 52 28 47 22 43 C15 38 10 31 7 22 C18 27 28 33 31 41 L34 46 L37 41 C40 33 50 27 61 22 C58 31 53 38 46 43 C40 47 37 52 34 62 Z" fill="white"/></svg></span> kogia edu</div>
         <div><div className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1 rounded-full bg-white/15 mb-4"><Zap size={13}/> La gestion scolaire, simplifiée</div>
           <h1 className="text-4xl font-extrabold leading-tight max-w-[16ch]">Gérez toute votre école depuis un seul endroit.</h1>
           <p className="mt-4 text-white/80 max-w-[42ch]">Évaluations, frais, présence, incidents, annonces et communication avec les parents — une seule plateforme.</p></div>
