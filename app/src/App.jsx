@@ -14,25 +14,40 @@ import Incidents from './pages/Incidents.jsx'
 import Requests from './pages/Requests.jsx'
 import Notices from './pages/Notices.jsx'
 import Schools from './pages/Schools.jsx'
-
-const Page = ({el}) => current() ? <AppShell>{el}</AppShell> : <Navigate to="/" replace/>
+import Notifications from './pages/Notifications.jsx'
+import Messages from './pages/Messages.jsx'
+import Attendance from './pages/Attendance.jsx'
+import Homework from './pages/Homework.jsx'
+import Library from './pages/Library.jsx'
+import Transport from './pages/Transport.jsx'
+import Events from './pages/Events.jsx'
+import Exams from './pages/Exams.jsx'
+const P=({el})=> current()? <AppShell>{el}</AppShell> : <Navigate to="/" replace/>
 export default function App(){
   return (
     <HashRouter>
       <Toaster position="top-right" toastOptions={{ style:{ borderRadius:'12px', fontSize:'14px' } }}/>
       <Routes>
         <Route path="/" element={<Login/>}/>
-        <Route path="/app" element={<Page el={<Dashboard/>}/>}/>
-        <Route path="/app/students" element={<Page el={<Students/>}/>}/>
-        <Route path="/app/teachers" element={<Page el={<Teachers/>}/>}/>
-        <Route path="/app/accounts" element={<Page el={<Accounts/>}/>}/>
-        <Route path="/app/evaluate" element={<Page el={<Evaluate/>}/>}/>
-        <Route path="/app/finance" element={<Page el={<Finance/>}/>}/>
-        <Route path="/app/payments" element={<Page el={<Payments/>}/>}/>
-        <Route path="/app/incidents" element={<Page el={<Incidents/>}/>}/>
-        <Route path="/app/requests" element={<Page el={<Requests/>}/>}/>
-        <Route path="/app/notices" element={<Page el={<Notices/>}/>}/>
-        <Route path="/app/schools" element={<Page el={<Schools/>}/>}/>
+        <Route path="/app" element={<P el={<Dashboard/>}/>}/>
+        <Route path="/app/students" element={<P el={<Students/>}/>}/>
+        <Route path="/app/teachers" element={<P el={<Teachers/>}/>}/>
+        <Route path="/app/accounts" element={<P el={<Accounts/>}/>}/>
+        <Route path="/app/evaluate" element={<P el={<Evaluate/>}/>}/>
+        <Route path="/app/attendance" element={<P el={<Attendance/>}/>}/>
+        <Route path="/app/homework" element={<P el={<Homework/>}/>}/>
+        <Route path="/app/exams" element={<P el={<Exams/>}/>}/>
+        <Route path="/app/finance" element={<P el={<Finance/>}/>}/>
+        <Route path="/app/payments" element={<P el={<Payments/>}/>}/>
+        <Route path="/app/library" element={<P el={<Library/>}/>}/>
+        <Route path="/app/transport" element={<P el={<Transport/>}/>}/>
+        <Route path="/app/events" element={<P el={<Events/>}/>}/>
+        <Route path="/app/incidents" element={<P el={<Incidents/>}/>}/>
+        <Route path="/app/requests" element={<P el={<Requests/>}/>}/>
+        <Route path="/app/messages" element={<P el={<Messages/>}/>}/>
+        <Route path="/app/notices" element={<P el={<Notices/>}/>}/>
+        <Route path="/app/notifications" element={<P el={<Notifications/>}/>}/>
+        <Route path="/app/schools" element={<P el={<Schools/>}/>}/>
         <Route path="*" element={<Navigate to="/" replace/>}/>
       </Routes>
     </HashRouter>
