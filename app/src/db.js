@@ -1,4 +1,4 @@
-const KEY="coreon_db_v6"
+const KEY="coreon_db_v7"
 const MONTHS=["Sep","Oct","Nov","Déc","Jan","Fév","Mar","Avr","Mai","Juin"]
 export const FEE_MONTHS=MONTHS
 // Tout le système tunisien
@@ -57,7 +57,7 @@ function seed(){
     {id:"inc1",at:Date.now()-86400000,by:"Dali Brahmi",studentId:"s4",type:"Santé",title:"Élève malade",body:"Karim avait mal à la tête; envoyé à l'infirmerie.",severity:"medium",status:"open"},
     {id:"inc2",at:Date.now()-3*86400000,by:"Dali Brahmi",studentId:"s8",type:"Comportement",title:"Bagarre dans la cour",body:"Petite altercation réglée; parents informés.",severity:"high",status:"resolved"},
   ]
-  const requests=[{id:"req1",at:Date.now()-3600000,by:"t1",byName:"Othman Ounis",type:"Attestation de salaire",note:"Pour une demande de crédit bancaire.",chain:["admin","schooladmin"],currentLevel:0,approvals:[],status:"pending"}]
+  const requests=[{id:"req1",at:Date.now()-3600000,by:"t1",byName:"Othman Ounis",type:"Attestation de salaire",fields:{addressedTo:"Banque BIAT",purpose:"demande de crédit",copies:2},chain:["admin","schooladmin"],currentLevel:0,approvals:[],status:"pending"}]
   const books=[{id:"b1",title:"Mathématiques 5ème",author:"R. Khaldi",copies:6,available:4,category:"Mathématiques"},{id:"b2",title:"Éveil scientifique 5",author:"M. Saïd",copies:5,available:5,category:"Sciences"},{id:"b3",title:"Lectures Françaises",author:"L. Bruni",copies:4,available:2,category:"Français"},{id:"b4",title:"القراءة العربية",author:"أحمد",copies:8,available:7,category:"Arabe"},{id:"b5",title:"Atlas Géographique",author:"Collectif",copies:3,available:3,category:"Géographie"}]
   const routes=[{id:"r1",name:"Circuit A · Nord",driver:"Sami",bus:"TUN-1023",stops:["La Marsa","Carthage","Sidi Bou Saïd"],students:6},{id:"r2",name:"Circuit B · Sud",driver:"Foued",bus:"TUN-2087",stops:["Radès","Ezzahra","Hammam Lif"],students:4}]
   const homework=[{id:"hw1",at:Date.now()-7200000,by:"t1",classId:"c5a",subject:"Mathématiques",title:"Exercices 3.1 à 3.4",due:"2026-06-28",details:"Résoudre tous les problèmes."},{id:"hw2",at:Date.now()-90000000,by:"t2",classId:"c5a",subject:"Éveil scientifique",title:"Schéma de la cellule",due:"2026-06-27",details:"Dessiner + légender."}]
