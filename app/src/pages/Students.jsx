@@ -6,6 +6,7 @@ import { studentColor } from '../data.js'
 import { GOVERNORATES, DOC_TYPES, LEGAL, idLabelFor } from '../tunisia.js'
 import Attach from '../components/Attach.jsx'
 import Bulletin from '../components/Bulletin.jsx'
+import GradeHistory from '../components/GradeHistory.jsx'
 import { UserPlus, Eye, Droplet, Search, ShieldCheck, FileText } from 'lucide-react'
 import toast from 'react-hot-toast'
 const BLANK={name:'',gender:'Garçon',dob:'',bloodGroup:'O+',nationality:'Tunisienne',grade:'5ème année',section:'A',rollNo:'',admissionDate:'',prevSchool:'',fatherName:'',motherName:'',guardianPhone:'',parentId:'',address:'',phone:'',email:'',medical:'Aucune',allergies:'Aucune',emergencyName:'',emergencyPhone:'',cin:'',governorate:'Tunis',attachments:[],consent:false}
@@ -81,7 +82,8 @@ export default function Students(){
     </Modal>
     <Modal open={!!view} onClose={()=>setView(null)} title="Fiche élève" size="xl">
       {view&&(<div><div className="flex items-center gap-4 mb-5"><Avatar name={view.name} color={studentColor(view.id)} size={56}/><div className="flex-1"><div className="text-xl font-extrabold">{view.name}</div><div className="text-muted text-sm">{classById(view.classId)?.name} · N° {view.rollNo} · {view.gender}</div></div><Btn variant="soft" onClick={()=>{const v=view;setView(null);setBulletin(v)}}><FileText size={15}/> Bulletin</Btn></div>
-        <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">{[['Naissance',view.dob],['Groupe sanguin',view.bloodGroup],['Nationalité',view.nationality],['Inscription',view.admissionDate],['École préc.',view.prevSchool],['Père',view.fatherName],['Mère',view.motherName],['Tél. tuteur',view.guardianPhone],['Compte parent',userById(view.parentId)?.name||'—'],['Adresse',view.address],['Téléphone',view.phone],['E-mail',view.email||'—'],['Médical',view.medical],['Allergies',view.allergies],['CIN/Acte',view.cin],['Gouvernorat',view.governorate],['Urgence',`${view.emergencyName} · ${view.emergencyPhone}`]].map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium text-right">{v||'—'}</span></div>)}</div></div>)}
+        <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">{[['Naissance',view.dob],['Groupe sanguin',view.bloodGroup],['Nationalité',view.nationality],['Inscription',view.admissionDate],['École préc.',view.prevSchool],['Père',view.fatherName],['Mère',view.motherName],['Tél. tuteur',view.guardianPhone],['Compte parent',userById(view.parentId)?.name||'—'],['Adresse',view.address],['Téléphone',view.phone],['E-mail',view.email||'—'],['Médical',view.medical],['Allergies',view.allergies],['CIN/Acte',view.cin],['Gouvernorat',view.governorate],['Urgence',`${view.emergencyName} · ${view.emergencyPhone}`]].map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium text-right">{v||'—'}</span></div>)}</div>
+        <div className="mt-6 pt-5 border-t border-line"><GradeHistory studentId={view.id}/></div></div>)}
     </Modal>
     <Bulletin student={bulletin} onClose={()=>setBulletin(null)}/>
   </>)

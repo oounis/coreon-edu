@@ -11,9 +11,16 @@ const FR={present:'Présent',absent:'Absent',late:'Retard'}
 export default function Attendance(){
   const cls=currentClass(new Date()); const today=new Date().toISOString().slice(0,10); const key=cls.cls.id+'_'+today
   const [marks,setMarks]=useState(()=> db().attendance[key] || Object.fromEntries(cls.students.map(s=>[s.id,'present'])))
+  const [tick,setTick]=useState(0)
   const counts=Object.values(marks).reduce((a,v)=>{a[v]++;return a},{present:0,absent:0,late:0})
+  // historique des appels déjà enregistrés pour cette classe
+  const history=Object.keys(db().attendance||{}).filter(k=>k.startsWith(cls.cls.id+'_')).map(k=>{
+    const m=db().attendance[k]; const c={present:0,absent:0,late:0}; Object.values(m).forEach(v=>c[v]!=null&&c[v]++)
+    return {date:k.split('_').slice(1).join('_'),...c}
+  }).sort((a,b)=>b.date.localeCompare(a.date))
   const save=()=>{
     mutate(db=>{db.attendance[key]=marks})
+    setTick(x=>x+1)
     // reflect to admin + each absent/late parent
     const flagged=cls.students.filter(s=>marks[s.id]!=='present')
     notify({role:'admin',kind:'info',title:`Appel — ${cls.cls.name}`,body:`${counts.present} présents · ${counts.absent} absents · ${counts.late} retards (${cls.slot.subject})`,link:'/app/attendance'})
@@ -29,5 +36,11 @@ export default function Attendance(){
         <Avatar name={s.name} color={studentColor(s.id)} size={32}/><span className="flex-1 text-left text-sm font-medium">{s.name}</span>
         <span className="text-xs font-bold px-2.5 py-1 rounded-full text-white" style={{background:COL[marks[s.id]]}}>{FR[marks[s.id]]}</span></button>))}
     </div><p className="text-xs text-muted mt-2 px-1">Touchez un élève pour changer : présent → absent → retard. La direction et les parents concernés sont notifiés à l'enregistrement.</p></Card>
+    <Card className="p-4 mt-4"><h3 className="font-bold mb-2 text-sm">Appels enregistrés · {cls.cls.name}</h3>
+      {history.length? <div className="space-y-1.5">{history.map(h=>(<div key={h.date} className="flex items-center justify-between text-sm border-b border-line pb-1.5 last:border-0">
+        <span className="text-muted">{h.date}</span>
+        <span className="flex gap-3"><b style={{color:COL.present}}>{h.present}</b> présents · <b style={{color:COL.absent}}>{h.absent}</b> absents · <b style={{color:COL.late}}>{h.late}</b> retards</span></div>))}</div>
+       : <p className="text-sm text-muted">Aucun appel enregistré pour cette classe.</p>}
+    </Card>
   </>)
 }

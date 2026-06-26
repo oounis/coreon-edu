@@ -42,7 +42,12 @@ export default function Dashboard(){
             <div className="h-44"><ResponsiveContainer width="100%" height="100%"><BarChart data={distData} layout="vertical" margin={{left:8}}><XAxis type="number" hide/><YAxis type="category" dataKey="name" tick={{fontSize:12,fill:'#8A93A6'}} width={78} axisLine={false} tickLine={false}/><Tooltip {...chartTip}/><Bar dataKey="value" radius={[0,6,6,0]}>{distData.map((p,i)=><Cell key={i} fill={p.color}/>)}</Bar></BarChart></ResponsiveContainer></div>
           </> : <div className="h-44 grid place-items-center text-sm text-muted">Aucune évaluation pour cette classe.</div>}
         </Card>
-      </div></>)
+      </div>
+      <Card className="p-5 mt-4"><div className="flex items-center justify-between mb-3"><h3 className="font-bold flex items-center gap-1.5"><ClipboardCheck size={16}/> Mes évaluations enregistrées</h3><span className="text-xs text-muted">{d.evaluations.length} au total</span></div>
+        {d.evaluations.length? <div className="space-y-2">{d.evaluations.slice(0,6).map(ev=>{ const studs=d.students.filter(s=>s.classId===ev.classId); const scores=studs.map(s=>studentSummary(ev,s.id).score).filter(x=>x!=null); const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):null; const m=mentionFor(avg)
+          return (<div key={ev.id} className="flex items-center justify-between text-sm border-b border-line pb-2 last:border-0"><div><span className="font-medium">{ev.className} · {ev.subject}</span><span className="text-xs text-muted ml-2">{new Date(ev.at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</span></div><div className="text-right"><span className="text-muted text-xs mr-2">{scores.length} notés</span><span className="font-bold" style={{color:m.color}}>{avg!=null?`${avg}/100`:'—'}</span></div></div>) })}</div>
+         : <div className="text-sm text-muted py-3 text-center">Vos évaluations enregistrées apparaîtront ici.</div>}
+      </Card></>)
   }
 
   if(u.role==='parent') return <ParentDashboard u={u} d={d} greet={greet}/>
@@ -127,7 +132,13 @@ export default function Dashboard(){
           {d.events.length===0 && <div className="text-sm text-muted py-4 text-center">Aucun événement.</div>}
         </div>
       </Card>
-    </div></>)
+    </div>
+    <Card className="p-5 mt-4"><div className="flex items-center justify-between mb-3"><h3 className="font-bold flex items-center gap-1.5"><ClipboardCheck size={16}/> Évaluations enregistrées</h3><span className="text-xs text-muted">{d.evaluations.length} au total</span></div>
+      {d.evaluations.length? <div className="overflow-x-auto scroll-thin"><table className="w-full text-sm"><thead><tr className="text-left text-[11px] uppercase text-muted"><th className="px-2 py-2">Date</th><th className="px-2 py-2">Classe</th><th className="px-2 py-2">Matière</th><th className="px-2 py-2">Enseignant</th><th className="px-2 py-2 text-center">Élèves notés</th><th className="px-2 py-2 text-center">Moyenne</th></tr></thead>
+        <tbody className="divide-y divide-line">{d.evaluations.slice(0,8).map(ev=>{ const cls=d.classes.find(c=>c.id===ev.classId); const studs=d.students.filter(s=>s.classId===ev.classId); const scores=studs.map(s=>studentSummary(ev,s.id).score).filter(x=>x!=null); const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):null; const m=mentionFor(avg)
+        return (<tr key={ev.id}><td className="px-2 py-2 text-muted whitespace-nowrap">{new Date(ev.at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})}</td><td className="px-2 py-2 font-medium">{ev.className||cls?.name}</td><td className="px-2 py-2">{ev.subject}</td><td className="px-2 py-2 text-muted">{ev.teacher}</td><td className="px-2 py-2 text-center">{scores.length}</td><td className="px-2 py-2 text-center font-bold" style={{color:m.color}}>{avg!=null?`${avg}/100`:'—'}</td></tr>) })}</tbody></table></div>
+       : <div className="text-sm text-muted py-4 text-center">Aucune évaluation enregistrée pour le moment.</div>}
+    </Card></>)
 }
 
 function ParentDashboard({u,d,greet}){

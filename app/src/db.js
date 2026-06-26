@@ -1,4 +1,4 @@
-const KEY="coreon_db_v7"
+const KEY="coreon_db_v8"
 const MONTHS=["Sep","Oct","Nov","Déc","Jan","Fév","Mar","Avr","Mai","Juin"]
 export const FEE_MONTHS=MONTHS
 // Tout le système tunisien
@@ -52,7 +52,13 @@ function seed(){
   // pre-seeded evaluation for 5ème A so dashboards/parents are not empty
   const c5=students.filter(s=>s.classId==="c5a"); const Bk=["excellent","good","average","weak"]
   const placements={}; ["q1","q2","q3","q4","q5"].forEach((q,qi)=>{placements[q]={}; c5.forEach((s,si)=>{placements[q][s.id]=Bk[(si+qi)%4]})})
-  const evaluations=[{id:"ev_seed",at:Date.now()-3600000,classId:"c5a",className:"5ème A",subject:"Mathématiques",teacher:"Othman Ounis",placements,badges:{s1:"star",s3:"improved"},note:"Bonne séance, classe attentive."}]
+  // deuxième évaluation (matière différente) pour prouver l'accumulation de l'historique
+  const Bk2=["good","excellent","average","good"]
+  const placements2={}; ["q1","q2","q3","q4","q5"].forEach((q,qi)=>{placements2[q]={}; c5.forEach((s,si)=>{placements2[q][s.id]=Bk2[(si+qi+1)%4]})})
+  const evaluations=[
+    {id:"ev_seed2",at:Date.now()-1800000,classId:"c5a",className:"5ème A",subject:"Éveil scientifique",teacher:"Hela Morjane",placements:placements2,badges:{s2:"idea"},note:"Très bonne participation à l'expérience."},
+    {id:"ev_seed",at:Date.now()-90000000,classId:"c5a",className:"5ème A",subject:"Mathématiques",teacher:"Othman Ounis",placements,badges:{s1:"star",s3:"improved"},note:"Bonne séance, classe attentive."},
+  ]
   const incidents=[
     {id:"inc1",at:Date.now()-86400000,by:"Dali Brahmi",studentId:"s4",type:"Santé",title:"Élève malade",body:"Karim avait mal à la tête; envoyé à l'infirmerie.",severity:"medium",status:"open"},
     {id:"inc2",at:Date.now()-3*86400000,by:"Dali Brahmi",studentId:"s8",type:"Comportement",title:"Bagarre dans la cour",body:"Petite altercation réglée; parents informés.",severity:"high",status:"resolved"},
@@ -79,7 +85,12 @@ function seed(){
   users.forEach((u,i)=>{u.cin=u.cin||String(10000000+i*1111111).slice(0,8);u.governorate=u.governorate||GV[i%GV.length];u.position=u.position||POS[u.role];u.attachments=u.attachments||[]})
   teachers.forEach((t,i)=>{t.cin=t.cin||String(11000000+i*1234567).slice(0,8);t.governorate=t.governorate||GV[i%GV.length];t.position=t.position||t.designation||"Professeur";t.attachments=t.attachments||[{name:"CIN_recto.pdf",type:"Copie CIN"},{name:"Diplome.pdf",type:"Diplôme(s)"}]})
   students.forEach((st,i)=>{st.cin=st.cin||("ACTE-"+(20150100+i));st.governorate=st.governorate||GV[i%GV.length];st.attachments=st.attachments||(i<2?[{name:"extrait_naissance.pdf",type:"Extrait de naissance"}]:[])})
-  return {classes,students,teachers,users,payments,evaluations,incidents,requests,books,routes,homework,events,exams,messages,attendance:{},notifications}
+  // relevés de présence de démo (deux jours) pour la 5ème A — historique non vide
+  const dstr=off=>new Date(Date.now()-off*86400000).toISOString().slice(0,10)
+  const att1={}; c5.forEach((s,i)=>att1[s.id]= i===3?'absent': i===6?'late':'present')
+  const att2={}; c5.forEach((s,i)=>att2[s.id]= i===5?'late':'present')
+  const attendance={["c5a_"+dstr(1)]:att1,["c5a_"+dstr(2)]:att2}
+  return {classes,students,teachers,users,payments,evaluations,incidents,requests,books,routes,homework,events,exams,messages,attendance,notifications}
 }
 export function db(){let d=null;try{d=JSON.parse(localStorage.getItem(KEY))}catch{};if(!d){d=seed();localStorage.setItem(KEY,JSON.stringify(d))}return d}
 export function save(d){localStorage.setItem(KEY,JSON.stringify(d))}

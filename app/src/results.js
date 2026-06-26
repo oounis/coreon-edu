@@ -14,6 +14,18 @@ export function studentSummary(ev, sid){
 }
 export const studentName=id=>(studentById(id)||{}).name||id
 
+// Historique complet des évaluations enregistrées pour un élève (les plus récentes d'abord)
+export function evaluationHistory(allEvals, sid){
+  return (allEvals||[])
+    .filter(e=>Object.values(e.placements||{}).some(p=>p && p[sid]!=null))
+    .map(e=>{ const sum=studentSummary(e,sid); return {
+      id:e.id, at:e.at, subject:e.subject, className:e.className, teacher:e.teacher,
+      note:e.note, score:sum.score, badge:sum.badge, perQ:sum.perQ, mention:mentionFor(sum.score),
+    } })
+    .filter(x=>x.score!=null)
+    .sort((a,b)=>b.at-a.at)
+}
+
 // Mention textuelle selon la moyenne /100 (système tunisien simplifié)
 export function mentionFor(score){
   if(score==null) return {label:'—',color:'#8A93A6'}

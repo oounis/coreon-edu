@@ -6,7 +6,9 @@ import { PageHead, Btn } from '../components/ui.jsx'
 import { currentClass, QUESTIONS, BUCKETS, BADGES } from '../data.js'
 import { db, mutate, uid, studentById } from '../db.js'
 import { notify } from '../notify.js'
-import { studentSummary } from '../results.js'
+import { studentSummary, mentionFor } from '../results.js'
+import { format } from 'date-fns'
+import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'
 
 export default function Evaluate(){
@@ -24,20 +26,55 @@ export default function Evaluate(){
     setPlacements(prev=>{ const cur={...(prev[q.id]||{})}; if(over.id==='pool')delete cur[sid]; else cur[sid]=over.id; return {...prev,[q.id]:cur} }) }
   const autoFill=b=>setPlacements(prev=>{ const cur={...(prev[q.id]||{})}; pool.forEach(s=>cur[s.id]=b); return {...prev,[q.id]:cur} })
 
+  const [saved,setSaved]=useState([])
   function submit(){
-    const ev={ id:uid('ev'), at:Date.now(), classId:cls.cls.id, className:cls.cls.name, subject:cls.slot.subject, teacher:'Othman Ounis', placements, badges, note }
+    // ne garder que les questions réellement remplies, mais conserver TOUTES celles touchées
+    const cleanPlacements={}
+    for(const qid in placements){ const p=placements[qid]; if(p && Object.keys(p).length) cleanPlacements[qid]=p }
+    const graded=students.filter(s=>studentSummary({placements:cleanPlacements},s.id).score!=null)
+    if(graded.length===0){ toast.error("Placez au moins un élève sur une réponse avant d'enregistrer."); return }
+    const ev={ id:uid('ev'), at:Date.now(), classId:cls.cls.id, className:cls.cls.name, subject:cls.slot.subject, teacher:'Othman Ounis', placements:cleanPlacements, badges, note }
     mutate(db=>{ db.evaluations.unshift(ev) })
     // notify each student's parent
-    students.forEach(s=>{ if(s.parentId){ const sum=studentSummary(ev,s.id); if(sum.score!=null) notify({to:s.parentId,kind:'evaluation',title:`Nouvelle évaluation pour ${s.name.split(' ')[0]}`,body:`${cls.slot.subject} : ${sum.score}/100${sum.badge?` · ${sum.badge.emoji} ${sum.badge.label}`:''}`}) } })
-    toast.success('Évaluation enregistrée · parents notifiés'); setStep(6)
+    students.forEach(s=>{ if(s.parentId){ const sum=studentSummary(ev,s.id); if(sum.score!=null) notify({to:s.parentId,kind:'evaluation',title:`Nouvelle évaluation pour ${s.name.split(' ')[0]}`,body:`${cls.slot.subject} : ${sum.score}/100${sum.badge?` · ${sum.badge.emoji} ${sum.badge.label}`:''}`,link:'/app'}) } })
+    // notify admin + direction so the evaluation is visible to administration too
+    notify({role:'admin',kind:'evaluation',actor:'Othman Ounis',title:`Évaluation enregistrée — ${cls.cls.name}`,body:`${cls.slot.subject} · ${graded.length} élèves notés`,link:'/app/students'})
+    notify({role:'schooladmin',kind:'evaluation',actor:'Othman Ounis',title:`Évaluation enregistrée — ${cls.cls.name}`,body:`${cls.slot.subject} · ${graded.length} élèves notés`,link:'/app/students'})
+    // recap of this saved evaluation for the success screen
+    setSaved(graded.map(s=>{const sum=studentSummary(ev,s.id);return {name:s.name,...sum,mention:mentionFor(sum.score)}}))
+    toast.success(`Évaluation enregistrée · ${graded.length} élèves notés · parents notifiés`); setStep(6)
   }
+  // historique des évaluations déjà enregistrées pour cette classe (preuve de persistance)
+  const classHistory=useMemo(()=>db().evaluations.filter(e=>e.classId===cls.cls.id),[step])
 
   if(step===6) return (
-    <div className="max-w-[600px] mx-auto text-center pt-10">
-      <div className="w-16 h-16 rounded-full grid place-items-center text-white mx-auto accent-bg pop"><Check size={30}/></div>
-      <h1 className="text-2xl font-extrabold mt-4">Enregistré & partagé 🎉</h1>
-      <p className="text-muted mt-1">{cls.cls.name} · {cls.slot.subject} — {students.length} élèves en une passe. Parents notifiés.</p>
-      <Btn className="mt-6" onClick={()=>{setStep(0);setPlacements({});setBadges({});setNote("")}}>Nouvelle évaluation</Btn>
+    <div className="max-w-[640px] mx-auto pt-8">
+      <div className="text-center">
+        <div className="w-16 h-16 rounded-full grid place-items-center text-white mx-auto accent-bg pop"><Check size={30}/></div>
+        <h1 className="text-2xl font-extrabold mt-4">Enregistré & partagé 🎉</h1>
+        <p className="text-muted mt-1">{cls.cls.name} · {cls.slot.subject} — {saved.length} élèves notés. Parents et direction notifiés.</p>
+      </div>
+      {saved.length>0 && (
+        <div className="card p-4 mt-6 text-left">
+          <div className="text-xs font-bold uppercase accent-text mb-2">Notes enregistrées</div>
+          <div className="divide-y divide-line">
+            {saved.map((s,i)=>(<div key={i} className="flex items-center justify-between py-2 text-sm">
+              <span className="font-medium">{s.name} {s.badge&&<span className="ml-1">{s.badge.emoji}</span>}</span>
+              <span className="font-bold" style={{color:s.mention?.color}}>{s.score}/100</span>
+            </div>))}
+          </div>
+        </div>
+      )}
+      <div className="card p-4 mt-4 text-left">
+        <div className="text-xs font-bold uppercase text-muted mb-2">Historique de la classe · {classHistory.length} évaluation(s) enregistrée(s)</div>
+        <div className="space-y-1.5">
+          {classHistory.slice(0,6).map(e=>(<div key={e.id} className="flex items-center justify-between text-sm">
+            <span>{e.subject}</span>
+            <span className="text-muted text-xs">{format(new Date(e.at),'dd MMM yyyy · HH:mm',{locale:fr})}</span>
+          </div>))}
+        </div>
+      </div>
+      <div className="text-center"><Btn className="mt-6" onClick={()=>{setStep(0);setPlacements({});setBadges({});setNote("");setSaved([])}}>Nouvelle évaluation</Btn></div>
     </div>)
 
   return (<>
