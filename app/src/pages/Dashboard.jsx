@@ -125,7 +125,7 @@ export default function Dashboard(){
       </Card>
       <Card className="p-5"><h3 className="font-bold mb-3">Prochains événements</h3>
         <div className="space-y-2.5">
-          {d.events.slice(0,4).map(e=>(<Link key={e.id} to="/app/events" className="flex items-center gap-3 text-sm group">
+          {[...d.events].filter(e=>e.date>=new Date().toISOString().slice(0,10)).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4).map(e=>(<Link key={e.id} to="/app/events" className="flex items-center gap-3 text-sm group">
             <span className="w-10 h-10 rounded-xl grid place-items-center accent-soft accent-text shrink-0"><CalendarCheck size={16}/></span>
             <div className="min-w-0"><div className="font-medium truncate group-hover:accent-text">{e.title}</div><div className="text-xs text-muted">{e.date} · {e.type}</div></div>
           </Link>))}
