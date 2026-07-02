@@ -30,17 +30,22 @@ export default function Accounts(){
   const isStaff=['teacher','admin','supervisor'].includes(f.role)
   return (<>
     <PageHead title="Comptes & personnel" sub="Créez les accès et les profils (avec pièces jointes)." action={<Btn onClick={()=>{setF(BLANK);setOpen(true)}}><UserPlus size={16}/> Créer un compte</Btn>}/>
-    <Table head={['Utilisateur','Rôle / Fonction','CIN','Gouvernorat','Pièces','']}>
-      {d.users.filter(u=>u.role!=='owner').map(u=>(
-        <tr key={u.id} className="hover:bg-canvas">
-          <td className="px-4 py-3"><div className="flex items-center gap-3"><Avatar name={u.name} color={ROLE[u.role]?.color||studentColor(u.id)}/><div><div className="font-medium">{u.name}</div><div className="text-xs text-muted">{u.email}</div></div></div></td>
-          <td className="px-4 py-3"><span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{background:ROLE[u.role]?.soft,color:ROLE[u.role]?.color}}>{ROLE[u.role]?.label}</span>{u.position&&<div className="text-xs text-muted mt-1">{u.position}</div>}</td>
-          <td className="px-4 py-3 text-muted">{u.cin||'—'}</td><td className="px-4 py-3 text-muted">{u.governorate||'—'}</td>
-          <td className="px-4 py-3 text-muted">{(u.attachments||[]).length} 📎</td>
-          <td className="px-4 py-3"><button onClick={()=>setView(u)} className="text-muted hover:accent-text"><Eye size={17}/></button></td>
-        </tr>
-      ))}
-    </Table>
+    <div className="space-y-6">
+      {['schooladmin','admin','teacher','supervisor','parent'].filter(r=>d.users.some(u=>u.role===r)).map(r=>{const R=ROLE[r];const us=d.users.filter(u=>u.role===r);return(
+        <div key={r}>
+          <div className="flex items-center gap-2 mb-3"><span className="w-2.5 h-2.5 rounded-full" style={{background:R.color}}/><h2 className="font-bold">{R.label}</h2><span className="text-xs text-muted">· {us.length} compte(s)</span></div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {us.map(u=>(
+              <button key={u.id} onClick={()=>setView(u)} className="card p-4 flex items-center gap-3 text-left hover:shadow-lg hover:-translate-y-0.5 transition w-full">
+                <Avatar name={u.name} color={R.color} size={44}/>
+                <div className="min-w-0 flex-1"><div className="font-semibold truncate">{u.name}</div><div className="text-xs text-muted truncate">{u.position||u.occupation||u.email}</div></div>
+                {(u.attachments||[]).length>0&&<span className="text-[11px] text-muted shrink-0">{u.attachments.length}📎</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+      )})}
+    </div>
     <Modal open={open} onClose={()=>setOpen(false)} title="Créer un compte / profil" size="2xl" footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={create}>Créer le compte</Btn></>}>
       <Section title="Compte">
         <Field label="Rôle"><Select value={f.role} onChange={e=>setF({...f,role:e.target.value})}>{['admin','teacher','supervisor','parent'].map(r=><option key={r} value={r}>{ROLE[r].label}</option>)}</Select></Field>
