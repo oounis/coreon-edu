@@ -1,19 +1,18 @@
 import { useState, useMemo, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { current } from '../auth.js'
 import { db, studentById, classById } from '../db.js'
 import { DAYS, PERIODS, timetableFor } from '../data.js'
 import { PageHead, Card, Select } from '../components/ui.jsx'
 import { studentColor } from '../data.js'
 import { Radio, Clock, MapPin, GraduationCap } from 'lucide-react'
-import SchoolMap, { SPOTS } from '../components/SchoolMap.jsx'
 
 const AREAS={
-  class:      {label:'Salle de classe',    color:'#6C5CE7'},
-  infirmerie: {label:'Infirmerie',          color:'#FF6B81'},
-  cour:       {label:'Cour de récréation',  color:'#22C55E'},
-  cantine:    {label:'Cantine',             color:'#F59E0B'},
-  entree:     {label:'Entrée / Sortie',     color:'#8A93A6'},
+  class:      {label:'Salle de classe',    color:'#6C5CE7', scene:'classe'},
+  infirmerie: {label:'Infirmerie',          color:'#FF6B81', scene:'infirmerie'},
+  cour:       {label:'Cour de récréation',  color:'#22C55E', scene:'cour'},
+  cantine:    {label:'Cantine',             color:'#F59E0B', scene:'cantine'},
+  entree:     {label:'Entrée / Sortie',     color:'#8A93A6', scene:'couloir'},
 }
 const toMin=hhmm=>{const[h,m]=hhmm.split(':').map(Number);return h*60+m}
 const fmt=min=>`${String(Math.floor(min/60)).padStart(2,'0')}:${String(min%60).padStart(2,'0')}`
@@ -78,7 +77,9 @@ export default function Live(){
   const sick=useMemo(()=>d.incidents.some(i=>i.studentId===kid?.id&&i.type==='Santé'&&i.status==='open'&&(Date.now()-i.at)<86400000),[d,kid])
   const st=useMemo(()=>kid?statusAt(kid.classId,dayIdx,min,sick):null,[kid,dayIdx,min,sick])
   if(!kid) return <Card className="p-10 text-center text-muted">Aucun enfant associé à ce compte.</Card>
-  const area=AREAS[st.place]; const spot=SPOTS[st.place]
+  const area=AREAS[st.place]
+  const sceneName = st.title==='Étude' ? 'etude' : area.scene
+  const sceneImg=`${import.meta.env.BASE_URL}scenes/${sceneName}.jpg`
   const segLen=Math.max(1,st.seg.end-st.seg.start); const done=Math.min(1,Math.max(0,(min-st.seg.start)/segLen)); const remain=Math.max(0,st.seg.end-min)
   const segs=daySegments(kid.classId,dayIdx)
 
@@ -88,11 +89,35 @@ export default function Live(){
 
     <div className="grid lg:grid-cols-[1fr_340px] gap-5">
       <Card className="p-0 overflow-hidden relative">
-        <div className="absolute top-3 left-3 z-30 flex items-center gap-2 text-xs font-bold px-2.5 py-1.5 rounded-full text-white" style={{background:liveNow?'#FF3B5C':'#8A93A6'}}>
-          <motion.span animate={{opacity:[1,.3,1]}} transition={{repeat:Infinity,duration:1.4}}><Radio size={13}/></motion.span>
-          {liveNow?'EN DIRECT':'Aperçu'} · {fmt(min)}
+        <div className="relative w-full" style={{aspectRatio:'16/9'}}>
+          {/* real room background — crossfades as the child changes room */}
+          <AnimatePresence>
+            <motion.img key={sceneName} src={sceneImg} alt={area.label}
+              initial={{opacity:0,scale:1.05}} animate={{opacity:1,scale:1}} exit={{opacity:0}} transition={{duration:.55}}
+              className="absolute inset-0 w-full h-full object-cover"/>
+          </AnimatePresence>
+          <div className="absolute inset-0 pointer-events-none" style={{background:'linear-gradient(to top, rgba(15,20,35,.35), transparent 42%)'}}/>
+          {/* LIVE badge */}
+          <div className="absolute top-3 left-3 z-30 flex items-center gap-2 text-xs font-bold px-2.5 py-1.5 rounded-full text-white shadow" style={{background:liveNow?'#FF3B5C':'#8A93A6'}}>
+            <motion.span animate={{opacity:[1,.3,1]}} transition={{repeat:Infinity,duration:1.4}}><Radio size={13}/></motion.span>
+            {liveNow?'EN DIRECT':'Aperçu'} · {fmt(min)}
+          </div>
+          {/* child standing in the room — walks in when the room changes */}
+          <AnimatePresence mode="wait">
+            <motion.div key={sceneName} initial={{opacity:0,x:-48}} animate={{opacity:1,x:0}} exit={{opacity:0,x:48}} transition={{type:'spring',stiffness:120,damping:17}}
+              className="absolute z-20 flex flex-col items-center" style={{left:'50%',bottom:'7%',transform:'translateX(-50%)'}}>
+              <div className="relative flex flex-col items-center">
+                <span className="absolute rounded-full" style={{bottom:-6,width:64,height:14,background:'rgba(15,20,35,.28)',filter:'blur(3px)'}}/>
+                <motion.div animate={{y:[0,-4,0]}} transition={{repeat:Infinity,duration:1.3}}><Kid gender={kid.gender} size={132}/></motion.div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+          {/* room caption */}
+          <div className="absolute bottom-3 left-3 z-30 text-white">
+            <div className="text-xs font-bold flex items-center gap-1.5 drop-shadow"><MapPin size={13}/> {area.label}</div>
+            <div className="text-sm font-extrabold drop-shadow">{st.title}<span className="font-medium opacity-90"> · {st.sub}</span></div>
+          </div>
         </div>
-        <SchoolMap area={area} spot={spot} kid={kid} title={st.title} Kid={<Kid gender={kid.gender} size={62}/>}/>
       </Card>
 
       <div className="space-y-5">
