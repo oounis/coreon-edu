@@ -35,6 +35,7 @@ const NAV=[
   { to:'/app/requests', label:'Demandes', icon:FileText, roles:['teacher','admin','schooladmin'] },
   { to:'/app/messages', label:'Messages', icon:MessageSquare, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
   { to:'/app/notices', label:'Annonces', icon:Megaphone, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
+  { to:'/app/magazine', label:'Coin des Histoires', icon:BookOpen, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
   { to:'/app/settings', label:'Paramètres', icon:Settings, roles:['owner','schooladmin'] },
 ]
 export default function AppShell({ children }){
