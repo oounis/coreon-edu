@@ -58,7 +58,7 @@ export default function App(){
         <Route path="/app/teachers" element={R(<Teachers/>, ['schooladmin','admin'])}/>
         <Route path="/app/evaluate" element={R(<Evaluate/>, ['teacher'])}/>
         <Route path="/app/timetable" element={R(<Timetable/>, ['schooladmin','admin','teacher','parent','supervisor'])}/>
-        <Route path="/app/attendance" element={R(<Attendance/>, ['teacher','admin','supervisor'])}/>
+        <Route path="/app/attendance" element={R(<Attendance/>, ['schooladmin','teacher','admin','supervisor'])}/>
         <Route path="/app/homework" element={R(<Homework/>, ['teacher','admin','parent'])}/>
         <Route path="/app/exams" element={R(<Exams/>, ['schooladmin','admin','teacher','parent'])}/>
         <Route path="/app/finance" element={R(<Finance/>, ['schooladmin','admin'])}/>

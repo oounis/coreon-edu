@@ -7,6 +7,7 @@ function open(id){ sessionStorage.setItem(SK,id); sessionStorage.setItem(TK,Stri
 // NOTE (prod): replace this plaintext check with a server call + hashed passwords (bcrypt/argon2).
 export function login(email,pw){
   const u = db().users.find(u=>u.email.toLowerCase()===String(email).trim().toLowerCase() && u.pw===pw)
+  if(u && u.disabled) return {disabled:true}          // account deactivated by Direction
   if(u){ open(u.id); return u } return null
 }
 export function loginAs(id){ open(id); return current() }

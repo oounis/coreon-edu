@@ -7,7 +7,7 @@ import { db } from '../db.js'
 import { Zap } from 'lucide-react'
 export default function Login(){
   const nav=useNavigate(); const [email,setEmail]=useState(''); const [pw,setPw]=useState(''); const [err,setErr]=useState(false)
-  const go=()=>{ const u=login(email,pw); if(u){nav('/app')} else setErr(true) }
+  const go=()=>{ const u=login(email,pw); if(u&&!u.disabled){nav('/app')} else setErr(u&&u.disabled?'Ce compte a été désactivé. Contactez la direction.':'E-mail ou mot de passe incorrect.') }
   const quick=db().users.filter(u=>['schooladmin','admin','teacher','supervisor','parent'].includes(u.role)).filter((u,i,a)=>a.findIndex(x=>x.role===u.role)===i)
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
@@ -26,7 +26,7 @@ export default function Login(){
           <div className="space-y-3">
             <input value={email} onChange={e=>{setEmail(e.target.value);setErr(false)}} placeholder="E-mail" className="w-full rounded-xl border border-line bg-white px-3 py-3 text-sm"/>
             <input type="password" value={pw} onChange={e=>{setPw(e.target.value);setErr(false)}} onKeyDown={e=>e.key==='Enter'&&go()} placeholder="Mot de passe" className="w-full rounded-xl border border-line bg-white px-3 py-3 text-sm"/>
-            {err&&<div className="text-sm text-coral">E-mail ou mot de passe incorrect.</div>}
+            {err&&<div className="text-sm text-coral">{typeof err==='string'?err:'E-mail ou mot de passe incorrect.'}</div>}
             <button onClick={go} className="w-full rounded-xl py-3 font-semibold text-white" style={{background:'#6C5CE7'}}>Se connecter</button>
           </div>
           <div className="mt-6"><div className="text-xs text-muted mb-2">Démo — connexion en un clic :</div>

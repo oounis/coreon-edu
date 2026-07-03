@@ -12,6 +12,7 @@ import {
   CalendarCheck, BookOpen, BookMarked, Bus, CalendarDays, MessageSquare, Award, CheckCheck, CalendarClock, Radio, Settings
 } from 'lucide-react'
 import { settings, db, classById } from '../db.js'
+import { safeLink } from '../access.js'
 const NAV=[
   { to:'/app', label:'Tableau de bord', icon:LayoutDashboard, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
   { to:'/app/live', label:'Suivi en direct', icon:Radio, roles:['parent'] },
@@ -21,7 +22,7 @@ const NAV=[
   { to:'/app/teachers', label:'Enseignants', icon:GraduationCap, roles:['schooladmin','admin'] },
   { to:'/app/evaluate', label:'Évaluer', icon:ClipboardCheck, roles:['teacher'] },
   { to:'/app/timetable', label:'Emploi du temps', icon:CalendarClock, roles:['schooladmin','admin','teacher','parent','supervisor'] },
-  { to:'/app/attendance', label:'Présence', icon:CalendarCheck, roles:['teacher','admin'] },
+  { to:'/app/attendance', label:'Présence', icon:CalendarCheck, roles:['schooladmin','teacher','admin','supervisor'] },
   { to:'/app/homework', label:'Devoirs', icon:BookOpen, roles:['teacher','admin','parent'] },
   { to:'/app/exams', label:'Examens', icon:Award, roles:['schooladmin','admin','teacher','parent'] },
   { to:'/app/finance', label:'Frais & Finances', icon:Wallet, roles:['schooladmin','admin'] },
@@ -90,7 +91,7 @@ function GlobalSearch({ user }){
 }
 function BellMenu({ user }){
   const nav=useNavigate(); const [,force]=useState(0); const unread=unreadFor(user); const list=inboxFor(user).slice(0,7)
-  const openN=n=>{ markRead(n.id); nav(n.link||'/app/notifications') }
+  const openN=n=>{ markRead(n.id); nav(safeLink(user.role, n.link)) }
   return (
     <Menu as="div" className="relative">
       <Menu.Button className="relative w-10 h-10 grid place-items-center rounded-xl hover:bg-canvas">

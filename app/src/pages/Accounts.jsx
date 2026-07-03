@@ -6,7 +6,7 @@ import { STAFF_POSITIONS, GOVERNORATES, docTypesFor, validCIN } from '../tunisia
 import { PageHead, Table, Avatar, Btn, Modal, Field, Input, Select, Section } from '../components/ui.jsx'
 import Attach from '../components/Attach.jsx'
 import { studentColor } from '../data.js'
-import { UserPlus, Eye, ShieldCheck } from 'lucide-react'
+import { UserPlus, Eye, ShieldCheck, KeyRound, Ban, Check } from 'lucide-react'
 import toast from 'react-hot-toast'
 const BLANK={role:'teacher',name:'',email:'',pw:'',cin:'',gender:'Garçon',governorate:'Tunis',position:'Instituteur',phone:'',address:'',occupation:'',subject:'',childIds:[],attachments:[]}
 export default function Accounts(){
@@ -26,6 +26,8 @@ export default function Accounts(){
     notify({to:id,kind:'info',actor:'Direction',title:'compte créé',body:`Bienvenue — rôle ${ROLE[f.role].label}.`,link:'/app'})
     toast.success(`Compte ${ROLE[f.role].label} créé`); setOpen(false); setF(BLANK); force(x=>x+1)
   }
+  const resetPw=(usr)=>{ const tmp=Math.random().toString(36).slice(2,8); mutate(db=>{const x=db.users.find(y=>y.id===usr.id); if(x)x.pw=tmp}); notify({to:usr.id,kind:'info',actor:'Direction',title:'mot de passe réinitialisé',body:'Un nouveau mot de passe temporaire vous a été attribué.'}); toast.success(`Nouveau mot de passe : ${tmp}`); setView({...usr,pw:tmp}); force(x=>x+1) }
+  const toggleActive=(usr)=>{ const now=!usr.disabled; mutate(db=>{const x=db.users.find(y=>y.id===usr.id); if(x)x.disabled=now}); toast.success(now?'Compte désactivé':'Compte réactivé'); setView({...usr,disabled:now}); force(x=>x+1) }
   const toggleChild=sid=>setF(p=>({...p,childIds:p.childIds.includes(sid)?p.childIds.filter(x=>x!==sid):[...p.childIds,sid]}))
   const isStaff=['teacher','admin','supervisor'].includes(f.role)
   return (<>
@@ -36,9 +38,9 @@ export default function Accounts(){
           <div className="flex items-center gap-2 mb-3"><span className="w-2.5 h-2.5 rounded-full" style={{background:R.color}}/><h2 className="font-bold">{R.label}</h2><span className="text-xs text-muted">· {us.length} compte(s)</span></div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {us.map(u=>(
-              <button key={u.id} onClick={()=>setView(u)} className="card p-4 flex items-center gap-3 text-left hover:shadow-lg hover:-translate-y-0.5 transition w-full">
-                <Avatar name={u.name} color={R.color} size={44}/>
-                <div className="min-w-0 flex-1"><div className="font-semibold truncate">{u.name}</div><div className="text-xs text-muted truncate">{u.position||u.occupation||u.email}</div></div>
+              <button key={u.id} onClick={()=>setView(u)} className={`card p-4 flex items-center gap-3 text-left hover:shadow-lg hover:-translate-y-0.5 transition w-full ${u.disabled?'opacity-60':''}`}>
+                <Avatar name={u.name} color={u.disabled?'#B9BFCC':R.color} size={44}/>
+                <div className="min-w-0 flex-1"><div className="font-semibold truncate flex items-center gap-2">{u.name}{u.disabled&&<span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-canvas text-muted">Désactivé</span>}</div><div className="text-xs text-muted truncate">{u.position||u.occupation||u.email}</div></div>
                 {(u.attachments||[]).length>0&&<span className="text-[11px] text-muted shrink-0">{u.attachments.length}📎</span>}
               </button>
             ))}
@@ -74,6 +76,12 @@ export default function Accounts(){
         <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm mb-4">{[['E-mail',view.email],['CIN',view.cin],['Gouvernorat',view.governorate],['Téléphone',view.phone],['Adresse',view.address],['Profession',view.occupation]].filter(x=>x[1]).map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium">{v}</span></div>)}</div>
         <div className="text-xs font-bold uppercase text-muted mb-2">Pièces jointes</div>
         {(view.attachments||[]).length? <div className="space-y-1">{view.attachments.map((a,i)=><div key={i} className="flex justify-between text-sm border border-line rounded-lg px-3 py-1.5"><span className="text-muted">{a.type}</span><span className="font-medium">📎 {a.name}</span></div>)}</div> : <div className="text-sm text-muted">Aucune pièce.</div>}
+        {view.role!=='owner' && <div className="mt-5 pt-4 border-t border-line flex flex-wrap gap-2 items-center">
+          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${view.disabled?'bg-canvas text-muted':''}`} style={view.disabled?{}:{background:'#E2FBF3',color:'#10B981'}}>{view.disabled?'● Désactivé':'● Actif'}</span>
+          <div className="flex-1"/>
+          <Btn variant="ghost" onClick={()=>resetPw(view)}><KeyRound size={15}/> Réinitialiser le mot de passe</Btn>
+          {view.disabled? <Btn onClick={()=>toggleActive(view)}><Check size={15}/> Réactiver</Btn> : <Btn variant="danger" onClick={()=>toggleActive(view)}><Ban size={15}/> Désactiver</Btn>}
+        </div>}
       </div>)}
     </Modal>
   </>)
