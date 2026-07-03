@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { settings, db, classById } from '../db.js'
 import { safeLink } from '../access.js'
+import MeteoCorner from './MeteoCorner.jsx'
 const NAV=[
   { to:'/app', label:'Tableau de bord', icon:LayoutDashboard, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
   { to:'/app/live', label:'Suivi en direct', icon:Radio, roles:['parent'] },
@@ -56,7 +57,7 @@ export default function AppShell({ children }){
           <div className="flex items-center gap-3 px-4 lg:px-6 py-3">
             <button className="lg:hidden text-muted" onClick={()=>setOpen(!open)}><MenuIcon size={20}/></button>
             <GlobalSearch user={u}/>
-            <div className="ml-auto flex items-center gap-2"><BellMenu user={u}/><UserMenu user={u} role={role} onLogout={()=>{logout();nav('/')}}/></div>
+            <div className="ml-auto flex items-center gap-2"><MeteoCorner/><BellMenu user={u}/><UserMenu user={u} role={role} onLogout={()=>{logout();nav('/')}}/></div>
           </div>
         </header>
         <main className="px-4 lg:px-6 py-6 max-w-[1200px] mx-auto">{children}</main>
