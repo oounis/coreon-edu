@@ -6,3 +6,6 @@ dist/
 # source asset bundles (not part of the app)
 /*.zip
 /*.avif
+
+# large source artwork (catalogued in source_assets/README.md)
+source_assets/*.zip
