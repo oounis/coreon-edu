@@ -11,6 +11,9 @@ we always know what each set is. Processed/used images live under `app/public/`.
 | `artist2-watercolor-transparent-104.zip` | 104 | **transparent** | Artist 2 — soft **watercolor characters & props** | **Storybooks** → `app/public/art/*.png` |
 | `artist2-watercolor-whitebg-104.zip` | 104 | white | Same art as above, flattened on white (redundant) | — keep transparent version instead |
 | `artist3-chibi-characters-transparent-44.zip` | 44 | **transparent** | Artist 3 — **chibi character sprites** in pose-sets (hi-res 3200²) | Story heroes (pose-sets: bakers, astronauts, boxers, fairies) |
+| `artist2-watercolor-characters-83.zip` | 83 | **transparent** | Artist 2 — **watercolor people**: emotions, family, hugs, jobs, animals (hi-res 3200²) | **Storybook pages** → `app/public/art/c*.png` (hugs book uses 15,16,29,33,36,48,64,75) |
+| `artist2-watercolor-items-107.zip` | 107 | **transparent** | Artist 2 — **watercolor objects**: food, vehicles, props, nature (hi-res 3200²) | Story props / future books |
+| `cartoon-face-expressions-32.zip` | 32 | **transparent** | Cartoon **face expressions** (happy, sad, surprised, sleepy, love…) | Mascot / avatar emotions (not full page art) |
 | `room-interiors-13.zip` | 13 | — | Room interior scenes | Explored for "Suivi en direct" rooms (not shipped) |
 | `weather-photos.zip` | — | — | Weather photos | Replaced by self-drawn `WeatherIcon.jsx` |
 
