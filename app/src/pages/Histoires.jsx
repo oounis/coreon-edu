@@ -1,74 +1,68 @@
 import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { BOOKS, THEMES, art } from '../books.js'
-import { PageHead } from '../components/ui.jsx'
-import { Mark } from '../components/ui.jsx'
-import { ChevronLeft, ChevronRight, X, Star, BookOpen, Play } from 'lucide-react'
+import { BOOKS, art } from '../books.js'
+import { SceneBg, StarChar } from '../components/Scenes.jsx'
+import { PageHead, Mark } from '../components/ui.jsx'
+import { ChevronLeft, ChevronRight, X, BookOpen, Play } from 'lucide-react'
 
-const STARS=[[8,12],[22,30],[15,68],[30,50],[44,18],[58,40],[70,15],[82,55],[90,30],[76,72],[50,82],[36,88],[64,84],[12,45],[88,80]]
-function Stars(){ return <div className="absolute inset-0 pointer-events-none">
-  {STARS.map(([x,y],i)=><Star key={i} size={i%3?9:13} className="absolute text-white" style={{left:`${x}%`,top:`${y}%`,opacity:i%2?.5:.85,fill:'currentColor'}}/>)}
-</div> }
-
-function Logo({ ink }){ return (
-  <div className="flex items-center gap-1.5 opacity-90"><Mark size={20}/>
+function Logo({ ink='#8A7A63' }){ return (
+  <div className="flex items-center gap-1.5"><Mark size={18}/>
     <span className="font-extrabold lowercase text-sm tracking-tight" style={{color:ink}}>kogia <span className="font-normal opacity-70">edu</span></span></div>
 ) }
 
-function Corners({ color }){ return <>
-  {['left-3 top-3','right-3 top-3','left-3 bottom-3','right-3 bottom-3'].map(p=>
-    <Star key={p} size={12} className={`absolute ${p}`} style={{color,fill:'currentColor'}}/>)}
+function Figures({ figures=[], star }){ return <>
+  {figures.map((f,i)=><img key={i} src={art(f.n)} alt="" className="absolute drop-shadow-2xl"
+    style={{ left:f.x, width:f.w, bottom:f.bottom||'29%', transform:`translateX(-50%) ${f.flip?'scaleX(-1)':''}` }}/>)}
+  {star && <motion.div className="absolute" style={{ left:star.x, ...(star.top?{top:star.top}:{bottom:star.bottom}), transform:'translateX(-50%)' }}
+    animate={{ y:[0,-6,0] }} transition={{ duration:3, repeat:Infinity, ease:'easeInOut' }}>
+    <StarChar size={star.size||56} mood={star.mood}/></motion.div>}
 </> }
 
 function Slide({ slide, book, idx, total }){
-  const t=THEMES[slide.theme]
   return (
-    <div className="relative w-full h-full rounded-[26px] overflow-hidden" style={{background:t.bg}}>
-      {t.stars && <Stars/>}
-      <div className="absolute rounded-[18px] pointer-events-none" style={{inset:14, border:`2px solid ${t.frame}`}}/>
-      <Corners color={t.frame}/>
-      <div className="relative h-full flex flex-col items-center justify-between text-center px-6 py-8 md:px-10 md:py-10">
-        {slide.kind==='cover' && <>
-          <div className="text-[11px] font-bold tracking-[.34em] uppercase" style={{color:t.sub}}>Le Coin des Histoires</div>
-          <div className="flex-1 grid place-items-center py-2">
-            <div>
-              <h1 className="text-3xl md:text-5xl font-extrabold leading-tight" style={{color:t.ink}}>{book.title}</h1>
-              <p className="mt-2 text-sm md:text-base" style={{color:t.sub}}>{book.subtitle}</p>
-              <img src={art(book.cover.art[0])} alt="" className="mx-auto mt-5 max-h-[38vh] drop-shadow-2xl"/>
-            </div>
-          </div>
-          <Logo ink={t.ink}/>
-        </>}
-        {slide.kind==='page' && <>
-          <div className="flex-1 w-full grid place-items-center">
-            <div className="flex items-end justify-center gap-1">
-              {slide.art.map((n,i)=><img key={n} src={art(n)} alt="" className="drop-shadow-2xl" style={{maxHeight:i? '26vh':'42vh'}}/>)}
-            </div>
-          </div>
-          <div className="w-full max-w-2xl rounded-2xl px-6 py-5 shadow-lg" style={{background:t.panel,color:t.ink,backdropFilter:t.stars?'blur(2px)':'none'}}>
-            <p className="text-lg md:text-2xl font-semibold leading-relaxed">{slide.text}</p>
-          </div>
-          <div className="flex items-center justify-between w-full mt-3"><Logo ink={t.ink}/><span className="text-xs font-semibold" style={{color:t.sub}}>{idx} / {total}</span></div>
-        </>}
-        {slide.kind==='end' && <>
-          <div className="flex-1 grid place-items-center"><Star size={64} className="text-white" style={{fill:'currentColor',opacity:.9}}/></div>
-          <div><h2 className="text-4xl font-extrabold" style={{color:t.ink}}>{slide.title}</h2>
-            <p className="mt-2 max-w-md" style={{color:t.sub}}>{slide.text}</p></div>
-          <Logo ink={t.ink}/>
-        </>}
-      </div>
+    <div className="relative w-full h-full rounded-[26px] overflow-hidden bg-[#180F45]">
+      <SceneBg type={slide.scene}/>
+      <div className="absolute inset-0 rounded-[26px] pointer-events-none" style={{boxShadow:'inset 0 0 0 2px rgba(255,255,255,.45), inset 0 0 0 10px rgba(255,255,255,.06)'}}/>
+
+      {slide.kind==='cover' && <>
+        <Figures figures={slide.figures} star={slide.star}/>
+        <div className="absolute inset-x-0 top-0 px-6 pt-7 pb-12 text-center" style={{background:'linear-gradient(to bottom,rgba(18,12,55,.82) 45%,transparent)'}}>
+          <div className="text-[10px] font-bold tracking-[.34em] uppercase text-indigo-200">Le Coin des Histoires</div>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-white mt-2 leading-tight">{book.title}</h1>
+          <p className="text-indigo-200 text-sm mt-1">{book.subtitle}</p>
+        </div>
+        <div className="absolute bottom-4 inset-x-0 flex justify-center"><Logo ink="#fff"/></div>
+      </>}
+
+      {slide.kind==='page' && <>
+        <Figures figures={slide.figures} star={slide.star}/>
+        <div className="absolute inset-x-0 bottom-0 px-6 pt-12 pb-5" style={{background:'linear-gradient(to top,#FFFBF3 60%,rgba(255,251,243,.85) 78%,rgba(255,251,243,0))'}}>
+          <p className="text-center text-[15px] md:text-lg font-semibold leading-relaxed text-[#5B4636] max-w-xl mx-auto">{slide.text}</p>
+          <div className="flex items-center justify-between mt-3 max-w-xl mx-auto"><Logo/><span className="text-xs font-semibold text-[#BDAD93]">{idx} / {total}</span></div>
+        </div>
+      </>}
+
+      {slide.kind==='end' && <>
+        <div className="absolute inset-0 grid place-items-center pb-16"><motion.div animate={{y:[0,-8,0]}} transition={{duration:3,repeat:Infinity,ease:'easeInOut'}}><StarChar size={90}/></motion.div></div>
+        <div className="absolute inset-x-0 bottom-0 px-6 pt-14 pb-8 text-center" style={{background:'linear-gradient(to top,rgba(18,12,55,.9) 55%,transparent)'}}>
+          <h2 className="text-4xl font-extrabold text-white">{slide.title}</h2>
+          <p className="text-indigo-200 mt-1.5 max-w-sm mx-auto">{slide.text}</p>
+          <div className="flex justify-center mt-4"><Logo ink="#fff"/></div>
+        </div>
+      </>}
     </div>
   )
 }
 
 function Reader({ book, onClose }){
-  const slides=useMemo(()=>[ {kind:'cover',theme:book.cover.theme}, ...book.pages.map(p=>({kind:'page',...p})), {kind:'end',...book.end} ],[book])
+  const slides=useMemo(()=>[ {kind:'cover'}, ...book.pages.map(p=>({kind:'page',...p})), {kind:'end',...book.end} ],[book])
   const total=slides.length
   const [i,setI]=useState(0); const [dir,setDir]=useState(0)
+  const cur=slides[i]
+  const merged=cur.kind==='cover'?{...cur,...book.cover}:cur
   const go=d=>setI(v=>{ const n=v+d; if(n<0||n>=total) return v; setDir(d); return n })
   useEffect(()=>{ const k=e=>{ if(e.key==='ArrowRight')go(1); else if(e.key==='ArrowLeft')go(-1); else if(e.key==='Escape')onClose() }
     window.addEventListener('keydown',k); return ()=>window.removeEventListener('keydown',k) },[total])
-  const pageNo=i===0?0:i===total-1?0:i
   return (
     <div className="fixed inset-0 z-[60] bg-ink/80 backdrop-blur-sm grid place-items-center p-3 sm:p-6" onClick={onClose}>
       <button onClick={onClose} className="absolute top-4 right-4 w-11 h-11 grid place-items-center rounded-full bg-white/15 hover:bg-white/25 text-white z-10"><X size={20}/></button>
@@ -79,10 +73,9 @@ function Reader({ book, onClose }){
         <AnimatePresence initial={false} custom={dir} mode="popLayout">
           <motion.div key={i} custom={dir} className="absolute inset-0"
             initial={{opacity:0,x:dir>=0?60:-60}} animate={{opacity:1,x:0}} exit={{opacity:0,x:dir>=0?-60:60}} transition={{duration:.32,ease:'easeOut'}}>
-            <Slide slide={slides[i]} book={book} idx={pageNo} total={book.pages.length}/>
+            <Slide slide={merged} book={book} idx={cur.kind==='page'?i:0} total={book.pages.length}/>
           </motion.div>
         </AnimatePresence>
-        {/* tap zones on mobile */}
         <button className="sm:hidden absolute inset-y-0 left-0 w-1/3" onClick={()=>go(-1)} aria-label="précédent"/>
         <button className="sm:hidden absolute inset-y-0 right-0 w-1/3" onClick={()=>go(1)} aria-label="suivant"/>
       </div>
@@ -95,17 +88,16 @@ function Reader({ book, onClose }){
 }
 
 function Cover({ book, onClick }){
-  const t=THEMES[book.cover.theme]
   return (
     <button onClick={onClick} className="group text-left rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1 transition w-full">
-      <div className="relative aspect-[3/4]" style={{background:t.bg}}>
-        <Stars/>
-        <div className="absolute rounded-xl pointer-events-none" style={{inset:10,border:`2px solid ${t.frame}`}}/>
-        <div className="relative h-full flex flex-col items-center justify-between p-5 text-center">
-          <div className="text-[9px] font-bold tracking-[.28em] uppercase" style={{color:t.sub}}>Kogia Edu</div>
-          <img src={art(book.cover.art[0])} alt="" className="max-h-[54%] drop-shadow-xl group-hover:scale-105 transition"/>
-          <div><h3 className="text-xl font-extrabold leading-tight" style={{color:t.ink}}>{book.title}</h3>
-            <p className="text-[11px] mt-1" style={{color:t.sub}}>{book.subtitle}</p></div>
+      <div className="relative aspect-[3/4] bg-[#180F45]">
+        <SceneBg type={book.cover.scene}/>
+        <Figures figures={book.cover.figures} star={book.cover.star}/>
+        <div className="absolute inset-0 rounded-t-2xl pointer-events-none" style={{boxShadow:'inset 0 0 0 2px rgba(255,255,255,.4)'}}/>
+        <div className="absolute inset-x-0 top-0 px-4 pt-4 pb-8 text-center" style={{background:'linear-gradient(to bottom,rgba(18,12,55,.8) 45%,transparent)'}}>
+          <div className="text-[8px] font-bold tracking-[.28em] uppercase text-indigo-200">Kogia Edu</div>
+          <h3 className="text-lg font-extrabold text-white leading-tight mt-1">{book.title}</h3>
+          <p className="text-[10px] text-indigo-200 mt-0.5">{book.subtitle}</p>
         </div>
         <div className="absolute inset-0 grid place-items-center opacity-0 group-hover:opacity-100 transition bg-black/25">
           <span className="flex items-center gap-2 bg-white text-ink font-bold text-sm px-4 py-2 rounded-full shadow"><Play size={15}/> Lire l’histoire</span>

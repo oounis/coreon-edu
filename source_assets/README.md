@@ -10,6 +10,7 @@ we always know what each set is. Processed/used images live under `app/public/`.
 | `artist1-doodle-scenes-part2-58.zip` | 58 | white | Artist 1 — same style, more scenes | `app/public/library/52–109.jpg` |
 | `artist2-watercolor-transparent-104.zip` | 104 | **transparent** | Artist 2 — soft **watercolor characters & props** | **Storybooks** → `app/public/art/*.png` |
 | `artist2-watercolor-whitebg-104.zip` | 104 | white | Same art as above, flattened on white (redundant) | — keep transparent version instead |
+| `artist3-chibi-characters-transparent-44.zip` | 44 | **transparent** | Artist 3 — **chibi character sprites** in pose-sets (hi-res 3200²) | Story heroes (pose-sets: bakers, astronauts, boxers, fairies) |
 | `room-interiors-13.zip` | 13 | — | Room interior scenes | Explored for "Suivi en direct" rooms (not shipped) |
 | `weather-photos.zip` | — | — | Weather photos | Replaced by self-drawn `WeatherIcon.jsx` |
 

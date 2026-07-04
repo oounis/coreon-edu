@@ -1,34 +1,42 @@
-// In-platform illustrated storybooks. Text is written to match each watercolor
-// illustration (artist-2 transparent set, app/public/art/*.png). Read-only —
-// shown as slides in the reader, never downloadable.
+// In-platform illustrated storybooks. Read-only (shown as slides, never
+// downloadable). Each page is a painted SVG scene (components/Scenes.jsx) with
+// the same watercolor hero (Nour = art 32) placed inside it, so it reads like a
+// real picture book — one hero, a real plot, full illustrated worlds.
 export const art = n => `${import.meta.env.BASE_URL}art/${n}.png`
-
-export const THEMES = {
-  cover:   { bg:'linear-gradient(160deg,#4534A8 0%,#211C52 100%)', ink:'#FFFFFF', sub:'#C9CDF7', frame:'rgba(255,255,255,.35)', panel:'rgba(255,255,255,.12)', stars:true },
-  night:   { bg:'linear-gradient(160deg,#2A3576 0%,#4A3A8C 100%)', ink:'#FFFFFF', sub:'#D3D8FA', frame:'rgba(255,255,255,.30)', panel:'rgba(255,255,255,.14)', stars:true },
-  kitchen: { bg:'linear-gradient(160deg,#FFF6E6 0%,#FFE1C4 100%)', ink:'#6A4A2E', sub:'#9A7A55', frame:'#F0C892', panel:'#FFFFFF' },
-  jungle:  { bg:'linear-gradient(160deg,#E7F6E3 0%,#C4E9C6 100%)', ink:'#2F5233', sub:'#5A7B5E', frame:'#A6D6A8', panel:'#FFFFFF' },
-  sea:     { bg:'linear-gradient(160deg,#DBF1F6 0%,#A7DCEB 100%)', ink:'#124C5E', sub:'#4A7E8C', frame:'#8FCEDD', panel:'#FFFFFF' },
-  sky:     { bg:'linear-gradient(160deg,#EAF2FF 0%,#CBE0FF 100%)', ink:'#264060', sub:'#5A7196', frame:'#A9C8F0', panel:'#FFFFFF' },
-  warm:    { bg:'linear-gradient(160deg,#FFEAEE 0%,#FFD6CC 100%)', ink:'#7A3B4A', sub:'#A9707C', frame:'#F3B7B0', panel:'#FFFFFF' },
-  end:     { bg:'linear-gradient(160deg,#4534A8 0%,#211C52 100%)', ink:'#FFFFFF', sub:'#C9CDF7', frame:'rgba(255,255,255,.35)', panel:'rgba(255,255,255,.12)', stars:true },
-}
 
 export const BOOKS = [
   {
-    id: 'grand',
-    title: 'Quand je serai grand',
-    subtitle: 'Une histoire pour rêver grand',
+    id: 'etoile',
+    title: 'Nour et la petite étoile',
+    subtitle: 'Une histoire du soir',
     ages: '3 – 7 ans',
-    cover: { theme:'cover', art:[94] },
+    cover: {
+      scene: 'cover',
+      figures: [{ n: 32, x: '46%', w: '38%', bottom: '17%' }],
+      star: { x: '66%', top: '26%', size: 58, mood: 'happy' },
+    },
     pages: [
-      { theme:'night',   art:[76],       text:'Quand je serai grand, je m’envolerai très, très haut… jusqu’aux étoiles. Je serai astronaute, et je dirai bonjour à la Lune !' },
-      { theme:'kitchen', art:[73],       text:'Ou alors, je serai chef cuisinier. Je préparerai de bons petits plats qui sentent tout bon dans toute la maison.' },
-      { theme:'jungle',  art:[75,38],    text:'Peut-être que j’explorerai la grande jungle verte… et que je deviendrai l’ami d’une girafe toute douce et un peu rigolote.' },
-      { theme:'sea',     art:[88],       text:'Sur les mers bleues, je serai un pirate courageux, à la recherche d’un trésor caché tout au bout du monde.' },
-      { theme:'sky',     art:[102,100],  text:'Je serai peut-être bâtisseur. Je construirai de jolies maisons solides, où les familles vivront bien au chaud.' },
-      { theme:'warm',    art:[41],       text:'Mais tu sais quoi ? Aujourd’hui, je suis déjà un enfant qui rêve très fort… et ça, c’est le plus beau des métiers.' },
+      { scene:'dusk', figures:[{ n:32, x:'34%', w:'30%' }],
+        text:'Ce soir-là, Nour n’avait pas du tout sommeil. Par la fenêtre, elle regardait le ciel qui s’allumait, plein de petites étoiles brillantes.' },
+
+      { scene:'night', figures:[{ n:32, x:'48%', w:'30%', bottom:'27%', flip:true }], star:{ x:'29%', bottom:'25%', size:50, mood:'sad' },
+        text:'Soudain… floup ! Une toute petite étoile glissa du ciel et tomba tout doucement dans l’herbe du jardin.' },
+
+      { scene:'night', figures:[{ n:32, x:'54%', w:'31%', bottom:'27%', flip:true }], star:{ x:'31%', bottom:'25%', size:48, mood:'sad' },
+        text:'La petite étoile était perdue, loin de sa maison. « N’aie pas peur, murmura Nour. Je vais t’aider à remonter là-haut, tout en haut du ciel. »' },
+
+      { scene:'savanna', figures:[{ n:38, x:'66%', w:'34%' },{ n:32, x:'30%', w:'26%' }], star:{ x:'44%', bottom:'52%', size:34, mood:'happy' },
+        text:'Nour appela son amie la girafe, qui avait le plus long cou du monde. « Grimpe sur ma tête, dit la girafe en riant, et tiens-toi bien ! »' },
+
+      { scene:'mountain', figures:[{ n:32, x:'48%', w:'24%', bottom:'26%' }], star:{ x:'60%', bottom:'40%', size:30, mood:'happy' },
+        text:'Elles grimpèrent la plus haute montagne, plus haut que les arbres, plus haut que les nuages, jusqu’au sommet tout froid.' },
+
+      { scene:'top', figures:[{ n:32, x:'40%', w:'24%', bottom:'17%' }], star:{ x:'58%', top:'22%', size:66, mood:'happy' },
+        text:'Alors Nour leva les bras très fort et rendit la petite étoile au ciel. L’étoile brilla plus que toutes les autres et lui fit un joli clin d’œil.' },
+
+      { scene:'bedroom', figures:[{ n:32, x:'62%', w:'26%', bottom:'26%' }], star:{ x:'80%', top:'20%', size:30, mood:'happy' },
+        text:'Le cœur tout content, Nour se glissa sous sa couverture bien chaude. Et cette nuit-là, elle fit les plus beaux rêves du monde entier.' },
     ],
-    end: { theme:'end', title:'Fin', text:'Et toi, que veux-tu devenir quand tu seras grand ?' },
+    end: { scene:'end', title:'Fin', text:'Bonne nuit, Nour… et fais de beaux rêves.' },
   },
 ]
