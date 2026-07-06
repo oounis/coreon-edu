@@ -7,8 +7,8 @@ import { db, FEE_MONTHS, studentById, classById } from '../db.js'
 import { StatCard, Card, PageHead, Badge, Avatar, Btn } from '../components/ui.jsx'
 import { currentClass, studentColor } from '../data.js'
 import { studentSummary, bulletinFor, mentionFor } from '../results.js'
-import { statusAt, AREAS, room, fmt, nowState } from '../livestatus.js'
-import { Kid } from './Live.jsx'
+import { statusAt, AREAS, fmt, nowState } from '../livestatus.js'
+import RoomArt from '../components/RoomArt.jsx'
 import Bulletin from '../components/Bulletin.jsx'
 
 const chartTip={contentStyle:{borderRadius:12,border:'1px solid #EDEFF5',fontSize:12,boxShadow:'0 8px 24px rgba(30,36,51,.08)'}}
@@ -156,9 +156,9 @@ function ParentDashboard({u,d,greet}){
   const larea=live?AREAS[live.place]:null
   return (<><PageHead title={greet} sub="Votre enfant, en un coup d'œil."/>
     {child&&live&&<Link to="/app/live" className="relative block rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition mb-5 group">
-      <img src={room(larea.img)} alt="" className="absolute inset-0 w-full h-full object-cover"/>
-      <div className="absolute inset-0" style={{background:'linear-gradient(90deg, rgba(8,12,26,.78) 0%, rgba(8,12,26,.35) 55%, rgba(8,12,26,.1) 100%)'}}/>
-      <div className="relative flex items-center gap-4 p-5 min-h-[128px]">
+      <RoomArt place={live.place} gender={child.gender} className="absolute inset-0 w-full h-full"/>
+      <div className="absolute inset-0" style={{background:'linear-gradient(90deg, rgba(8,12,26,.82) 0%, rgba(8,12,26,.45) 48%, rgba(8,12,26,0) 82%)'}}/>
+      <div className="relative flex items-center gap-4 p-5 min-h-[132px]">
         <div className="text-white min-w-0">
           <div className="flex items-center gap-2 text-[11px] font-bold">
             <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-white" style={{background:ns.inSchool?'#FF3B5C':'#8A93A6'}}><Radio size={11}/> {ns.inSchool?'EN DIRECT':'Aperçu'} · {fmt(preview)}</span>
@@ -168,7 +168,6 @@ function ParentDashboard({u,d,greet}){
           <div className="opacity-90 text-sm">{child.name.split(' ')[0]} · {live.sub}</div>
           <div className="inline-flex items-center gap-1 text-xs font-bold mt-2 bg-white/90 text-ink px-3 py-1.5 rounded-full group-hover:gap-2 transition-all">Voir sur le plan de l’école <ArrowRight size={13}/></div>
         </div>
-        <div className="ml-auto shrink-0 pr-2"><Kid gender={child.gender} size={92}/></div>
       </div>
     </Link>}
     <div className="grid sm:grid-cols-4 gap-4 mb-5">

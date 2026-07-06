@@ -6,37 +6,20 @@ import { DAYS } from '../data.js'
 import { PageHead, Card, Select } from '../components/ui.jsx'
 import { studentColor } from '../data.js'
 import { Radio, Clock, MapPin, GraduationCap, Cross } from 'lucide-react'
-import { AREAS, KIND_AREA, room, fmt, daySegments, statusAt } from '../livestatus.js'
+import { AREAS, KIND_AREA, fmt, daySegments, statusAt } from '../livestatus.js'
+import RoomArt, { Kid } from '../components/RoomArt.jsx'
 
-// full-body child character (boy / girl)
-export function Kid({ gender, size=64 }){
-  const girl=gender==='Fille'
-  const skin='#F2C9A0', hair=girl?'#4A2E1E':'#3B2A1E', shirt=girl?'#EC6A86':'#5B8DEF', bottom='#33415C'
-  return (
-    <svg viewBox="0 0 44 78" width={size*44/78} height={size} style={{overflow:'visible',filter:'drop-shadow(0 4px 4px rgba(30,36,51,.18))'}}>
-      <rect x="16" y="52" width="5" height="15" rx="2.5" fill={skin}/><rect x="23" y="52" width="5" height="15" rx="2.5" fill={skin}/>
-      <rect x="14.5" y="65" width="8" height="5" rx="2.5" fill="#333"/><rect x="21.5" y="65" width="8" height="5" rx="2.5" fill="#333"/>
-      {girl ? <path d="M14 30 h16 l5 24 h-26 z" fill={shirt}/> : <><rect x="14" y="30" width="16" height="16" rx="3" fill={shirt}/><rect x="15" y="45" width="14" height="9" rx="2" fill={bottom}/></>}
-      <rect x="9" y="31" width="4.5" height="15" rx="2.2" fill={girl?shirt:skin}/><rect x="30.5" y="31" width="4.5" height="15" rx="2.2" fill={girl?shirt:skin}/>
-      <ellipse cx="22" cy="16" rx="12" ry="11" fill={hair}/>
-      {girl && <><circle cx="10" cy="21" r="4.5" fill={hair}/><circle cx="34" cy="21" r="4.5" fill={hair}/></>}
-      <circle cx="22" cy="19" r="9.5" fill={skin}/>
-      <circle cx="18.5" cy="19" r="1.3" fill="#3a2a20"/><circle cx="25.5" cy="19" r="1.3" fill="#3a2a20"/>
-      <path d="M18.5 23.5 q3.5 2.6 7 0" stroke="#3a2a20" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
-      <circle cx="14.5" cy="22" r="1.6" fill="#F7A9A0" opacity=".55"/><circle cx="29.5" cy="22" r="1.6" fill="#F7A9A0" opacity=".55"/>
-    </svg>
-  )
-}
-
-// live "window" into the room the child is in right now
+// live "window" into the room the child is in right now — fully hand-drawn scene
 function RoomScene({ area, place, kid, title, sub, live, min }){
   return (
     <div className="relative w-full aspect-video overflow-hidden bg-ink">
       <AnimatePresence mode="popLayout">
-        <motion.img key={area.img} src={room(area.img)} alt="" className="absolute inset-0 w-full h-full object-cover"
-          initial={{opacity:0,scale:1.06}} animate={{opacity:1,scale:1}} exit={{opacity:0}} transition={{duration:.5}}/>
+        <motion.div key={place} className="absolute inset-0"
+          initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} transition={{duration:.45}}>
+          <RoomArt place={place} gender={kid.gender} className="absolute inset-0 w-full h-full"/>
+        </motion.div>
       </AnimatePresence>
-      <div className="absolute inset-0" style={{background:'linear-gradient(to top, rgba(8,12,26,.62) 0%, rgba(8,12,26,.12) 34%, transparent 55%)'}}/>
+      <div className="absolute inset-0 pointer-events-none" style={{background:'linear-gradient(to top, rgba(8,12,26,.5) 0%, rgba(8,12,26,.05) 30%, transparent 50%)'}}/>
       {/* room plaque */}
       <div className="absolute top-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-white/90 shadow" style={{color:area.color}}>
         {place==='infirmerie'?<Cross size={13}/>:<MapPin size={13}/>} {area.label}
@@ -46,18 +29,8 @@ function RoomScene({ area, place, kid, title, sub, live, min }){
         <motion.span animate={{opacity:[1,.3,1]}} transition={{repeat:Infinity,duration:1.4}}><Radio size={12}/></motion.span>
         {live?'EN DIRECT':'Aperçu'} · {fmt(min)}
       </div>
-      {/* the child, standing in the room */}
-      <AnimatePresence mode="wait">
-        <motion.div key={place} className="absolute left-1/2 bottom-[7%] flex flex-col items-center"
-          initial={{opacity:0,x:60}} animate={{opacity:1,x:'-50%'}} exit={{opacity:0,x:-60}} transition={{type:'spring',stiffness:70,damping:16}}>
-          <div className="text-[11px] font-bold text-white px-2 py-0.5 rounded-full mb-1 shadow" style={{background:area.color}}>{kid.name.split(' ')[0]}</div>
-          <div className="relative">
-            <div className="absolute -inset-6 rounded-full" style={{background:'radial-gradient(closest-side, rgba(255,255,255,.35), transparent)'}}/>
-            <motion.div animate={{y:[0,-5,0]}} transition={{repeat:Infinity,duration:2.6,ease:'easeInOut'}} className="relative"><Kid gender={kid.gender} size={112}/></motion.div>
-          </div>
-          <div className="w-16 h-2.5 rounded-full -mt-1" style={{background:'rgba(8,12,26,.28)',filter:'blur(3px)'}}/>
-        </motion.div>
-      </AnimatePresence>
+      {/* name chip */}
+      <div className="absolute top-3 right-3 text-[11px] font-bold text-white px-2.5 py-1.5 rounded-full shadow" style={{background:area.color}}>{kid.name.split(' ')[0]}</div>
       {/* status caption */}
       <div className="absolute bottom-3 left-4 text-white drop-shadow">
         <div className="text-lg font-extrabold leading-tight">{title}</div>
@@ -99,7 +72,7 @@ export default function Live(){
         {(()=>{ const nx=segs.find(s=>s.start>min); const na=nx?AREAS[KIND_AREA[nx.kind]||'class']:null
           const nlabel=nx&&(nx.kind==='class'?(nx.cell?.subject||'Étude'):nx.kind==='cour'?'Récréation':nx.kind==='cantine'?'Déjeuner':'Étude')
           return <div className="flex items-center gap-3 px-4 py-3 border-t border-line">
-            {nx?<><img src={room(na.img)} alt="" className="w-14 h-10 rounded-lg object-cover shrink-0"/>
+            {nx?<><div className="w-14 h-10 rounded-lg overflow-hidden shrink-0"><RoomArt place={KIND_AREA[nx.kind]||'class'} gender={kid.gender}/></div>
               <div className="min-w-0"><div className="text-[11px] font-semibold text-muted uppercase tracking-wide">À suivre</div>
                 <div className="text-sm font-bold truncate">{nlabel} <span className="text-muted font-normal">· dès {fmt(nx.start)}</span></div></div>
               <div className="ml-auto text-xs font-bold px-2.5 py-1 rounded-full shrink-0" style={{background:na.color+'18',color:na.color}}>{Math.max(0,nx.start-min)} min</div></>
@@ -140,7 +113,7 @@ export default function Live(){
         {segs.map((s,i)=>{const isNow=min>=s.start&&min<s.end;const a=AREAS[KIND_AREA[s.kind]||'class'];const c=a.color;
           const label=s.kind==='class'?(s.cell?.subject||'Étude'):s.kind==='cour'?'Récréation':s.kind==='cantine'?'Déjeuner':'Libre'
           return <div key={i} className={`shrink-0 w-32 rounded-xl overflow-hidden border ${isNow?'border-transparent':'border-line'}`} style={isNow?{boxShadow:`0 0 0 2px ${c}`}:{}}>
-            <div className="relative h-14"><img src={room(a.img)} alt="" className="w-full h-full object-cover"/>
+            <div className="relative h-14"><RoomArt place={KIND_AREA[s.kind]||'class'} gender={kid.gender}/>
               {isNow&&<div className="absolute inset-0 grid place-items-center" style={{background:c+'55'}}><span className="w-7 h-7 rounded-full bg-white/90 grid place-items-center"><Radio size={13} style={{color:c}}/></span></div>}</div>
             <div className="p-2">
               <div className="text-[10px] text-muted">{fmt(s.start)}–{fmt(s.end)}</div>
