@@ -1,44 +1,16 @@
 import { useState, useMemo, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { current } from '../auth.js'
 import { db, studentById, classById } from '../db.js'
 import { DAYS } from '../data.js'
 import { PageHead, Card, Select } from '../components/ui.jsx'
 import { studentColor } from '../data.js'
-import { Radio, Clock, MapPin, GraduationCap, Cross } from 'lucide-react'
-import { AREAS, KIND_AREA, fmt, daySegments, statusAt } from '../livestatus.js'
-import RoomArt, { Kid } from '../components/RoomArt.jsx'
+import { Radio, Clock, MapPin } from 'lucide-react'
+import { AREAS, fmt, daySegments, statusAt } from '../livestatus.js'
+import { Kid } from '../components/Kid.jsx'
+import RouteMap from '../components/RouteMap.jsx'
 
-// live "window" into the room the child is in right now — fully hand-drawn scene
-function RoomScene({ area, place, kid, title, sub, live, min }){
-  return (
-    <div className="relative w-full aspect-video overflow-hidden bg-ink">
-      <AnimatePresence mode="popLayout">
-        <motion.div key={place} className="absolute inset-0"
-          initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} transition={{duration:.45}}>
-          <RoomArt place={place} gender={kid.gender} className="absolute inset-0 w-full h-full"/>
-        </motion.div>
-      </AnimatePresence>
-      <div className="absolute inset-0 pointer-events-none" style={{background:'linear-gradient(to top, rgba(8,12,26,.5) 0%, rgba(8,12,26,.05) 30%, transparent 50%)'}}/>
-      {/* room plaque */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-white/90 shadow" style={{color:area.color}}>
-        {place==='infirmerie'?<Cross size={13}/>:<MapPin size={13}/>} {area.label}
-      </div>
-      {/* live badge */}
-      <div className="absolute top-3 left-3 flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-full text-white shadow" style={{background:live?'#FF3B5C':'#8A93A6'}}>
-        <motion.span animate={{opacity:[1,.3,1]}} transition={{repeat:Infinity,duration:1.4}}><Radio size={12}/></motion.span>
-        {live?'EN DIRECT':'Aperçu'} · {fmt(min)}
-      </div>
-      {/* name chip */}
-      <div className="absolute top-3 right-3 text-[11px] font-bold text-white px-2.5 py-1.5 rounded-full shadow" style={{background:area.color}}>{kid.name.split(' ')[0]}</div>
-      {/* status caption */}
-      <div className="absolute bottom-3 left-4 text-white drop-shadow">
-        <div className="text-lg font-extrabold leading-tight">{title}</div>
-        <div className="text-sm opacity-90">{sub}</div>
-      </div>
-    </div>
-  )
-}
+const stopLabel=s=> s.kind==='class'?(s.cell?.subject||'Étude') : s.kind==='cour'?'Récré' : s.kind==='cantine'?'Déjeuner' : 'Étude'
 
 export default function Live(){
   const u=current(); const d=db()
@@ -58,26 +30,39 @@ export default function Live(){
   const sick=useMemo(()=>d.incidents.some(i=>i.studentId===kid?.id&&i.type==='Santé'&&i.status==='open'&&(Date.now()-i.at)<86400000),[d,kid])
   const st=useMemo(()=>kid?statusAt(kid.classId,dayIdx,min,sick):null,[kid,dayIdx,min,sick])
   if(!kid) return <Card className="p-10 text-center text-muted">Aucun enfant associé à ce compte.</Card>
+
   const area=AREAS[st.place]
   const segLen=Math.max(1,st.seg.end-st.seg.start); const done=Math.min(1,Math.max(0,(min-st.seg.start)/segLen)); const remain=Math.max(0,st.seg.end-min)
   const segs=daySegments(kid.classId,dayIdx)
+  const open=segs[0].start, close=segs[segs.length-1].end
+  const first=kid.name.split(' ')[0]; const day=realWeekday?DAYS[dayIdx]:'Lundi (aperçu)'
+
+  // build the route: Arrivée → periods/récré/déjeuner → Sortie
+  const stops=[
+    { kind:'entree', label:'Arrivée', time:fmt(open) },
+    ...segs.map(s=>({ kind:s.kind==='free'?'class':s.kind, label:stopLabel(s), sub:s.cell?.room, time:fmt(s.start) })),
+    { kind:'entree', label:'Sortie', time:fmt(close) },
+  ]
+  let curIndex, mapDone
+  if(min<open){ curIndex=0; mapDone=0 }
+  else if(min>=close){ curIndex=stops.length-1; mapDone=1 }
+  else { const j=segs.findIndex(s=>min>=s.start&&min<s.end); const sg=segs[j<0?segs.length-1:j]; curIndex=(j<0?segs.length-1:j)+1; mapDone=Math.min(1,Math.max(0,(min-sg.start)/Math.max(1,sg.end-sg.start))) }
 
   return (<>
-    <PageHead title="Suivi en direct" sub={`Où se trouve ${kid.name.split(' ')[0]} en ce moment.`}
+    <PageHead title="Suivi en direct" sub={`Le parcours de ${first} pendant la journée.`}
       action={kids.length>1&&<Select value={kidId} onChange={e=>setKidId(e.target.value)}>{kids.map(k=><option key={k.id} value={k.id}>{k.name}</option>)}</Select>}/>
 
     <div className="grid lg:grid-cols-[1fr_340px] gap-5">
-      <Card className="p-0 overflow-hidden relative">
-        <RoomScene area={area} place={st.place} kid={kid} title={st.title} sub={st.sub} live={liveNow} min={min}/>
-        {(()=>{ const nx=segs.find(s=>s.start>min); const na=nx?AREAS[KIND_AREA[nx.kind]||'class']:null
-          const nlabel=nx&&(nx.kind==='class'?(nx.cell?.subject||'Étude'):nx.kind==='cour'?'Récréation':nx.kind==='cantine'?'Déjeuner':'Étude')
-          return <div className="flex items-center gap-3 px-4 py-3 border-t border-line">
-            {nx?<><div className="w-14 h-10 rounded-lg overflow-hidden shrink-0"><RoomArt place={KIND_AREA[nx.kind]||'class'} gender={kid.gender}/></div>
-              <div className="min-w-0"><div className="text-[11px] font-semibold text-muted uppercase tracking-wide">À suivre</div>
-                <div className="text-sm font-bold truncate">{nlabel} <span className="text-muted font-normal">· dès {fmt(nx.start)}</span></div></div>
-              <div className="ml-auto text-xs font-bold px-2.5 py-1 rounded-full shrink-0" style={{background:na.color+'18',color:na.color}}>{Math.max(0,nx.start-min)} min</div></>
-            :<div className="text-sm text-muted flex items-center gap-2"><GraduationCap size={15}/> Journée terminée — sortie des classes.</div>}
-          </div> })()}
+      <Card className="p-0 overflow-hidden">
+        <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-line flex-wrap">
+          <div className="flex items-center gap-2.5">
+            <span className="flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-full text-white shadow" style={{background:liveNow?'#FF3B5C':'#8A93A6'}}>
+              <motion.span animate={{opacity:[1,.3,1]}} transition={{repeat:Infinity,duration:1.4}}><Radio size={12}/></motion.span>{liveNow?'EN DIRECT':'Aperçu'} · {fmt(min)}</span>
+            <span className="text-sm font-bold text-muted hidden sm:inline">Journée de {first} · {day}</span>
+          </div>
+          <span className="text-sm font-extrabold px-3 py-1 rounded-full" style={{background:area.color+'16',color:area.color}}>{st.title}</span>
+        </div>
+        <RouteMap stops={stops} curIndex={curIndex} done={mapDone} remain={remain} name={first} live={liveNow}/>
       </Card>
 
       <div className="space-y-5">
@@ -106,22 +91,5 @@ export default function Live(){
         </Card>
       </div>
     </div>
-
-    <Card className="p-4 mt-5">
-      <div className="font-bold text-sm mb-3 flex items-center gap-2"><GraduationCap size={16} className="accent-text"/> Journée de {kid.name.split(' ')[0]} · {realWeekday?DAYS[dayIdx]:'Lundi (aperçu)'}</div>
-      <div className="flex gap-2 overflow-x-auto scroll-thin pb-1">
-        {segs.map((s,i)=>{const isNow=min>=s.start&&min<s.end;const a=AREAS[KIND_AREA[s.kind]||'class'];const c=a.color;
-          const label=s.kind==='class'?(s.cell?.subject||'Étude'):s.kind==='cour'?'Récréation':s.kind==='cantine'?'Déjeuner':'Libre'
-          return <div key={i} className={`shrink-0 w-32 rounded-xl overflow-hidden border ${isNow?'border-transparent':'border-line'}`} style={isNow?{boxShadow:`0 0 0 2px ${c}`}:{}}>
-            <div className="relative h-14"><RoomArt place={KIND_AREA[s.kind]||'class'} gender={kid.gender}/>
-              {isNow&&<div className="absolute inset-0 grid place-items-center" style={{background:c+'55'}}><span className="w-7 h-7 rounded-full bg-white/90 grid place-items-center"><Radio size={13} style={{color:c}}/></span></div>}</div>
-            <div className="p-2">
-              <div className="text-[10px] text-muted">{fmt(s.start)}–{fmt(s.end)}</div>
-              <div className="text-[12px] font-bold truncate" style={{color:isNow?c:'#1E2433'}}>{label}</div>
-              {s.cell?.room&&<div className="text-[10px] text-muted truncate">{s.cell.room}</div>}
-            </div>
-          </div>})}
-      </div>
-    </Card>
   </>)
 }

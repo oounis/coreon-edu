@@ -8,8 +8,8 @@ import { StatCard, Card, PageHead, Badge, Avatar, Btn } from '../components/ui.j
 import { currentClass, studentColor } from '../data.js'
 import { studentSummary, bulletinFor, mentionFor } from '../results.js'
 import { statusAt, AREAS, fmt, nowState } from '../livestatus.js'
-import RoomArt from '../components/RoomArt.jsx'
 import Bulletin from '../components/Bulletin.jsx'
+const PLACE_EMOJI={ class:'📚', cour:'⚽', cantine:'🍽️', entree:'🚪', infirmerie:'🏥' }
 
 const chartTip={contentStyle:{borderRadius:12,border:'1px solid #EDEFF5',fontSize:12,boxShadow:'0 8px 24px rgba(30,36,51,.08)'}}
 
@@ -155,19 +155,18 @@ function ParentDashboard({u,d,greet}){
   const live=cls?statusAt(child.classId,ns.dayIdx,preview,false):null
   const larea=live?AREAS[live.place]:null
   return (<><PageHead title={greet} sub="Votre enfant, en un coup d'œil."/>
-    {child&&live&&<Link to="/app/live" className="relative block rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition mb-5 group">
-      <RoomArt place={live.place} gender={child.gender} className="absolute inset-0 w-full h-full"/>
-      <div className="absolute inset-0" style={{background:'linear-gradient(90deg, rgba(8,12,26,.82) 0%, rgba(8,12,26,.45) 48%, rgba(8,12,26,0) 82%)'}}/>
-      <div className="relative flex items-center gap-4 p-5 min-h-[132px]">
-        <div className="text-white min-w-0">
+    {child&&live&&<Link to="/app/live" className="relative block rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition mb-5 group text-white" style={{background:`linear-gradient(120deg, ${larea.color} 0%, #1E2433 100%)`}}>
+      <div className="relative flex items-center gap-4 p-5 min-h-[124px]">
+        <div className="min-w-0">
           <div className="flex items-center gap-2 text-[11px] font-bold">
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-white" style={{background:ns.inSchool?'#FF3B5C':'#8A93A6'}}><Radio size={11}/> {ns.inSchool?'EN DIRECT':'Aperçu'} · {fmt(preview)}</span>
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{background:ns.inSchool?'#FF3B5C':'rgba(255,255,255,.25)'}}><Radio size={11}/> {ns.inSchool?'EN DIRECT':'Aperçu'} · {fmt(preview)}</span>
             <span className="opacity-80 uppercase tracking-wide">Suivi en direct</span>
           </div>
           <div className="text-2xl font-extrabold mt-1.5 leading-tight">{live.title}</div>
           <div className="opacity-90 text-sm">{child.name.split(' ')[0]} · {live.sub}</div>
-          <div className="inline-flex items-center gap-1 text-xs font-bold mt-2 bg-white/90 text-ink px-3 py-1.5 rounded-full group-hover:gap-2 transition-all">Voir sur le plan de l’école <ArrowRight size={13}/></div>
+          <div className="inline-flex items-center gap-1 text-xs font-bold mt-2 bg-white text-ink px-3 py-1.5 rounded-full group-hover:gap-2 transition-all">Voir le parcours de la journée <ArrowRight size={13}/></div>
         </div>
+        <div className="ml-auto text-6xl opacity-90 shrink-0 pr-2 group-hover:scale-110 transition">{PLACE_EMOJI[live.place]||'📚'}</div>
       </div>
     </Link>}
     <div className="grid sm:grid-cols-4 gap-4 mb-5">
