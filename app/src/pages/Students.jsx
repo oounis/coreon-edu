@@ -4,6 +4,7 @@ import { current } from '../auth.js'
 import { db, mutate, uid, classById, userById, CYCLES, studentsOfClass } from '../db.js'
 import { PageHead, Avatar, Btn, Modal, Field, Input, Select, Section, Card } from '../components/ui.jsx'
 import { studentColor } from '../data.js'
+import { studentAvatar, avatarBg } from '../people.js'
 import { GOVERNORATES, DOC_TYPES, LEGAL } from '../tunisia.js'
 import Attach from '../components/Attach.jsx'
 import Bulletin from '../components/Bulletin.jsx'
@@ -38,7 +39,7 @@ export default function Students(){
 
   const StudentCard=({s})=>(
     <button onClick={()=>setViewS(s)} className="card p-3 flex items-center gap-3 text-left hover:shadow-lg hover:-translate-y-0.5 transition w-full">
-      <span className="w-11 h-11 rounded-2xl grid place-items-center text-xl shrink-0" style={{background:studentColor(s.id)+'22'}}>{face(s)}</span>
+      <span className="w-11 h-11 rounded-2xl overflow-hidden grid place-items-center shrink-0" style={{background:avatarBg(s.id)}}><img src={studentAvatar(s.gender,s.id)} alt="" className="w-full h-full object-contain"/></span>
       <div className="min-w-0 flex-1"><div className="font-semibold truncate">{s.name}</div><div className="text-xs text-muted">{s.gender} · {classById(s.classId)?.name}</div></div>
       <span className="inline-flex items-center gap-1 text-[11px] text-muted"><Droplet size={11} className="text-coral"/>{s.bloodGroup}</span>
     </button>
@@ -124,7 +125,7 @@ export default function Students(){
     </Modal>
 
     <Modal open={!!viewS} onClose={()=>setViewS(null)} title="Fiche élève" size="xl">
-      {viewS&&(<div><div className="flex items-center gap-4 mb-5"><span className="w-14 h-14 rounded-2xl grid place-items-center text-3xl" style={{background:studentColor(viewS.id)+'22'}}>{face(viewS)}</span><div className="flex-1"><div className="text-xl font-extrabold">{viewS.name}</div><div className="text-muted text-sm">{classById(viewS.classId)?.name} · N° {viewS.rollNo} · {viewS.gender}</div></div><Btn variant="soft" onClick={()=>{const v=viewS;setViewS(null);setBulletin(v)}}><FileText size={15}/> Bulletin</Btn></div>
+      {viewS&&(<div><div className="flex items-center gap-4 mb-5"><span className="w-14 h-14 rounded-2xl overflow-hidden grid place-items-center" style={{background:avatarBg(viewS.id)}}><img src={studentAvatar(viewS.gender,viewS.id)} alt="" className="w-full h-full object-contain"/></span><div className="flex-1"><div className="text-xl font-extrabold">{viewS.name}</div><div className="text-muted text-sm">{classById(viewS.classId)?.name} · N° {viewS.rollNo} · {viewS.gender}</div></div><Btn variant="soft" onClick={()=>{const v=viewS;setViewS(null);setBulletin(v)}}><FileText size={15}/> Bulletin</Btn></div>
         <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">{[['Naissance',viewS.dob],['Groupe sanguin',viewS.bloodGroup],['Nationalité',viewS.nationality],['Inscription',viewS.admissionDate],['École préc.',viewS.prevSchool],['Père',viewS.fatherName],['Mère',viewS.motherName],['Tél. tuteur',viewS.guardianPhone],['Compte parent',userById(viewS.parentId)?.name||'—'],['Adresse',viewS.address],['Téléphone',viewS.phone],['E-mail',viewS.email||'—'],['Médical',viewS.medical],['Allergies',viewS.allergies],['CIN/Acte',viewS.cin],['Gouvernorat',viewS.governorate],['Urgence',`${viewS.emergencyName} · ${viewS.emergencyPhone}`]].map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium text-right">{v||'—'}</span></div>)}</div>
         <div className="mt-6 pt-5 border-t border-line"><GradeHistory studentId={viewS.id}/></div></div>)}
     </Modal>

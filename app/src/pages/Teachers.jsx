@@ -4,7 +4,7 @@ import { current } from '../auth.js'
 import { db, mutate, uid } from '../db.js'
 import { PageHead, Table, Avatar, Btn, Modal, Field, Input, Select, Section } from '../components/ui.jsx'
 import { studentColor } from '../data.js'
-import { teacherAvatar } from '../people.js'
+import { teacherAvatar, avatarBg } from '../people.js'
 import { GOVERNORATES, DOC_TYPES, validCIN } from '../tunisia.js'
 import Attach from '../components/Attach.jsx'
 import { UserPlus, Eye, Search, ChevronRight } from 'lucide-react'
@@ -25,7 +25,7 @@ export default function Teachers(){
   const subjects=[...new Set(list.map(t=>t.subject||'Autre'))].sort()
   const TCard=({t})=>(
     <button onClick={()=>setView(t)} className="card p-4 flex items-center gap-3 text-left hover:shadow-lg hover:-translate-y-0.5 transition w-full">
-      <span className="w-12 h-12 rounded-2xl overflow-hidden grid place-items-center shrink-0" style={{background:studentColor(t.id)+'18'}}><img src={teacherAvatar(t)} alt="" className="w-full h-full object-contain"/></span>
+      <span className="w-12 h-12 rounded-2xl overflow-hidden grid place-items-center shrink-0" style={{background:avatarBg(t.id)}}><img src={teacherAvatar(t)} alt="" className="w-full h-full object-contain"/></span>
       <div className="min-w-0 flex-1"><div className="font-semibold truncate">{t.name}</div><div className="text-xs text-muted truncate">{t.designation} · {t.experience} ans</div></div>
       <ChevronRight size={16} className="text-muted"/>
     </button>

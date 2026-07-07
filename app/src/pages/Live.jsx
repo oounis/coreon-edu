@@ -8,6 +8,7 @@ import { studentColor } from '../data.js'
 import { Radio, Clock, MapPin } from 'lucide-react'
 import { AREAS, fmt, daySegments, statusAt } from '../livestatus.js'
 import { Kid } from '../components/Kid.jsx'
+import { studentAvatar, avatarBg } from '../people.js'
 import RouteMap from '../components/RouteMapFlow.jsx'
 
 const stopLabel=s=> s.kind==='class'?(s.cell?.subject||'Étude') : s.kind==='cour'?'Récré' : s.kind==='cantine'?'Déjeuner' : 'Étude'
@@ -68,7 +69,7 @@ export default function Live(){
       <div className="space-y-5">
         <Card className="p-5">
           <div className="flex items-center gap-3">
-            <span className="w-12 h-14 rounded-2xl grid place-items-end justify-center overflow-hidden shrink-0" style={{background:studentColor(kid.id)+'18'}}><Kid gender={kid.gender} size={54}/></span>
+            <span className="w-14 h-14 rounded-2xl overflow-hidden grid place-items-center shrink-0" style={{background:avatarBg(kid.id)}}><img src={studentAvatar(kid.gender,kid.id)} alt="" className="w-full h-full object-contain"/></span>
             <div><div className="font-bold">{kid.name}</div><div className="text-xs text-muted">{cls?.name} · {cls?.cycle}</div></div>
           </div>
           <div className="mt-4 rounded-2xl p-4" style={{background:area.color+'12'}}>

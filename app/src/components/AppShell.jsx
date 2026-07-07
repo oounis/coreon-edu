@@ -14,6 +14,7 @@ import {
 import { settings, db, classById } from '../db.js'
 import { safeLink } from '../access.js'
 import MeteoCorner from './MeteoCorner.jsx'
+import { studentAvatar, teacherAvatar, avatarBg } from '../people.js'
 const NAV=[
   { to:'/app', label:'Tableau de bord', icon:LayoutDashboard, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
   { to:'/app/live', label:'Suivi en direct', icon:Radio, roles:['parent'] },
@@ -84,7 +85,7 @@ function GlobalSearch({ user }){
       {open&&query&&(<div className="absolute left-0 mt-2 w-80 card p-2 shadow-2xl z-50 max-h-[70vh] overflow-y-auto scroll-thin">
         {!has&&<div className="px-3 py-6 text-center text-sm text-muted">Aucun résultat pour « {q} »</div>}
         {students.length>0&&<div className="text-[10px] font-bold uppercase text-muted px-2 py-1">Élèves</div>}
-        {students.map(s=><button key={s.id} onMouseDown={()=>go('/app/students',{openStudent:s.id})} className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-canvas text-left"><span className="w-8 h-8 rounded-lg grid place-items-center text-lg bg-canvas">{face(s)}</span><div className="min-w-0"><div className="text-sm font-medium truncate">{s.name}</div><div className="text-[11px] text-muted">{classById(s.classId)?.name||''}</div></div></button>)}
+        {students.map(s=><button key={s.id} onMouseDown={()=>go('/app/students',{openStudent:s.id})} className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-canvas text-left"><span className="w-8 h-8 rounded-lg overflow-hidden grid place-items-center" style={{background:avatarBg(s.id)}}><img src={studentAvatar(s.gender,s.id)} alt="" className="w-full h-full object-contain"/></span><div className="min-w-0"><div className="text-sm font-medium truncate">{s.name}</div><div className="text-[11px] text-muted">{classById(s.classId)?.name||''}</div></div></button>)}
         {teachers.length>0&&<div className="text-[10px] font-bold uppercase text-muted px-2 py-1 mt-1">Enseignants</div>}
         {teachers.map(t=><button key={t.id} onMouseDown={()=>go('/app/teachers',{openTeacher:t.id})} className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-canvas text-left"><span className="w-8 h-8 rounded-lg grid place-items-center text-lg bg-canvas">{t.gender==='Fille'?'👩‍🏫':'👨‍🏫'}</span><div className="min-w-0"><div className="text-sm font-medium truncate">{t.name}</div><div className="text-[11px] text-muted">{t.subject}</div></div></button>)}
       </div>)}

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { db, mutate, uid } from '../db.js'
 import { ROLE } from '../theme.js'
-import { roleAvatar } from '../people.js'
+import { roleAvatar, avatarBg } from '../people.js'
 import { notify } from '../notify.js'
 import { STAFF_POSITIONS, GOVERNORATES, docTypesFor, validCIN } from '../tunisia.js'
 import { PageHead, Table, Avatar, Btn, Modal, Field, Input, Select, Section } from '../components/ui.jsx'
@@ -40,7 +40,7 @@ export default function Accounts(){
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {us.map(u=>(
               <button key={u.id} onClick={()=>setView(u)} className={`card p-4 flex items-center gap-3 text-left hover:shadow-lg hover:-translate-y-0.5 transition w-full ${u.disabled?'opacity-60':''}`}>
-                <span className="w-11 h-11 rounded-full overflow-hidden grid place-items-center shrink-0" style={{background:R.color+'18',opacity:u.disabled?.5:1}}><img src={roleAvatar(u.role,u.gender)} alt="" className="w-full h-full object-contain"/></span>
+                <span className="w-11 h-11 rounded-full overflow-hidden grid place-items-center shrink-0" style={{background:avatarBg(u.id),opacity:u.disabled?.5:1}}><img src={roleAvatar(u.role,u.gender)} alt="" className="w-full h-full object-contain"/></span>
                 <div className="min-w-0 flex-1"><div className="font-semibold truncate flex items-center gap-2">{u.name}{u.disabled&&<span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-canvas text-muted">Désactivé</span>}</div><div className="text-xs text-muted truncate">{u.position||u.occupation||u.email}</div></div>
                 {(u.attachments||[]).length>0&&<span className="text-[11px] text-muted shrink-0">{u.attachments.length}📎</span>}
               </button>
@@ -73,7 +73,7 @@ export default function Accounts(){
         <Attach types={docTypesFor(f.role)} value={f.attachments} onChange={a=>setF({...f,attachments:a})}/></div>
     </Modal>
     <Modal open={!!view} onClose={()=>setView(null)} title="Profil" size="xl">
-      {view&&(<div><div className="flex items-center gap-4 mb-4"><span className="w-14 h-14 rounded-full overflow-hidden grid place-items-center shrink-0" style={{background:(ROLE[view.role]?.color||'#8A93A6')+'18'}}><img src={roleAvatar(view.role,view.gender)} alt="" className="w-full h-full object-contain"/></span><div><div className="text-xl font-extrabold">{view.name}</div><div className="text-muted text-sm">{ROLE[view.role]?.label}{view.position&&` · ${view.position}`}</div></div></div>
+      {view&&(<div><div className="flex items-center gap-4 mb-4"><span className="w-14 h-14 rounded-full overflow-hidden grid place-items-center shrink-0" style={{background:avatarBg(view.id)}}><img src={roleAvatar(view.role,view.gender)} alt="" className="w-full h-full object-contain"/></span><div><div className="text-xl font-extrabold">{view.name}</div><div className="text-muted text-sm">{ROLE[view.role]?.label}{view.position&&` · ${view.position}`}</div></div></div>
         <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm mb-4">{[['E-mail',view.email],['CIN',view.cin],['Gouvernorat',view.governorate],['Téléphone',view.phone],['Adresse',view.address],['Profession',view.occupation]].filter(x=>x[1]).map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium">{v}</span></div>)}</div>
         <div className="text-xs font-bold uppercase text-muted mb-2">Pièces jointes</div>
         {(view.attachments||[]).length? <div className="space-y-1">{view.attachments.map((a,i)=><div key={i} className="flex justify-between text-sm border border-line rounded-lg px-3 py-1.5"><span className="text-muted">{a.type}</span><span className="font-medium">📎 {a.name}</span></div>)}</div> : <div className="text-sm text-muted">Aucune pièce.</div>}

@@ -11,10 +11,10 @@
   --color-mint: #2BD9A8;         --color-mint-soft: #E2FBF3;
   --color-coral: #FF6B81;        --color-coral-soft: #FFE8EC;
   --color-grape: #A78BFA;        --color-grape-soft: #F1ECFE;
-  --font-sans: "Plus Jakarta Sans Variable", "Inter Variable", system-ui, sans-serif;
+  --font-sans: "Nunito Variable", "Inter Variable", system-ui, sans-serif;
 }
 /* denser base so more content fits the page (rem-based Tailwind scales down) */
-html{scroll-behavior:smooth;font-size:15px}
+html{scroll-behavior:smooth;font-size:14px}
 body{font-family:var(--font-sans);color:var(--color-ink);background:var(--color-canvas);-webkit-font-smoothing:antialiased;letter-spacing:-0.006em}
 h1,h2,h3,h4{letter-spacing:-0.022em}
 .card{background:#fff;border:1px solid var(--color-line);border-radius:1rem}
