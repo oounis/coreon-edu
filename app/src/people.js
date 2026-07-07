@@ -12,23 +12,33 @@ export const avatarBg = seed => PASTEL[h(seed) % PASTEL.length]
 // ── gender-based defaults (used until the user picks one) ──
 export function studentAvatar(gender, id){ const set = gender==='Fille' ? 'g' : 'b'; return kidImg(set + (h(id)%8 + 1)) }
 export function teacherAvatar(t){
-  if((t.subject||'').toLowerCase().includes('sport')) return people('teacher-sport')
-  return people(t.gender==='Fille' ? 'teacher-f' : 'teacher-m')
+  const s=(t.subject||'').toLowerCase()
+  if(s.includes('sport')||s.includes('éduc') ) return people('sport-coach')
+  if(s.includes('scien')||s.includes('éveil')||s.includes('eveil')) return people('science-teacher')
+  if(s.includes('musi')) return people('music-teacher')
+  if(s.includes('art')) return people('art-teacher')
+  if(s.includes('info')||s.includes('techno')) return people('tech-teacher')
+  return people(t.gender==='Fille' ? 'teacher-f' : 'teacher-m2')
 }
 export function roleAvatar(role, gender){
-  const map = { owner:'director', schooladmin:'director', admin:'admin', supervisor:'supervisor',
-    teacher: gender==='Fille'?'teacher-f':'teacher-m', parent:'nursery' }
-  return people(map[role] || 'admin')
+  const map = { owner:'principal', schooladmin:'principal', admin:'secretary', supervisor:'vice-principal',
+    teacher: gender==='Fille'?'teacher-f':'teacher-m2', parent: gender==='Fille'?'mother':'father' }
+  return people(map[role] || 'secretary')
 }
 
 // ── the pool users can pick from ──
-const GIRLS = Array.from({length:14},(_,i)=>`g${i+1}`)
-const BOYS  = Array.from({length:13},(_,i)=>`b${i+1}`)
-const ROLES = ['director','supervisor','admin','nursery','teacher-m','teacher-f','teacher-f2','teacher-sport','teacher-fr','teacher-exam',
+const GIRLS = [...Array.from({length:14},(_,i)=>`g${i+1}`), 'sgirl','s-music','s-paint']
+const BOYS  = [...Array.from({length:13},(_,i)=>`b${i+1}`), 'sboy','s-read','s-computer','s-science','s-sport']
+const KGROUP = ['s-group']
+const ROLES = ['principal','vice-principal','director','counselor','secretary','supervisor','admin',
+  'teacher-m2','teacher-f','teacher-f2','science-teacher','tech-teacher','music-teacher','art-teacher','sport-coach','sped','teacher-fr','teacher-exam','nursery',
+  'librarian','nurse','security','maintenance','it-admin','cafeteria','bus-driver','board-member',
+  'father','father2','mother','parents-group','visitor',
   'af1','af2','af3','asf1','asf2','asm1','am1','am2']
 export const AVATAR_POOL = [
   ...GIRLS.map(k=>({ key:k, rel:`kids/${k}.png`, group:'Filles' })),
   ...BOYS.map(k=>({ key:k, rel:`kids/${k}.png`, group:'Garçons' })),
+  ...KGROUP.map(k=>({ key:k, rel:`kids/${k}.png`, group:'Groupes' })),
   ...ROLES.map(k=>({ key:k, rel:`people/${k}.png`, group:'Adultes' })),
 ]
 
