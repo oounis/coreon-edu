@@ -24,7 +24,8 @@ export function roleAvatar(role, gender){
 // ── the pool users can pick from ──
 const GIRLS = Array.from({length:14},(_,i)=>`g${i+1}`)
 const BOYS  = Array.from({length:13},(_,i)=>`b${i+1}`)
-const ROLES = ['director','supervisor','admin','nursery','teacher-m','teacher-f','teacher-sport','teacher-fr']
+const ROLES = ['director','supervisor','admin','nursery','teacher-m','teacher-f','teacher-f2','teacher-sport','teacher-fr','teacher-exam',
+  'af1','af2','af3','asf1','asf2','asm1','am1','am2']
 export const AVATAR_POOL = [
   ...GIRLS.map(k=>({ key:k, rel:`kids/${k}.png`, group:'Filles' })),
   ...BOYS.map(k=>({ key:k, rel:`kids/${k}.png`, group:'Garçons' })),
