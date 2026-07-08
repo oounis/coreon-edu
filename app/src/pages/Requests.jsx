@@ -5,15 +5,15 @@ import { db, mutate, uid, userById, studentById, classById } from '../db.js'
 import { ROLE } from '../theme.js'
 import { notify } from '../notify.js'
 import { REQUEST_DEFS, typesForRole, LEGAL } from '../tunisia.js'
-import { PageHead, Card, Btn, Modal, Field, Input, Select, Textarea, Badge } from '../components/ui.jsx'
-import { FileText, Plus, Printer, Check, X, ChevronRight, Paperclip, Eye, Download } from 'lucide-react'
+import { PageHead, Card, Btn, Modal, Field, Input, Select, Textarea, Badge, EmptyState, STATUS } from '../components/ui.jsx'
+import { FileText, Plus, Printer, Check, X, ChevronRight, Paperclip, Eye, Download, Info, MessageSquare } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'
 
 const defaults=type=>{ const o={}; (REQUEST_DEFS[type]?.fields||[]).forEach(f=>{ o[f.k]= f.t==='checkbox'?false : (f.def||'') }); return o }
 const fieldVal=(r,f)=>{ const v=r.fields?.[f.k]; if(v===''||v==null||v===false)return null
-  if(f.t==='checkbox')return 'Oui'; if(f.t==='child')return studentById(v)?.name||v; if(f.t==='attach')return '📎 '+v; return String(v) }
+  if(f.t==='checkbox')return 'Oui'; if(f.t==='child')return studentById(v)?.name||v; if(f.t==='attach')return <span className="inline-flex items-center gap-1"><Paperclip size={12}/>{v}</span>; return String(v) }
 
 export default function Requests(){
   const u=current(); const myTypes=typesForRole(u.role); const canRaise=myTypes.length>0
@@ -43,14 +43,14 @@ export default function Requests(){
       else { req.currentLevel++; if(req.currentLevel>=req.chain.length) req.status='approved' } })
     const req=db().requests.find(x=>x.id===r.id)
     if(decision==='rejected') notify({to:r.by,kind:'request',actor:u.name,title:'demande rejetée',body:`${r.type} — ${comment||'sans motif'}`,link:'/app/requests'})
-    else if(req.status==='approved') notify({to:r.by,kind:'request',actor:'Administration',title:'demande approuvée ✓',body:`${r.type} — validée${REQUEST_DEFS[r.type]?.doc?', document disponible':''}.`,link:'/app/requests'})
+    else if(req.status==='approved') notify({to:r.by,kind:'request',actor:'Administration',title:'demande approuvée',body:`${r.type} — validée${REQUEST_DEFS[r.type]?.doc?', document disponible':''}.`,link:'/app/requests'})
     else { notify({role:req.chain[req.currentLevel],kind:'request',actor:u.name,title:`validation requise : ${r.type}`,body:`De ${r.byName}`,link:'/app/requests'}); notify({to:r.by,kind:'request',actor:u.name,title:'demande validée (étape)',body:`${r.type} — en cours`,link:'/app/requests'}) }
     toast.success(decision==='approved'?'Demande approuvée':'Demande rejetée'); setView(null); setComment(''); refresh()
   }
 
   const Chain=({r})=>(<div className="flex items-center gap-1.5 flex-wrap mt-2">
     {r.chain.map((role,i)=>{ const ap=r.approvals[i]; const done=ap?.decision==='approved',rej=ap?.decision==='rejected'
-      const st=rej?'rej':done?'ok':(i===r.currentLevel&&r.status==='pending')?'cur':'wait'; const c={ok:'#2BD9A8',rej:'#FF6B81',cur:'#FFA62B',wait:'#C7CDDA'}[st]
+      const st=rej?'rej':done?'ok':(i===r.currentLevel&&r.status==='pending')?'cur':'wait'; const c={ok:STATUS.ok,rej:STATUS.danger,cur:STATUS.warn,wait:STATUS.neutral}[st]
       return <span key={i} className="flex items-center gap-1.5"><span className="text-[11px] font-bold px-2 py-1 rounded-full flex items-center gap-1" style={{background:c+'22',color:c}}>{done&&<Check size={11}/>}{rej&&<X size={11}/>} {ROLE[role]?.label}</span>{i<r.chain.length-1&&<ChevronRight size={12} className="text-muted"/>}</span> })}
   </div>)
   const Row=({r,decidable})=>(
@@ -59,7 +59,7 @@ export default function Requests(){
         <div className="min-w-0"><div className="font-semibold flex items-center gap-2"><FileText size={16} className="accent-text"/> {r.type} <Badge status={r.status}/></div>
           <div className="text-xs text-muted mt-0.5">par {r.byName} · {formatDistanceToNow(r.at,{addSuffix:true,locale:fr})}</div><Chain r={r}/></div>
         <div className="flex items-center gap-2 shrink-0">
-          {decidable && <span className="text-xs font-bold px-2 py-1 rounded-full" style={{background:'#FFF1DD',color:'#E59A12'}}>À examiner</span>}
+          {decidable && <span className="text-xs font-bold px-2 py-1 rounded-full" style={{background:STATUS.warnSoft,color:STATUS.warn}}>À examiner</span>}
           <Btn variant="ghost" onClick={(e)=>{e.stopPropagation();setComment('');setView(r)}}><Eye size={15}/> Détails</Btn>
         </div>
       </div>
@@ -75,7 +75,7 @@ export default function Requests(){
     <div className="text-xs font-bold uppercase text-muted mb-2">{canRaise?'Mes demandes':'Toutes les demandes'}</div>
     <div className="space-y-3">
       {(canRaise?mine:d.requests).map(r=><Row key={r.id} r={r}/>)}
-      {(canRaise?mine:d.requests).length===0 && <Card className="p-10 text-center text-muted">Aucune demande.</Card>}
+      {(canRaise?mine:d.requests).length===0 && <Card><EmptyState icon={<FileText size={26}/>} title="Aucune demande" sub={canRaise?'Déposez votre première demande pour la suivre ici.':'Les demandes à examiner apparaîtront ici.'}/></Card>}
     </div>
 
     {/* ---------- DETAIL (review then decide) ---------- */}
@@ -98,7 +98,7 @@ export default function Requests(){
         </div>
         <div className="text-xs font-bold uppercase text-muted mb-1">Circuit de validation</div><Chain r={view}/>
         {view.approvals.length>0 && <div className="mt-3 space-y-1">{view.approvals.map((a,i)=>(
-          <div key={i} className="text-xs"><b style={{color:a.decision==='approved'?'#10B981':'#EF4444'}}>{a.decision==='approved'?'✓ Approuvé':'✗ Rejeté'}</b> par {a.by} ({ROLE[a.role]?.label}) · {format(a.at,'dd/MM/yyyy')}{a.comment&&` — 💬 ${a.comment}`}</div>))}</div>}
+          <div key={i} className="text-xs"><b className="inline-flex items-center gap-1" style={{color:a.decision==='approved'?STATUS.ok:STATUS.danger}}>{a.decision==='approved'?<><Check size={11}/> Approuvé</>:<><X size={11}/> Rejeté</>}</b> par {a.by} ({ROLE[a.role]?.label}) · {format(a.at,'dd/MM/yyyy')}{a.comment&&<span className="text-muted"> — <MessageSquare size={11} className="inline -mt-0.5"/> {a.comment}</span>}</div>))}</div>}
         {canDecide(view) && <div className="mt-4 pt-4 border-t border-line"><Field label="Votre commentaire (optionnel)"><Textarea value={comment} onChange={e=>setComment(e.target.value)} className="h-20" placeholder="Motif d'approbation ou de rejet…"/></Field></div>}
       </div>) })()}
     </Modal>
@@ -107,7 +107,7 @@ export default function Requests(){
     <Modal open={open} onClose={()=>setOpen(false)} title="Nouvelle demande" size="xl" footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={submit}>Envoyer</Btn></>}>
       <Field label="Type de demande"><Select value={type} onChange={e=>setType2(e.target.value)}>{myTypes.map(t=><option key={t}>{t}</option>)}</Select></Field>
       <div className="text-xs text-muted my-2">Circuit : {def.chain?.map(r=>ROLE[r].label).join(' → ')}</div>
-      {def.note&&<div className="text-xs bg-canvas rounded-xl p-2 mb-3 text-muted">ℹ️ {def.note}</div>}
+      {def.note&&<div className="text-xs bg-canvas rounded-xl p-2 mb-3 text-muted flex items-start gap-1.5"><Info size={13} className="shrink-0 mt-0.5"/><span>{def.note}</span></div>}
       <div className="grid sm:grid-cols-2 gap-3">{def.fields.map(f=>(
         <div key={f.k} className={f.t==='textarea'||f.t==='checkbox'?'sm:col-span-2':''}>
           {f.t==='checkbox'
@@ -152,9 +152,9 @@ function OfficialDoc({ r }){ const m=docModel(r); return (
     <p className="leading-7">{m.intro}</p>
     <div className="my-3 pl-4 border-l-2" style={{borderColor:'#EEEBFF'}}>{m.rows.map(([k,v])=><div key={k}><b>{k} :</b> {v}</div>)}</div>
     <p className="leading-7">{m.body}</p>
-    <div className="mt-6 grid grid-cols-2 gap-4"><div className="text-xs text-muted"><b>Circuit de validation :</b>{m.r.approvals.map((a,i)=><div key={i}>✓ {ROLE[a.role]?.label} — {a.by} ({format(a.at,'dd/MM/yyyy')})</div>)}</div>
+    <div className="mt-6 grid grid-cols-2 gap-4"><div className="text-xs text-muted"><b>Circuit de validation :</b>{m.r.approvals.map((a,i)=><div key={i} className="flex items-center gap-1"><Check size={10} className="shrink-0"/> {ROLE[a.role]?.label} — {a.by} ({format(a.at,'dd/MM/yyyy')})</div>)}</div>
       <div className="text-center"><div className="h-12"></div><div className="border-t border-ink/30 pt-1 text-xs">Cachet & signature de la Direction</div></div></div>
-    <div className="text-[10px] text-muted mt-6 pt-2 border-t border-line">Document généré par Coreon Edu — conforme à la {LEGAL.law} (INPDP).</div>
+    <div className="text-[10px] text-muted mt-6 pt-2 border-t border-line">Document généré par Kogia Edu — conforme à la {LEGAL.law} (INPDP).</div>
   </div>) }
 function downloadPDF(r){
   const m=docModel(r); const doc=new jsPDF({unit:'mm',format:'a4'}); const W=210; let y=20
@@ -170,7 +170,7 @@ function downloadPDF(r){
   doc.setFontSize(9); doc.setTextColor(110); doc.text('Circuit de validation :',20,y); y+=5
   m.r.approvals.forEach(a=>{ doc.text(`  • ${ROLE[a.role]?.label} — ${a.by} (${format(a.at,'dd/MM/yyyy')})`,20,y); y+=5 })
   doc.text('Cachet & signature de la Direction',W-20,y+6,{align:'right'})
-  doc.setFontSize(7.5); doc.text(`Document généré par Coreon Edu — conforme à la ${LEGAL.law} (INPDP).`,20,285)
+  doc.setFontSize(7.5); doc.text(`Document généré par Kogia Edu — conforme à la ${LEGAL.law} (INPDP).`,20,285)
   doc.save(`${m.title.replace(/ /g,'_')}_${m.r.byName.replace(/ /g,'_')}.pdf`)
   toast.success('PDF téléchargé')
 }

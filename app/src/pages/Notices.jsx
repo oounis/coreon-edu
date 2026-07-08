@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { current } from '../auth.js'
 import { db } from '../db.js'
 import { notify } from '../notify.js'
-import { PageHead, Card, Btn, Field, Input, Select } from '../components/ui.jsx'
+import { PageHead, Card, Btn, Field, Input, Select, IconTile, EmptyState } from '../components/ui.jsx'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Megaphone } from 'lucide-react'
@@ -22,9 +22,9 @@ export default function Notices(){
         <Field label="Destinataires"><Select value={aud} onChange={e=>setAud(e.target.value)}><option value="parent">Parents</option><option value="teacher">Enseignants</option><option value="supervisor">Surveillants</option></Select></Field>
       </div><div className="mt-3"><Btn onClick={post}>Publier</Btn></div></Card>}
     <div className="space-y-3">
-      {feed.length? feed.map(n=>(<Card key={n.id} className="p-4 flex items-start gap-3"><span className="w-10 h-10 rounded-xl grid place-items-center accent-soft accent-text"><Megaphone size={18}/></span>
+      {feed.length? feed.map(n=>(<Card key={n.id} className="p-4 flex items-start gap-3"><IconTile icon={<Megaphone size={18}/>} tint="brand" size={40} radius="rounded-xl"/>
         <div><div className="font-semibold">{n.title}</div><div className="text-sm text-muted">{n.body}</div><div className="text-[11px] text-muted mt-0.5">{formatDistanceToNow(n.at,{addSuffix:true,locale:fr})} · {audFR[n.role]||'à vous'}</div></div></Card>))
-       : <Card className="p-10 text-center text-muted">Aucune annonce pour le moment.</Card>}
+       : <Card><EmptyState icon={<Megaphone size={26}/>} title="Aucune annonce" sub="Les communications de l'école apparaîtront ici."/></Card>}
     </div>
   </>)
 }

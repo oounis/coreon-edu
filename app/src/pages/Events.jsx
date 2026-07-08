@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { current } from '../auth.js'
 import { db, mutate, uid } from '../db.js'
 import { notify } from '../notify.js'
-import { PageHead, Card, Btn, Modal, Field, Input, Select, Textarea } from '../components/ui.jsx'
+import { PageHead, Card, Btn, Modal, Field, Input, Select, Textarea, EmptyState, STATUS } from '../components/ui.jsx'
 import { CalendarDays, Plus, ChevronLeft, ChevronRight, Clock, Users, Trash2, MapPin } from 'lucide-react'
 import {
   format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval,
@@ -12,8 +12,8 @@ import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'
 
 const TYPES=[
-  {k:'Événement',c:'#6C5CE7'}, {k:'Réunion',c:'#36C5F0'}, {k:'Examen',c:'#FF6B81'},
-  {k:'Vacances',c:'#2BD9A8'}, {k:'Sortie',c:'#FFA62B'},
+  {k:'Événement',c:'#6C5CE7'}, {k:'Réunion',c:STATUS.info}, {k:'Examen',c:STATUS.danger},
+  {k:'Vacances',c:STATUS.ok}, {k:'Sortie',c:STATUS.warn},
 ]
 const tint=t=>(TYPES.find(x=>x.k===t)||TYPES[0]).c
 const AUD={all:'Toute l’école',parent:'Parents',teacher:'Enseignants',supervisor:'Surveillants'}
@@ -113,7 +113,7 @@ export default function Events(){
                 </div>
               </div>
             ))}
-          </div> : <div className="text-sm text-muted py-6 text-center">Aucun événement ce jour.</div>}
+          </div> : <EmptyState icon={<CalendarDays size={22}/>} title="Aucun événement ce jour" sub={canAdd?'Double-cliquez sur un jour du calendrier pour en ajouter un.':'Sélectionnez un autre jour du calendrier.'}/>}
         </Card>
 
         <Card className="p-4">
@@ -124,7 +124,7 @@ export default function Events(){
                 <div className="w-11 text-center shrink-0"><div className="text-lg font-extrabold" style={{color:tint(e.type)}}>{e.date.slice(8,10)}</div><div className="text-[10px] text-muted uppercase">{format(parseISO(e.date),'MMM',{locale:fr})}</div></div>
                 <div className="min-w-0"><div className="text-sm font-semibold truncate">{e.title}</div><div className="text-[11px] text-muted">{e.type}{e.time?' · '+e.time:''}</div></div>
               </button>
-            )) : <div className="text-sm text-muted">Rien de prévu.</div>}
+            )) : <EmptyState icon={<CalendarDays size={22}/>} title="Rien de prévu" sub="Les prochains événements apparaîtront ici."/>}
           </div>
         </Card>
       </div>

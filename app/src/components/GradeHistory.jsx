@@ -4,9 +4,10 @@ import { bucketOf } from '../results.js'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { ClipboardList, CalendarCheck } from 'lucide-react'
+import { STATUS } from './ui.jsx'
 
 const FRATT={present:'Présent',absent:'Absent',late:'Retard'}
-const COLATT={present:'#2BD9A8',absent:'#FF6B81',late:'#FFA62B'}
+const COLATT={present:STATUS.ok,absent:STATUS.danger,late:STATUS.warn}
 
 // Liste TOUTES les évaluations enregistrées pour un élève — preuve que les notes sont sauvegardées
 export default function GradeHistory({ studentId }){
@@ -27,13 +28,13 @@ export default function GradeHistory({ studentId }){
           {hist.map(ev=>{ const m=ev.mention||mentionFor(ev.score); return (
             <div key={ev.id} className="rounded-xl border border-line p-3">
               <div className="flex items-center justify-between mb-1">
-                <div className="font-semibold text-sm">{ev.subject} {ev.badge&&<span className="ml-1">{ev.badge.emoji} {ev.badge.label}</span>}</div>
+                <div className="font-semibold text-sm inline-flex items-center gap-1.5">{ev.subject} {ev.badge&&<span className="inline-flex items-center gap-1 accent-text">{ev.badge.Icon&&<ev.badge.Icon size={13}/>} {ev.badge.label}</span>}</div>
                 <div className="text-right"><span className="font-bold" style={{color:m.color}}>{ev.score}/100</span>
                   <span className="ml-2 text-[11px] font-bold px-2 py-0.5 rounded-full" style={{background:m.color+'22',color:m.color}}>{m.label}</span></div>
               </div>
               <div className="text-[11px] text-muted mb-1.5">{format(new Date(ev.at),'EEEE dd MMMM yyyy · HH:mm',{locale:fr})} · {ev.teacher}{ev.className?` · ${ev.className}`:''}</div>
               <div className="flex flex-wrap gap-1.5">
-                {ev.perQ.map((x,i)=>(<span key={i} className="text-[10px] px-2 py-0.5 rounded-full" style={{background:(x.bucket?.color||'#94A3B8')+'22',color:x.bucket?.color||'#94A3B8'}} title={x.q}>{x.bucket?.emoji} {x.bucket?.label}</span>))}
+                {ev.perQ.map((x,i)=>(<span key={i} className="text-[10px] px-2 py-0.5 rounded-full inline-flex items-center gap-1" style={{background:(x.bucket?.color||STATUS.neutral)+'22',color:x.bucket?.color||STATUS.neutral}} title={x.q}>{x.bucket?.Icon&&<x.bucket.Icon size={10}/>}{x.bucket?.label}</span>))}
               </div>
               {ev.note&&<div className="text-xs text-muted mt-1.5 italic">« {ev.note} »</div>}
             </div>) })}

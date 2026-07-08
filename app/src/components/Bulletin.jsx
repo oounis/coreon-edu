@@ -1,7 +1,6 @@
 import { db, classById } from '../db.js'
 import { bulletinFor, mentionFor } from '../results.js'
-import { Btn, Avatar } from './ui.jsx'
-import { studentColor } from '../data.js'
+import { Btn, Avatar, STATUS } from './ui.jsx'
 import { Dialog } from '@headlessui/react'
 import { X, Printer, Award, CalendarCheck } from 'lucide-react'
 import { format } from 'date-fns'
@@ -45,7 +44,7 @@ export default function Bulletin({ student, onClose }){
 
             {/* identité élève */}
             <div className="flex items-center gap-4 mb-6">
-              <Avatar name={student.name} color={studentColor(student.id)} size={52}/>
+              <Avatar name={student.name} seed={student.id} size={52}/>
               <div className="flex-1 grid sm:grid-cols-2 gap-x-8 gap-y-1 text-sm">
                 <div className="text-xl font-extrabold sm:col-span-2">{student.name}</div>
                 <Line k="Classe" v={cls?.name}/>
@@ -87,9 +86,9 @@ export default function Bulletin({ student, onClose }){
             {/* présence détaillée */}
             <h3 className="text-sm font-bold uppercase tracking-wide text-muted mb-2 flex items-center gap-1.5"><CalendarCheck size={14}/> Assiduité</h3>
             <div className="flex flex-wrap gap-3 mb-6 text-sm">
-              <Pill color="#2BD9A8" label="Présences" value={b.att.present}/>
-              <Pill color="#FF6B81" label="Absences" value={b.att.absent}/>
-              <Pill color="#FFA62B" label="Retards" value={b.att.late}/>
+              <Pill color={STATUS.ok} label="Présences" value={b.att.present}/>
+              <Pill color={STATUS.danger} label="Absences" value={b.att.absent}/>
+              <Pill color={STATUS.warn} label="Retards" value={b.att.late}/>
               {b.attTotal===0 && <span className="text-muted">Aucun relevé de présence disponible.</span>}
             </div>
 
@@ -97,7 +96,7 @@ export default function Bulletin({ student, onClose }){
             {b.badges.length>0 && (<>
               <h3 className="text-sm font-bold uppercase tracking-wide text-muted mb-2 flex items-center gap-1.5"><Award size={14}/> Distinctions</h3>
               <div className="flex flex-wrap gap-2 mb-6">
-                {b.badges.slice(0,8).map((bd,i)=><span key={i} className="text-xs font-semibold px-2.5 py-1 rounded-full accent-soft accent-text">{bd.emoji} {bd.label}</span>)}
+                {b.badges.slice(0,8).map((bd,i)=><span key={i} className="text-xs font-semibold px-2.5 py-1 rounded-full accent-soft accent-text inline-flex items-center gap-1">{bd.Icon&&<bd.Icon size={12}/>}{bd.label}</span>)}
               </div>
             </>)}
 
@@ -119,7 +118,7 @@ export default function Bulletin({ student, onClose }){
               <div><div className="text-muted text-xs">Signature de la Direction</div><div className="h-12 border-b border-line"/></div>
               <div><div className="text-muted text-xs">Signature du Parent / Tuteur</div><div className="h-12 border-b border-line"/></div>
             </div>
-            <div className="text-[10px] text-muted text-center mt-6">Document généré par Coreon Edu · Kogia Education — bulletin indicatif, sans valeur officielle dans cette démo.</div>
+            <div className="text-[10px] text-muted text-center mt-6">Document généré par Kogia Edu — bulletin indicatif, sans valeur officielle dans cette démo.</div>
           </div>
         </Dialog.Panel>
       </div>

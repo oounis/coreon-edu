@@ -2,11 +2,10 @@ import { useState } from 'react'
 import { current } from '../auth.js'
 import { db, mutate, studentById } from '../db.js'
 import { notify } from '../notify.js'
-import { PageHead, Card, Avatar, Btn } from '../components/ui.jsx'
-import { studentColor } from '../data.js'
+import { PageHead, Card, Avatar, Btn, EmptyState, STATUS } from '../components/ui.jsx'
 import { CreditCard, Check } from 'lucide-react'
 import toast from 'react-hot-toast'
-const COL={paid:'#2BD9A8',pending:'#FFA62B',overdue:'#FF6B81',due:'#C7CDDA'}
+const COL={paid:STATUS.ok,pending:STATUS.warn,overdue:STATUS.danger,due:STATUS.neutral}
 const FR={paid:'Payé',pending:'En attente',overdue:'En retard',due:'Impayé'}
 export default function Payments(){
   const u=current(); const [,force]=useState(0)
@@ -26,7 +25,8 @@ export default function Payments(){
     <PageHead title="Mes paiements" sub={`${child?.name} · ${paid}/${months.length} mois payés`}
       action={unpaid.length>0&&<Btn onClick={payAll}><Check size={16}/> Tout régler ({unpaid.length})</Btn>}/>
     <Card className="p-6 max-w-[680px]">
-      <div className="flex items-center gap-3 mb-5"><Avatar name={child?.name} color={studentColor(child?.id||'x')} size={44}/><div><div className="font-bold">{child?.name}</div><div className="text-muted text-sm">Frais de scolarité · mensuels</div></div></div>
+      <div className="flex items-center gap-3 mb-5"><Avatar name={child?.name} seed={child?.id||'x'} size={44}/><div><div className="font-bold">{child?.name}</div><div className="text-muted text-sm">Frais de scolarité · mensuels</div></div></div>
+      {months.length===0 && <EmptyState icon={<CreditCard size={26}/>} title="Aucune échéance" sub="L'échéancier de paiement apparaîtra ici dès qu'il sera établi."/>}
       <div className="grid grid-cols-5 gap-2">
         {months.map((m,i)=>(
           <div key={i} className="rounded-xl border border-line p-2 text-center">
@@ -39,7 +39,7 @@ export default function Payments(){
           </div>
         ))}
       </div>
-      <div className="flex gap-4 mt-4 text-xs text-muted">{Object.entries(COL).map(([k,c])=><span key={k} className="flex items-center gap-1.5"><i className="w-3 h-3 rounded" style={{background:c}}/>{FR[k]}</span>)}</div>
+      {months.length>0 && <div className="flex gap-4 mt-4 text-xs text-muted">{Object.entries(COL).map(([k,c])=><span key={k} className="flex items-center gap-1.5"><i className="w-3 h-3 rounded" style={{background:c}}/>{FR[k]}</span>)}</div>}
     </Card>
   </>)
 }

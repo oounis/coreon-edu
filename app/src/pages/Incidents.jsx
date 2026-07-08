@@ -2,14 +2,13 @@ import { useState } from 'react'
 import { current } from '../auth.js'
 import { db, mutate, uid, studentById } from '../db.js'
 import { notify } from '../notify.js'
-import { PageHead, Card, Btn, Modal, Field, Input, Select, Badge, Avatar } from '../components/ui.jsx'
-import { studentColor } from '../data.js'
+import { PageHead, Card, Btn, Modal, Field, Input, Select, Badge, IconTile, EmptyState } from '../components/ui.jsx'
 import { ShieldAlert, Plus } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'
 const TYPES=['Bagarre','Santé','Comportement','Sécurité','Autre']
-const SEV={low:'#36C5F0',medium:'#FFA62B',high:'#FF6B81'}
+const SEV_TINT={low:'sky',medium:'butter',high:'coral'}
 const SEV_FR={low:'Faible',medium:'Moyenne',high:'Élevée'}
 export default function Incidents(){
   const u=current(); const canReport=['supervisor','admin','schooladmin'].includes(u.role)
@@ -32,14 +31,14 @@ export default function Incidents(){
     <div className="space-y-3">
       {d.incidents.length? d.incidents.map(i=>{ const s=i.studentId?studentById(i.studentId):null; return (
         <Card key={i.id} className="p-4 flex items-start gap-3">
-          <span className="w-10 h-10 rounded-xl grid place-items-center text-white shrink-0" style={{background:SEV[i.severity]}}><ShieldAlert size={18}/></span>
+          <IconTile icon={<ShieldAlert size={18}/>} tint={SEV_TINT[i.severity]} size={40} radius="rounded-xl"/>
           <div className="flex-1">
             <div className="flex items-center gap-2 flex-wrap"><b>{i.title}</b><span className="text-[11px] font-bold px-2 py-0.5 rounded-full accent-soft accent-text">{i.type}</span><Badge status={i.status}/></div>
             <div className="text-sm text-muted">{i.body}</div>
             <div className="text-[11px] text-muted mt-1">par {i.by}{s&&` · ${s.name}`} · {formatDistanceToNow(i.at,{addSuffix:true,locale:fr})}</div>
           </div>
           {canResolve&&i.status==='open'&&<Btn variant="soft" onClick={()=>resolve(i.id)}>Résoudre</Btn>}
-        </Card>) }) : <Card className="p-10 text-center text-muted">Aucun incident signalé.</Card>}
+        </Card>) }) : <Card><EmptyState icon={<ShieldAlert size={26}/>} title="Aucun incident" sub="Aucun incident signalé pour le moment."/></Card>}
     </div>
     <Modal open={open} onClose={()=>setOpen(false)} title="Signaler un incident" footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={report}>Signaler & notifier</Btn></>}>
       <div className="space-y-3">

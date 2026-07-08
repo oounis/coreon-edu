@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { current } from '../auth.js'
 import { db, mutate, uid, classById } from '../db.js'
 import { notify } from '../notify.js'
-import { PageHead, Card, Btn, Modal, Field, Input, Select, Textarea } from '../components/ui.jsx'
+import { PageHead, Card, Btn, Modal, Field, Input, Select, Textarea, EmptyState } from '../components/ui.jsx'
+import { SubjectDot } from '../subjects.jsx'
 import { BookOpen, Plus, CalendarClock } from 'lucide-react'
 import { format } from 'date-fns'
 import toast from 'react-hot-toast'
@@ -16,11 +17,11 @@ export default function Homework(){
   return (<>
     <PageHead title="Devoirs" sub="Travaux à faire et dates de remise." action={isTeacher&&<Btn onClick={()=>setOpen(true)}><Plus size={16}/> Publier un devoir</Btn>}/>
     <div className="grid md:grid-cols-2 gap-3">
-      {d.homework.length? d.homework.map(h=>(<Card key={h.id} className="p-4 flex gap-3"><span className="w-10 h-10 rounded-xl grid place-items-center accent-soft accent-text shrink-0"><BookOpen size={18}/></span>
+      {d.homework.length? d.homework.map(h=>(<Card key={h.id} className="p-4 flex gap-3"><SubjectDot label={h.subject} size={40} iconSize={18}/>
         <div><div className="font-semibold">{h.title}</div><div className="text-sm text-muted">{h.subject} · {classById(h.classId)?.name}</div>
           {h.details&&<div className="text-sm mt-1">{h.details}</div>}
           <div className="text-xs text-muted mt-1 flex items-center gap-1"><CalendarClock size={12}/> À rendre le {h.due||'—'}</div></div></Card>))
-       : <Card className="p-10 text-center text-muted md:col-span-2">Aucun devoir publié.</Card>}
+       : <Card className="md:col-span-2"><EmptyState icon={<BookOpen size={26}/>} title="Aucun devoir publié" sub="Les devoirs et leurs dates de remise apparaîtront ici."/></Card>}
     </div>
     <Modal open={open} onClose={()=>setOpen(false)} title="Publier un devoir" footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={add}>Publier</Btn></>}>
       <div className="grid sm:grid-cols-2 gap-3">

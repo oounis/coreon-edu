@@ -1,21 +1,24 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Mark } from '../components/ui.jsx'
+import { Mark, STATUS } from '../components/ui.jsx'
 import { ROLE } from '../theme.js'
 import {
   Zap, ArrowRight, ClipboardCheck, CalendarCheck, Wallet, BookOpen, ShieldAlert, MessageSquare,
   Bus, CalendarDays, Award, ShieldCheck, Globe, Check, Star, ChevronDown, Sparkles, Lock,
-  GraduationCap, Users, Building2, UserCog, Eye, HeartHandshake, Phone, Mail
+  GraduationCap, Users, Building2, UserCog, Eye, HeartHandshake, Phone, Mail, TrendingUp, Handshake
 } from 'lucide-react'
 
 const up = { initial:{opacity:0,y:20}, whileInView:{opacity:1,y:0}, viewport:{once:true,margin:'-60px'}, transition:{duration:.5} }
+// one shared CTA recipe (ui.jsx Btn classes) for every call-to-action on the page
+const BTN="inline-flex items-center justify-center gap-1.5 rounded-xl font-semibold transition active:scale-[.98]"
+const BTN_MD=`${BTN} text-sm px-4 py-2.5`, BTN_LG=`${BTN} text-sm px-5 py-3`
 
 const MODULES = [
   [ClipboardCheck,'Évaluation express','Notez toute la classe en 30 s par glisser-déposer — 5 questions, des badges, une note. Partagé en direct.','#6C5CE7'],
   [CalendarCheck,'Présence','Appel en un tap, retards et absences suivis, alertes automatiques aux parents.','#36C5F0'],
-  [Wallet,'Frais & paiements','Frais de scolarité mensuels, reçus, relances et suivi des impayés — clair pour la direction et les parents.','#2BD9A8'],
-  [BookOpen,'Devoirs & examens','Devoirs, calendrier des examens, bulletins imprimables — enseignants, élèves et parents alignés.','#FFA62B'],
+  [Wallet,'Frais & paiements','Frais de scolarité mensuels, reçus, relances et suivi des impayés — clair pour la direction et les parents.',STATUS.ok],
+  [BookOpen,'Devoirs & examens','Devoirs, calendrier des examens, bulletins imprimables — enseignants, élèves et parents alignés.',STATUS.warn],
   [ShieldAlert,'Incidents & discipline','Signalements, suivi et résolution — la vie scolaire tracée et transparente.','#FF6B81'],
   [MessageSquare,'Communication parents','Annonces, messages et notifications — l’école et les familles connectées.','#A78BFA'],
   [Bus,'Transport','Circuits, arrêts et suivi — les parents savent où en est le bus.','#0BA5D8'],
@@ -36,7 +39,7 @@ const PRICING = [
 ]
 const FAQ = [
   ['Est-ce adapté au système tunisien ?','Oui — Primaire, Collège et Lycée, filières (Sciences, Maths, Éco-Gestion…), années et matières tunisiennes sont intégrés. Interface en français, prête pour l’arabe.'],
-  ['Faut-il installer quelque chose ?','Non. Coreon Edu fonctionne dans le navigateur, sur ordinateur, tablette et mobile. Rien à installer.'],
+  ['Faut-il installer quelque chose ?','Non. Kogia Edu fonctionne dans le navigateur, sur ordinateur, tablette et mobile. Rien à installer.'],
   ['Nos données sont-elles en sécurité ?','Accès par rôle strict (chaque portail ne voit que ce qui le concerne), sessions protégées et export contrôlé de vos données.'],
   ['Combien de temps pour démarrer ?','Une journée. On importe vos classes et élèves, on crée les comptes, et vos enseignants évaluent dès le lendemain.'],
 ]
@@ -57,8 +60,8 @@ export default function Landing(){
             <a href="#faq" className="hover:text-ink">FAQ</a>
           </nav>
           <div className="flex items-center gap-2">
-            <button onClick={()=>nav('/login')} className="text-sm font-semibold px-4 py-2 rounded-xl hover:bg-canvas">Se connecter</button>
-            <button onClick={()=>nav('/login')} className="text-sm font-semibold px-4 py-2 rounded-xl text-white shadow-lg" style={{background:A,boxShadow:'0 8px 20px -8px '+A}}>Démo gratuite</button>
+            <button onClick={()=>nav('/login')} className={`${BTN_MD} text-muted hover:text-ink hover:bg-canvas`}>Se connecter</button>
+            <button onClick={()=>nav('/login')} className={`${BTN_MD} text-white shadow-sm hover:opacity-90`} style={{background:A}}>Démo gratuite</button>
           </div>
         </div>
       </header>
@@ -68,17 +71,17 @@ export default function Landing(){
         <div className="absolute inset-0 -z-10" style={{background:'radial-gradient(60% 60% at 80% 0%, #EEEBFF 0%, transparent 60%), radial-gradient(50% 50% at 0% 20%, #E4F7FE 0%, transparent 55%)'}}/>
         <div className="mx-auto max-w-[1120px] px-5 pt-16 pb-10 grid lg:grid-cols-2 gap-12 items-center">
           <motion.div {...up}>
-            <div className="inline-flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-full" style={{background:'#EEEBFF',color:A}}><Zap size={13}/> La gestion scolaire, enfin simple · 🇹🇳</div>
+            <div className="inline-flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-full" style={{background:'#EEEBFF',color:A}}><Zap size={13}/> La gestion scolaire, enfin simple</div>
             <h1 className="text-4xl md:text-5xl font-extrabold leading-[1.08] mt-5">Toute votre école,<br/>sur <span style={{color:A}}>une seule</span> plateforme.</h1>
             <p className="text-lg text-muted mt-5 max-w-[48ch]">Évaluations, présence, frais, examens, incidents et communication avec les parents. Pensé pour les écoles tunisiennes — <b className="text-ink">rapide, clair, sécurisé.</b></p>
             <div className="flex flex-wrap gap-3 mt-7">
-              <button onClick={()=>nav('/login')} className="inline-flex items-center gap-2 rounded-xl px-6 py-3.5 font-semibold text-white shadow-xl" style={{background:A,boxShadow:'0 14px 30px -10px '+A}}>Essayer la démo <ArrowRight size={18}/></button>
-              <a href="#modules" className="inline-flex items-center gap-2 rounded-xl px-6 py-3.5 font-semibold border border-line hover:border-ink/20">Voir les fonctionnalités</a>
+              <button onClick={()=>nav('/login')} className={`${BTN_LG} text-white shadow-sm hover:opacity-90`} style={{background:A}}>Essayer la démo <ArrowRight size={18}/></button>
+              <a href="#modules" className={`${BTN_LG} bg-white border border-line hover:bg-canvas`}>Voir les fonctionnalités</a>
             </div>
             <div className="flex items-center gap-5 mt-7 text-sm text-muted">
-              <span className="flex items-center gap-1.5"><Check size={16} style={{color:'#2BD9A8'}}/> Sans installation</span>
-              <span className="flex items-center gap-1.5"><Check size={16} style={{color:'#2BD9A8'}}/> Français & arabe</span>
-              <span className="flex items-center gap-1.5"><Check size={16} style={{color:'#2BD9A8'}}/> Prêt en 1 jour</span>
+              <span className="flex items-center gap-1.5"><Check size={16} style={{color:STATUS.ok}}/> Sans installation</span>
+              <span className="flex items-center gap-1.5"><Check size={16} style={{color:STATUS.ok}}/> Français & arabe</span>
+              <span className="flex items-center gap-1.5"><Check size={16} style={{color:STATUS.ok}}/> Prêt en 1 jour</span>
             </div>
           </motion.div>
           <motion.div initial={{opacity:0,scale:.96}} animate={{opacity:1,scale:1}} transition={{duration:.5,delay:.1}}>
@@ -178,8 +181,8 @@ export default function Landing(){
               {pop&&<span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold text-white px-3 py-1 rounded-full" style={{background:A}}>Le plus choisi</span>}
               <div className="font-bold text-lg">{name}</div>
               <div className="mt-2 flex items-end gap-1"><span className="text-4xl font-extrabold">{price}</span>{price!=='Sur devis'&&<span className="text-muted mb-1 text-sm">TND / mois</span>}</div>
-              <ul className="mt-5 space-y-2.5">{feats.map(f=><li key={f} className="flex items-start gap-2 text-sm"><Check size={16} className="mt-0.5 shrink-0" style={{color:'#2BD9A8'}}/>{f}</li>)}</ul>
-              <button onClick={()=>nav('/login')} className={`w-full rounded-xl py-3 mt-6 font-semibold ${pop?'text-white':'border border-line hover:border-ink/20'}`} style={pop?{background:A}:{}}>Commencer</button>
+              <ul className="mt-5 space-y-2.5">{feats.map(f=><li key={f} className="flex items-start gap-2 text-sm"><Check size={16} className="mt-0.5 shrink-0" style={{color:STATUS.ok}}/>{f}</li>)}</ul>
+              <button onClick={()=>nav('/login')} className={`${BTN_LG} w-full mt-6 ${pop?'text-white shadow-sm hover:opacity-90':'bg-white border border-line hover:bg-canvas'}`} style={pop?{background:A}:{}}>Commencer</button>
             </motion.div>
           ))}
         </div>
@@ -220,8 +223,8 @@ export default function Landing(){
       <section className="mx-auto max-w-[1120px] px-5 pb-16">
         <motion.div {...up} className="rounded-3xl p-10 md:p-14 text-center text-white relative overflow-hidden" style={{background:'linear-gradient(135deg,#6C5CE7,#36C5F0)'}}>
           <h2 className="text-3xl md:text-4xl font-extrabold">Prêt à moderniser votre école ?</h2>
-          <p className="mt-3 text-white/85 max-w-[52ch] mx-auto">Testez Coreon Edu gratuitement — choisissez un rôle et découvrez la plateforme en un clic.</p>
-          <button onClick={()=>nav('/login')} className="inline-flex items-center gap-2 rounded-xl px-7 py-3.5 mt-7 font-bold bg-white" style={{color:A}}>Démarrer la démo <ArrowRight size={18}/></button>
+          <p className="mt-3 text-white/85 max-w-[52ch] mx-auto">Testez Kogia Edu gratuitement — choisissez un rôle et découvrez la plateforme en un clic.</p>
+          <button onClick={()=>nav('/login')} className={`${BTN_LG} mt-7 bg-white shadow-sm hover:opacity-90`} style={{color:A}}>Démarrer la démo <ArrowRight size={18}/></button>
         </motion.div>
       </section>
 
@@ -230,7 +233,7 @@ export default function Landing(){
         <div className="mx-auto max-w-[1120px] px-5 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted">
           <div className="flex items-center gap-2"><Mark size={26}/><span className="font-extrabold lowercase text-ink">kogia <span className="font-normal" style={{color:A}}>edu</span></span></div>
           <div className="flex items-center gap-5"><a href="#modules" className="hover:text-ink">Fonctionnalités</a><a href="#tarifs" className="hover:text-ink">Tarifs</a><span className="flex items-center gap-1.5"><Mail size={14}/> contact@kogia.tn</span></div>
-          <div>© 2026 Kogia Group · 🇹🇳 Tunisie</div>
+          <div>© 2026 Kogia Group · Tunisie</div>
         </div>
       </footer>
     </div>
@@ -240,12 +243,12 @@ export default function Landing(){
 // --- small product mock (drag-drop evaluation preview) ---
 function EvalMock({ compact }){
   const A='#6C5CE7'
-  const buckets=[['Excellent','#2BD9A8','#E2FBF3',['AB','YT']],['Bien','#36C5F0','#E4F7FE',['LK','SM']],['Moyen','#FFA62B','#FFF1DD',['HB']],['Insuffisant','#FF6B81','#FFE8EC',['NJ']]]
+  const buckets=[['Excellent',STATUS.ok,STATUS.okSoft,['AB','YT']],['Bien',STATUS.info,STATUS.infoSoft,['LK','SM']],['Moyen',STATUS.warn,STATUS.warnSoft,['HB']],['Insuffisant',STATUS.danger,STATUS.dangerSoft,['NJ']]]
   return (
     <div className="card p-4 shadow-2xl" style={{boxShadow:'0 30px 60px -25px rgba(108,92,231,.45)'}}>
       <div className="flex items-center justify-between px-1 pb-3 border-b border-line">
         <div><div className="font-bold text-sm">5ème A · Mathématiques</div><div className="text-[11px] text-muted">Participation en classe · maintenant</div></div>
-        <span className="text-[10px] font-bold px-2 py-1 rounded-full text-white" style={{background:'#2BD9A8'}}>● EN DIRECT</span>
+        <span className="text-[10px] font-bold px-2 py-1 rounded-full text-white" style={{background:STATUS.live}}>● EN DIRECT</span>
       </div>
       <div className={`grid grid-cols-2 gap-2.5 mt-3 ${compact?'':'sm:grid-cols-4'}`}>
         {buckets.map(([label,c,soft,kids])=>(
@@ -259,7 +262,7 @@ function EvalMock({ compact }){
         ))}
       </div>
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-line">
-        <div className="flex gap-1">{['⭐','📈','🤝'].map(e=><span key={e} className="w-8 h-8 rounded-lg grid place-items-center bg-canvas">{e}</span>)}</div>
+        <div className="flex gap-1">{[[Star,STATUS.warn],[TrendingUp,STATUS.ok],[Handshake,A]].map(([I,c],i)=><span key={i} className="w-8 h-8 rounded-lg grid place-items-center bg-canvas" style={{color:c}}><I size={15}/></span>)}</div>
         <button className="text-xs font-bold text-white px-4 py-2 rounded-lg" style={{background:A}}>Enregistrer & partager</button>
       </div>
     </div>

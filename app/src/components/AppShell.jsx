@@ -5,17 +5,15 @@ import { applyAccent, ROLE } from '../theme.js'
 import { current, logout } from '../auth.js'
 import { inboxFor, unreadFor, markRead, markAllRead } from '../notify.js'
 import { NotifRow } from './NotifItem.jsx'
-import { Mark } from './ui.jsx'
+import { Mark, Avatar, STATUS } from './ui.jsx'
 import {
   LayoutDashboard, Users, GraduationCap, UserCog, ClipboardCheck, Wallet, CreditCard,
   ShieldAlert, FileText, Megaphone, Building2, Bell, Search, LogOut, ChevronDown, Menu as MenuIcon,
-  CalendarCheck, BookOpen, BookMarked, Bus, CalendarDays, MessageSquare, Award, CheckCheck, CalendarClock, Radio, Gift, Settings, Sparkles, Image as ImageIcon
+  CalendarCheck, BookOpen, BookMarked, Bus, CalendarDays, MessageSquare, Award, CheckCheck, CalendarClock, Radio, Settings, Sparkles
 } from 'lucide-react'
 import { settings, db, classById } from '../db.js'
 import { safeLink } from '../access.js'
 import MeteoCorner from './MeteoCorner.jsx'
-import { studentAvatar, teacherAvatar, avatarBg, resolveStudentAvatar, resolveTeacherAvatar, resolveUserAvatar, setUserAvatar } from '../people.js'
-import AvatarPicker from './AvatarPicker.jsx'
 const NAV=[
   { to:'/app', label:'Tableau de bord', icon:LayoutDashboard, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
   { to:'/app/live', label:'Suivi en direct', icon:Radio, roles:['parent'] },
@@ -77,7 +75,6 @@ function GlobalSearch({ user }){
   const students= query&&canStudents? d.students.filter(s=>s.name.toLowerCase().includes(query)).slice(0,6):[]
   const teachers= query&&canTeachers? d.teachers.filter(t=>t.name.toLowerCase().includes(query)).slice(0,3):[]
   const has=students.length||teachers.length
-  const face=s=>s.gender==='Fille'?'👧':s.gender==='Garçon'?'👦':'🧑'
   const go=(to,state)=>{ setQ(''); setOpen(false); nav(to,{state}) }
   return (
     <div className="relative hidden sm:block">
@@ -86,9 +83,9 @@ function GlobalSearch({ user }){
       {open&&query&&(<div className="absolute left-0 mt-2 w-80 card p-2 shadow-2xl z-50 max-h-[70vh] overflow-y-auto scroll-thin">
         {!has&&<div className="px-3 py-6 text-center text-sm text-muted">Aucun résultat pour « {q} »</div>}
         {students.length>0&&<div className="text-[10px] font-bold uppercase text-muted px-2 py-1">Élèves</div>}
-        {students.map(s=><button key={s.id} onMouseDown={()=>go('/app/students',{openStudent:s.id})} className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-canvas text-left"><span className="w-8 h-8 rounded-lg overflow-hidden grid place-items-center" style={{background:avatarBg(s.id)}}><img src={resolveStudentAvatar(s)} alt="" className="w-full h-full object-contain"/></span><div className="min-w-0"><div className="text-sm font-medium truncate">{s.name}</div><div className="text-[11px] text-muted">{classById(s.classId)?.name||''}</div></div></button>)}
+        {students.map(s=><button key={s.id} onMouseDown={()=>go('/app/students',{openStudent:s.id})} className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-canvas text-left"><Avatar name={s.name} seed={s.id} size={32}/><div className="min-w-0"><div className="text-sm font-medium truncate">{s.name}</div><div className="text-[11px] text-muted">{classById(s.classId)?.name||''}</div></div></button>)}
         {teachers.length>0&&<div className="text-[10px] font-bold uppercase text-muted px-2 py-1 mt-1">Enseignants</div>}
-        {teachers.map(t=><button key={t.id} onMouseDown={()=>go('/app/teachers',{openTeacher:t.id})} className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-canvas text-left"><span className="w-8 h-8 rounded-lg overflow-hidden grid place-items-center" style={{background:avatarBg(t.id)}}><img src={resolveTeacherAvatar(t)} alt="" className="w-full h-full object-contain"/></span><div className="min-w-0"><div className="text-sm font-medium truncate">{t.name}</div><div className="text-[11px] text-muted">{t.subject}</div></div></button>)}
+        {teachers.map(t=><button key={t.id} onMouseDown={()=>go('/app/teachers',{openTeacher:t.id})} className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-canvas text-left"><Avatar name={t.name} seed={t.id} size={32}/><div className="min-w-0"><div className="text-sm font-medium truncate">{t.name}</div><div className="text-[11px] text-muted">{t.subject}</div></div></button>)}
       </div>)}
     </div>
   )
@@ -100,7 +97,7 @@ function BellMenu({ user }){
     <Menu as="div" className="relative">
       <Menu.Button className="relative w-10 h-10 grid place-items-center rounded-xl hover:bg-canvas" aria-label="Notifications">
         <Bell size={19} className="text-muted"/>
-        {unread>0&&<span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 grid place-items-center text-[10px] font-bold text-white rounded-full" style={{background:'#FF3B5C'}}>{unread}</span>}
+        {unread>0&&<span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 grid place-items-center text-[10px] font-bold text-white rounded-full" style={{background:STATUS.live}}>{unread}</span>}
       </Menu.Button>
       <Menu.Items className="absolute right-0 mt-2 w-[360px] max-w-[92vw] card p-0 shadow-2xl z-50 focus:outline-none overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-line"><span className="font-bold">Notifications</span>
@@ -115,21 +112,16 @@ function BellMenu({ user }){
   )
 }
 function UserMenu({ user, role, onLogout }){
-  const [avPick,setAvPick]=useState(false); const [,f]=useState(0)
-  const dbu = db().users.find(x=>x.id===user.id) || user
   return (
     <Menu as="div" className="relative">
       <Menu.Button className="flex items-center gap-2 rounded-xl hover:bg-canvas pl-1 pr-2 py-1" aria-label="Menu utilisateur">
-        <span className="w-9 h-9 rounded-full overflow-hidden grid place-items-center shrink-0" style={{background:avatarBg(user.id)}}><img src={resolveUserAvatar(dbu)} alt={user.name} className="w-full h-full object-contain"/></span>
+        <Avatar name={user.name} seed={user.id} size={36}/>
         <span className="hidden sm:block text-left leading-tight"><span className="block text-sm font-semibold">{user.name}</span><span className="block text-[11px] text-muted">{role.label}</span></span>
         <ChevronDown size={15} className="text-muted"/>
       </Menu.Button>
       <Menu.Items className="absolute right-0 mt-2 w-52 card p-1.5 shadow-xl z-50 focus:outline-none">
-        <Menu.Item>{()=> <button onClick={()=>setAvPick(true)} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-canvas"><ImageIcon size={15}/> Changer mon avatar</button>}</Menu.Item>
         <Menu.Item>{()=> <button onClick={onLogout} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-canvas text-coral"><LogOut size={15}/> Déconnexion</button>}</Menu.Item>
       </Menu.Items>
-      <AvatarPicker open={avPick} current={dbu.avatar} name="Mon avatar" onClose={()=>setAvPick(false)}
-        onSelect={rel=>{ setUserAvatar(user.id,rel); setAvPick(false); f(x=>x+1) }}/>
     </Menu>
   )
 }

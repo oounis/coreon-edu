@@ -2,15 +2,13 @@ import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { current } from '../auth.js'
 import { db, mutate, uid } from '../db.js'
-import { PageHead, Table, Avatar, Btn, Modal, Field, Input, Select, Section } from '../components/ui.jsx'
-import { studentColor } from '../data.js'
-import { teacherAvatar, avatarBg } from '../people.js'
+import { PageHead, Avatar, Btn, Modal, Field, Input, Select, Section, SearchInput, EmptyState, Card } from '../components/ui.jsx'
+import { SubjectDot } from '../subjects.jsx'
 import { GOVERNORATES, DOC_TYPES, validCIN } from '../tunisia.js'
 import Attach from '../components/Attach.jsx'
-import { UserPlus, Eye, Search, ChevronRight } from 'lucide-react'
+import { UserPlus, Search, ChevronRight } from 'lucide-react'
 import toast from 'react-hot-toast'
 const BLANK={name:'',gender:'Garçon',dob:'',subject:'',qualification:'',experience:'',joiningDate:'',designation:'Professeur',phone:'',email:'',address:'',salary:'',cin:'',governorate:'Tunis',attachments:[]}
-const tface=t=>t.gender==='Fille'?'👩‍🏫':'👨‍🏫'
 export default function Teachers(){
   const u=current(); const canEdit=['schooladmin','admin'].includes(u.role)
   const [,force]=useState(0); const [open,setOpen]=useState(false); const [view,setView]=useState(null); const [f,setF]=useState(BLANK); const [q,setQ]=useState('')
@@ -25,18 +23,19 @@ export default function Teachers(){
   const subjects=[...new Set(list.map(t=>t.subject||'Autre'))].sort()
   const TCard=({t})=>(
     <button onClick={()=>setView(t)} className="card p-4 flex items-center gap-3 text-left hover:shadow-lg hover:-translate-y-0.5 transition w-full">
-      <span className="w-12 h-12 rounded-2xl overflow-hidden grid place-items-center shrink-0" style={{background:avatarBg(t.id)}}><img src={teacherAvatar(t)} alt="" className="w-full h-full object-contain"/></span>
+      <Avatar name={t.name} seed={t.id} size={44}/>
       <div className="min-w-0 flex-1"><div className="font-semibold truncate">{t.name}</div><div className="text-xs text-muted truncate">{t.designation} · {t.experience} ans</div></div>
       <ChevronRight size={16} className="text-muted"/>
     </button>
   )
   return (<>
     <PageHead title="Enseignants & personnel" sub={`${d.teachers.length} membres · ${subjects.length} matières`} action={canEdit&&<Btn onClick={()=>{setF(BLANK);setOpen(true)}}><UserPlus size={16}/> Ajouter un enseignant</Btn>}/>
-    <div className="card flex items-center gap-2 px-3 py-2 mb-5 max-w-sm"><Search size={16} className="text-muted"/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Rechercher (nom ou matière)…" className="bg-transparent outline-none text-sm w-full"/></div>
+    <SearchInput value={q} onChange={e=>setQ(e.target.value)} placeholder="Rechercher (nom ou matière)…" className="max-w-sm mb-5"/>
+    {list.length===0&&<Card><EmptyState icon={<Search size={26}/>} title="Aucun résultat" sub="Aucun membre du personnel ne correspond à cette recherche."/></Card>}
     <div className="space-y-6">
       {subjects.map(sub=>(
         <div key={sub}>
-          <div className="flex items-center gap-2 mb-3"><span className="w-2.5 h-2.5 rounded-full accent-bg"/><h2 className="font-bold">{sub}</h2><span className="text-xs text-muted">· {list.filter(t=>(t.subject||'Autre')===sub).length}</span></div>
+          <div className="flex items-center gap-2 mb-3"><SubjectDot label={sub} size={26} iconSize={14} radius="rounded-lg"/><h2 className="font-bold">{sub}</h2><span className="text-xs text-muted">· {list.filter(t=>(t.subject||'Autre')===sub).length}</span></div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">{list.filter(t=>(t.subject||'Autre')===sub).map(t=><TCard key={t.id} t={t}/>)}</div>
         </div>
       ))}
@@ -66,7 +65,7 @@ export default function Teachers(){
         <Attach types={DOC_TYPES.teacher} value={f.attachments} onChange={a=>setF({...f,attachments:a})}/></div>
     </Modal>
     <Modal open={!!view} onClose={()=>setView(null)} title="Profil du personnel" size="xl">
-      {view&&(<div><div className="flex items-center gap-4 mb-5"><Avatar name={view.name} color={studentColor(view.id)} size={56}/><div><div className="text-xl font-extrabold">{view.name}</div><div className="text-muted text-sm">{view.designation} · {view.subject}</div></div></div>
+      {view&&(<div><div className="flex items-center gap-4 mb-5"><Avatar name={view.name} seed={view.id} size={56}/><div><div className="text-xl font-extrabold">{view.name}</div><div className="text-muted text-sm">{view.designation} · {view.subject}</div></div></div>
         <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">{[['Genre',view.gender],['CIN',view.cin],['Gouvernorat',view.governorate],['Date de naissance',view.dob],['Diplôme',view.qualification],['Expérience',`${view.experience} ans`],['Date d\'embauche',view.joiningDate],['Téléphone',view.phone],['E-mail',view.email],['Adresse',view.address],['Salaire',view.salary?`${view.salary} DT`:'—']].map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium text-right">{v||'—'}</span></div>)}</div></div>)}
     </Modal>
   </>)

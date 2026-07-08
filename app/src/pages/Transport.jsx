@@ -1,8 +1,7 @@
 import { db } from '../db.js'
 import { current } from '../auth.js'
 import { PageHead, StatCard, SectionCard, EmptyState, Btn, Avatar } from '../components/ui.jsx'
-import { people } from '../people.js'
-import { Bus, MapPin, Phone, Clock, Users, Route, School } from 'lucide-react'
+import { Bus, Phone, Clock, Users, Route, School } from 'lucide-react'
 
 // Simulated live position of a bus along its run (mock data → deterministic by clock).
 function liveState(){
@@ -52,7 +51,7 @@ function RouteCard({ r, mine }){
       {mine && <div className="mb-3 -mt-1 inline-flex items-center gap-1.5 text-xs font-bold accent-text accent-soft px-2.5 py-1 rounded-full">Circuit de votre enfant</div>}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2.5">
-          <Avatar src={people('bus-driver')} name={r.driver} size={40} bg="#FFF4DD"/>
+          <Avatar name={r.driver} size={40}/>
           <div><div className="font-bold leading-tight">{r.driver}</div><div className="text-xs text-muted">Chauffeur</div></div>
         </div>
         <div className="flex items-center gap-2">

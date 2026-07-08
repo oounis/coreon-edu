@@ -2,26 +2,22 @@ import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { current } from '../auth.js'
 import { db, mutate, uid, classById, userById, CYCLES, studentsOfClass } from '../db.js'
-import { PageHead, Avatar, Btn, Modal, Field, Input, Select, Section, Card } from '../components/ui.jsx'
-import { studentColor } from '../data.js'
-import { studentAvatar, avatarBg, resolveStudentAvatar, setStudentAvatar } from '../people.js'
+import { PageHead, Avatar, Btn, Modal, Field, Input, Select, Section, SearchInput, EmptyState, Card } from '../components/ui.jsx'
 import { GOVERNORATES, DOC_TYPES, LEGAL } from '../tunisia.js'
 import Attach from '../components/Attach.jsx'
 import Bulletin from '../components/Bulletin.jsx'
-import AvatarPicker from '../components/AvatarPicker.jsx'
 import GradeHistory from '../components/GradeHistory.jsx'
-import { UserPlus, Eye, Droplet, Search, ShieldCheck, FileText, ChevronRight, ArrowLeft, Users, GraduationCap, Pencil } from 'lucide-react'
+import { UserPlus, Droplet, Search, ShieldCheck, FileText, ChevronRight, ArrowLeft, Users, GraduationCap } from 'lucide-react'
 import toast from 'react-hot-toast'
 const BLANK={name:'',gender:'Garçon',dob:'',bloodGroup:'O+',nationality:'Tunisienne',grade:'5ème année',section:'A',rollNo:'',admissionDate:'',prevSchool:'',fatherName:'',motherName:'',guardianPhone:'',parentId:'',address:'',phone:'',email:'',medical:'Aucune',allergies:'Aucune',emergencyName:'',emergencyPhone:'',cin:'',governorate:'Tunis',attachments:[],consent:false}
 const cycleOf=g=>CYCLES.find(c=>c.grades.includes(g))?.cycle||'Primaire'
 const CYCLE_COLOR={Primaire:'#6C5CE7',Collège:'#36C5F0',Lycée:'#FFA62B'}
-const face=s=>s.gender==='Fille'?'👧':s.gender==='Garçon'?'👦':'🧑'
 
 export default function Students(){
   const u=current(); const canEdit=['schooladmin','admin'].includes(u.role)
   const [,force]=useState(0); const refresh=()=>force(x=>x+1)
   const [open,setOpen]=useState(false); const [viewS,setViewS]=useState(null); const [bulletin,setBulletin]=useState(null)
-  const [q,setQ]=useState(''); const [sel,setSel]=useState(null); const [avPick,setAvPick]=useState(false); const [f,setF]=useState(BLANK)
+  const [q,setQ]=useState(''); const [sel,setSel]=useState(null); const [f,setF]=useState(BLANK)
   const d=db(); const parents=d.users.filter(x=>x.role==='parent')
   const loc=useLocation()
   useEffect(()=>{ const id=loc.state?.openStudent; if(id){ const s=d.students.find(x=>x.id===id); if(s) setViewS(s) } },[loc.state])
@@ -40,7 +36,7 @@ export default function Students(){
 
   const StudentCard=({s})=>(
     <button onClick={()=>setViewS(s)} className="card p-3 flex items-center gap-3 text-left hover:shadow-lg hover:-translate-y-0.5 transition w-full">
-      <span className="w-11 h-11 rounded-2xl overflow-hidden grid place-items-center shrink-0" style={{background:avatarBg(s.id)}}><img src={resolveStudentAvatar(s)} alt="" className="w-full h-full object-contain"/></span>
+      <Avatar name={s.name} seed={s.id} size={44}/>
       <div className="min-w-0 flex-1"><div className="font-semibold truncate">{s.name}</div><div className="text-xs text-muted">{s.gender} · {classById(s.classId)?.name}</div></div>
       <span className="inline-flex items-center gap-1 text-[11px] text-muted"><Droplet size={11} className="text-coral"/>{s.bloodGroup}</span>
     </button>
@@ -49,12 +45,12 @@ export default function Students(){
   return (<>
     <PageHead title="Élèves" sub={`${d.students.length} inscrits · ${d.classes.length} classes`}
       action={canEdit&&<Btn onClick={()=>{setF(BLANK);setOpen(true)}}><UserPlus size={16}/> Inscrire un élève</Btn>}/>
-    <div className="card flex items-center gap-2 px-3 py-2 mb-5 max-w-sm"><Search size={16} className="text-muted"/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Rechercher un élève par nom…" className="bg-transparent outline-none text-sm w-full"/></div>
+    <SearchInput value={q} onChange={e=>setQ(e.target.value)} placeholder="Rechercher un élève par nom…" className="max-w-sm mb-5"/>
 
     {matches ? (
       <div><div className="text-sm text-muted mb-3">{matches.length} résultat(s) pour « {q} »</div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">{matches.map(s=><StudentCard key={s.id} s={s}/>)}</div>
-        {matches.length===0&&<Card className="p-10 text-center text-muted">Aucun élève ne correspond.</Card>}
+        {matches.length===0&&<Card><EmptyState icon={<Search size={26}/>} title="Aucun élève ne correspond" sub="Vérifiez l'orthographe ou essayez un autre nom."/></Card>}
       </div>
     ) : sel ? (
       <div>
@@ -126,12 +122,10 @@ export default function Students(){
     </Modal>
 
     <Modal open={!!viewS} onClose={()=>setViewS(null)} title="Fiche élève" size="xl">
-      {viewS&&(<div><div className="flex items-center gap-4 mb-5"><div className="relative shrink-0"><span className="w-14 h-14 rounded-2xl overflow-hidden grid place-items-center block" style={{background:avatarBg(viewS.id)}}><img src={resolveStudentAvatar(viewS)} alt="" className="w-full h-full object-contain"/></span>{canEdit&&<button onClick={()=>setAvPick(true)} title="Changer l'avatar" className="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full accent-bg text-white grid place-items-center shadow"><Pencil size={12}/></button>}</div><div className="flex-1"><div className="text-xl font-extrabold">{viewS.name}</div><div className="text-muted text-sm">{classById(viewS.classId)?.name} · N° {viewS.rollNo} · {viewS.gender}</div></div><Btn variant="soft" onClick={()=>{const v=viewS;setViewS(null);setBulletin(v)}}><FileText size={15}/> Bulletin</Btn></div>
+      {viewS&&(<div><div className="flex items-center gap-4 mb-5"><Avatar name={viewS.name} seed={viewS.id} size={56}/><div className="flex-1"><div className="text-xl font-extrabold">{viewS.name}</div><div className="text-muted text-sm">{classById(viewS.classId)?.name} · N° {viewS.rollNo} · {viewS.gender}</div></div><Btn variant="soft" onClick={()=>{const v=viewS;setViewS(null);setBulletin(v)}}><FileText size={15}/> Bulletin</Btn></div>
         <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">{[['Naissance',viewS.dob],['Groupe sanguin',viewS.bloodGroup],['Nationalité',viewS.nationality],['Inscription',viewS.admissionDate],['École préc.',viewS.prevSchool],['Père',viewS.fatherName],['Mère',viewS.motherName],['Tél. tuteur',viewS.guardianPhone],['Compte parent',userById(viewS.parentId)?.name||'—'],['Adresse',viewS.address],['Téléphone',viewS.phone],['E-mail',viewS.email||'—'],['Médical',viewS.medical],['Allergies',viewS.allergies],['CIN/Acte',viewS.cin],['Gouvernorat',viewS.governorate],['Urgence',`${viewS.emergencyName} · ${viewS.emergencyPhone}`]].map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium text-right">{v||'—'}</span></div>)}</div>
         <div className="mt-6 pt-5 border-t border-line"><GradeHistory studentId={viewS.id}/></div></div>)}
     </Modal>
     <Bulletin student={bulletin} onClose={()=>setBulletin(null)}/>
-    <AvatarPicker open={avPick} current={viewS?.avatar} name={viewS?.name} onClose={()=>setAvPick(false)}
-      onSelect={rel=>{ setStudentAvatar(viewS.id,rel); setViewS({...viewS,avatar:rel}); setAvPick(false); refresh(); toast.success('Avatar mis à jour ✨') }}/>
   </>)
 }

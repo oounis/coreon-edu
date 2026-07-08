@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { current } from '../auth.js'
 import { settings, saveSettings, resetDb } from '../db.js'
-import { PageHead, Card, Btn, Field, Input, Section } from '../components/ui.jsx'
+import { PageHead, Card, Btn, Field, Input, Section, Modal } from '../components/ui.jsx'
 import { Building2, Palette, ShieldAlert, Save, Check } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -11,9 +11,10 @@ export default function Settings(){
   const u=current()
   const [f,setF]=useState(settings())
   const [saved,setSaved]=useState(false)
+  const [confirmReset,setConfirmReset]=useState(false)
   const set=(k,v)=>{ setF(p=>({...p,[k]:v})); setSaved(false) }
   const save=()=>{ if(!f.schoolName.trim())return toast.error('Le nom de l’école est requis'); saveSettings(f); setSaved(true); toast.success('Paramètres enregistrés — appliqués partout') }
-  const reset=()=>{ if(confirm('Réinitialiser toutes les données de démonstration ? (élèves, comptes, emplois du temps…)')){ resetDb(); toast.success('Données réinitialisées'); location.reload() } }
+  const reset=()=>{ resetDb(); toast.success('Données réinitialisées'); location.reload() }
 
   return (<>
     <PageHead title="Paramètres de l’école" sub="Configurez votre établissement — appliqué partout dans l’application."
@@ -53,7 +54,7 @@ export default function Settings(){
         {u.role==='owner'&&<Card className="p-6 border-coral/40">
           <h3 className="font-bold flex items-center gap-2 mb-1 text-coral"><ShieldAlert size={18}/> Zone sensible</h3>
           <p className="text-sm text-muted mb-3">Réinitialiser remet toutes les données de démonstration à zéro.</p>
-          <Btn variant="danger" onClick={reset}>Réinitialiser les données de démo</Btn>
+          <Btn variant="danger" onClick={()=>setConfirmReset(true)}>Réinitialiser les données de démo</Btn>
         </Card>}
       </div>
 
@@ -75,5 +76,10 @@ export default function Settings(){
         </Card>
       </div>
     </div>
+
+    <Modal open={confirmReset} onClose={()=>setConfirmReset(false)} title="Réinitialiser les données ?"
+      footer={<><Btn variant="ghost" onClick={()=>setConfirmReset(false)}>Annuler</Btn><Btn variant="danger" onClick={reset}>Réinitialiser</Btn></>}>
+      <p className="text-sm text-muted">Toutes les données de démonstration (élèves, comptes, emplois du temps, évaluations…) seront remises à zéro. Cette action est irréversible.</p>
+    </Modal>
   </>)
 }

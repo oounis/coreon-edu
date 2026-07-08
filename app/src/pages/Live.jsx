@@ -3,21 +3,17 @@ import { motion } from 'framer-motion'
 import { current } from '../auth.js'
 import { db, studentById, classById } from '../db.js'
 import { DAYS } from '../data.js'
-import { PageHead, Card, Select } from '../components/ui.jsx'
-import { studentColor } from '../data.js'
-import { Radio, Clock, MapPin, Pencil } from 'lucide-react'
+import { PageHead, Card, Select, Avatar, EmptyState, STATUS } from '../components/ui.jsx'
+import { Radio, Clock, MapPin } from 'lucide-react'
 import { AREAS, fmt, daySegments, statusAt } from '../livestatus.js'
-import { Kid } from '../components/Kid.jsx'
-import { studentAvatar, avatarBg, resolveStudentAvatar, setStudentAvatar } from '../people.js'
 import RouteMap from '../components/RouteMapFlow.jsx'
-import AvatarPicker from '../components/AvatarPicker.jsx'
 
 const stopLabel=s=> s.kind==='class'?(s.cell?.subject||'Étude') : s.kind==='cour'?'Récré' : s.kind==='cantine'?'Déjeuner' : 'Étude'
 
 export default function Live(){
   const u=current(); const d=db()
   const kids=(u.childIds||[]).map(studentById).filter(Boolean)
-  const [kidId,setKidId]=useState(kids[0]?.id); const [avPick,setAvPick]=useState(false); const [,force]=useState(0)
+  const [kidId,setKidId]=useState(kids[0]?.id)
   const kid=kids.find(k=>k.id===kidId)||kids[0]
   const cls=kid?classById(kid.classId):null
 
@@ -31,7 +27,7 @@ export default function Live(){
 
   const sick=useMemo(()=>d.incidents.some(i=>i.studentId===kid?.id&&i.type==='Santé'&&i.status==='open'&&(Date.now()-i.at)<86400000),[d,kid])
   const st=useMemo(()=>kid?statusAt(kid.classId,dayIdx,min,sick):null,[kid,dayIdx,min,sick])
-  if(!kid) return <Card className="p-10 text-center text-muted">Aucun enfant associé à ce compte.</Card>
+  if(!kid) return <Card><EmptyState icon={<Radio size={26}/>} title="Aucun enfant associé" sub="Demandez à la direction de lier votre compte à votre enfant pour activer le suivi en direct."/></Card>
 
   const area=AREAS[st.place]
   const segLen=Math.max(1,st.seg.end-st.seg.start); const done=Math.min(1,Math.max(0,(min-st.seg.start)/segLen)); const remain=Math.max(0,st.seg.end-min)
@@ -58,19 +54,19 @@ export default function Live(){
       <Card className="p-0 overflow-hidden">
         <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-line flex-wrap">
           <div className="flex items-center gap-2.5">
-            <span className="flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-full text-white shadow" style={{background:liveNow?'#FF3B5C':'#8A93A6'}}>
+            <span className="flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-full text-white shadow" style={{background:liveNow?STATUS.live:STATUS.neutral}}>
               <motion.span animate={{opacity:[1,.3,1]}} transition={{repeat:Infinity,duration:1.4}}><Radio size={12}/></motion.span>{liveNow?'EN DIRECT':'Aperçu'} · {fmt(min)}</span>
             <span className="text-sm font-bold text-muted hidden sm:inline">Journée de {first} · {day}</span>
           </div>
           <span className="text-sm font-extrabold px-3 py-1 rounded-full" style={{background:area.color+'16',color:area.color}}>{st.title}</span>
         </div>
-        <RouteMap stops={stops} curIndex={curIndex} done={mapDone} remain={remain} name={first} avatar={resolveStudentAvatar(kid)} live={liveNow}/>
+        <RouteMap stops={stops} curIndex={curIndex} done={mapDone} remain={remain} name={kid.name} seed={kid.id} live={liveNow}/>
       </Card>
 
       <div className="space-y-5">
         <Card className="p-5">
           <div className="flex items-center gap-3">
-            <div className="relative shrink-0"><span className="w-14 h-14 rounded-2xl overflow-hidden grid place-items-center block" style={{background:avatarBg(kid.id)}}><img src={resolveStudentAvatar(kid)} alt="" className="w-full h-full object-contain"/></span><button onClick={()=>setAvPick(true)} title="Changer l'avatar" className="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full accent-bg text-white grid place-items-center shadow"><Pencil size={12}/></button></div>
+            <Avatar name={kid.name} seed={kid.id} size={56}/>
             <div><div className="font-bold">{kid.name}</div><div className="text-xs text-muted">{cls?.name} · {cls?.cycle}</div></div>
           </div>
           <div className="mt-4 rounded-2xl p-4" style={{background:area.color+'12'}}>
@@ -93,6 +89,5 @@ export default function Live(){
         </Card>
       </div>
     </div>
-    <AvatarPicker open={avPick} current={kid?.avatar} name={first} onClose={()=>setAvPick(false)} onSelect={rel=>{ setStudentAvatar(kid.id,rel); setAvPick(false); force(x=>x+1); }}/>
   </>)
 }

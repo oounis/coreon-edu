@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { db, mutate, studentById } from '../db.js'
 import { notify } from '../notify.js'
-import { PageHead, Card, Avatar, Btn } from '../components/ui.jsx'
-import { studentColor, currentClass } from '../data.js'
-import { Check } from 'lucide-react'
+import { PageHead, Card, Avatar, Btn, Badge, EmptyState, STATUS } from '../components/ui.jsx'
+import { currentClass } from '../data.js'
+import { Check, CalendarCheck } from 'lucide-react'
 import toast from 'react-hot-toast'
 const CYCLE={present:'absent',absent:'late',late:'present'}
-const COL={present:'#2BD9A8',absent:'#FF6B81',late:'#FFA62B'}
+const COL={present:STATUS.ok,absent:STATUS.danger,late:STATUS.warn}
 const FR={present:'Présent',absent:'Absent',late:'Retard'}
 export default function Attendance(){
   const cls=currentClass(new Date()); const today=new Date().toISOString().slice(0,10); const key=cls.cls.id+'_'+today
@@ -33,14 +33,14 @@ export default function Attendance(){
     <div className="flex gap-3 mb-4">{Object.entries(counts).map(([k,v])=><div key={k} className="card px-4 py-2 text-sm"><span className="font-bold" style={{color:COL[k]}}>{v}</span> <span className="text-muted">{FR[k]}</span></div>)}</div>
     <Card className="p-3"><div className="grid sm:grid-cols-2 gap-2">
       {cls.students.map(s=>(<button key={s.id} onClick={()=>setMarks(m=>({...m,[s.id]:CYCLE[m[s.id]]}))} className="flex items-center gap-3 p-2 rounded-xl border border-line hover:bg-canvas">
-        <Avatar name={s.name} color={studentColor(s.id)} size={32}/><span className="flex-1 text-left text-sm font-medium">{s.name}</span>
-        <span className="text-xs font-bold px-2.5 py-1 rounded-full text-white" style={{background:COL[marks[s.id]]}}>{FR[marks[s.id]]}</span></button>))}
+        <Avatar name={s.name} seed={s.id} size={32}/><span className="flex-1 text-left text-sm font-medium">{s.name}</span>
+        <Badge status={marks[s.id]}/></button>))}
     </div><p className="text-xs text-muted mt-2 px-1">Touchez un élève pour changer : présent → absent → retard. La direction et les parents concernés sont notifiés à l'enregistrement.</p></Card>
     <Card className="p-4 mt-4"><h3 className="font-bold mb-2 text-sm">Appels enregistrés · {cls.cls.name}</h3>
       {history.length? <div className="space-y-1.5">{history.map(h=>(<div key={h.date} className="flex items-center justify-between text-sm border-b border-line pb-1.5 last:border-0">
         <span className="text-muted">{h.date}</span>
         <span className="flex gap-3"><b style={{color:COL.present}}>{h.present}</b> présents · <b style={{color:COL.absent}}>{h.absent}</b> absents · <b style={{color:COL.late}}>{h.late}</b> retards</span></div>))}</div>
-       : <p className="text-sm text-muted">Aucun appel enregistré pour cette classe.</p>}
+       : <EmptyState icon={<CalendarCheck size={26}/>} title="Aucun appel enregistré" sub="Les appels de cette classe apparaîtront ici après le premier enregistrement."/>}
     </Card>
   </>)
 }

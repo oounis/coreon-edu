@@ -3,7 +3,7 @@ import { current } from '../auth.js'
 import { db, mutate, uid, userById } from '../db.js'
 import { ROLE } from '../theme.js'
 import { notify } from '../notify.js'
-import { PageHead, Card, Avatar, Btn, Modal, Field, Select, Input } from '../components/ui.jsx'
+import { PageHead, Card, Avatar, Btn, Modal, Field, Select, Input, EmptyState } from '../components/ui.jsx'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Send, Plus, MessageSquare } from 'lucide-react'
@@ -26,23 +26,23 @@ export default function Messages(){
     <PageHead title="Messages" sub="Échangez avec le personnel et les parents." action={<Btn onClick={()=>setNewOpen(true)}><Plus size={16}/> Nouveau message</Btn>}/>
     <div className="grid lg:grid-cols-[300px_1fr] gap-4">
       <Card className="p-2 h-fit">
-        {partnerIds.length===0 && <div className="p-6 text-center text-muted text-sm">Aucune conversation pour le moment.</div>}
-        {partnerIds.map(pid=>{ const u=userById(pid); const last=lastWith(pid); const r=ROLE[u?.role]; return (
+        {partnerIds.length===0 && <EmptyState icon={<MessageSquare size={26}/>} title="Aucune conversation" sub="Démarrez une nouvelle conversation pour la voir ici."/>}
+        {partnerIds.map(pid=>{ const u=userById(pid); const last=lastWith(pid); return (
           <button key={pid} onClick={()=>setActive(pid)} className={`w-full flex items-center gap-3 p-3 rounded-xl ${active===pid?'accent-soft':''}`}>
-            <Avatar name={u?.name} color={r?.color||'#94A3B8'}/>
+            <Avatar name={u?.name} seed={pid}/>
             <div className="flex-1 text-left min-w-0"><div className="font-semibold text-sm truncate">{u?.name}</div><div className="text-xs text-muted truncate">{last?.text}</div></div>
           </button>) })}
       </Card>
       <Card className="flex flex-col h-[60vh]">
         {active? (<>
-          <div className="p-4 border-b border-line flex items-center gap-3"><Avatar name={userById(active)?.name} color={ROLE[userById(active)?.role]?.color||'#94A3B8'}/><div><div className="font-semibold">{userById(active)?.name}</div><div className="text-xs text-muted">{ROLE[userById(active)?.role]?.label}</div></div></div>
+          <div className="p-4 border-b border-line flex items-center gap-3"><Avatar name={userById(active)?.name} seed={active}/><div><div className="font-semibold">{userById(active)?.name}</div><div className="text-xs text-muted">{ROLE[userById(active)?.role]?.label}</div></div></div>
           <div className="flex-1 overflow-y-auto scroll-thin p-4 space-y-2">
             {thread.length? thread.map(m=>{ const mineMsg=m.from===me.id; return (
               <div key={m.id} className={`flex ${mineMsg?'justify-end':'justify-start'}`}><div className={`max-w-[75%] px-3.5 py-2 rounded-2xl text-sm ${mineMsg?'text-white accent-bg':'bg-canvas'}`}><div>{m.text}</div><div className={`text-[10px] mt-0.5 ${mineMsg?'text-white/70':'text-muted'}`}>{formatDistanceToNow(m.at,{addSuffix:true,locale:fr})}</div></div></div>) })
-             : <div className="text-center text-muted text-sm mt-10">Dites bonjour 👋</div>}
+             : <EmptyState icon={<MessageSquare size={26}/>} title="Aucun message" sub="Envoyez le premier message pour démarrer la conversation."/>}
           </div>
           <div className="p-3 border-t border-line flex gap-2"><Input value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()} placeholder="Écrivez un message…"/><Btn onClick={()=>send()}><Send size={16}/></Btn></div>
-        </>) : <div className="flex-1 grid place-items-center text-muted"><div className="text-center"><MessageSquare size={28} className="mx-auto mb-2 opacity-50"/>Choisissez une conversation ou démarrez-en une nouvelle.</div></div>}
+        </>) : <div className="flex-1 grid place-items-center"><EmptyState icon={<MessageSquare size={26}/>} title="Aucune conversation sélectionnée" sub="Choisissez une conversation ou démarrez-en une nouvelle."/></div>}
       </Card>
     </div>
     <Modal open={newOpen} onClose={()=>setNewOpen(false)} title="Nouveau message" footer={<><Btn variant="ghost" onClick={()=>setNewOpen(false)}>Annuler</Btn><Btn onClick={startNew}>Démarrer</Btn></>}>

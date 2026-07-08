@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { current } from '../auth.js'
 import { inboxFor, markRead, markAllRead } from '../notify.js'
 import { safeLink } from '../access.js'
-import { PageHead, Card, Btn } from '../components/ui.jsx'
+import { PageHead, Card, Btn, Tabs, EmptyState } from '../components/ui.jsx'
 import { NotifRow } from '../components/NotifItem.jsx'
 import { isToday, isThisWeek } from 'date-fns'
-import { Check, CheckCheck } from 'lucide-react'
+import { CheckCheck, Bell } from 'lucide-react'
 export default function Notifications(){
   const u=current(); const nav=useNavigate(); const [,force]=useState(0); const [tab,setTab]=useState('all')
   let all=inboxFor(u); if(tab==='unread') all=all.filter(n=>!n.read)
@@ -15,10 +15,8 @@ export default function Notifications(){
   const Group=({title,items})=> items.length>0 && <div className="mb-5"><div className="text-xs font-bold uppercase text-muted mb-1 px-1">{title}</div><Card className="p-2 divide-y divide-line">{items.map(n=><NotifRow key={n.id} n={n} onClick={()=>open(n)}/>)}</Card></div>
   return (<>
     <PageHead title="Notifications" sub={`${inboxFor(u).filter(n=>!n.read).length} non lues`} action={<Btn variant="ghost" onClick={()=>{markAllRead(u);force(x=>x+1)}}><CheckCheck size={15}/> Tout marquer comme lu</Btn>}/>
-    <div className="flex gap-2 mb-4">
-      {[['all','Toutes'],['unread','Non lues']].map(([k,l])=><button key={k} onClick={()=>setTab(k)} className={`text-sm font-semibold px-4 py-2 rounded-full ${tab===k?'accent-bg text-white':'bg-white border border-line'}`}>{l}</button>)}
-    </div>
-    {all.length===0 && <Card className="p-10 text-center text-muted">Vous êtes à jour 🎉</Card>}
+    <Tabs className="mb-4" tabs={[{value:'all',label:'Toutes'},{value:'unread',label:'Non lues',count:inboxFor(u).filter(n=>!n.read).length}]} value={tab} onChange={setTab}/>
+    {all.length===0 && <Card><EmptyState icon={<Bell size={26}/>} title="Vous êtes à jour" sub={tab==='unread'?'Aucune notification non lue.':'Aucune notification pour le moment.'}/></Card>}
     <Group title="Aujourd'hui" items={today}/><Group title="Cette semaine" items={week}/><Group title="Plus tôt" items={older}/>
   </>)
 }

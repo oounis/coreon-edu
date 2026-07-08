@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { current } from '../auth.js'
 import { db, studentById, setTimetableCell, TT_SUBJECTS } from '../db.js'
 import { DAYS, PERIODS, timetableFor, teacherTimetable } from '../data.js'
-import { PageHead, Card, Select, Field, Modal, Btn } from '../components/ui.jsx'
+import { PageHead, Card, Select, Field, Modal, Btn, StatCard } from '../components/ui.jsx'
 import { CalendarClock, Pencil, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -58,10 +58,9 @@ export default function Timetable(){
     </Card>
 
     <div className="grid sm:grid-cols-3 gap-4 mt-5">
-      {[[grid.reduce((n,r)=>n+r.cells.filter(Boolean).length,0),'séances / semaine','#6C5CE7'],[6,'périodes / jour','#10B981'],['Lun–Ven','jours d’école','#E59A12']].map(([v,l,c])=>(
-        <Card key={l} className="p-4 flex items-center gap-3"><span className="w-11 h-11 rounded-2xl grid place-items-center" style={{background:c+'1A',color:c}}><CalendarClock size={20}/></span>
-          <div><div className="text-xl font-extrabold">{v}</div><div className="text-xs text-muted">{l}</div></div></Card>
-      ))}
+      <StatCard label="séances / semaine" value={grid.reduce((n,r)=>n+r.cells.filter(Boolean).length,0)} tint="brand" icon={<CalendarClock size={20}/>}/>
+      <StatCard label="périodes / jour" value={6} tint="mint" icon={<CalendarClock size={20}/>}/>
+      <StatCard label="jours d’école" value="Lun–Ven" tint="butter" icon={<CalendarClock size={20}/>}/>
     </div>
 
     <Modal open={!!edit} onClose={()=>setEdit(null)} title="Modifier la séance"
