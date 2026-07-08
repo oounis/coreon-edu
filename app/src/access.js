@@ -5,7 +5,7 @@ export const ALL=['owner','schooladmin','admin','teacher','supervisor','parent']
 export const ROUTE_ROLES={
   '/app': ALL,
   '/app/schools': ['owner'],
-  '/app/settings': ['owner','schooladmin'],
+  '/app/settings': ['schooladmin'],
   '/app/accounts': ['schooladmin'],
   '/app/students': ['schooladmin','admin','supervisor','teacher'],
   '/app/teachers': ['schooladmin','admin'],
@@ -19,13 +19,13 @@ export const ROUTE_ROLES={
   '/app/live': ['parent'],
   '/app/library': ['schooladmin','admin','teacher'],
   '/app/transport': ['schooladmin','admin','parent'],
-  '/app/events': ALL,
+  '/app/events': ['schooladmin','admin','teacher','supervisor','parent'],
   '/app/incidents': ['supervisor','admin','schooladmin'],
   '/app/requests': ['teacher','admin','schooladmin'],
   '/app/messages': ALL,
   '/app/notices': ALL,
   '/app/notifications': ALL,
-  '/app/cartes': ALL,
+  '/app/cartes': ['schooladmin','admin','teacher','supervisor','parent'],
 }
 // can this role open this path? (ignores query/hash)
 export function canAccess(role, path){

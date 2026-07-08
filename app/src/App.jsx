@@ -54,7 +54,7 @@ export default function App(){
         <Route path="/login" element={<Login/>}/>
         <Route path="/app" element={R(<Dashboard/>, ALL)}/>
         <Route path="/app/schools" element={R(<Schools/>, ['owner'])}/>
-        <Route path="/app/settings" element={R(<Settings/>, ['owner','schooladmin'])}/>
+        <Route path="/app/settings" element={R(<Settings/>, ['schooladmin'])}/>
         <Route path="/app/accounts" element={R(<Accounts/>, ['schooladmin'])}/>
         <Route path="/app/students" element={R(<Students/>, ['schooladmin','admin','supervisor','teacher'])}/>
         <Route path="/app/teachers" element={R(<Teachers/>, ['schooladmin','admin'])}/>
@@ -69,12 +69,12 @@ export default function App(){
         <Route path="/app/live" element={R(<Live/>, ['parent'])}/>
         <Route path="/app/library" element={R(<Library/>, ['schooladmin','admin','teacher'])}/>
         <Route path="/app/transport" element={R(<Transport/>, ['schooladmin','admin','parent'])}/>
-        <Route path="/app/events" element={R(<Events/>, ALL)}/>
+        <Route path="/app/events" element={R(<Events/>, ['schooladmin','admin','teacher','supervisor','parent'])}/>
         <Route path="/app/incidents" element={R(<Incidents/>, ['supervisor','admin','schooladmin'])}/>
         <Route path="/app/requests" element={R(<Requests/>, ['teacher','admin','schooladmin'])}/>
         <Route path="/app/messages" element={R(<Messages/>, ALL)}/>
         <Route path="/app/notices" element={R(<Notices/>, ALL)}/>
-        <Route path="/app/cartes" element={R(<Cartes/>, ALL)}/>
+        <Route path="/app/cartes" element={R(<Cartes/>, ['schooladmin','admin','teacher','supervisor','parent'])}/>
         <Route path="/app/notifications" element={R(<Notifications/>, ALL)}/>
         <Route path="*" element={<Navigate to="/" replace/>}/>
       </Routes>

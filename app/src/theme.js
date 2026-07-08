@@ -1,5 +1,5 @@
 export const ROLE={
-  owner:{label:'Propriétaire',color:'#6C5CE7',soft:'#EEEBFF'},
+  owner:{label:'Plateforme',color:'#0D9488',soft:'#DFF4F3'},   // compte Kogia Group (fournisseur SaaS)
   schooladmin:{label:'Direction',color:'#6C5CE7',soft:'#EEEBFF'},
   admin:{label:'Administration',color:'#36C5F0',soft:'#E4F7FE'},
   teacher:{label:'Enseignant',color:'#2BD9A8',soft:'#E2FBF3'},

@@ -25,7 +25,7 @@ const MODULES = [
   [CalendarDays,'Événements & bibliothèque','Agenda de l’école, réservations, prêts de livres — tout au même endroit.','#E59A12'],
 ]
 const PORTALS = [
-  ['owner',Building2,'Vue multi-écoles, finances consolidées et pilotage du groupe.'],
+  ['owner',Building2,'Plateforme Kogia : provisioning des écoles, abonnements et support.'],
   ['schooladmin',UserCog,'Direction : comptes, enseignants, frais et vie de l’établissement.'],
   ['admin',Users,'Administration : élèves, présence, examens et opérations du quotidien.'],
   ['teacher',GraduationCap,'Enseignant : la classe de l’instant à l’écran, évaluation en un geste.'],

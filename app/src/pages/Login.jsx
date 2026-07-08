@@ -33,7 +33,7 @@ export default function Login(){
           </div>
           <div className="mt-6"><div className="text-xs text-muted mb-2">Démo — connexion en un clic :</div>
             <div className="flex flex-wrap gap-2">
-              <button onClick={()=>{loginAs('u_owner');nav('/app')}} className="text-xs font-semibold px-3 py-1.5 rounded-full border border-line bg-white" style={{color:ROLE.owner.color}}>Propriétaire</button>
+              <button onClick={()=>{loginAs('u_owner');nav('/app')}} className="text-xs font-semibold px-3 py-1.5 rounded-full border border-line bg-white" style={{color:ROLE.owner.color}}>Kogia Group ({ROLE.owner.label})</button>
               {quick.map(u=>{const r=ROLE[u.role];return <button key={u.id} onClick={()=>{loginAs(u.id);nav('/app')}} className="text-xs font-semibold px-3 py-1.5 rounded-full border border-line bg-white" style={{color:r.color}}>{r.label}</button>})}
             </div>
             <div className="text-[11px] text-muted mt-3">ex : enseignant@alnour.tn / teacher · direction@alnour.tn / admin</div>

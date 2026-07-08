@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, AreaChart, Area, RadialBarChart, RadialBar } from 'recharts'
-import { Users, GraduationCap, Wallet, ShieldAlert, ClipboardCheck, CreditCard, Star, ArrowRight, Bell, FileText, TrendingUp, CalendarCheck, Radio, Stethoscope, Sunrise, UserX, CalendarDays, ChevronRight } from 'lucide-react'
+import { Users, GraduationCap, Wallet, ShieldAlert, ClipboardCheck, CreditCard, Star, ArrowRight, Bell, FileText, TrendingUp, CalendarCheck, Radio, Stethoscope, Sunrise, UserX, CalendarDays, ChevronRight, Building2 } from 'lucide-react'
 import { current } from '../auth.js'
 import { db, FEE_MONTHS, studentById, classById } from '../db.js'
 import { StatCard, Card, PageHead, Badge, Avatar, Btn, IconTile, EmptyState, STATUS } from '../components/ui.jsx'
@@ -66,6 +66,8 @@ export default function Dashboard(){
 
   if(u.role==='parent') return <ParentDashboard u={u} d={d} greet={greet}/>
 
+  if(u.role==='owner') return <PlatformDashboard d={d} greet={greet}/>
+
   if(u.role==='supervisor'){
     const open=d.incidents.filter(i=>i.status==='open')
     const sevData=[['Faible','low',STATUS.info],['Moyenne','medium',STATUS.warn],['Élevée','high',STATUS.danger]].map(([n,k,c])=>({name:n,value:d.incidents.filter(i=>i.severity===k).length,color:c}))
@@ -95,7 +97,7 @@ export default function Dashboard(){
       <Link to="/app/incidents" className={`${BTN_PRIMARY} mt-4`}><ShieldAlert size={17}/> Signaler un incident</Link></>)
   }
 
-  // owner / schooladmin / admin
+  // schooladmin / admin
   const fc={paid:0,pending:0,overdue:0,due:0}; Object.values(d.payments).forEach(arr=>arr.forEach(p=>fc[p.status]++))
   const pie=[['Payés',STATUS.ok],['En attente',STATUS.warn],['En retard',STATUS.danger],['Impayés',STATUS.neutral]].map(([n,c],i)=>({name:n,value:Object.values(fc)[i],color:c}))
   const totalFees=pie.reduce((s,p)=>s+p.value,0); const collected=fc.paid
@@ -186,6 +188,49 @@ export default function Dashboard(){
         return (<tr key={ev.id}><td className="px-4 py-3 text-muted whitespace-nowrap">{new Date(ev.at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})}</td><td className="px-4 py-3 font-medium">{ev.className||cls?.name}</td><td className="px-4 py-3">{ev.subject}</td><td className="px-4 py-3 text-muted">{ev.teacher}</td><td className="px-4 py-3 text-center">{scores.length}</td><td className="px-4 py-3 text-center font-bold" style={{color:m.color}}>{avg!=null?`${avg}/100`:'—'}</td></tr>) })}</tbody></table></div>
        : <EmptyState icon={<ClipboardCheck size={22}/>} title="Aucune évaluation enregistrée" sub="Les évaluations des enseignants apparaîtront ici."/>}
     </Card></>)
+}
+
+// Console Kogia Group — la plateforme vue par le fournisseur, pas par l'école.
+function PlatformDashboard({ d, greet }){
+  const schools=d.schools||[]
+  const count=s=>s.live?d.students.length:s.studentCount
+  const actives=schools.filter(s=>s.status==='active'), trials=schools.filter(s=>s.status==='trial')
+  const mrr=actives.reduce((n,s)=>n+s.price,0)
+  const totalStudents=schools.filter(s=>s.status!=='suspended').reduce((n,s)=>n+count(s),0)
+  const planPie=[
+    {name:'Plan Pro',value:actives.filter(s=>s.plan==='Pro').length,color:'#6C5CE7'},
+    {name:'Plan Essentiel',value:actives.filter(s=>s.plan==='Essentiel').length,color:'#0BA5D8'},
+    {name:'En essai',value:trials.length,color:STATUS.warn},
+  ].filter(x=>x.value>0)
+  const STL={active:['Active',STATUS.ok],trial:["Essai",STATUS.warn],suspended:['Suspendue',STATUS.neutral]}
+  return (<><PageHead title={greet} sub="Console plateforme — vos écoles clientes en un coup d'œil."/>
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+      <StatCard label="Écoles clientes" value={schools.filter(s=>s.status!=='suspended').length} tint="brand" icon={<Building2/>} to="/app/schools"/>
+      <StatCard label="Élèves gérés" value={totalStudents} tint="sky" icon={<Users/>}/>
+      <StatCard label="Revenu mensuel" value={`${mrr} DT`} sub="abonnements actifs" tint="mint" icon={<Wallet/>}/>
+      <StatCard label="En essai" value={trials.length} tint="butter" icon={<FileText/>}/>
+    </div>
+    <div className="grid lg:grid-cols-[340px_1fr] gap-4">
+      <Card className="p-5"><h3 className="font-bold mb-1">Répartition des abonnements</h3><p className="text-xs text-muted mb-2">Écoles actives et en essai</p>
+        <div className="h-44"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={planPie} dataKey="value" nameKey="name" innerRadius={45} outerRadius={70} paddingAngle={3}>{planPie.map((p,i)=><Cell key={i} fill={p.color}/>)}</Pie><Tooltip {...chartTip}/></PieChart></ResponsiveContainer></div>
+        <div className="space-y-1.5 mt-1">{planPie.map(p=><span key={p.name} className="flex items-center gap-1.5 text-xs"><i className="w-2.5 h-2.5 rounded-full" style={{background:p.color}}/><span className="text-muted">{p.name}</span><b className="ml-auto">{p.value}</b></span>)}</div>
+      </Card>
+      <Card className="p-5">
+        <div className="flex items-center justify-between mb-3"><h3 className="font-bold">Écoles clientes</h3>
+          <Link to="/app/schools" className="text-xs font-semibold accent-text inline-flex items-center gap-1">Gérer les écoles <ArrowRight size={13}/></Link></div>
+        <div className="divide-y divide-line">
+          {schools.map(sc=>{ const [lbl,col]=STL[sc.status]||STL.active
+            return (<Link key={sc.id} to="/app/schools" className="flex items-center gap-3 py-2.5 group">
+              <IconTile icon={<Building2 size={16}/>} tint={sc.live?'brand':'slate'} size={38} radius="rounded-xl"/>
+              <span className="min-w-0 flex-1"><span className="block text-sm font-semibold truncate group-hover:accent-text">{sc.name}</span>
+                <span className="block text-[11px] text-muted">{sc.city} · {count(sc)} élèves · depuis {sc.since}</span></span>
+              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{background:col+'1E',color:col}}>{lbl}</span>
+              <span className="text-sm font-extrabold w-20 text-right">{sc.status==='active'?`${sc.price} DT/m`:'—'}</span>
+            </Link>) })}
+        </div>
+      </Card>
+    </div>
+  </>)
 }
 
 function BriefChip({ to, icon, color, label }){

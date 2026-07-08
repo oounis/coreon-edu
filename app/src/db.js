@@ -1,4 +1,4 @@
-const KEY="coreon_db_v11"
+const KEY="coreon_db_v12"
 const MONTHS=["Sep","Oct","Nov","Déc","Jan","Fév","Mar","Avr","Mai","Juin"]
 export const FEE_MONTHS=MONTHS
 // Tout le système tunisien
@@ -55,7 +55,7 @@ function seed(){
     {id:"t3",name:"Sami Gabsi",subject:"Français",classes:["c6a","c9a"],gender:"Garçon",qualification:"Maîtrise de Français",experience:11,joiningDate:"2019-09-01",designation:"Professeur",phone:"+216 20 999 000",email:"sgabsi@alnour.tn",address:"Tunis",salary:1900},
   ]
   const users=[
-    {id:"u_owner",role:"owner",name:"Othman (Propriétaire)",email:"owner@kogia.tn",pw:"owner"},
+    {id:"u_owner",role:"owner",name:"Kogia Group",email:"owner@kogia.tn",pw:"owner"},
     {id:"u_sadmin",role:"schooladmin",name:"Lina Aderra",email:"direction@alnour.tn",pw:"admin",phone:"+216 20 555 555"},
     {id:"u_admin",role:"admin",name:"Karim Jelassi",email:"admin@alnour.tn",pw:"office",phone:"+216 20 666 666"},
     {id:"t1",role:"teacher",name:"Othman Ounis",email:"enseignant@alnour.tn",pw:"teacher",teacherId:"t1"},
@@ -153,7 +153,15 @@ function seed(){
   const settings={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026',
     director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis',
     brand:'#6C5CE7', logoText:'AN', currency:'DT' }
-  return {classes,students,teachers,users,payments,evaluations,incidents,requests,books,routes,homework,events,exams,messages,attendance,notifications,timetables:genTimetables(classes),settings}
+  // ── écoles clientes de la plateforme (console Kogia Group). Al-Nour est
+  // l'école de démo « vivante » ; les autres sont des abonnements clients. ──
+  const schools=[
+    {id:"sc1",name:"École Al-Nour",city:"Tunis",plan:"Pro",price:149,status:"active",since:"2025-09-01",studentCount:null,director:"Lina Aderra",email:"direction@alnour.tn",live:true},
+    {id:"sc2",name:"École El-Fateh",city:"Sfax",plan:"Essentiel",price:79,status:"active",since:"2025-10-15",studentCount:212,director:"Mounir Kchaou",email:"direction@elfateh.tn"},
+    {id:"sc3",name:"Institut Ibn Khaldoun",city:"Sousse",plan:"Pro",price:149,status:"active",since:"2026-01-10",studentCount:385,director:"Salwa Masmoudi",email:"direction@ibnkhaldoun.tn"},
+    {id:"sc4",name:"École Les Jasmins",city:"Ariana",plan:"Essentiel",price:79,status:"trial",since:"2026-06-20",studentCount:96,director:"Hatem Baccar",email:"contact@jasmins.tn"},
+  ]
+  return {classes,students,teachers,users,payments,evaluations,incidents,requests,books,routes,homework,events,exams,messages,attendance,notifications,timetables:genTimetables(classes),settings,schools}
 }
 export const DEFAULT_SETTINGS={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026', director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis', brand:'#6C5CE7', logoText:'AN', currency:'DT' }
 export const settings=()=>({...DEFAULT_SETTINGS, ...(db().settings||{})})
