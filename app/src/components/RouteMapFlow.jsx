@@ -20,12 +20,12 @@ const HC = { ...H, top:54 } // align L/R handles to the badge centre
 // ── a clean path segment ──
 function RoadEdge({ sourceX, sourceY, targetX, targetY, data }){
   const [path] = getStraightPath({ sourceX, sourceY, targetX, targetY })
-  const s = data?.state // 'done' | 'current' | 'future'
-  const center = s==='future' ? '#C7D0DE' : data.color
+  const s = data?.state // 'plain' | 'done' | 'current' | 'future'
+  const center = s==='plain' ? '#D5DCE8' : s==='future' ? '#C7D0DE' : data.color
   return (
     <g>
       <path d={path} fill="none" stroke="#EAEDF3" strokeWidth={11} strokeLinecap="round"/>
-      <path d={path} fill="none" stroke={center} strokeWidth={s==='future'?2.4:3.4} strokeLinecap="round"
+      <path d={path} fill="none" stroke={center} strokeWidth={s==='plain'?3:s==='future'?2.4:3.4} strokeLinecap="round"
         strokeDasharray={s==='current'?'9 7':s==='future'?'2 9':undefined} opacity={s==='future'?.9:.95}>
         {s==='current' && <animate attributeName="stroke-dashoffset" from="16" to="0" dur="0.7s" repeatCount="indefinite"/>}
       </path>
@@ -36,8 +36,9 @@ const edgeTypes = { road: RoadEdge }
 
 function StationNode({ data }){
   const { color, Icon, iconColor, label, time, sub, state, name, seed, showStudent } = data
+  const isPlain=state==='plain'
   const isDone=state==='done', isCur=state==='current', isFut=state==='future'
-  const ring = isCur?`0 0 0 3.5px ${color}` : isDone?`0 0 0 3px ${color}` : '0 0 0 2px #E4E8F0'
+  const ring = isPlain?'0 0 0 2px #E4E8F0' : isCur?`0 0 0 3.5px ${color}` : isDone?`0 0 0 3px ${color}` : '0 0 0 2px #E4E8F0'
   return (
     <div className="relative flex flex-col items-center" style={{width:132}}>
       <div className="text-[10px] font-extrabold mb-1" style={{color:'#AAB3C2',opacity:isCur?0:1}}>{time}</div>
@@ -50,15 +51,15 @@ function StationNode({ data }){
           </div>
         )}
         <div className="w-20 h-20 rounded-full bg-white relative grid place-items-center" style={{boxShadow:`${ring}, 0 6px 15px rgba(30,36,51,.16)`}}>
-          <span className="w-14 h-14 rounded-full grid place-items-center" style={{background:isFut?'#EEF1F6':iconColor+'16'}}>
-            <Icon size={26} strokeWidth={2.2} style={{color:isFut?'#B2BAC8':iconColor}}/>
+          <span className="w-14 h-14 rounded-full grid place-items-center" style={{background:(isFut&&!isPlain)?'#EEF1F6':iconColor+'16'}}>
+            <Icon size={26} strokeWidth={2.2} style={{color:(isFut&&!isPlain)?'#B2BAC8':iconColor}}/>
           </span>
-          {isDone && <div className="absolute inset-0 rounded-full grid place-items-center" style={{background:color+'9E'}}><Check size={28} strokeWidth={3.6} className="text-white"/></div>}
+          {isDone && !isPlain && <div className="absolute inset-0 rounded-full grid place-items-center" style={{background:color+'9E'}}><Check size={28} strokeWidth={3.6} className="text-white"/></div>}
         </div>
       </div>
       <div className={`text-[11px] mt-1.5 text-center leading-tight ${isCur?'font-extrabold':'font-semibold'}`}
-        style={{color:isFut?'#B2BAC8':'#333B4C'}}>{label}</div>
-      {sub && !isFut && <div className="text-[9px]" style={{color:'#A6AFBE'}}>{sub}</div>}
+        style={{color:(isFut&&!isPlain)?'#B2BAC8':'#333B4C'}}>{label}</div>
+      {sub && (!isFut||isPlain) && <div className="text-[9px]" style={{color:'#A6AFBE'}}>{sub}</div>}
       <Handle id="r" type="source" position={Position.Right} style={HC}/>
       <Handle id="l" type="target" position={Position.Left} style={HC}/>
       <Handle id="l2" type="source" position={Position.Left} style={HC}/>
@@ -70,18 +71,18 @@ function StationNode({ data }){
 }
 const nodeTypes = { station: StationNode }
 
-export default function RouteMapFlow({ stops, curIndex, done=0, remain, name='', seed, showStudent=true }){
+export default function RouteMapFlow({ stops, curIndex, done=0, remain, name='', seed, showStudent=true, plain=false }){
   const COLS=4, COLW=214, ROWH=182
   const curColor=COLOR[stops[curIndex]?.kind]||COLOR.class
   const P = useMemo(()=> stops.map((_,i)=>{ const row=Math.floor(i/COLS), inRow=i%COLS, col=row%2===0?inRow:(COLS-1-inRow); return {x:col*COLW, y:row*ROWH} }),[stops.length])
 
   const nodes = stops.map((s,i)=>{ const m=metaFor(s.kind,s.label); return { id:String(i), type:'station', position:P[i], draggable:false, selectable:false,
     data:{ ...s, color:COLOR[s.kind]||COLOR.class, Icon:m.Icon, iconColor:m.color,
-      state: i<curIndex?'done':i===curIndex?'current':'future', name, seed, showStudent } } })
+      state: plain?'plain':i<curIndex?'done':i===curIndex?'current':'future', name, seed, showStudent } } })
 
   const edges = stops.slice(0,-1).map((_,i)=>{ const a=P[i], b=P[i+1]
     let sh,th; if(a.y===b.y){ if(b.x>a.x){sh='r';th='l'} else {sh='l2';th='r2'} } else { sh='b'; th='t' }
-    const state = (i+1)<=curIndex ? 'done' : i===curIndex ? 'current' : 'future'
+    const state = plain ? 'plain' : (i+1)<=curIndex ? 'done' : i===curIndex ? 'current' : 'future'
     const col = state==='current' ? curColor : COLOR[stops[i].kind]||COLOR.class
     return { id:'e'+i, source:String(i), target:String(i+1), sourceHandle:sh, targetHandle:th, type:'road',
       data:{ state, color:col } }

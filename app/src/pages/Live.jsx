@@ -74,7 +74,7 @@ export default function Live(){
           ...segs.map(s=>({ kind:s.kind==='free'?'class':s.kind, label:stopLabel(s), sub:s.cell?.room, time:fmt(s.start) })),
           { kind:'entree', label:'Sortie', time:fmt(close) },
         ]} curIndex={min<open?0:min>=close?segs.length+1:(()=>{const j=segs.findIndex(s=>min>=s.start&&min<s.end);return (j<0?segs.length-1:j)+1})()}
-          name={kid.name} seed={kid.id} showStudent={liveNow||exploring}/>
+          name={kid.name} seed={kid.id} showStudent={liveNow||exploring} plain={!(liveNow||exploring)&&phase!=='after'}/>
       </Card>
 
       <div className="space-y-5">
