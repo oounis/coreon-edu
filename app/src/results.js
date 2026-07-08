@@ -19,7 +19,7 @@ export function evaluationHistory(allEvals, sid){
   return (allEvals||[])
     .filter(e=>Object.values(e.placements||{}).some(p=>p && p[sid]!=null))
     .map(e=>{ const sum=studentSummary(e,sid); return {
-      id:e.id, at:e.at, subject:e.subject, className:e.className, teacher:e.teacher,
+      id:e.id, at:e.at, subject:e.subject, lesson:e.lesson, className:e.className, teacher:e.teacher,
       note:e.note, score:sum.score, badge:sum.badge, perQ:sum.perQ, mention:mentionFor(sum.score),
     } })
     .filter(x=>x.score!=null)
@@ -63,4 +63,32 @@ export function bulletinFor(db, sid){
   const attTotal=att.present+att.absent+att.late
   const attRate=attTotal? Math.round((att.present/attTotal)*100) : null
   return { evals, sessions, subjects, overall, badges, att, attTotal, attRate, mention:mentionFor(overall) }
+}
+
+// Analyse fine : moyenne par matière ET par leçon (« faible en fractions »,
+// pas seulement « faible en maths ») — la vraie valeur du produit.
+export function lessonBreakdown(allEvals, sid){
+  const acc={}
+  for(const ev of (allEvals||[])){
+    const sum=studentSummary(ev,sid); if(sum.score==null) continue
+    const subj=acc[ev.subject]=acc[ev.subject]||{subject:ev.subject,scores:[],lessons:{}}
+    subj.scores.push(sum.score)
+    const key=ev.lesson||'Général'
+    ;(subj.lessons[key]=subj.lessons[key]||[]).push(sum.score)
+  }
+  return Object.values(acc).map(s=>({
+    subject:s.subject,
+    avg:Math.round(s.scores.reduce((a,x)=>a+x,0)/s.scores.length),
+    lessons:Object.entries(s.lessons).map(([lesson,arr])=>({
+      lesson, count:arr.length, avg:Math.round(arr.reduce((a,x)=>a+x,0)/arr.length),
+    })).sort((a,b)=>a.avg-b.avg),
+  })).sort((a,b)=>a.avg-b.avg)
+}
+// Forces / à renforcer pour le portail parent
+export function strengthsWeaknesses(allEvals, sid, n=3){
+  const all=lessonBreakdown(allEvals,sid).flatMap(s=>s.lessons.map(l=>({...l,subject:s.subject})))
+    .filter(l=>l.count>=2)
+  const weak=all.filter(l=>l.avg<60).sort((a,b)=>a.avg-b.avg).slice(0,n)
+  const strong=all.filter(l=>l.avg>=75).sort((a,b)=>b.avg-a.avg).slice(0,n)
+  return {strong,weak}
 }

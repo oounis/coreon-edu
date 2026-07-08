@@ -1,4 +1,4 @@
-const KEY="coreon_db_v16"
+const KEY="coreon_db_v17"
 const MONTHS=["Sep","Oct","Nov","Déc","Jan","Fév","Mar","Avr","Mai","Juin"]
 export const FEE_MONTHS=MONTHS
 // Tout le système tunisien
@@ -78,6 +78,10 @@ function seed(){
   // plus une légère progression dans le temps → les tendances ont du sens.
   {
     const DAY=86400000, subjPool=TT_SUBJECTS.map(([n])=>n), bkeys=['star','improved','team','idea','focus']
+    const LESSONS={'Arabe':['Lecture','Dictée','Expression écrite','Grammaire'],'Français':['Lecture','Écriture','Conjugaison','Vocabulaire'],
+      'Mathématiques':['Les fractions','Géométrie','Calcul mental','Problèmes'],'Éveil scientifique':['Le corps humain','Les plantes','La matière','Expériences'],
+      'Éducation islamique':['Récitation','Valeurs','Histoires'],'Éducation civique':['Vivre ensemble','La Tunisie','Les règles'],
+      'Sport':['Course','Jeux collectifs','Gymnastique'],'Musique':['Chant','Rythme','Écoute'],'Arts plastiques':['Dessin','Peinture','Collage'],'Informatique':['Clavier & souris','Dessin numérique','Découverte']}
     // padding makes even short seeds hash into the full 32-bit range (uniform R)
     const R=s=>h32('kogia:'+s+':edu-2026-seed')/4294967295
     classes.forEach(cl=>{
@@ -88,14 +92,17 @@ function seed(){
           const at=Date.now()-(w*7+(h32(cl.id+w+'d'+k)%5))*DAY-(8+h32(cl.id+w+'h'+k)%7)*3600000
           const subject=subjPool[h32(cl.id+w+'s'+k)%subjPool.length]
           const teacher=teachers[h32(cl.id+w+'t'+k)%teachers.length].name
+          const lpool=LESSONS[subject]||['Général']
+          const lesson=lpool[h32(cl.id+w+'l'+k)%lpool.length]
           const placements={}
           ;['q1','q2','q3','q4','q5'].forEach(q=>{ placements[q]={}
             kids.forEach(s=>{ const ability=0.25+R('ab'+s.id)*0.6, progress=(42-w)/42*0.08
-              const r=ability+progress+(R(q+s.id+cl.id+w+k)-0.5)*0.42
+              const lskew=(R('lw'+s.id+lesson)-0.5)*0.5   // force/faiblesse STABLE par leçon
+              const r=ability+progress+lskew+(R(q+s.id+cl.id+w+k)-0.5)*0.34
               placements[q][s.id]= r>0.74?'excellent': r>0.52?'good': r>0.32?'average':'weak' }) })
           const badges={}
           if(h32('bg'+cl.id+w+k)%3===0){ const s=kids[h32('bs'+cl.id+w+k)%kids.length]; badges[s.id]=bkeys[h32('bk'+cl.id+w+k)%bkeys.length] }
-          evaluations.push({id:`ev_${cl.id}_${w}_${k}`,at,classId:cl.id,className:cl.name,subject,teacher,placements,badges,note:''})
+          evaluations.push({id:`ev_${cl.id}_${w}_${k}`,at,classId:cl.id,className:cl.name,subject,lesson,teacher,placements,badges,note:''})
         }
       }
     })

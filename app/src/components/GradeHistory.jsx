@@ -28,7 +28,7 @@ export default function GradeHistory({ studentId }){
           {hist.slice(0,12).map(ev=>{ const m=ev.mention||mentionFor(ev.score); return (
             <div key={ev.id} className="rounded-xl border border-line p-3">
               <div className="flex items-center justify-between mb-1">
-                <div className="font-semibold text-sm inline-flex items-center gap-1.5">{ev.subject} {ev.badge&&<span className="inline-flex items-center gap-1 accent-text">{ev.badge.Icon&&<ev.badge.Icon size={13}/>} {ev.badge.label}</span>}</div>
+                <div className="font-semibold text-sm inline-flex items-center gap-1.5">{ev.subject}{ev.lesson&&<span className="text-muted font-medium">· {ev.lesson}</span>} {ev.badge&&<span className="inline-flex items-center gap-1 accent-text">{ev.badge.Icon&&<ev.badge.Icon size={13}/>} {ev.badge.label}</span>}</div>
                 <div className="text-right"><span className="font-bold" style={{color:m.color}}>{ev.score}/100</span>
                   <span className="ml-2 text-[11px] font-bold px-2 py-0.5 rounded-full" style={{background:m.color+'22',color:m.color}}>{m.label}</span></div>
               </div>

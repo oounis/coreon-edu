@@ -18,6 +18,7 @@ export default function Evaluate(){
   const [placements,setPlacements]=useState({})
   const [badges,setBadges]=useState({})
   const [note,setNote]=useState("")
+  const [lesson,setLesson]=useState("")
   const [active,setActive]=useState(null)
   const [saved,setSaved]=useState([])
   const sensors=useSensors(useSensor(PointerSensor,{activationConstraint:{distance:5}}))
@@ -30,7 +31,7 @@ export default function Evaluate(){
   function onDragEnd({active,over}){ setActive(null); if(!over)return; const sid=active.id
     setPlacements(prev=>{ const cur={...(prev[q.id]||{})}; if(over.id==='pool')delete cur[sid]; else cur[sid]=over.id; return {...prev,[q.id]:cur} }) }
   const autoFill=b=>setPlacements(prev=>{ const cur={...(prev[q.id]||{})}; pool.forEach(s=>cur[s.id]=b); return {...prev,[q.id]:cur} })
-  function reset(){ setStep(0);setPlacements({});setBadges({});setNote("");setSaved([]) }
+  function reset(){ setStep(0);setPlacements({});setBadges({});setNote("");setLesson("");setSaved([]) }
   function backToSchedule(){ setSlot(null); reset() }
 
   function submit(){
@@ -38,7 +39,7 @@ export default function Evaluate(){
     for(const qid in placements){ const p=placements[qid]; if(p && Object.keys(p).length) cleanPlacements[qid]=p }
     const graded=students.filter(s=>studentSummary({placements:cleanPlacements},s.id).score!=null)
     if(graded.length===0){ toast.error("Placez au moins un élève sur une réponse avant d'enregistrer."); return }
-    const ev={ id:uid('ev'), at:Date.now(), classId:cls.cls.id, className:cls.cls.name, subject:cls.slot.subject, teacher:'Othman Ounis', placements:cleanPlacements, badges, note }
+    const ev={ id:uid('ev'), at:Date.now(), classId:cls.cls.id, className:cls.cls.name, subject:cls.slot.subject, lesson:lesson.trim()||null, teacher:'Othman Ounis', placements:cleanPlacements, badges, note }
     mutate(db=>{ db.evaluations.unshift(ev) })
     students.forEach(s=>{ if(s.parentId){ const sum=studentSummary(ev,s.id); if(sum.score!=null) notify({to:s.parentId,kind:'evaluation',title:`Nouvelle évaluation pour ${s.name.split(' ')[0]}`,body:`${cls.slot.subject} : ${sum.score}/100${sum.badge?` · ${sum.badge.label}`:''}`,link:'/app'}) } })
     notify({role:'admin',kind:'evaluation',actor:'Othman Ounis',title:`Évaluation enregistrée — ${cls.cls.name}`,body:`${cls.slot.subject} · ${graded.length} élèves notés`,link:'/app/students'})
@@ -112,7 +113,12 @@ export default function Evaluate(){
       <div className="flex items-center gap-3"><span className="w-11 h-11 rounded-xl grid place-items-center accent-soft accent-text"><Clock size={20}/></span>
         <div><div className="font-semibold">{cls.cls.name} · {cls.slot.subject} <span className="text-muted font-normal">· {cls.cls.grade}</span></div>
           <div className="text-sm text-muted">{cls.slot.start}–{cls.slot.end} · {students.length} élèves {cls.isLive&&<span className="ml-1 text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{background:STATUS.ok}}>● EN COURS</span>}</div></div></div>
-      <button onClick={backToSchedule} className="text-sm accent-text font-semibold inline-flex items-center gap-1 hover:underline"><ChevronLeft size={15}/> Emploi du temps</button>
+      <div className="flex items-center gap-2">
+        <input value={lesson} onChange={e=>setLesson(e.target.value)} maxLength={40}
+          placeholder="Leçon du jour (ex. Les fractions)" aria-label="Leçon du jour"
+          className="rounded-xl border border-line bg-white px-3 py-2 text-sm accent-ring w-56"/>
+        <button onClick={backToSchedule} className="text-sm accent-text font-semibold inline-flex items-center gap-1 hover:underline"><ChevronLeft size={15}/> Emploi du temps</button>
+      </div>
     </div>
     <div className="flex items-center gap-1.5 mb-4">{QUESTIONS.map((_,i)=><div key={i} className="h-1.5 flex-1 rounded-full" style={{background:i<=step?'var(--accent)':STATUS.neutralSoft}}/>)}<div className="h-1.5 flex-1 rounded-full" style={{background:step>=5?'var(--accent)':STATUS.neutralSoft}}/></div>
 

@@ -6,7 +6,7 @@ import { current } from '../auth.js'
 import { db, FEE_MONTHS, studentById, classById } from '../db.js'
 import { StatCard, Card, PageHead, Badge, Avatar, Btn, IconTile, EmptyState, STATUS } from '../components/ui.jsx'
 import { currentClass } from '../data.js'
-import { studentSummary, bulletinFor, mentionFor } from '../results.js'
+import { studentSummary, bulletinFor, mentionFor, strengthsWeaknesses } from '../results.js'
 import { statusAt, AREAS, fmt, nowState } from '../livestatus.js'
 import { subjectMeta, PLACES } from '../subjects.jsx'
 import Bulletin from '../components/Bulletin.jsx'
@@ -247,7 +247,11 @@ function ParentDashboard({u,d,greet}){
   const sessions=b?.sessions||[]
   const trend=sessions.slice(-6).map((s,i)=>({i:i+1,score:s.score,subject:s.subject}))
   const cls=child?classById(child.classId):null
-  const ns=nowState(); const preview=ns.inSchool?ns.nowMin:630
+  const sw=childId?strengthsWeaknesses(d.evaluations.filter(e=>e.classId===child?.classId),childId):{strong:[],weak:[]}
+  const ns=nowState()
+  const phase=!ns.realWeekday?'weekend':ns.nowMin<480?'before':ns.nowMin>900?'after':'live'
+  const preview=phase==='live'?ns.nowMin:phase==='after'?900:phase==='before'?480:630
+  const pillTxt=phase==='live'?`EN DIRECT · ${fmt(preview)}`:phase==='after'?'Journée terminée':phase==='before'?'Ouvre à 08:00':'Week-end'
   const live=cls?statusAt(child.classId,ns.dayIdx,preview,false):null
   const larea=live?AREAS[live.place]:null
   const pm=live?placeMeta(live):null
@@ -256,7 +260,7 @@ function ParentDashboard({u,d,greet}){
       <div className="relative flex items-center gap-4 p-5 min-h-[124px]">
         <div className="min-w-0">
           <div className="flex items-center gap-2 text-[11px] font-bold">
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{background:ns.inSchool?STATUS.live:'rgba(255,255,255,.25)'}}><Radio size={11}/> {ns.inSchool?'EN DIRECT':'Aperçu'} · {fmt(preview)}</span>
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{background:phase==='live'?STATUS.live:'rgba(255,255,255,.25)'}}><Radio size={11}/> {pillTxt}</span>
             <span className="opacity-80 uppercase tracking-wide">Suivi en direct</span>
           </div>
           <div className="text-2xl font-extrabold mt-1.5 leading-tight">{live.title}</div>
@@ -289,6 +293,24 @@ function ParentDashboard({u,d,greet}){
         </div> : <EmptyState icon={<Star size={22}/>} title="Aucune note disponible" sub="Les moyennes par matière apparaîtront ici."/>}
       </Card>
     </div>
+    {(sw.strong.length>0||sw.weak.length>0) && <Card className="p-5 mb-4">
+      <h3 className="font-bold mb-1">Où en est {child?.name.split(' ')[0]} ?</h3>
+      <p className="text-xs text-muted mb-3">Par leçon, d'après les évaluations des enseignants — pour l'aider là où ça compte.</p>
+      <div className="grid sm:grid-cols-2 gap-4">
+        <div><div className="text-xs font-bold uppercase tracking-wide mb-2" style={{color:STATUS.ok}}>Points forts</div>
+          <div className="space-y-1.5">{sw.strong.map(l=>(
+            <div key={l.subject+l.lesson} className="flex items-center justify-between text-sm rounded-xl px-3 py-2" style={{background:STATUS.ok+'10'}}>
+              <span className="font-medium truncate">{l.lesson} <span className="text-muted text-xs">· {l.subject}</span></span>
+              <span className="font-bold shrink-0" style={{color:STATUS.ok}}>{l.avg}/100</span></div>))}
+            {sw.strong.length===0&&<div className="text-xs text-muted">Encore un peu tôt — les points forts apparaîtront ici.</div>}</div></div>
+        <div><div className="text-xs font-bold uppercase tracking-wide mb-2" style={{color:STATUS.warn}}>À renforcer</div>
+          <div className="space-y-1.5">{sw.weak.map(l=>(
+            <div key={l.subject+l.lesson} className="flex items-center justify-between text-sm rounded-xl px-3 py-2" style={{background:STATUS.warn+'12'}}>
+              <span className="font-medium truncate">{l.lesson} <span className="text-muted text-xs">· {l.subject}</span></span>
+              <span className="font-bold shrink-0" style={{color:STATUS.warn}}>{l.avg}/100</span></div>))}
+            {sw.weak.length===0&&<div className="text-xs text-muted">Rien à signaler — tout est au vert !</div>}</div></div>
+      </div>
+    </Card>}
     <div className="flex gap-3 flex-wrap">
       <Link to="/app/payments" className={BTN_PRIMARY}>Voir les paiements</Link>
       <Link to="/app/homework" className={BTN_DEFAULT}>Devoirs</Link>
