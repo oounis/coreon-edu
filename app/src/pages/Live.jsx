@@ -27,6 +27,8 @@ export default function Live(){
   const [min,setMin]=useState(defMin)
   const [liveNow,setLiveNow]=useState(phase==='live')
   const exploring = !liveNow && min!==defMin
+  const simulated = exploring && (phase==='vacances'||phase==='weekend'||phase==='before')   // journée type, pas la réalité
+  const replay = exploring && phase==='after'                                               // revoir la vraie journée
   useEffect(()=>{ if(!liveNow) return; const t=setInterval(()=>{const n=new Date();setMin(n.getHours()*60+n.getMinutes())},20000); return ()=>clearInterval(t) },[liveNow])
 
   const sick=useMemo(()=>d.incidents.some(i=>i.studentId===kid?.id&&i.type==='Santé'&&i.status==='open'&&(Date.now()-i.at)<86400000),[d,kid])
@@ -48,6 +50,7 @@ export default function Live(){
   const lessons=segs.filter(s=>s.kind==='class').length
 
   const pill = liveNow ? {txt:`EN DIRECT · ${fmt(min)}`,bg:STATUS.live,pulse:true}
+    : simulated ? {txt:`Journée type · ${fmt(min)}`,bg:'#F59E0B'}
     : exploring ? {txt:`Aperçu · ${fmt(min)}`,bg:STATUS.neutral}
     : phase==='after' ? {txt:'Journée terminée',bg:'#8B5CF6'}
     : phase==='before' ? {txt:`Ouvre à ${fmt(open)}`,bg:STATUS.info}
@@ -67,7 +70,7 @@ export default function Live(){
               {pill.pulse&&<motion.span animate={{opacity:[1,.3,1]}} transition={{repeat:Infinity,duration:1.4}}><Radio size={12}/></motion.span>}{pill.txt}</span>
             <span className="text-sm font-bold text-muted hidden sm:inline">Journée de {first} · {day}</span>
           </div>
-          <span className="text-sm font-extrabold px-3 py-1 rounded-full" style={{background:area.color+'16',color:area.color}}>{(liveNow||exploring)?st.title:phase==='after'?'Journée terminée':phase==='before'?"Avant l'école":'Journée type'}</span>
+          <span className="text-sm font-extrabold px-3 py-1 rounded-full" style={{background:area.color+'16',color:area.color}}>{(liveNow||replay)?st.title:phase==='after'?'Journée terminée':phase==='before'?"Avant l'école":'Journée type'}</span>
         </div>
         <RouteMap stops={[
           { kind:'entree', label:'Arrivée', time:fmt(open) },
@@ -84,7 +87,7 @@ export default function Live(){
             <div><div className="font-bold">{kid.name}</div><div className="text-xs text-muted">{cls?.name} · École primaire</div></div>
           </div>
 
-          {(phase==='live'||exploring) && <div className="mt-4 rounded-2xl p-4" style={{background:area.color+'12'}}>
+          {(phase==='live'||replay) && <div className="mt-4 rounded-2xl p-4" style={{background:area.color+'12'}}>
             <div className="flex items-center gap-2 text-sm font-bold" style={{color:area.color}}><MapPin size={15}/> {area.label}</div>
             <div className="text-lg font-extrabold mt-1">{st.title}</div>
             <div className="text-sm text-muted">{st.sub}</div>
@@ -119,12 +122,21 @@ export default function Live(){
             <div className="text-sm text-muted mt-1">Le suivi en direct démarrera automatiquement à l'arrivée de {first}.</div>
           </div>}
 
-          {phase==='weekend' && !exploring && <div className="mt-4 rounded-2xl p-4 bg-canvas">
+          {phase==='weekend' && <div className="mt-4 rounded-2xl p-4 bg-canvas">
             <div className="flex items-center gap-2 text-sm font-bold text-muted"><Sun size={15}/> Pas d'école aujourd'hui</div>
             <div className="text-sm text-muted mt-1">Bon week-end ! Le suivi reprendra lundi à {fmt(open)}.</div>
           </div>}
 
-          {phase==='vacances' && !exploring && <div className="mt-4 rounded-2xl p-4" style={{background:'#F59E0B14'}}>
+          {simulated && <div className="mt-4 rounded-2xl p-4 border-2 border-dashed" style={{borderColor:area.color+'55',background:area.color+'0A'}}>
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-2 text-sm font-bold" style={{color:area.color}}><MapPin size={15}/> {area.label}</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{background:'#F59E0B22',color:'#B45309'}}>SIMULATION</span>
+            </div>
+            <div className="text-lg font-extrabold mt-1">À {fmt(min)}, un jour d'école : {st.title==='En classe'?st.sub?.split(' · ')[0]:st.title}</div>
+            <div className="text-sm text-muted">{st.seg?.end>st.seg?.start?`Séance de ${fmt(st.seg.start)} à ${fmt(st.seg.end)} (${st.seg.end-st.seg.start} min)`:st.sub}</div>
+          </div>}
+
+          {phase==='vacances' && <div className="mt-4 rounded-2xl p-4" style={{background:'#F59E0B14'}}>
             <div className="flex items-center gap-2 text-sm font-bold" style={{color:'#B45309'}}><Sun size={15}/> Vacances d'été</div>
             <div className="text-sm text-muted mt-1">L'école reprend le <b>lundi 15 septembre</b>. Le suivi en direct redémarrera automatiquement à la rentrée — bel été à {first} !</div>
           </div>}
