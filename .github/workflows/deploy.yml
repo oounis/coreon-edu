@@ -1,4 +1,4 @@
-name: Deploy Coreon Edu to GitHub Pages
+name: Deploy Kogia Edu to GitHub Pages
 on:
   push: { branches: [main] }
   workflow_dispatch:
