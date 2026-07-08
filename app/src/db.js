@@ -1,4 +1,4 @@
-const KEY="coreon_db_v9"
+const KEY="coreon_db_v10"
 const MONTHS=["Sep","Oct","Nov","Déc","Jan","Fév","Mar","Avr","Mai","Juin"]
 export const FEE_MONTHS=MONTHS
 // Tout le système tunisien
@@ -75,6 +75,34 @@ function seed(){
     {id:"ev_seed2",at:Date.now()-1800000,classId:"c5a",className:"5ème A",subject:"Éveil scientifique",teacher:"Hela Morjane",placements:placements2,badges:{s2:"idea"},note:"Très bonne participation à l'expérience."},
     {id:"ev_seed",at:Date.now()-90000000,classId:"c5a",className:"5ème A",subject:"Mathématiques",teacher:"Othman Ounis",placements,badges:{s1:"star",s3:"improved"},note:"Bonne séance, classe attentive."},
   ]
+  // ── historique d'évaluations (~10 mois) pour alimenter le suivi Direction/Admin.
+  // Déterministe (h32) : chaque élève a une "aptitude" stable → classements cohérents,
+  // plus une légère progression dans le temps → les tendances ont du sens.
+  {
+    const DAY=86400000, subjPool=TT_SUBJECTS.map(([n])=>n), bkeys=['star','improved','team','idea','focus']
+    // padding makes even short seeds hash into the full 32-bit range (uniform R)
+    const R=s=>h32('kogia:'+s+':edu-2026-seed')/4294967295
+    classes.forEach(cl=>{
+      const kids=students.filter(s=>s.classId===cl.id)
+      for(let w=1; w<=42; w++){
+        const n=1+(h32(cl.id+':'+w)%2)
+        for(let k=0;k<n;k++){
+          const at=Date.now()-(w*7+(h32(cl.id+w+'d'+k)%5))*DAY-(8+h32(cl.id+w+'h'+k)%7)*3600000
+          const subject=subjPool[h32(cl.id+w+'s'+k)%subjPool.length]
+          const teacher=teachers[h32(cl.id+w+'t'+k)%teachers.length].name
+          const placements={}
+          ;['q1','q2','q3','q4','q5'].forEach(q=>{ placements[q]={}
+            kids.forEach(s=>{ const ability=0.25+R('ab'+s.id)*0.6, progress=(42-w)/42*0.08
+              const r=ability+progress+(R(q+s.id+cl.id+w+k)-0.5)*0.42
+              placements[q][s.id]= r>0.74?'excellent': r>0.52?'good': r>0.32?'average':'weak' }) })
+          const badges={}
+          if(h32('bg'+cl.id+w+k)%3===0){ const s=kids[h32('bs'+cl.id+w+k)%kids.length]; badges[s.id]=bkeys[h32('bk'+cl.id+w+k)%bkeys.length] }
+          evaluations.push({id:`ev_${cl.id}_${w}_${k}`,at,classId:cl.id,className:cl.name,subject,teacher,placements,badges,note:''})
+        }
+      }
+    })
+    evaluations.sort((a,b)=>b.at-a.at)
+  }
   const incidents=[
     {id:"inc1",at:Date.now()-86400000,by:"Dali Brahmi",studentId:"s4",type:"Santé",title:"Élève malade",body:"Karim avait mal à la tête; envoyé à l'infirmerie.",severity:"medium",status:"open"},
     {id:"inc2",at:Date.now()-3*86400000,by:"Dali Brahmi",studentId:"s8",type:"Comportement",title:"Bagarre dans la cour",body:"Petite altercation réglée; parents informés.",severity:"high",status:"resolved"},

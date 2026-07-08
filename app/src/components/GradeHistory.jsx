@@ -25,7 +25,7 @@ export default function GradeHistory({ studentId }){
       <h3 className="text-sm font-bold uppercase tracking-wide accent-text mb-2 flex items-center gap-1.5"><ClipboardList size={14}/> Évaluations enregistrées · {hist.length}</h3>
       {hist.length? (
         <div className="space-y-2 mb-5">
-          {hist.map(ev=>{ const m=ev.mention||mentionFor(ev.score); return (
+          {hist.slice(0,12).map(ev=>{ const m=ev.mention||mentionFor(ev.score); return (
             <div key={ev.id} className="rounded-xl border border-line p-3">
               <div className="flex items-center justify-between mb-1">
                 <div className="font-semibold text-sm inline-flex items-center gap-1.5">{ev.subject} {ev.badge&&<span className="inline-flex items-center gap-1 accent-text">{ev.badge.Icon&&<ev.badge.Icon size={13}/>} {ev.badge.label}</span>}</div>
@@ -38,6 +38,7 @@ export default function GradeHistory({ studentId }){
               </div>
               {ev.note&&<div className="text-xs text-muted mt-1.5 italic">« {ev.note} »</div>}
             </div>) })}
+          {hist.length>12 && <p className="text-xs text-muted text-center pt-1">+ {hist.length-12} évaluations plus anciennes (agrégées dans le bulletin)</p>}
         </div>
       ) : <p className="text-sm text-muted mb-5">Aucune évaluation enregistrée pour cet élève.</p>}
 

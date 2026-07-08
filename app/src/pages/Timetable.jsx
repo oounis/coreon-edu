@@ -2,12 +2,15 @@ import { useState } from 'react'
 import { current } from '../auth.js'
 import { db, studentById, setTimetableCell, TT_SUBJECTS } from '../db.js'
 import { DAYS, PERIODS, timetableFor, teacherTimetable } from '../data.js'
-import { PageHead, Card, Select, Field, Modal, Btn, StatCard } from '../components/ui.jsx'
-import { CalendarClock, Pencil, Trash2 } from 'lucide-react'
+import { PageHead, Select, Field, Modal, Btn } from '../components/ui.jsx'
+import { subjectMeta } from '../subjects.jsx'
+import { Pencil, Trash2, Plus, Sun } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const ROOMS=['Salle 12','Salle 8','Salle 21','Salle 5','Labo','Gymnase','Salle Info','Salle de musique']
 
+// The whole week on one screen: the grid stretches to fill the viewport
+// (no vertical scrolling) — rows share the available height equally.
 export default function Timetable(){
   const u=current(); const d=db()
   const canEdit=['schooladmin','admin'].includes(u.role)
@@ -22,17 +25,24 @@ export default function Timetable(){
   const editable = canEdit && mode==='class'
   const grid = mode==='me'&&teacher ? teacherTimetable(teacher) : timetableFor(classId)
   const clsName = d.classes.find(c=>c.id===classId)?.name
+  const sessions = grid.reduce((n,r)=>n+r.cells.filter(Boolean).length,0)
+  const todayIdx=(()=>{ const wd=new Date().getDay(); return wd>=1&&wd<=5 ? wd-1 : -1 })()
 
   const openCell=(pi,di,cell)=>{ if(!editable) return; setEdit({pi,di,subject:cell?.subject||'',room:cell?.room||ROOMS[0]}) }
   const saveCell=()=>{
     const s=TT_SUBJECTS.find(([n])=>n===edit.subject)
-    setTimetableCell(classId, edit.pi, edit.di, s?{subject:s[0],color:s[1],room:edit.room}:null)
+    setTimetableCell(classId, edit.pi, edit.di, s?{subject:s[0],room:edit.room}:null)
     toast.success('Emploi du temps mis à jour'); setEdit(null); bump()
   }
   const clearCell=()=>{ setTimetableCell(classId, edit.pi, edit.di, null); toast.success('Case libérée'); setEdit(null); bump() }
 
   return (<>
-    <PageHead title="Emploi du temps" sub={editable?'Cliquez sur une case pour la modifier.':'La semaine, d’un coup d’œil.'}
+    <PageHead title="Emploi du temps"
+      sub={<span className="inline-flex items-center gap-2 flex-wrap">
+        {mode==='me'&&teacher ? <>{teacher.name} · {teacher.subject}</> : <>Classe {clsName}</>}
+        <span className="text-line">|</span>{sessions} séances · Lun–Ven · 6 périodes
+        {editable && <span className="inline-flex items-center gap-1 text-[11px] font-bold accent-soft accent-text px-2 py-0.5 rounded-full"><Pencil size={11}/> mode édition — cliquez sur une case</span>}
+      </span>}
       action={
         <div className="flex items-end gap-3">
           {u.role==='teacher' && <Field label="Vue"><Select value={mode} onChange={e=>setMode(e.target.value)}><option value="me">Mon emploi du temps</option><option value="class">Par classe</option></Select></Field>}
@@ -40,27 +50,18 @@ export default function Timetable(){
         </div>
       }/>
 
-    {editable && <div className="flex items-center gap-2 text-xs font-semibold text-white px-3 py-2 rounded-xl mb-4 w-fit" style={{background:'var(--accent)'}}><Pencil size={13}/> Mode édition (Direction) — construisez l’emploi du temps de {clsName}</div>}
-
-    <Card className="p-4 overflow-x-auto scroll-thin">
-      <div className="min-w-[720px]">
-        <div className="grid" style={{gridTemplateColumns:'84px repeat(5,1fr)',gap:'6px'}}>
-          <div/>
-          {DAYS.map(day=><div key={day} className="text-center text-sm font-bold py-2 rounded-lg bg-canvas">{day}</div>)}
-          {grid.map((row,pi)=>(
-            <FragmentRow key={pi} row={row} pi={pi} editable={editable} onCell={openCell}/>
-          ))}
-        </div>
-        <div className="text-xs text-muted mt-3">
-          {mode==='me'&&teacher ? <>Emploi du temps de <b className="text-ink">{teacher.name}</b> · {teacher.subject}</> : <>Classe <b className="text-ink">{clsName}</b> · récréation 10:00–10:15 · déjeuner 12:15–13:00</>}
-        </div>
+    <div className="card p-3 overflow-x-auto scroll-thin" style={{height:'max(480px, calc(100vh - 205px))'}}>
+      <div className="h-full min-w-[680px] grid gap-1.5" style={{gridTemplateColumns:'56px repeat(5,1fr)', gridTemplateRows:'34px repeat(6,1fr)'}}>
+        <div/>
+        {DAYS.map((day,di)=>(
+          <div key={day} className={`grid place-items-center text-[13px] font-bold rounded-lg ${di===todayIdx?'accent-soft accent-text':'bg-canvas text-ink'}`}>
+            <span className="inline-flex items-center gap-1.5">{di===todayIdx&&<Sun size={13}/>}{day}</span>
+          </div>
+        ))}
+        {grid.map((row,pi)=>(
+          <Row key={pi} row={row} pi={pi} todayIdx={todayIdx} editable={editable} onCell={openCell}/>
+        ))}
       </div>
-    </Card>
-
-    <div className="grid sm:grid-cols-3 gap-4 mt-5">
-      <StatCard label="séances / semaine" value={grid.reduce((n,r)=>n+r.cells.filter(Boolean).length,0)} tint="brand" icon={<CalendarClock size={20}/>}/>
-      <StatCard label="périodes / jour" value={6} tint="mint" icon={<CalendarClock size={20}/>}/>
-      <StatCard label="jours d’école" value="Lun–Ven" tint="butter" icon={<CalendarClock size={20}/>}/>
     </div>
 
     <Modal open={!!edit} onClose={()=>setEdit(null)} title="Modifier la séance"
@@ -74,21 +75,24 @@ export default function Timetable(){
   </>)
 }
 
-function FragmentRow({ row, pi, editable, onCell }){
+function Row({ row, pi, todayIdx, editable, onCell }){
   return (<>
-    <div className="text-[11px] text-muted font-semibold py-3 pr-1 text-right leading-tight">{row.start}<br/>{row.end}</div>
-    {row.cells.map((c,di)=> c ? (
-      <button key={di} onClick={()=>onCell(pi,di,c)} disabled={!editable}
-        className={`rounded-xl p-2.5 text-left min-h-[64px] w-full ${editable?'hover:ring-2 hover:ring-offset-1 cursor-pointer':''}`}
-        style={{background:c.color+'14',borderLeft:'3px solid '+c.color}}>
-        <div className="text-[13px] font-bold leading-tight" style={{color:c.color}}>{c.subject}</div>
-        <div className="text-[11px] text-muted mt-0.5">{c.room}{c.className?` · ${c.className}`:''}</div>
-      </button>
-    ) : (
-      <button key={di} onClick={()=>onCell(pi,di,null)} disabled={!editable}
-        className={`rounded-xl min-h-[64px] grid place-items-center text-[11px] text-muted bg-canvas/60 w-full ${editable?'hover:bg-canvas border-2 border-dashed border-line':''}`}>
-        {editable?'+ Ajouter':'—'}
-      </button>
-    ))}
+    <div className="grid place-items-center text-[10px] text-muted font-bold text-center leading-tight">{row.start}<br/>{row.end}</div>
+    {row.cells.map((c,di)=>{
+      if(!c) return (
+        <button key={di} onClick={()=>onCell(pi,di,null)} disabled={!editable}
+          className={`h-full w-full rounded-xl grid place-items-center text-muted/70 ${di===todayIdx?'bg-canvas':'bg-canvas/50'} ${editable?'hover:bg-canvas border-2 border-dashed border-line':''}`}>
+          {editable? <Plus size={14}/> : <span className="text-[10px]">—</span>}
+        </button>)
+      const {Icon,color}=subjectMeta(c.subject)
+      return (
+        <button key={di} onClick={()=>onCell(pi,di,c)} disabled={!editable}
+          className={`h-full w-full rounded-xl px-1.5 py-1 flex flex-col items-center justify-center gap-0.5 text-center overflow-hidden transition ${editable?'cursor-pointer hover:ring-2 hover:ring-[var(--accent)] hover:ring-offset-1':''} ${di===todayIdx?'ring-1 ring-inset':''}`}
+          style={{background:color+'12', ...(di===todayIdx?{'--tw-ring-color':color+'55'}:{})}}>
+          <Icon size={15} style={{color}} className="shrink-0"/>
+          <span className="text-[11.5px] font-bold leading-tight truncate max-w-full" style={{color}}>{c.subject}</span>
+          <span className="text-[9.5px] text-muted truncate max-w-full">{c.room}{c.className?` · ${c.className}`:''}</span>
+        </button>)
+    })}
   </>)
 }

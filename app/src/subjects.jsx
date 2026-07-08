@@ -14,7 +14,7 @@ const RULES=[
   [/musi/,               Music,        '#DB2777'],
   [/art|dessin/,         Palette,      '#F43F5E'],
   [/info|techno/,        Monitor,      '#0D9488'],
-  [/sport|physique|éduc/,Dumbbell,     '#F97316'],
+  [/sport|physique|gym/, Dumbbell,     '#F97316'],
   [/islam|coran/,        MoonStar,     '#8B5CF6'],
   [/civi/,               Landmark,     '#64748B'],
 ]
