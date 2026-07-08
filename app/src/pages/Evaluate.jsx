@@ -7,6 +7,7 @@ import { teacherSchedule, QUESTIONS, BUCKETS, BADGES } from '../data.js'
 import { db, mutate, uid, studentById } from '../db.js'
 import { notify } from '../notify.js'
 import { studentSummary, mentionFor } from '../results.js'
+import { resolveStudentAvatar, avatarBg } from '../people.js'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'
@@ -154,7 +155,7 @@ function BadgePicker({students,badges,setBadges}){
   return (<div>
     <div className="flex flex-wrap gap-2 mb-3">{students.map(s=>(
       <button key={s.id} onClick={()=>setSel(sel===s.id?null:s.id)} className={`flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border bg-white text-sm ${sel===s.id?'accent-text':'border-line'}`} style={sel===s.id?{borderColor:'var(--accent)'}:{}}>
-        <span className="w-6 h-6 rounded-full grid place-items-center text-white text-[10px] font-bold" style={{background:'#94A3B8'}}>{s.initials}</span>{s.name}{badges[s.id]&&<span>{BADGES.find(b=>b.key===badges[s.id])?.emoji}</span>}</button>))}</div>
+        <span className="w-6 h-6 rounded-full overflow-hidden grid place-items-center shrink-0" style={{background:avatarBg(s.id)}}><img src={resolveStudentAvatar(s)} alt="" className="w-full h-full object-contain"/></span>{s.name}{badges[s.id]&&<span>{BADGES.find(b=>b.key===badges[s.id])?.emoji}</span>}</button>))}</div>
     {sel&&<div className="flex flex-wrap gap-2 pop">{BADGES.map(b=><button key={b.key} onClick={()=>{setBadges(p=>({...p,[sel]:b.key}));setSel(null)}} className="px-3 py-1.5 rounded-full border border-line bg-white text-sm hover:accent-soft">{b.emoji} {b.label}</button>)}
       <button onClick={()=>{setBadges(p=>{const n={...p};delete n[sel];return n});setSel(null)}} className="px-3 py-1.5 rounded-full text-sm text-muted">retirer</button></div>}
   </div>)
