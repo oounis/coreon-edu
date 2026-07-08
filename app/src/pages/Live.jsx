@@ -131,8 +131,9 @@ export default function Live(){
         </Card>
 
         <Card className="p-5">
-          <div className="flex items-center justify-between mb-2"><div className="font-bold text-sm">{phase==='after'?'Revoir la journée':'Explorer la journée'}</div>
+          <div className="flex items-center justify-between mb-1"><div className="font-bold text-sm">{phase==='after'?'Revoir la journée':phase==='live'?'Explorer la journée':'Explorer une journée type'}</div>
             <button onClick={()=>{setMin(defMin);setLiveNow(phase==='live')}} className="text-xs font-semibold accent-text">{phase==='live'?'Revenir à maintenant':'Réinitialiser'}</button></div>
+          <p className="text-[11px] text-muted mb-2">{phase==='live'?'Faites glisser pour revoir un moment de la journée — puis revenez au direct.':phase==='after'?"Rejouez la journée heure par heure sur le plan.":"Faites glisser le curseur pour voir comment se déroule une journée d'école, heure par heure (simple aperçu)."}</p>
           <input type="range" min={480} max={900} step={5} value={min} onChange={e=>{setMin(+e.target.value);setLiveNow(false)}} className="w-full accent-[var(--accent)]" aria-label="Explorer la journée"/>
           <div className="flex justify-between text-[10px] text-muted mt-1"><span>{fmt(open)}</span><span className="font-bold text-ink">{fmt(min)}</span><span>{fmt(close)}</span></div>
         </Card>
