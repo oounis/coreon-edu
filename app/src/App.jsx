@@ -29,6 +29,7 @@ import Live from './pages/Live.jsx'
 import Settings from './pages/Settings.jsx'
 import Results from './pages/Results.jsx'
 import Staff from './pages/Staff.jsx'
+import Pointage from './pages/Pointage.jsx'
 
 // ── Security: strict per-route authorization by role ──
 const ALL=['owner','schooladmin','admin','teacher','supervisor','parent']
@@ -59,6 +60,7 @@ export default function App(){
         <Route path="/app/students" element={R(<Students/>, ['schooladmin','admin','supervisor','teacher'])}/>
         <Route path="/app/teachers" element={R(<Teachers/>, ['schooladmin','admin'])}/>
         <Route path="/app/staff" element={R(<Staff/>, ['schooladmin','admin'])}/>
+        <Route path="/app/pointage" element={R(<Pointage/>, ['teacher','supervisor','admin'])}/>
         <Route path="/app/evaluate" element={R(<Evaluate/>, ['teacher'])}/>
         <Route path="/app/results" element={R(<Results/>, ['schooladmin','admin'])}/>
         <Route path="/app/timetable" element={R(<Timetable/>, ['schooladmin','admin','teacher','parent','supervisor'])}/>

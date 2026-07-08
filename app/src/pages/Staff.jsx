@@ -12,7 +12,7 @@ import toast from 'react-hot-toast'
 /* ── Personnel : le module RH de présence, propriété de la Direction ────── */
 const ST={present:['Présent',STATUS.ok],late:['Retard',STATUS.warn],absent:['Absent',STATUS.danger],conge:['Congé','#8B5CF6']}
 const NEXT={present:'late',late:'absent',absent:'conge',conge:'present'}
-const LEAVE_TYPES={annuel:'Congé annuel',maladie:'Maladie',exceptionnel:'Exceptionnel'}
+const LEAVE_TYPES={annuel:'Congé annuel',maladie:'Maladie',exceptionnel:'Exceptionnel',permission:'Permission (heures)'}
 const QUOTA=30 // jours de congé annuel / an
 const isoOf=d=>d.toISOString().slice(0,10)
 
@@ -61,7 +61,8 @@ function DayTab({ d, staff, refresh }){
       <StatCard tint="coral"  icon={<UserX size={20}/>}             value={counts.absent}  label="Absents"/>
       <StatCard tint="grape"  icon={<Plane size={20}/>}             value={counts.conge}   label="En congé"/>
     </div>
-    <SectionCard icon={<BriefcaseBusiness size={16}/>} tint="brand" title={`Appel du personnel · ${dayLabel}`}
+    <ClockBoard d={d} staff={staff}/>
+    <SectionCard icon={<BriefcaseBusiness size={16}/>} tint="brand" title={`Appel du personnel · ${dayLabel}`} className="mt-4"
       sub="Touchez un statut pour le changer : présent → retard → absent → congé"
       action={<Btn onClick={save}><Save size={15}/> Enregistrer</Btn>} bodyClass="p-3">
       <div className="grid sm:grid-cols-2 gap-2">
@@ -79,6 +80,31 @@ function DayTab({ d, staff, refresh }){
       </div>
     </SectionCard>
   </>)
+}
+
+/* ── Badgeuse du jour : qui est dans l'école, en ce moment ── */
+function ClockBoard({ d, staff }){
+  const today=isoOf(new Date())
+  const clk=(d.staffClock||{})[today]||{}
+  const inside=staff.filter(x=>clk[x.id]&&!clk[x.id].out)
+  const done=staff.filter(x=>clk[x.id]&&clk[x.id].out)
+  const missing=staff.filter(x=>!clk[x.id])
+  return (
+    <SectionCard icon={<Clock size={16}/>} tint="mint" title={`Badgeuse — en ce moment`}
+      sub={`${inside.length} dans l'école · ${done.length} journée(s) terminée(s) · ${missing.length} non pointé(s)`} bodyClass="p-3">
+      <div className="flex flex-wrap gap-2">
+        {staff.map(x=>{ const c=clk[x.id]
+          const state=!c?['non pointé',STATUS.neutral]:c.out?[`${c.in} → ${c.out}`,'#8B5CF6']:[`arrivé ${c.in}`,c.in>'08:05'?STATUS.warn:STATUS.ok]
+          return (
+          <span key={x.id} className="inline-flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border border-line bg-white text-sm">
+            <Avatar name={x.name} seed={x.id} size={26}/>
+            <span className="font-semibold">{x.name.split(' ')[0]}</span>
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{background:state[1]+'1E',color:state[1]}}>
+              {c&&!c.out&&<span className="inline-block w-1.5 h-1.5 rounded-full mr-1 animate-pulse" style={{background:state[1]}}/>}{state[0]}</span>
+          </span>)})}
+      </div>
+    </SectionCard>
+  )
 }
 
 /* ── 2) Mois : la grille mensuelle + export CSV ── */
@@ -161,7 +187,7 @@ function LeavesTab({ d, staff, refresh }){
   }
   const decide=(lv,status)=>{
     mutate(db=>{ const x=(db.staffLeaves||[]).find(y=>y.id===lv.id); if(x){ x.status=status; x.by='Direction' } })
-    if(status==='approved') applyLeave(lv)
+    if(status==='approved'&&lv.type!=='permission') applyLeave(lv)   // une permission de quelques heures ne remplit pas la journée
     notify({to:lv.staffId,kind:'info',actor:'Direction',title:status==='approved'?'Congé approuvé':'Congé refusé',
       body:`${LEAVE_TYPES[lv.type]} du ${lv.from} au ${lv.to} : ${status==='approved'?'accordé. Bon repos !':'refusé — voir la direction.'}`})
     toast.success(status==='approved'?`Congé de ${nameOf(lv.staffId)} approuvé — présence remplie automatiquement`:'Demande refusée')
@@ -189,7 +215,7 @@ function LeavesTab({ d, staff, refresh }){
               <Avatar name={nameOf(lv.staffId)} seed={lv.staffId} size={38}/>
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-semibold">{nameOf(lv.staffId)} · {LEAVE_TYPES[lv.type]}</span>
-                <span className="block text-xs text-muted">{lv.from} → {lv.to} · {lv.days} j ouvrés{lv.reason?` · « ${lv.reason} »`:''}</span>
+                <span className="block text-xs text-muted">{lv.type==='permission'?`${lv.from} · ${lv.hours} h`:`${lv.from} → ${lv.to} · ${lv.days} j ouvrés`}{lv.reason?` · « ${lv.reason} »`:''}</span>
               </span>
               <Btn size="sm" onClick={()=>decide(lv,'approved')}><Check size={14}/> Approuver</Btn>
               <Btn size="sm" variant="danger" onClick={()=>decide(lv,'rejected')}><X size={14}/></Btn>
