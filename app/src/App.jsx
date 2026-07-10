@@ -33,22 +33,25 @@ import Pointage from './pages/Pointage.jsx'
 import Social from './pages/Social.jsx'
 import Security from './pages/Security.jsx'
 import { ROUTE_ROLES } from './access.js'
+import { featureEnabled } from './features.js'
 
 // ── Security: strict per-route authorization by role ──
 // La table des permissions vit dans access.js (source unique, refus par défaut) :
 // deux copies finissaient toujours par diverger.
 // Must be logged in AND (if roles set) hold an allowed role, else bounce to own
 // dashboard. Prevents e.g. a parent opening /app/finance by typing the URL.
-function Protected({ el, roles }){
+function Protected({ el, roles, path }){
   const u=current()
   if(!u) return <Navigate to="/login" replace/>
+  // Un module éteint (features.js) n'est plus atteignable, même en tapant l'URL.
+  if(path && !featureEnabled(path)) return <Navigate to="/app" replace/>
   if(roles && !roles.includes(u.role)){
     toast.error("Accès non autorisé pour votre rôle.")
     return <Navigate to="/app" replace/>
   }
   return <AppShell>{el}</AppShell>
 }
-const R=(el,path)=> <Protected el={el} roles={ROUTE_ROLES[path]}/>
+const R=(el,path)=> <Protected el={el} roles={ROUTE_ROLES[path]} path={path}/>
 
 export default function App(){
   return (

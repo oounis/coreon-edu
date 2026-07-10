@@ -399,7 +399,7 @@ function ParentDashboard({u,d,greet}){
     </Card>}
     <div className="flex gap-3 flex-wrap">
       <Link to="/app/payments" className={BTN_PRIMARY}>Voir les paiements</Link>
-      <Link to="/app/homework" className={BTN_DEFAULT}>Devoirs</Link>
+      <Link to="/app/social" className={BTN_DEFAULT}>✨ Espace parents</Link>
       <Link to="/app/notices" className={BTN_DEFAULT}>Annonces</Link>
     </div>
     <Bulletin student={bulletin} onClose={()=>setBulletin(null)}/>

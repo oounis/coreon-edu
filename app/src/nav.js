@@ -6,7 +6,9 @@ import {
   Bus, CalendarDays, MessageSquare, Award, CalendarClock, Radio, Settings, BarChart3, Sparkles, ShieldCheck
 } from 'lucide-react'
 
-export const NAV=[
+import { featureEnabled } from './features.js'
+
+const ALL_NAV=[
   { to:'/app', label:'Tableau de bord', icon:LayoutDashboard, roles:['owner','schooladmin','admin','teacher','supervisor','security','parent'] },
   { to:'/app/live', label:'Suivi en direct', icon:Radio, roles:['parent'] },
   { to:'/app/schools', label:'Écoles', icon:Building2, roles:['owner'] },
@@ -35,3 +37,6 @@ export const NAV=[
   { to:'/app/notices', label:'Annonces', icon:Megaphone, roles:['owner','schooladmin','admin','teacher','supervisor','security','parent'] },
   { to:'/app/settings', label:'Paramètres', icon:Settings, roles:['schooladmin'] },
 ]
+
+// Un module éteint disparaît du menu et de la palette de commandes (features.js).
+export const NAV=ALL_NAV.filter(n=>featureEnabled(n.to))

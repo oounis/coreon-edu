@@ -31,6 +31,8 @@ export const ROUTE_ROLES={
   '/app/notices': ALL,
   '/app/notifications': ALL,
 }
+import { featureEnabled } from './features.js'
+
 // can this role open this path? (ignores query/hash)
 // Politique : REFUS par défaut. Une route absente de la table n'est ouverte à
 // personne — auparavant un chemin inconnu était autorisé à tous, ce qui est le
@@ -38,6 +40,7 @@ export const ROUTE_ROLES={
 export function canAccess(role, path){
   if(!path) return false
   const base=path.split('?')[0].split('#')[0]
+  if(!featureEnabled(base)) return false          // module éteint : fermé à tous
   const roles=ROUTE_ROLES[base]
   return Array.isArray(roles) && roles.includes(role)
 }
