@@ -30,3 +30,15 @@ export function setStorage(next) { impl = next || memory() }
 export const getItem = k => { try { return impl.getItem(k) } catch { return null } }
 export const setItem = (k, v) => { try { impl.setItem(k, v) } catch { /* quota, mode privé */ } }
 export const removeItem = k => { try { impl.removeItem(k) } catch { /* ignore */ } }
+
+// ── Session (auth) ───────────────────────────────────────────────────────────
+// Même couture, durée de vie différente : le web veut `sessionStorage` (la
+// session meurt avec l'onglet), Android branche un stockage persistant — sur
+// téléphone on ne redemande pas le mot de passe à chaque ouverture.
+let sessionImpl = (typeof sessionStorage !== 'undefined' && sessionStorage) || memory()
+
+export function setSessionStorage(next) { sessionImpl = next || memory() }
+
+export const getSession = k => { try { return sessionImpl.getItem(k) } catch { return null } }
+export const setSession = (k, v) => { try { sessionImpl.setItem(k, v) } catch { /* ignore */ } }
+export const removeSession = k => { try { sessionImpl.removeItem(k) } catch { /* ignore */ } }

@@ -5,7 +5,7 @@ Produit : **Coreon Edu**, département **Kogia Education**, éditeur **Kogia Gro
 Ce n'est **pas** un ERP scolaire — c'est un produit qu'on ouvre avec plaisir. On garde
 ce qui fait vivre l'école tous les jours et on éteint ce que tout le monde vend déjà.
 
-Dernière session : 2026-07-10.
+Dernière session : 2026-07-10 (2ᵉ session du jour — l'app Android est née).
 
 ---
 
@@ -17,81 +17,84 @@ Devoirs, Examens, Bibliothèque, Transport scolaire sont **éteints**, pas effac
 - Un module éteint disparaît du **menu** (`nav.js`), de la **palette Ctrl+K**, et
   refuse l'**URL directe** (`access.js` + `App.jsx`). Le code des pages reste là,
   testé, prêt à rallumer d'un `true` (futur « pack gestion » pour l'école qui le demande).
-- Dashboard parent : le bouton « Devoirs » est devenu « ✨ Espace parents ».
+- **Vérifié au rendu** (test headless du 2026-07-10) : absents du menu enseignant ET
+  du tableau de bord parent ; les 4 URLs directes redirigent vers /app avec toast.
 
-### 2. Site Kogia Group refait — commit `6dca18e` (poussé, en ligne sur kogiagroup.com)
-- Nouveau hero, 9 cartes de fonctionnalités « fun » (Évaluer 30 s, journée en direct,
-  Espace parents, Poste de sécurité, appel, frais, rien ne se perd, badgeuse, mobile).
-- Bloc **« Ce que nous ne sommes pas — un ERP scolaire de plus »** (❌ cahier de textes,
-  bibliothèque, transport / ✅ ce qu'on fait vraiment).
-- Annonce mobile **honnête** : Android d'abord, iPhone ensuite, web + téléphone synchronisés.
-- Titre / OG / Twitter / JSON-LD (`operatingSystem: Web, Android`) / FAQ mis à jour.
-- Repo du site : `oounis/Kogia_Group` (⚠️ PUBLIC — aucun secret dedans).
+### 2. Site Kogia Group refait — commit `6dca18e` (en ligne sur kogiagroup.com, vérifié 200)
+- Vision « pas un ERP », 9 cartes de fonctionnalités, annonce mobile honnête
+  (Android d'abord, iPhone ensuite, web + téléphone synchronisés), FAQ, JSON-LD.
 
-### 3. Cœur partagé extrait — ⚠️ NON committé (en attente, voir plus bas)
-Prérequis technique pour partager le code entre web et Android. **`app/src/build` passe.**
-- Toute la logique métier (16 modules `.js`) déplacée `app/src/*.js` → **`core/src/*.js`**.
-- Nouveau **`core/src/storage.js`** : seule couture plateforme. Le web branche
-  `localStorage`, Android branchera `react-native-mmkv`, via `setStorage()`. API synchrone.
-  `db.js` / `clock.js` passent désormais par lui — plus aucun `localStorage` en dur.
-- **Dé-couplage des icônes** : `data.js` et `nav.js` ne portent plus de composants
-  lucide mais des **noms** (`icon:'Star'`). Le web les résout via le nouveau
-  `app/src/icons.jsx` (`<Ic n="Star"/>` → `lucide-react`) ; Android via
-  `lucide-react-native`. Consommateurs recâblés : Evaluate, Results, Bulletin,
-  GradeHistory, CommandPalette, AppShell.
-- `theme.js` : `applyAccent()` renvoie la palette et ne touche au DOM que si présent.
-- Alias **`@core` → `../core/src`** dans `app/vite.config.js` ; tous les imports UI
-  passent de `'../db.js'` à `'@core/db.js'`.
-- **`core/` ne contient plus aucun `import 'lucide…'`, `localStorage`, `document`,
-  `window`** (sauf gardés derrière `typeof`). C'est du JS pur, prêt pour React Native.
+### 3. Cœur partagé `core/src/` — commit `63b1230` (16 modules, zéro dépendance)
+- JS pur, sans plateforme : `storage.js` est la SEULE couture (données + session).
+- Icônes par NOM (`icon:'Star'`) ; le web les résout via `app/src/icons.jsx`
+  (lucide-react), le mobile via `mobile/src/icons.js` (lucide-react-native).
+- **Fuite corrigée cette session** : `auth.js` appelait `sessionStorage` en dur →
+  passe désormais par `getSession/setSession/removeSession` de `storage.js`
+  (`setSessionStorage()` pour brancher la plateforme). Web inchangé ; sur téléphone
+  la session est persistante (on ne retape pas son mot de passe à chaque ouverture).
+- Vérifié : `grep -rn "sessionStorage\|localStorage\|document\.\|window\." core/src/`
+  ne renvoie que des usages gardés par `typeof`.
+
+### 4. 📱 Application Android (Expo) — `mobile/` — NOUVELLE cette session
+Expo SDK 57 / React Native 0.86 / React 19 (même React que le web). État : **démarre,
+se connecte, affiche le tableau de bord parent et l'aperçu staff — vérifié au rendu**
+(export web de l'app RN + chromium headless, zéro erreur console ; les chiffres du
+parent — 66/100, 4/10 mois, 85 % présence — sont IDENTIQUES au web, même cœur).
+- `metro.config.js` : alias `@core` → `../core/src` via `resolveRequest` +
+  `watchFolders: ['../core']`.
+- **⚠️ Piège SDK 57 contourné** : pendant `expo export`, le « on-demand filesystem »
+  jette les watchFolders (`withMetroMultiPlatform.js`) → « Failed to get the SHA-1 ».
+  Désactivé via `app.json` → `expo.experiments.onDemandFilesystem: false` (le poser
+  dans metro.config.js ne sert à rien, `instantiateMetro.js` l'écrase).
+- `src/storage.js` : cache mémoire synchrone (exigé par db.js) répliqué vers
+  AsyncStorage ; `hydrate()` À ATTENDRE avant le premier `db()` (App.js le fait).
+  MMKV plus tard (exige un dev-build ; seul ce fichier changera).
+- `src/screens/Login.js` (e-mail/mdp + boutons démo par rôle) et
+  `src/screens/Dashboard.js` (parent : enfant en un coup d'œil, tuiles, moyennes par
+  matière ; autres rôles : aperçu chiffré). `src/ui.js` = jetons visuels.
+- Mode démo par défaut au premier lancement (équivalent du `?live=1` web), sans
+  écraser un choix mémorisé.
+- Lancer : `cd mobile && npx expo start` (Expo Go sur le téléphone) ;
+  vérifier au rendu : `npx expo export --platform web` puis servir `dist/`.
 
 ---
 
-## ⏳ En cours / à faire — reprendre ICI
+## ⏳ À faire — reprendre ICI
 
-### A. ⚠️ LE BLOCAGE À DIRE AU CLIENT AVANT D'ÉCRIRE LA MOINDRE LIGNE ANDROID
-Othman veut « garder les 2 versions (web + mobile) **synchronisées** ».
-**C'est impossible avec l'architecture actuelle** : les données vivent dans le
-`localStorage` du navigateur (`core/src/db.js`). Deux téléphones, ou un téléphone +
-un web, ne partagent rien. La synchro exige un **backend** (proposition : Supabase /
-Postgres + une petite API). `storage.js` est précisément la couture par laquelle ce
-backend entrera **sans réécrire `db.js`**. Ce même backend débloque aussi les vrais
-comptes (mots de passe hachés, rôle vérifié côté serveur) — obligatoires avant qu'une
-vraie école y mette des données d'enfants.
-→ **Décision produit attendue d'Othman** : (1) backend d'abord puis Android, ou
-(2) Android en mode démo local (non synchronisé) pour montrer, backend ensuite.
+### A. Backend (DÉCISION PRISE par Othman, 2026-07-10)
+Directive explicite : web et mobile partagent **le même backend, la même base, la même
+logique** — toute info saisie d'un côté apparaît immédiatement de l'autre. Donc :
+1. **Supabase (offre gratuite)** recommandé : Postgres + auth (mots de passe hachés,
+   rôle côté serveur) + realtime. Zéro budget respecté.
+2. **Seul Othman peut créer le compte** (avec `ounissothmen@gmail.com`) — le demander
+   au début de la prochaine session, puis brancher par la couture `core/src/storage.js`
+   (db.js ne change pas) ou, mieux, remplacer progressivement db.js par une couche API.
+3. Ce backend débloque AUSSI les prérequis « vraie école » : plaintext passwords,
+   escalade de rôle côté client, multi-onglets (voir §Rappels).
 
-### B. Application Android (React Native / Expo) — PAS ENCORE COMMENCÉE
-Plan une fois la couche `core/` committée et la décision A prise :
-1. `mobile/` avec Expo, qui **importe `@core`** (même Metro alias que Vite).
-2. `mobile/src/icons.jsx` → `lucide-react-native` (contrat identique à `app/src/icons.jsx`).
-3. Au boot : `setStorage(mmkvAdapter)` avant tout appel à `db()`.
-4. Réutiliser tel quel : `db, auth, access, nav, features, social, security, results,
-   data, clock, tunisia`. Ré-écrire seulement la **présentation** (composants natifs).
+### B. Écrans natifs suivants (dans l'ordre de valeur)
+1. Parent : Suivi en direct (la carte « En classe » du web), notifications, paiements.
+2. Enseignant : Évaluer (le flux 30 secondes — LE flagship), Appel.
+3. Navigation par onglets (expo-router ou react-navigation) quand > 3 écrans.
+4. Badge/pointage staff, annonces.
 
-### C. Cœur partagé — à committer
-Le travail #3 ci-dessus est sur le disque, **staged mais pas committé** (la session
-s'est arrêtée). `npm run build` passe. Message de commit prêt :
-> « Extract shared core/: platform-free business logic for web + Android »
-Vérifier ensuite en **rendant** quelques pages (Login, Dashboard parent, Évaluer,
-Résultats) que les icônes s'affichent — le build ne le garantit pas.
+### C. Distribution Android
+Expo Go suffit pour le développement. Pour un APK de démo : `eas build` (compte Expo
+gratuit) — décision à prendre quand Othman voudra le montrer.
 
 ---
 
 ## Rappels d'architecture (pour ne pas casser l'existant)
-- **DB** = un blob `localStorage` clé `coreon_db`, version `_v` dans le blob, évolutions
-  par `migrate()`. `SCHEMA=21`. Ne jamais changer `KEY` ni sauter une migration.
-- `demoUsers()` / `demoSocialEvents()` sont des fabriques au niveau module, appelées
-  par `seed()` **et** `migrate()` (sinon un rôle ajouté après coup n'atteint jamais les
-  navigateurs déjà installés — c'est le bug « où est sécurité ?! » de la session passée).
-- Séparation des pouvoirs : **personne n'approuve sa propre demande / congé / événement**
-  (`canDecide`, `ev.by!==user.id`).
-- Espaces cloisonnés : parent / enseignant / personnel — un admin ne réserve pas un
-  événement parent (`belongsToSpace`).
-- Paiements : le parent **ne peut pas** se marquer payé ; l'admin confirme ; ça se
-  reflète chez le parent.
-- Dates : **jamais `toISOString()`** (UTC) → `isoOf()` local. Mode démo `?live=1`.
+- **DB** = un blob JSON clé `coreon_db` (localStorage web / AsyncStorage mobile),
+  version `_v`, évolutions par `migrate()`. `SCHEMA=21`. Ne jamais changer `KEY`
+  ni sauter une migration.
+- `demoUsers()` / `demoSocialEvents()` appelées par `seed()` ET `migrate()`.
+- Personne n'approuve sa propre demande (`canDecide`, `ev.by!==user.id`) ;
+  espaces cloisonnés (`belongsToSpace`) ; le parent ne se marque pas payé.
+- Dates : jamais `toISOString()` (UTC) → `isoOf()` local. Démo web : `?live=1`.
 - Palette charts VALIDÉE (skill dataviz), jamais choisie à l'œil.
+- **Avant vraie école** : backend obligatoire (mots de passe en clair, rôle client,
+  login démo un clic, multi-onglets qui s'écrasent).
 
 ## Secrets
 Coffre **hors de tout repo** : `/mnt/c/Current LAB/_Private/Kogia/KOGIA_credentials.txt`.
