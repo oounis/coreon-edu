@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { View, ActivityIndicator } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { useFonts, Nunito_600SemiBold, Nunito_700Bold, Nunito_800ExtraBold } from '@expo-google-fonts/nunito'
 import { hydrate } from './src/storage.js'
 import { C } from './src/ui.js'
 
@@ -10,6 +12,8 @@ export default function App() {
   const [ready, setReady] = useState(false)
   const [user, setUser] = useState(null)
   const [mods, setMods] = useState(null)
+  // Nunito = la voix du web (index.css) ; chargée ici une fois pour toute l'app.
+  const [fontsLoaded] = useFonts({ Nunito_600SemiBold, Nunito_700Bold, Nunito_800ExtraBold })
 
   useEffect(() => {
     (async () => {
@@ -31,7 +35,7 @@ export default function App() {
     })()
   }, [])
 
-  if (!ready) return (
+  if (!ready || !fontsLoaded) return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: C.canvas }}>
       <ActivityIndicator size="large" color="#0D9488" />
     </View>
@@ -39,11 +43,13 @@ export default function App() {
 
   const { Login, Shell } = mods
   return (
-    <View style={{ flex: 1, backgroundColor: C.canvas }}>
-      <StatusBar style="dark" />
-      {user
-        ? <Shell key={user.id} user={user} onLogout={() => setUser(null)} />
-        : <Login onLogin={setUser} />}
-    </View>
+    <SafeAreaProvider>
+      <View style={{ flex: 1, backgroundColor: C.canvas }}>
+        <StatusBar style="dark" />
+        {user
+          ? <Shell key={user.id} user={user} onLogout={() => setUser(null)} />
+          : <Login onLogin={setUser} />}
+      </View>
+    </SafeAreaProvider>
   )
 }

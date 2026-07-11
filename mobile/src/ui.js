@@ -11,14 +11,21 @@ export const C = {
   danger: '#E5484D',
 }
 
+// Familles Nunito (chargées dans App.js) — la même voix que le web.
+export const F = {
+  black: 'Nunito_800ExtraBold',
+  bold: 'Nunito_700Bold',
+  semi: 'Nunito_600SemiBold',
+}
+
 export const S = StyleSheet.create({
   screen: { flex: 1, backgroundColor: C.canvas },
   card: {
     backgroundColor: C.card, borderRadius: 18, padding: 16,
     borderWidth: 1, borderColor: C.line,
   },
-  h1: { fontSize: 26, fontWeight: '800', color: C.ink },
-  sub: { fontSize: 14, color: C.muted, marginTop: 2 },
-  label: { fontSize: 12, fontWeight: '600', color: C.muted },
-  value: { fontSize: 22, fontWeight: '800', color: C.ink },
+  h1: { fontSize: 26, fontFamily: F.black, fontWeight: '800', color: C.ink },
+  sub: { fontSize: 14, fontFamily: F.semi, color: C.muted, marginTop: 2 },
+  label: { fontSize: 12, fontFamily: F.semi, fontWeight: '600', color: C.muted },
+  value: { fontSize: 22, fontFamily: F.black, fontWeight: '800', color: C.ink },
 })

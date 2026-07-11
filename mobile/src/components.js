@@ -1,14 +1,21 @@
 // Kit de composants natifs partagé par tous les écrans — même langage visuel
 // que le web (canvas doux, cartes blanches, encre sombre, accent par rôle).
 // Les écrans ne composent QUE ces briques + View/Text : cohérence garantie.
-import { View, Text, Pressable, ScrollView, TextInput } from 'react-native'
+import { View, Text, Pressable, ScrollView, TextInput, Platform } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import * as Haptics from 'expo-haptics'
 import { Ic } from './icons.js'
-import { C, S } from './ui.js'
+import { C, S, F } from './ui.js'
 
-export { C, S }
+export { C, S, F }
+
+// Petit retour tactile sur les interactions clés (silencieux sur le web).
+export const tap = () => { if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}) }
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 export function Screen({ title, sub, right, children, scroll = true }) {
+  const insets = useSafeAreaInsets()
+  const padTop = Math.max(insets.top, 40) + 20
   const head = (title || right) && (
     <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 16 }}>
       <View style={{ flex: 1 }}>
@@ -18,9 +25,9 @@ export function Screen({ title, sub, right, children, scroll = true }) {
       {right}
     </View>
   )
-  if (!scroll) return <View style={[S.screen, { padding: 20, paddingTop: 60, flex: 1 }]}>{head}{children}</View>
+  if (!scroll) return <View style={[S.screen, { padding: 20, paddingTop: padTop, flex: 1 }]}>{head}{children}</View>
   return (
-    <ScrollView style={S.screen} contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 110 }}>
+    <ScrollView style={S.screen} contentContainerStyle={{ padding: 20, paddingTop: padTop, paddingBottom: 110 }}>
       {head}{children}
     </ScrollView>
   )
@@ -97,7 +104,7 @@ export const Row = ({ icon, iconColor = C.muted, avatar, title, sub, right, onPr
 )
 
 export const Btn = ({ label, icon, color = '#0D9488', kind = 'solid', small, onPress, disabled }) => (
-  <Pressable onPress={onPress} disabled={disabled} style={({ pressed }) => ({
+  <Pressable onPress={onPress ? () => { tap(); onPress() } : undefined} disabled={disabled} style={({ pressed }) => ({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
     borderRadius: 14, paddingVertical: small ? 8 : 13, paddingHorizontal: small ? 14 : 18,
     backgroundColor: kind === 'solid' ? color : '#fff',
@@ -105,7 +112,7 @@ export const Btn = ({ label, icon, color = '#0D9488', kind = 'solid', small, onP
     opacity: disabled ? 0.4 : pressed ? 0.85 : 1,
   })}>
     {!!icon && <Ic n={icon} size={small ? 14 : 16} color={kind === 'solid' ? '#fff' : color} />}
-    <Text style={{ color: kind === 'solid' ? '#fff' : color, fontWeight: '800', fontSize: small ? 13 : 15 }}>{label}</Text>
+    <Text style={{ color: kind === 'solid' ? '#fff' : color, fontFamily: F.black, fontWeight: '800', fontSize: small ? 13 : 15 }}>{label}</Text>
   </Pressable>
 )
 

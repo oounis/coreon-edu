@@ -236,7 +236,7 @@ function ProposeSheet({ f, setF, space, minDate, err, onSubmit, onClose, accent 
   const chosen = f.title && !f.custom
   const dates = [...Array(8)].map((_, i) => isoOf(addDays(appNow(), MIN_LEAD_DAYS + i)))
   const TIMES = ['09:00', '10:30', '14:00', '16:30', '18:00', '19:00']
-  const useIdea = idea => setF(prev => ({
+  const pickIdea = idea => setF(prev => ({
     ...BLANK(space), date: prev.date, time: prev.time,
     title: idea.title, cat: idea.cat, desc: idea.desc, place: idea.place,
     audience: idea.audience, kids: idea.kids,
@@ -267,7 +267,7 @@ function ProposeSheet({ f, setF, space, minDate, err, onSubmit, onClose, accent 
       {shown.map(i => {
         const on = f.title === i.title && !f.custom
         return (
-          <Pressable key={i.title} onPress={() => useIdea(i)}
+          <Pressable key={i.title} onPress={() => pickIdea(i)}
             style={{ borderWidth: 2, borderColor: on ? accent : C.line, backgroundColor: on ? accent + '12' : '#fff', borderRadius: 16, padding: 12, marginBottom: 8 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <Text style={{ fontSize: 20 }}>{catOf(i.cat).icon}</Text>

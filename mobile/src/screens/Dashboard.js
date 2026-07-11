@@ -92,7 +92,6 @@ function ParentBody({ u, d, nav }) {
 
 // Les autres rôles : les chiffres du jour + raccourcis vers leurs onglets.
 function StaffBody({ u, d, nav }) {
-  const r = ROLE[u.role] || ROLE.admin
   const stats = [
     ['Users', '#6366F1', 'Élèves', d.students.length, '/app/students'],
     ['GraduationCap', '#2BD9A8', 'Classes', d.classes.length, null],

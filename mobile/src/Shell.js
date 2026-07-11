@@ -5,13 +5,14 @@
 // ({ user, params, nav }) comme contrat stable.
 import { useState, useCallback, useMemo } from 'react'
 import { View, Text, Pressable } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { NAV } from '@core/nav.js'
 import { canAccess } from '@core/access.js'
 import { logout as coreLogout } from '@core/auth.js'
 import { ROLE } from '@core/theme.js'
 import { Ic } from './icons.js'
-import { C } from './ui.js'
-import { Screen, EmptyState, Row } from './components.js'
+import { C, F } from './ui.js'
+import { Screen, EmptyState, Row, tap } from './components.js'
 import { SCREENS } from './registry.js'
 
 // 4 onglets clés par rôle ; tout le reste vit dans « Plus ».
@@ -53,6 +54,7 @@ function More({ user, nav }) {
 }
 
 export default function Shell({ user, onLogout }) {
+  const insets = useSafeAreaInsets()
   const [stack, setStack] = useState([{ route: '/app', params: null }])
   const top = stack[stack.length - 1]
 
@@ -61,7 +63,7 @@ export default function Shell({ user, onLogout }) {
     setStack(s => [...s, { route, params }])
   }, [user.role])
   const back = useCallback(() => setStack(s => (s.length > 1 ? s.slice(0, -1) : s)), [])
-  const switchTab = useCallback(route => setStack([{ route, params: null }]), [])
+  const switchTab = useCallback(route => { tap(); setStack([{ route, params: null }]) }, [])
   const nav = useMemo(() => ({
     navigate, back, canBack: stack.length > 1,
     logout: () => { coreLogout(); onLogout() },
@@ -76,7 +78,7 @@ export default function Shell({ user, onLogout }) {
     <View style={{ flex: 1, backgroundColor: C.canvas }}>
       <View style={{ flex: 1 }}>
         {stack.length > 1 && (
-          <Pressable onPress={back} style={{ position: 'absolute', top: 56, right: 20, zIndex: 10, backgroundColor: '#fff', borderWidth: 1, borderColor: C.line, borderRadius: 999, padding: 9 }}>
+          <Pressable onPress={back} style={{ position: 'absolute', top: Math.max(insets.top, 40) + 16, right: 20, zIndex: 10, backgroundColor: '#fff', borderWidth: 1, borderColor: C.line, borderRadius: 999, padding: 9 }}>
             <Ic n="ArrowLeft" size={16} color={C.ink} />
           </Pressable>
         )}
@@ -85,16 +87,15 @@ export default function Shell({ user, onLogout }) {
           : <ComingSoon title={item ? labelOf(item, user.role) : 'Écran'} />}
       </View>
 
-      <View style={{ flexDirection: 'row', backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: C.line, paddingBottom: 14, paddingTop: 8 }}>
+      <View style={{ flexDirection: 'row', backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: C.line, paddingBottom: Math.max(insets.bottom, 10) + 4, paddingTop: 8 }}>
         {[...tabs, '/more'].map(to => {
           const it = to === '/more' ? { icon: 'Menu', label: 'Plus' } : navItem(to)
           if (!it) return null
-          const active = stack[0].route === to && (stack.length === 1 || to !== '/more')
           const isActive = top.route === to || (stack[0].route === to && stack.length > 1) || (to === '/more' && top.route === '/more')
           return (
             <Pressable key={to} onPress={() => switchTab(to)} style={{ flex: 1, alignItems: 'center', gap: 3 }}>
               <Ic n={it.icon} size={21} color={isActive ? accent : C.muted} />
-              <Text numberOfLines={1} style={{ fontSize: 10, fontWeight: '700', color: isActive ? accent : C.muted }}>
+              <Text numberOfLines={1} style={{ fontSize: 10, fontFamily: F.bold, fontWeight: '700', color: isActive ? accent : C.muted }}>
                 {to === '/more' ? 'Plus' : labelOf(it, user.role)}
               </Text>
             </Pressable>
