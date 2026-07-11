@@ -1,7 +1,7 @@
 import { Sun, PlayCircle } from 'lucide-react'
 import { Whale } from './ui.jsx'
 import { schoolPhase } from '@core/livestatus.js'
-import { isDemoLive, setDemoLive } from '@core/clock.js'
+import { isDemoLive, setDemoLive, rentreeDate, rentreeLabel } from '@core/clock.js'
 // La rentrée est calculée dans le cœur (partagée avec Android) — on ré-exporte
 // pour ne pas casser les imports existants.
 export { rentreeDate, rentreeLabel } from '@core/clock.js'
