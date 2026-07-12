@@ -115,3 +115,24 @@ gratuit) — décision à prendre quand Othman voudra le montrer.
 ## Secrets
 Coffre **hors de tout repo** : `/mnt/c/Current LAB/_Private/Kogia/KOGIA_credentials.txt`.
 `Kogia_Group` (site) et `Kogia_Education` sont **publics** → rien de sensible dedans.
+
+---
+
+## QA détaillée du 2026-07-11/12 (3 agents, web + mobile + Yeddi)
+Couverture : web 25 pages × 7 rôles × 2 modes ; mobile 6 rôles × tous les écrans × 2
+modes + ~75 assertions de flux. **0 erreur console partout.** 21 corrections livrées
+(commits e96a0dc, 95c9b7c, d2471c8 côté Yeddi) — dont fuites de tableau de bord,
+civilité adulte qui bloquait les activités genrées, Alert.alert muet sur web,
+numéro de visiteur affiché en entier, bouton retour qui recouvrait les actions.
+
+**Décisions produit en attente (pour Othman) :**
+1. La landing web et les tarifs vantent « Devoirs & examens, Transport,
+   bibliothèque, 14+ modules » alors que ces modules sont volontairement éteints —
+   aligner le discours ou prévoir le « pack gestion » ?
+2. Le rôle Sécurité peut OUVRIR les incidents mais pas en DÉCLARER (canReport) —
+   l'agent de terrain devrait-il pouvoir ?
+3. Annonces/Événements ne peuvent pas cibler le rôle Sécurité (listes d'audience).
+4. Données de démo (core/db.js) : enseignants adultes avec civilité
+   « Garçon/Fille », évaluations de t1 sur des matières qu'il n'enseigne pas.
+5. Yeddi : les filtres de l'accueil se réinitialisent au retour d'une tâche
+   (le Shell ne rend que le sommet de la pile — correction structurelle).
