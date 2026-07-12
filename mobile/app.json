@@ -17,7 +17,7 @@
     "android": {
       "package": "com.kogiagroup.coreonedu",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#4F57DE",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -34,7 +34,7 @@
         {
           "image": "./assets/splash-icon.png",
           "imageWidth": 220,
-          "backgroundColor": "#F7F8FC"
+          "backgroundColor": "#F4F7FA"
         }
       ]
     ]

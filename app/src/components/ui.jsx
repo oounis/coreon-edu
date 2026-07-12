@@ -1,4 +1,5 @@
 import { Dialog } from '@headlessui/react'
+import { MARK_VIEWBOX, MARK_STEM, MARK_FLUKE } from '@core/mark.js'
 import { X, Search, RotateCw } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { STATUS as K, BRAND, N, SERIES, TERRA, soften, deepen } from '@core/tokens.js'
@@ -119,15 +120,15 @@ export function SectionCard({ title, sub, action, icon, tint='brand', children, 
 // ════════════════════════════════════════════════════════════════════════════
 
 /** LA MARQUE : corps + œil + croissant. Logos, en-têtes, favicon, tuiles. */
-export function Mark({ size=34, from=SKIN.from, to=SKIN.to, className='' }){
-  const id='km'+String(from+to).replace(/[^a-zA-Z0-9]/g,'')
-  return (<svg viewBox={VIEWBOX} width={size*1.32} height={size} aria-hidden="true" className={className}>
-    <defs><linearGradient id={id} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor={from}/><stop offset="1" stopColor={to}/></linearGradient></defs>
-    <path fill={`url(#${id})`} d={BODY}/>
-    <circle cx={EYE.cx} cy={EYE.cy} r={EYE.r} fill={EYE.fill}/>
-    {/* LE CROISSANT DE KOGIA — la fausse branchie. Notre unique signature. */}
-    <path d={CRESCENT.d} fill="none" stroke={CRESCENT.stroke} strokeWidth={CRESCENT.width} strokeLinecap="round" opacity={CRESCENT.opacity}/>
-  </svg>)
+export function Mark({ size = 32, className = '' }) {
+  // LA MARQUE : le K-nageoire. Aplat, prend la couleur du contexte (currentColor).
+  // La baleine n'est PLUS le logo — c'est la mascotte (voir Whale()).
+  return (
+    <svg viewBox={MARK_VIEWBOX} width={size} height={size} className={className} aria-hidden="true">
+      <path d={MARK_STEM.d} stroke="currentColor" strokeWidth={MARK_STEM.width} strokeLinecap="round" fill="none"/>
+      <path d={MARK_FLUKE.d} fill="currentColor"/>
+    </svg>
+  )
 }
 
 /** LA MASCOTTE : + sourire, nageoire et jet. États vides, héros, succès.

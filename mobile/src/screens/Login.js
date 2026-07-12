@@ -6,7 +6,7 @@ import { db } from '@core/db.js'
 import { login, loginAs } from '@core/auth.js'
 import { ROLE } from '@core/theme.js'
 import { C, S, F, tap } from '../components.js'
-import { Whale } from '../whale.js'
+import { KogiaMark } from '../kmark.js'
 
 // La marque : indigo → violet, la voix du cachalot.
 // La voie de Coreon Edu vient du cœur — plus de marque recopiée à la main ici.
@@ -80,7 +80,8 @@ export default function Login({ onLogin }) {
             </Svg>
             {/* View englobante : position relative → peint AU-DESSUS du dégradé absolu (web). */}
             <View style={{ marginTop: 2 }}>
-              <Whale size={46} color="#FFFFFF" eye={EYE.fill} />
+              {/* Le lockup de connexion porte LA MARQUE, pas la mascotte. */}
+              <KogiaMark size={40} color="#FFFFFF" />
             </View>
           </View>
           <Text style={[S.h1, { marginTop: 14 }]}>coreon <Text style={{ color: BRAND }}>edu</Text></Text>

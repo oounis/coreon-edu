@@ -46,3 +46,22 @@ export const SPOUT = { d: ['M42 12 q-1 -7 5 -9', 'M50 12 q4 -6 11 -6'], stroke: 
 
 /** Le dégradé du corps : la voie de Coreon Edu (indigo → violet). */
 export const SKIN = { from: BRAND.indigo, to: BRAND.violet }
+
+// ════════════════════════════════════════════════════════════════════════════
+// LA MARQUE (le logo) — un K dont le bras est une NAGEOIRE CAUDALE.
+//
+// L'initiale de l'entreprise ET l'animal, dans une seule forme géométrique.
+// Ce n'est pas un dessin de poisson : c'est un symbole de marque.
+//
+// Pourquoi la baleine n'est plus le logo :
+//   • elle mourait à 16 px (œil, sourire, croissant → une bouillie) ;
+//   • elle ne survivait pas en une seule couleur (tampon, facture, icône mono) ;
+//   • c'était une illustration, pas une identité.
+// La baleine reste — comme MASCOTTE (accueil, états vides, réussite). Deux
+// systèmes, deux rôles : la marque identifie, la mascotte accueille.
+//
+// Aplat, jamais de dégradé. Grille 64. Source : brand/KOGIA_HARMONY.md §4
+// ════════════════════════════════════════════════════════════════════════════
+export const MARK_VIEWBOX = '0 0 64 64'
+export const MARK_STEM = { d: 'M17 11 v42', width: 7.5 }
+export const MARK_FLUKE = { d: 'M26 32 L48 9 L53 12 Q41 25 36 32 Q41 39 53 52 L48 55 Z' }
