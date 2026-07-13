@@ -29,6 +29,7 @@ export const ROUTE_ROLES={
   // Le journal du jour : l'éducatrice le remplit, le parent le lit.
   '/app/journal': ['teacher','admin','schooladmin','parent'],
   '/app/admissions': ['schooladmin','admin'],
+  '/app/hr': ['schooladmin','admin'],
   '/setup': ['schooladmin'],
   '/app/requests': ['teacher','admin','schooladmin'],
   '/app/messages': ALL,

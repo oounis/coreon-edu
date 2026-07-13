@@ -17,6 +17,8 @@ const ALL_NAV=[
   { to:'/app/students', label:'Élèves', icon:'Users', roles:['schooladmin','admin','supervisor','teacher'] },
   { to:'/app/teachers', label:'Enseignants', icon:'GraduationCap', roles:['schooladmin','admin'] },
   { to:'/app/staff', label:'Personnel', icon:'BriefcaseBusiness', roles:['schooladmin','admin'] },
+  // RH & paie : aucune école n'achète un ERP sans ça. Ennuyeux, donc parfait.
+  { to:'/app/hr', label:'RH & Paie', icon:'Wallet2', module:'hr', roles:['schooladmin','admin'] },
   { to:'/app/pointage', label:'Mon pointage', icon:'Fingerprint', roles:['teacher','supervisor','security','admin'] },
   { to:'/app/evaluate', label:'Évaluer', icon:'ClipboardCheck', roles:['teacher'] },
   // ── Petite enfance : le trou du marché. Aucun ERP scolaire généraliste n'a ça.

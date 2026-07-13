@@ -30,6 +30,7 @@ export const FEATURES = {
   // Les inscriptions : la candidature DEVIENT l'élève, sans ressaisie. C'est le
   // point exact que PowerSchool et Infinite Campus vendent en module premium.
   admissions: true,
+  hr: true,          // contrats, congés, paie
 }
 
 // Un chemin est-il ouvert ? (les routes non listées ne sont pas des modules)
@@ -50,6 +51,7 @@ const ROUTE_MODULE = {
   '/app/security': 'security',
   '/app/journal': 'journal',
   '/app/admissions': 'admissions',
+  '/app/hr': 'hr',
   '/app/events': 'events',
   '/app/staff': 'staff',
   '/app/pointage': 'pointage',
