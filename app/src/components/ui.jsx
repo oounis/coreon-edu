@@ -65,7 +65,20 @@ export function Btn({ children, variant='primary', size='md', className='', ...p
   const v=variant==='primary'?"text-white accent-bg shadow-sm hover:opacity-90":variant==='soft'?"accent-soft accent-text hover:brightness-95":variant==='danger'?"bg-white border border-line text-coral hover:bg-coral-soft":variant==='ghost'?"text-muted hover:text-ink hover:bg-canvas":"bg-white border border-line hover:bg-canvas"
   return <button className={`${base} ${s} ${v} ${className}`} {...p}>{children}</button>
 }
-export function Field({ label, children, hint }){ return <label className="block"><span className="text-xs font-semibold text-muted">{label}</span><div className="mt-1">{children}</div>{hint&&<span className="text-[11px] text-muted">{hint}</span>}</label> }
+// Un champ. L'ERREUR se pose SOUS le champ et dit quoi corriger — jamais une
+// alerte, jamais un code (charte §9). Elle remplace l'indice : on ne montre pas
+// deux messages à la fois.
+export function Field({ label, children, hint, error }){
+  return <label className="block">
+    <span className="text-xs font-semibold text-muted">{label}</span>
+    <div className="mt-1">{children}</div>
+    {error
+      ? <span className="text-[11px] font-semibold flex items-center gap-1 mt-1" style={{color:STATUS.danger}} role="alert">
+          <Ic n="TriangleAlert" size={11}/>{error}
+        </span>
+      : hint && <span className="text-[11px] text-muted">{hint}</span>}
+  </label>
+}
 export function Input(p){ return <input {...p} className={`w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm accent-ring ${p.className||''}`}/> }
 export function Textarea(p){ return <textarea {...p} className={`w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm accent-ring ${p.className||''}`}/> }
 export function Select(p){ return <select {...p} className={`w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm accent-ring ${p.className||''}`}/> }

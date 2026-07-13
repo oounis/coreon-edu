@@ -16,6 +16,7 @@ import Incidents from './pages/Incidents.jsx'
 import Journal from './pages/Journal.jsx'
 import Admissions from './pages/Admissions.jsx'
 import Setup from './pages/Setup.jsx'
+import Inscription from './pages/Inscription.jsx'
 import Requests from './pages/Requests.jsx'
 import Notices from './pages/Notices.jsx'
 import Schools from './pages/Schools.jsx'
@@ -65,6 +66,9 @@ export default function App(){
         <Route path="/login" element={<Login/>}/>
         {/* Le premier écran d'une école : pas de menu, pas de coquille — une seule question. */}
         <Route path="/setup" element={<Setup/>}/>
+        {/* PUBLIQUE, sans compte : c'est le PARENT qui dépose la candidature.
+            L'école ne ressaisit rien — la donnée entre à la source. */}
+        <Route path="/inscription" element={<Inscription/>}/>
         <Route path="/app" element={R(<Dashboard/>, "/app")}/>
         <Route path="/app/schools" element={R(<Schools/>, "/app/schools")}/>
         <Route path="/app/settings" element={R(<Settings/>, "/app/settings")}/>

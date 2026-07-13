@@ -61,6 +61,9 @@ export default function Landing(){
             <a href="#faq" className="hover:text-ink">FAQ</a>
           </nav>
           <div className="flex items-center gap-2">
+            {/* La porte d'entrée du PARENT : il dépose sa candidature lui-même,
+                sans compte. L'école ne ressaisit rien. */}
+            <button onClick={()=>nav('/inscription')} className={`${BTN_MD} text-muted hover:text-ink hover:bg-canvas`}>Pré-inscription</button>
             <button onClick={()=>nav('/login')} className={`${BTN_MD} text-muted hover:text-ink hover:bg-canvas`}>Se connecter</button>
             <button onClick={()=>nav('/login')} className={`${BTN_MD} text-white shadow-sm hover:opacity-90`} style={{background:A}}>Démo gratuite</button>
           </div>
