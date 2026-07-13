@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { SKIN, EYE } from '@core/mark.js'
+import { PURPLE } from '@core/tokens.js'
 import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform, Animated, Easing, StyleSheet } from 'react-native'
 import Svg, { Rect, Defs, LinearGradient, Stop } from 'react-native-svg'
 import { db } from '@core/db.js'
@@ -10,8 +10,8 @@ import { KogiaMark } from '../kmark.js'
 
 // La marque : indigo → violet, la voix du cachalot.
 // La voie de Coreon Edu vient du cœur — plus de marque recopiée à la main ici.
-const BRAND = SKIN.from
-const BRAND2 = SKIN.to
+const BRAND = PURPLE[600]   // palier ACTION
+const BRAND2 = PURPLE[500]  // palier MARQUE (décoratif)
 
 // Même contrat que la page web : e-mail + mot de passe, et les boutons de
 // connexion rapide de la démo (un par rôle). À la venue du backend, seul

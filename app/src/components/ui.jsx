@@ -150,7 +150,7 @@ export const Whale = Mascot
  *  autour de LUI-MÊME et non autour du coin de la baleine. */
 export function Crescent({ size=20, color='var(--accent)', className='' }){
   return <svg viewBox="30 37 27 27" width={size} height={size} className={`k-crescent ${className}`} aria-hidden="true">
-    <path d={CRESCENT.d} fill="none" stroke={color} strokeWidth={CRESCENT.width*1.5} strokeLinecap="round"/>
+    <path d="M32 6 a26 26 0 0 1 26 26" fill="none" stroke={color} strokeWidth={5} strokeLinecap="round"/>
   </svg>
 }
 /** Attente en ligne, avec un mot. Jamais « Chargement… » tout seul sur une page. */
