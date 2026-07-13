@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Ic } from '../icons.jsx'
 import { current } from '@core/auth.js'
 import { db, mutate, uid } from '@core/db.js'
 import { notify } from '@core/notify.js'
@@ -67,7 +68,7 @@ export default function Pointage(){
 
     <div className="grid lg:grid-cols-[380px_1fr] gap-4 mb-4">
       <Card className="p-6 text-center">
-        <div className="floaty mx-auto w-fit mb-1"><Whale size={44} /></div>
+        <div className="w-14 h-14 rounded-2xl grid place-items-center mx-auto mb-1 accent-soft accent-text" aria-hidden="true"><Ic n="Clock" size={26}/></div>
         {isSummer() ? <>
           <div className="inline-flex items-center gap-1.5 text-[12px] font-bold px-3 py-1 rounded-full" style={{background:'#FEF3C7',color:'#92400E'}}>VACANCES D'ÉTÉ</div>
           <div className="text-lg font-extrabold mt-2">Badgeuse en pause</div>

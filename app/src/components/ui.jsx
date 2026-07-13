@@ -1,6 +1,7 @@
 import { Dialog } from '@headlessui/react'
 import { MARK_VIEWBOX, MARK_PARTS } from '@core/mark.js'
 import { X, Search, RotateCw } from 'lucide-react'
+import { Ic } from '../icons.jsx'
 import { Link } from 'react-router-dom'
 import { STATUS as K, BRAND, N, SERIES, TERRA, soften, deepen } from '@core/tokens.js'
 
@@ -159,11 +160,17 @@ export function Spinner({ label='Un instant…', className='' }){
 // ── Les cinq états (§8 du livre de marque). Un écran n'est pas conçu tant que
 //    les cinq n'existent pas. Ce n'est pas un conseil, c'est une condition. ──
 
-/** VIDE — la mascotte, qui flotte, une phrase en français clair, une action.
- *  Jamais un cul-de-sac. Jamais le mot « Aucune donnée ». */
-export function EmptyState({ icon, title, sub, action, className='' }){
+/** VIDE — une icône CONTEXTUELLE, une phrase en français clair, une action.
+ *  Jamais un cul-de-sac, jamais le mot « Aucune donnée ».
+ *
+ *  ET JAMAIS LE LOGO. Le logo n'apparaît QUE dans l'en-tête, jamais en grand dans
+ *  le corps d'une page : une marque répétée en décor cesse d'être une marque.
+ *  Ici l'icône dit de QUOI la page est vide (une boîte, un calendrier, une classe…).
+ *  Source : brand/KOGIA_HARMONY.md §4.8 et §10 */
+export function EmptyState({ icon = 'Inbox', title, sub, action, className='' }){
   return <div className={`flex flex-col items-center text-center py-12 px-6 ${className}`}>
-    <div className="mb-3 floaty" aria-hidden="true"><Mascot size={54}/></div>
+    <div className="w-14 h-14 rounded-2xl grid place-items-center mb-3 accent-soft accent-text"
+      aria-hidden="true"><Ic n={icon} size={26}/></div>
     <div className="font-bold text-ink">{title}</div>
     {sub && <p className="text-sm text-muted mt-1 max-w-sm">{sub}</p>}
     {action && <div className="mt-4">{action}</div>}
@@ -181,7 +188,8 @@ export function ErrorState({ title='La page n’a pas pu se charger.', sub='Vér
 /** SUCCÈS — bref, chaleureux, et il s'efface tout seul. */
 export function SuccessState({ title='C’est enregistré.', sub, action, className='' }){
   return <div role="status" className={`flex flex-col items-center text-center py-12 px-6 ${className}`}>
-    <div className="mb-3 floaty" aria-hidden="true"><Mascot size={54}/></div>
+    <div className="w-14 h-14 rounded-2xl grid place-items-center mb-3"
+      style={{background:STATUS.okSoft,color:STATUS.ok}} aria-hidden="true"><Ic n="Check" size={26}/></div>
     <div className="font-bold text-ink">{title}</div>
     {sub && <p className="text-sm text-muted mt-1 max-w-sm">{sub}</p>}
     {action && <div className="mt-4">{action}</div>}

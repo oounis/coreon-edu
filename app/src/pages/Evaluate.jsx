@@ -114,7 +114,7 @@ export default function Evaluate(){
       <div className="confetti" aria-hidden="true">{Array.from({length:26}).map((_,i)=>
         <i key={i} style={{left:`${(i*37)%100}%`,background:['#7539E4','#22D3EE','#FBBF24','#FB7185','#34D399','#8B5CF6'][i%6],animationDelay:`${(i%9)*0.14}s`}}/>)}</div>
       <div className="text-center">
-        <div className="floaty mx-auto w-fit"><Whale size={54}/></div>
+        <div className="w-14 h-14 rounded-2xl grid place-items-center mx-auto accent-soft accent-text" aria-hidden="true"><Ic n="ClipboardCheck" size={26}/></div>
         <div className="w-12 h-12 -mt-3 rounded-full grid place-items-center text-white mx-auto accent-bg pop relative"><Check size={24}/></div>
         <h1 className="text-2xl font-extrabold mt-3">Enregistré & partagé</h1>
         <p className="text-muted mt-1">{cls.cls.name} · {cls.slot.subject} — {saved.length} élèves notés. Parents et direction notifiés.</p>

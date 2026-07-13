@@ -1,4 +1,5 @@
 import { Sun, PlayCircle } from 'lucide-react'
+import { Ic } from '../icons.jsx'
 import { Whale } from './ui.jsx'
 import { schoolPhase } from '@core/livestatus.js'
 import { isDemoLive, setDemoLive, rentreeDate, rentreeLabel } from '@core/clock.js'
@@ -53,7 +54,7 @@ export function SummerFreeze({ feature, detail, children }) {
   return (
     <div className="card p-8 text-center relative overflow-hidden">
       <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full" style={{ background: 'radial-gradient(circle,#FDE68A66,transparent 70%)' }} />
-      <div className="floaty mx-auto w-fit"><Whale size={52} /></div>
+      <div className="w-14 h-14 rounded-2xl grid place-items-center mx-auto accent-soft accent-text" aria-hidden="true"><Ic n="Sun" size={26}/></div>
       <div className="inline-flex items-center gap-1.5 text-[12px] font-bold px-3 py-1 rounded-full mt-2" style={{ background: '#FEF3C7', color: '#92400E' }}>
         <Sun size={12} /> VACANCES D'ÉTÉ</div>
       <h2 className="text-xl font-extrabold mt-2">{feature} reprend à la rentrée</h2>
