@@ -18,6 +18,7 @@ import Admissions from './pages/Admissions.jsx'
 import Setup from './pages/Setup.jsx'
 import Inscription from './pages/Inscription.jsx'
 import HR from './pages/HR.jsx'
+import Accounting from './pages/Accounting.jsx'
 import Requests from './pages/Requests.jsx'
 import Notices from './pages/Notices.jsx'
 import Schools from './pages/Schools.jsx'
@@ -96,6 +97,7 @@ export default function App(){
         <Route path="/app/journal" element={R(<Journal/>, "/app/journal")}/>
         <Route path="/app/admissions" element={R(<Admissions/>, "/app/admissions")}/>
         <Route path="/app/hr" element={R(<HR/>, "/app/hr")}/>
+        <Route path="/app/accounting" element={R(<Accounting/>, "/app/accounting")}/>
 
         <Route path="/app/requests" element={R(<Requests/>, "/app/requests")}/>
         <Route path="/app/messages" element={R(<Messages/>, "/app/messages")}/>

@@ -240,6 +240,25 @@ function seed(){
     {id:"l3",staffId:"u_admin",kind:"sansSolde",from:"2026-07-20",to:"2026-07-22",reason:"Affaire personnelle.",
      days:3,stage:"accorde",at:Date.now()-5*24*3600*1000,decidedBy:"Lina Aderra",decidedById:"u_sadmin",decidedAt:Date.now()-4*24*3600*1000},
   ]
+  // ── Barème annuel, par niveau (DT). La petite enfance coûte plus cher : plus
+  // d'encadrement, moins d'enfants par adulte. C'est la réalité du métier.
+  const feeSchedule={
+    nursery:{inscription:150,scolarite:2400,cantine:900,transport:0},
+    prekg:  {inscription:150,scolarite:2200,cantine:900,transport:0},
+    kg1:    {inscription:150,scolarite:2000,cantine:800,transport:0},
+    kg2:    {inscription:150,scolarite:2000,cantine:800,transport:0},
+    g1:{inscription:200,scolarite:1800,cantine:700,transport:600},
+    g2:{inscription:200,scolarite:1800,cantine:700,transport:600},
+    g3:{inscription:200,scolarite:1900,cantine:700,transport:600},
+    g4:{inscription:200,scolarite:1900,cantine:700,transport:600},
+    g5:{inscription:200,scolarite:2000,cantine:700,transport:600},
+    g6:{inscription:200,scolarite:2100,cantine:700,transport:600},
+  }
+  // Adam est le 2e enfant de la famille Ben Salah : remise fratrie.
+  const discounts=[
+    {id:"dc1",studentId:"s29",kind:"fratrie",pct:10,amount:0,
+     reason:"Deuxième enfant inscrit (sa sœur Amira est en 5ème A).",by:"Lina Aderra",at:Date.now()-3*24*3600*1000},
+  ]
   const teachers=[
     {id:"t_ee",name:"Ines Belhadj",subject:"Petite enfance",classes:["kg_ns","kg_pk","kg_1"],gender:"Fille",qualification:"Éducatrice de jeunes enfants",experience:6,joiningDate:"2023-09-01",designation:"Éducatrice",phone:"+216 20 444 444",email:"creche@alnour.tn",address:"Tunis",salary:1500},
     {id:"t1",name:"Othman Ounis",subject:"Mathématiques",classes:["c5a","c6a"],gender:"Garçon",qualification:"Maîtrise en Mathématiques",experience:8,joiningDate:"2022-09-01",designation:"Instituteur principal",phone:"+216 20 333 333",email:"enseignant@alnour.tn",address:"Tunis",salary:1800},
@@ -409,7 +428,7 @@ function seed(){
     {id:'l4',at:Date.now()-7*HR, agentName:'Mongi Zouaoui',kind:'visiteur',place:'Portail principal',text:'Livraison Papeterie El Amel — badge V-001, sorti à 08:31.'},
   ]
 
-  return {classes,students,teachers,users,applications,journal:[],hrContracts,hrLeaves,hrPayrolls:[],payments,evaluations,incidents,requests,books,routes,homework,events,socialEvents,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,visitors,rounds,logbook,timetables:genTimetables(classes),settings,schools}
+  return {classes,students,teachers,users,applications,journal:[],hrContracts,hrLeaves,hrPayrolls:[],feeSchedule,discounts,invoices:[],receipts:[],payments,evaluations,incidents,requests,books,routes,homework,events,socialEvents,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,visitors,rounds,logbook,timetables:genTimetables(classes),settings,schools}
 }
 // `levels` : les niveaux que l'école accueille RÉELLEMENT. C'est ce qui décide
 // des modules visibles (core/src/levels.js). L'école de démo fait crèche ET

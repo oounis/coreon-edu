@@ -92,6 +92,7 @@ export const MODULE_LEVELS = {
   staff:      '*',
   admissions: '*',
   hr:         '*',
+  accounting: '*',
   pointage:   '*',
 
   // ── Petite enfance uniquement ────────────────────────────────────────────

@@ -31,6 +31,7 @@ export const FEATURES = {
   // point exact que PowerSchool et Infinite Campus vendent en module premium.
   admissions: true,
   hr: true,          // contrats, congés, paie
+  accounting: true,  // barème, remises, factures, reçus
 }
 
 // Un chemin est-il ouvert ? (les routes non listées ne sont pas des modules)
@@ -52,6 +53,7 @@ const ROUTE_MODULE = {
   '/app/journal': 'journal',
   '/app/admissions': 'admissions',
   '/app/hr': 'hr',
+  '/app/accounting': 'accounting',
   '/app/events': 'events',
   '/app/staff': 'staff',
   '/app/pointage': 'pointage',

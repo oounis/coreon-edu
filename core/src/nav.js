@@ -19,6 +19,9 @@ const ALL_NAV=[
   { to:'/app/staff', label:'Personnel', icon:'BriefcaseBusiness', roles:['schooladmin','admin'] },
   // RH & paie : aucune école n'achète un ERP sans ça. Ennuyeux, donc parfait.
   { to:'/app/hr', label:'RH & Paie', icon:'Wallet2', module:'hr', roles:['schooladmin','admin'] },
+  // Comptabilité : barème, remises, factures, reçus. Une facture émise ne se
+  // modifie pas — elle s'annule par un avoir. C'est ça, une compta défendable.
+  { to:'/app/accounting', label:'Comptabilité', icon:'Receipt', module:'accounting', roles:['schooladmin','admin'] },
   { to:'/app/pointage', label:'Mon pointage', icon:'Fingerprint', roles:['teacher','supervisor','security','admin'] },
   { to:'/app/evaluate', label:'Évaluer', icon:'ClipboardCheck', roles:['teacher'] },
   // ── Petite enfance : le trou du marché. Aucun ERP scolaire généraliste n'a ça.
