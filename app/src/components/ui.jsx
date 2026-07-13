@@ -1,5 +1,5 @@
 import { Dialog } from '@headlessui/react'
-import { MARK_VIEWBOX, MARK_PARTS } from '@core/mark.js'
+import { MARK_VIEWBOX, MARK_BODY, MARK_SPOUT, MARK_SPOUT_WIDTH } from '@core/mark.js'
 import { X, Search, RotateCw } from 'lucide-react'
 import { Ic } from '../icons.jsx'
 import { Link } from 'react-router-dom'
@@ -121,11 +121,13 @@ export function SectionCard({ title, sub, action, icon, tint='brand', children, 
 
 /** LA MARQUE. Logos, en-têtes, favicon, tuiles — et toute illustration. */
 export function Mark({ size = 32, className = '' }) {
-  // Un K. Et, dans son négatif, une nageoire caudale. Aplat, currentColor.
-  // Pas d'œil : un œil ferait une créature, donc une mascotte.
+  // LA MARQUE : le cachalot. Aplat, currentColor. L'œil est un trou (evenodd),
+  // donc la marque tient sur n'importe quel fond.
   return (
-    <svg viewBox={MARK_VIEWBOX} width={size} height={size} className={className} aria-hidden="true">
-      <g fill="currentColor">{MARK_PARTS.map((d, i) => <path key={i} d={d} />)}</g>
+    <svg viewBox={MARK_VIEWBOX} width={size} height={size * 96 / 132} className={className} aria-hidden="true">
+      <path fill="currentColor" fillRule="evenodd" d={MARK_BODY} />
+      <path d={MARK_SPOUT} fill="none" stroke="currentColor" strokeWidth={MARK_SPOUT_WIDTH}
+        strokeLinecap="round" opacity=".85" />
     </svg>
   )
 }

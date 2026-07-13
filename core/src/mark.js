@@ -1,30 +1,18 @@
 // ════════════════════════════════════════════════════════════════════════════
-// LA MARQUE KOGIA — un K. Et, dans son négatif, une nageoire caudale.
+// LA MARQUE KOGIA — le cachalot. C'est LE logo, choisi par Othman.
+// Un seul symbole pour tout l'écosystème ; seule la couleur du produit change.
 //
-// ON VOIT D'ABORD UN K. Puis on remarque que les deux bras ne sont pas des bras :
-// ce sont les deux LOBES d'une queue de cachalot, réunis sur un pédoncule, avec
-// l'encoche médiane en espace négatif. Comme la flèche de FedEx : rien n'est
-// dessiné, tout est suggéré — et une fois vue, on ne peut plus la « dé-voir ».
+// L'œil est un TROU (fill-rule evenodd) et non un point blanc : la marque tient
+// donc sur n'importe quel fond — tuile de couleur, sombre, clair — sans pastille
+// parasite. C'est ce qui permet de la décliner en ocean / violet / terre cuite.
 //
-// CE QU'IL N'Y A PAS, ET C'EST VOULU :
-//   • PAS D'ŒIL. Un œil fait une créature, donc une mascotte. C'était le défaut
-//     de TOUTES les versions précédentes de ce logo.
-//   • Pas de corps, pas de sourire, pas de jet, pas de dégradé, rien de mignon.
-//     Kogia Group est une entreprise de technologie.
-//
-// L'animal est présent par ses QUALITÉS — compact, calme, intelligent, courbes
-// lisses, mouvement minimal, eaux profondes — jamais par son portrait.
-//
-// Aplat. Prend la couleur de la FAMILLE du produit (currentColor). Grille 64.
-// Testé à 16 px, en monochrome et en NOIR PUR avant d'être retenu.
 // Source : brand/KOGIA_HARMONY.md §4
 // ════════════════════════════════════════════════════════════════════════════
+export const MARK_VIEWBOX = '0 0 132 96'
+export const MARK_RATIO = 96 / 132
 
-export const MARK_VIEWBOX = '0 0 64 64'
-
-/** Les trois tracés de la marque : la hampe, le lobe haut, le lobe bas. */
-export const MARK_PARTS = [
-  'M10 14.25 a4.25 4.25 0 0 1 8.5 0 v35.5 a4.25 4.25 0 0 1 -8.5 0 Z',
-  'M21 32 C34 29 45 21 54 9 L58.5 14.5 C50 27 39 34.5 26 35.5 Z',
-  'M21 32 C34 35 45 43 54 55 L58.5 49.5 C50 37 39 29.5 26 28.5 Z',
-]
+/** Le corps + l'œil, en UN tracé (evenodd → l'œil est percé). */
+export const MARK_BODY = 'M12 54 C12 34 28 22 52 22 C74 22 88 32 91 46 C94 38 99 30 107 25 C105 32 104 38 105 43 C110 41 117 41 124 44 C117 48 111 50 106 50 C102 62 92 70 76 73 C58 76 34 74 22 68 C14 64 12 60 12 54 Z M38.4 45 a4.4 4.4 0 1 1 -8.8 0 a4.4 4.4 0 1 1 8.8 0 Z'
+/** Le jet — deux traits au-dessus de la tête. */
+export const MARK_SPOUT = 'M42 12 q-1 -7 5 -9 M50 12 q4 -6 11 -6'
+export const MARK_SPOUT_WIDTH = 4
