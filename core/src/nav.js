@@ -12,6 +12,8 @@ const ALL_NAV=[
   { to:'/app/live', label:'Suivi en direct', icon:'Radio', roles:['parent'] },
   { to:'/app/schools', label:'Écoles', icon:'Building2', roles:['owner'] },
   { to:'/app/accounts', label:'Comptes', icon:'UserCog', roles:['schooladmin'] },
+  { to:'/app/admissions', label:'Inscriptions', icon:'UserPlus', module:'admissions',
+    roles:['schooladmin','admin'] },
   { to:'/app/students', label:'Élèves', icon:'Users', roles:['schooladmin','admin','supervisor','teacher'] },
   { to:'/app/teachers', label:'Enseignants', icon:'GraduationCap', roles:['schooladmin','admin'] },
   { to:'/app/staff', label:'Personnel', icon:'BriefcaseBusiness', roles:['schooladmin','admin'] },

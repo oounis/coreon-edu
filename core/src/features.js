@@ -26,6 +26,10 @@ export const FEATURES = {
   // scolaires n'ont PAS et ce que Famly/Procare ont — mais eux ne font pas
   // l'école. Nous faisons les deux. Voir core/src/levels.js.
   journal: true,
+
+  // Les inscriptions : la candidature DEVIENT l'élève, sans ressaisie. C'est le
+  // point exact que PowerSchool et Infinite Campus vendent en module premium.
+  admissions: true,
 }
 
 // Un chemin est-il ouvert ? (les routes non listées ne sont pas des modules)
@@ -45,6 +49,7 @@ const ROUTE_MODULE = {
   '/app/social': 'social',
   '/app/security': 'security',
   '/app/journal': 'journal',
+  '/app/admissions': 'admissions',
   '/app/events': 'events',
   '/app/staff': 'staff',
   '/app/pointage': 'pointage',

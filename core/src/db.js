@@ -189,6 +189,43 @@ function seed(){
     S("s35","Nizar","Sassi","kg_1",null,{gender:"Garçon",dob:"2021-06-14"}),
     S("s36","Farah","Hammami","kg_1",null,{gender:"Fille",dob:"2021-09-30"}),
   ]
+  // ── Candidatures (inscriptions) ────────────────────────────────────────────
+  // Une campagne en cours, comme dans la vraie vie : des dossiers à toutes les
+  // étapes, dont un en liste d'attente parce que la classe est pleine.
+  const DAY=24*3600*1000
+  const applications=[
+    {id:"a1",childName:"Yassine Haddad",dob:"2023-03-14",level:"nursery",parentName:"Sofiane Haddad",
+     parentPhone:"+216 22 100 100",parentEmail:"s.haddad@mail.tn",note:"",stage:"nouvelle",docs:{},
+     createdAt:Date.now()-2*DAY,studentId:null,
+     history:[{at:Date.now()-2*DAY,stage:"nouvelle",by:"Parent (en ligne)"}]},
+    {id:"a2",childName:"Selim Ayadi",dob:"2022-07-02",level:"prekg",parentName:"Rania Ayadi",
+     parentPhone:"+216 22 200 200",parentEmail:"r.ayadi@mail.tn",note:"",stage:"pieces",
+     docs:{naissance:true,photo:true},createdAt:Date.now()-5*DAY,studentId:null,
+     history:[{at:Date.now()-5*DAY,stage:"nouvelle",by:"Parent (en ligne)"},
+              {at:Date.now()-4*DAY,stage:"pieces",by:"Administration"}]},
+    {id:"a3",childName:"Hana Zribi",dob:"2019-09-11",level:"g1",parentName:"Mehdi Zribi",
+     parentPhone:"+216 22 300 300",parentEmail:"m.zribi@mail.tn",note:"Vient d'une école privée.",
+     stage:"examen",docs:{naissance:true,photo:true,domicile:true,bulletin:true},
+     createdAt:Date.now()-8*DAY,studentId:null,
+     history:[{at:Date.now()-8*DAY,stage:"nouvelle",by:"Parent (en ligne)"},
+              {at:Date.now()-7*DAY,stage:"pieces",by:"Administration"},
+              {at:Date.now()-6*DAY,stage:"examen",by:"Administration"}]},
+    {id:"a4",childName:"Aymen Belkhir",dob:"2020-01-25",level:"g5",parentName:"Nadia Belkhir",
+     parentPhone:"+216 22 400 400",parentEmail:"n.belkhir@mail.tn",note:"",stage:"accepte",
+     docs:{naissance:true,photo:true,domicile:true},createdAt:Date.now()-12*DAY,studentId:null,
+     history:[{at:Date.now()-12*DAY,stage:"nouvelle",by:"Parent (en ligne)"},
+              {at:Date.now()-11*DAY,stage:"pieces",by:"Administration"},
+              {at:Date.now()-10*DAY,stage:"examen",by:"Administration"},
+              {at:Date.now()-9*DAY,stage:"accepte",by:"Lina Aderra"}]},
+    {id:"a5",childName:"Molka Ghariani",dob:"2020-04-08",level:"g5",parentName:"Fathi Ghariani",
+     parentPhone:"+216 22 500 500",parentEmail:"f.ghariani@mail.tn",note:"",stage:"attente",
+     docs:{naissance:true,photo:true,domicile:true},createdAt:Date.now()-14*DAY,studentId:null,
+     history:[{at:Date.now()-14*DAY,stage:"nouvelle",by:"Parent (en ligne)"},
+              {at:Date.now()-13*DAY,stage:"pieces",by:"Administration"},
+              {at:Date.now()-12*DAY,stage:"examen",by:"Administration"},
+              {at:Date.now()-11*DAY,stage:"accepte",by:"Lina Aderra"},
+              {at:Date.now()-10*DAY,stage:"attente",by:"Administration",note:"5ème A pleine (10/24)."}]},
+  ]
   const teachers=[
     {id:"t_ee",name:"Ines Belhadj",subject:"Petite enfance",classes:["kg_ns","kg_pk","kg_1"],gender:"Fille",qualification:"Éducatrice de jeunes enfants",experience:6,joiningDate:"2023-09-01",designation:"Éducatrice",phone:"+216 20 444 444",email:"creche@alnour.tn",address:"Tunis",salary:1500},
     {id:"t1",name:"Othman Ounis",subject:"Mathématiques",classes:["c5a","c6a"],gender:"Garçon",qualification:"Maîtrise en Mathématiques",experience:8,joiningDate:"2022-09-01",designation:"Instituteur principal",phone:"+216 20 333 333",email:"enseignant@alnour.tn",address:"Tunis",salary:1800},
@@ -358,7 +395,7 @@ function seed(){
     {id:'l4',at:Date.now()-7*HR, agentName:'Mongi Zouaoui',kind:'visiteur',place:'Portail principal',text:'Livraison Papeterie El Amel — badge V-001, sorti à 08:31.'},
   ]
 
-  return {classes,students,teachers,users,payments,evaluations,incidents,requests,books,routes,homework,events,socialEvents,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,visitors,rounds,logbook,timetables:genTimetables(classes),settings,schools}
+  return {classes,students,teachers,users,applications,journal:[],payments,evaluations,incidents,requests,books,routes,homework,events,socialEvents,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,visitors,rounds,logbook,timetables:genTimetables(classes),settings,schools}
 }
 // `levels` : les niveaux que l'école accueille RÉELLEMENT. C'est ce qui décide
 // des modules visibles (core/src/levels.js). L'école de démo fait crèche ET

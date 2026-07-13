@@ -1,0 +1,173 @@
+// ════════════════════════════════════════════════════════════════════════════
+// LES INSCRIPTIONS — de la pré-inscription à l'élève.
+//
+// Recherche (kogia-research, vérifié 3-0) : la CONTINUITÉ des données entre la
+// candidature et le dossier élève — ne PAS ressaisir — est un point de douleur
+// reconnu du marché, que PowerSchool et Infinite Campus vendent tous les deux
+// comme un MODULE PREMIUM, avec une étape d'approbation explicite qui conditionne
+// l'écriture dans le dossier élève.
+//
+// Donc ici : on ne ressaisit jamais. La candidature DEVIENT l'élève, en un geste,
+// et seulement après approbation.
+//
+// LE PARCOURS RÉEL (et non un formulaire de plus) :
+//   candidature → pièces → examen → décision
+//                                      ├─ accepté  → place disponible ? → inscrit
+//                                      │                    └─ non → LISTE D'ATTENTE
+//                                      └─ refusé
+//
+// La CAPACITÉ est vérifiée au moment de l'inscription, pas à la candidature :
+// une place se libère, la liste d'attente avance. C'est comme ça dans la vraie vie.
+// ════════════════════════════════════════════════════════════════════════════
+import { db, save } from './db.js'
+import { now, todayIso } from './clock.js'
+import { levelOf, labelOf } from './levels.js'
+
+/** Les étapes. `terminal` = plus rien ne bouge sans une action humaine explicite. */
+export const STAGES = {
+  nouvelle:   { key: 'nouvelle',   label: 'Nouvelle',        tone: 'info',    next: ['pieces', 'refuse'] },
+  pieces:     { key: 'pieces',     label: 'Pièces à fournir', tone: 'warn',   next: ['examen', 'refuse'] },
+  examen:     { key: 'examen',     label: 'À l’étude',       tone: 'info',    next: ['accepte', 'refuse'] },
+  accepte:    { key: 'accepte',    label: 'Accepté',         tone: 'ok',      next: ['inscrit', 'attente'] },
+  attente:    { key: 'attente',    label: 'Liste d’attente', tone: 'warn',    next: ['inscrit', 'refuse'] },
+  inscrit:    { key: 'inscrit',    label: 'Inscrit',         tone: 'ok',      terminal: true, next: [] },
+  refuse:     { key: 'refuse',     label: 'Refusé',          tone: 'danger',  terminal: true, next: [] },
+}
+
+/** Les pièces exigées. Une candidature n'avance pas tant qu'elles manquent. */
+export const DOCS = [
+  { key: 'naissance', label: 'Acte de naissance', required: true },
+  { key: 'photo',     label: 'Photo d’identité',  required: true },
+  { key: 'vaccins',   label: 'Carnet de vaccination', required: true, earlyOnly: true },
+  { key: 'bulletin',  label: 'Bulletin de l’école précédente', required: false },
+  { key: 'domicile',  label: 'Justificatif de domicile', required: true },
+]
+
+export const docsFor = level =>
+  DOCS.filter(d => !d.earlyOnly || levelOf(level)?.cycle === 'petiteEnfance')
+
+export const applications = () => db().applications || []
+export const appById = id => applications().find(a => a.id === id) || null
+
+function write(next) { const d = db(); d.applications = next; save(d) }
+
+/** Une nouvelle candidature. Le parent la dépose ; l'école ne saisit rien. */
+export function apply({ childName, dob, level, parentName, parentPhone, parentEmail, note = '' }) {
+  const a = {
+    id: 'a' + Date.now().toString(36),
+    childName, dob, level,
+    parentName, parentPhone, parentEmail, note,
+    stage: 'nouvelle',
+    docs: {},                       // { [docKey]: true } — fourni
+    createdAt: now(),
+    history: [{ at: now(), stage: 'nouvelle', by: 'Parent (en ligne)' }],
+    studentId: null,                // rempli à l'inscription — la trace du lien
+  }
+  write([a, ...applications()])
+  return a
+}
+
+export function setDoc(id, docKey, given, by = 'Administration') {
+  const next = applications().map(a => a.id !== id ? a : { ...a, docs: { ...a.docs, [docKey]: !!given } })
+  write(next)
+  return appById(id)
+}
+
+/** Les pièces obligatoires sont-elles toutes là ? Sinon on ne passe pas à l'étude. */
+export function docsComplete(a) {
+  return docsFor(a.level).filter(d => d.required).every(d => a.docs?.[d.key])
+}
+
+/** Faire avancer une candidature. Refuse les sauts d'étape : le parcours est un parcours. */
+export function advance(id, stage, by = 'Administration', note = '') {
+  const a = appById(id)
+  if (!a) return { error: 'Candidature introuvable.' }
+  if (a.stage === stage) return { app: a }
+  if (!STAGES[a.stage]?.next.includes(stage)) {
+    return { error: `Passage impossible : ${STAGES[a.stage].label} → ${STAGES[stage]?.label || stage}.` }
+  }
+  if (stage === 'examen' && !docsComplete(a)) {
+    return { error: 'Des pièces obligatoires manquent encore.' }
+  }
+  const next = applications().map(x => x.id !== id ? x
+    : { ...x, stage, history: [...x.history, { at: now(), stage, by, note }] })
+  write(next)
+  return { app: appById(id) }
+}
+
+/** La capacité d'une classe. Une place n'existe que si elle existe vraiment. */
+export const CAPACITY = 24
+export function seatsOf(classId) {
+  const d = db()
+  const taken = (d.students || []).filter(s => s.classId === classId).length
+  return { taken, capacity: CAPACITY, free: Math.max(0, CAPACITY - taken) }
+}
+
+/** Les classes d'un niveau qui ont encore de la place. */
+export function openClasses(level) {
+  return (db().classes || [])
+    .filter(c => c.level === level)
+    .map(c => ({ ...c, ...seatsOf(c.id) }))
+}
+
+/**
+ * INSCRIRE — la candidature DEVIENT l'élève. Rien n'est ressaisi.
+ * C'est exactement le point que PowerSchool et Infinite Campus font payer.
+ *
+ * Si la classe est pleine, on N'INSCRIT PAS : on met en liste d'attente. Le
+ * système ne ment jamais sur une place qu'il n'a pas.
+ */
+export function enrol(id, classId, by = 'Administration') {
+  const a = appById(id)
+  if (!a) return { error: 'Candidature introuvable.' }
+  if (!['accepte', 'attente'].includes(a.stage)) {
+    return { error: 'Seule une candidature acceptée peut être inscrite.' }
+  }
+  const seats = seatsOf(classId)
+  if (seats.free <= 0) {
+    advance(id, 'attente', by, `Classe pleine (${seats.taken}/${seats.capacity}).`)
+    return { error: `Cette classe est pleine (${seats.taken}/${seats.capacity}). Candidature mise en liste d’attente.` }
+  }
+
+  const d = db()
+  const sid = 's' + Date.now().toString(36)
+  const [first, ...rest] = String(a.childName).trim().split(' ')
+  const last = rest.join(' ') || '—'
+  d.students = [...(d.students || []), {
+    id: sid,
+    name: a.childName,
+    initials: (first[0] || '?') + (last[0] || ''),
+    classId,
+    parentId: null,
+    gender: '—',
+    dob: a.dob || '',
+    admissionDate: todayIso(),
+    // Les données de la candidature deviennent celles de l'élève. Zéro ressaisie.
+    guardianPhone: a.parentPhone || '',
+    email: a.parentEmail || '',
+    fatherName: a.parentName || '',
+    allergies: 'Aucune', medical: 'Aucune',
+    bloodGroup: '—', nationality: '—', prevSchool: '—', address: '—', phone: a.parentPhone || '',
+    rollNo: sid.replace(/\D/g, ''), emergencyName: a.parentName || '', emergencyPhone: a.parentPhone || '',
+  }]
+  d.applications = (d.applications || []).map(x => x.id !== id ? x : {
+    ...x, stage: 'inscrit', studentId: sid,
+    history: [...x.history, { at: now(), stage: 'inscrit', by, note: `Classe ${classId}` }],
+  })
+  save(d)
+  return { studentId: sid }
+}
+
+/** Le tableau de bord des inscriptions : où en est la campagne. */
+export function summary() {
+  const all = applications()
+  const by = k => all.filter(a => a.stage === k).length
+  return {
+    total: all.length,
+    nouvelle: by('nouvelle'), pieces: by('pieces'), examen: by('examen'),
+    accepte: by('accepte'), attente: by('attente'), inscrit: by('inscrit'), refuse: by('refuse'),
+  }
+}
+
+export const stageLabel = k => STAGES[k]?.label || k
+export const levelLabel = labelOf
