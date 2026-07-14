@@ -23,6 +23,7 @@ import Academic from './pages/Academic.jsx'
 import Facilities from './pages/Facilities.jsx'
 import Accidents from './pages/Accidents.jsx'
 import ChildFile from './pages/ChildFile.jsx'
+import Interop from './pages/Interop.jsx'
 import Requests from './pages/Requests.jsx'
 import Notices from './pages/Notices.jsx'
 import Schools from './pages/Schools.jsx'
@@ -106,6 +107,7 @@ export default function App(){
         <Route path="/app/facilities" element={R(<Facilities/>, "/app/facilities")}/>
         <Route path="/app/accidents" element={R(<Accidents/>, "/app/accidents")}/>
         <Route path="/app/child" element={R(<ChildFile/>, "/app/child")}/>
+        <Route path="/app/interop" element={R(<Interop/>, "/app/interop")}/>
 
         <Route path="/app/requests" element={R(<Requests/>, "/app/requests")}/>
         <Route path="/app/messages" element={R(<Messages/>, "/app/messages")}/>

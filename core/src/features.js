@@ -36,6 +36,7 @@ export const FEATURES = {
   facilities: true,  // location piscine, terrain, gymnase, salles
   accidents: true,   // déclaration d'accident : validation + accusé du parent
   childfile: true,   // santé, vaccins, personnes autorisées, jalons
+  interop: true,     // export OneRoster v1.2
 }
 
 // Un chemin est-il ouvert ? (les routes non listées ne sont pas des modules)
@@ -62,6 +63,7 @@ const ROUTE_MODULE = {
   '/app/facilities': 'facilities',
   '/app/accidents': 'accidents',
   '/app/child': 'childfile',
+  '/app/interop': 'interop',
   '/app/events': 'events',
   '/app/staff': 'staff',
   '/app/pointage': 'pointage',

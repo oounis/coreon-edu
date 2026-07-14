@@ -96,6 +96,7 @@ export const MODULE_LEVELS = {
   academic:   '*',
   facilities: '*',
   accidents:  '*',
+  interop:    '*',
   pointage:   '*',
 
   // ── Petite enfance uniquement ────────────────────────────────────────────

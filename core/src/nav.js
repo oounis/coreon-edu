@@ -61,6 +61,9 @@ const ALL_NAV=[
   { to:'/app/requests', label:'Demandes', icon:'FileText', roles:['teacher','admin','schooladmin'] },
   { to:'/app/messages', label:'Messages', icon:'MessageSquare', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent'] },
   { to:'/app/notices', label:'Annonces', icon:'Megaphone', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent'] },
+  // « Est-ce que ça s'intègre ? » est une QUESTION D'ACHAT dans toute école
+  // internationale. OneRoster v1.2 : la réponse est un fichier, pas une promesse.
+  { to:'/app/interop', label:'Interopérabilité', icon:'Plug', module:'interop', roles:['schooladmin','admin'] },
   { to:'/app/settings', label:'Paramètres', icon:'Settings', roles:['schooladmin'] },
 ]
 
