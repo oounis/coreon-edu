@@ -428,7 +428,7 @@ function seed(){
     {id:'l4',at:Date.now()-7*HR, agentName:'Mongi Zouaoui',kind:'visiteur',place:'Portail principal',text:'Livraison Papeterie El Amel — badge V-001, sorti à 08:31.'},
   ]
 
-  return {classes,students,teachers,users,applications,journal:[],hrContracts,hrLeaves,hrPayrolls:[],feeSchedule,discounts,invoices:[],receipts:[],payments,evaluations,incidents,requests,books,routes,homework,events,socialEvents,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,visitors,rounds,logbook,timetables:genTimetables(classes),settings,schools}
+  return {classes,students,teachers,users,applications,journal:[],hrContracts,hrLeaves,hrPayrolls:[],feeSchedule,discounts,invoices:[],receipts:[],reports:[],promotions:[],payments,evaluations,incidents,requests,books,routes,homework,events,socialEvents,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,visitors,rounds,logbook,timetables:genTimetables(classes),settings,schools}
 }
 // `levels` : les niveaux que l'école accueille RÉELLEMENT. C'est ce qui décide
 // des modules visibles (core/src/levels.js). L'école de démo fait crèche ET

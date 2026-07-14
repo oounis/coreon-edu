@@ -32,6 +32,7 @@ export const FEATURES = {
   admissions: true,
   hr: true,          // contrats, congés, paie
   accounting: true,  // barème, remises, factures, reçus
+  academic: true,    // bulletins, passage de classe, archives
 }
 
 // Un chemin est-il ouvert ? (les routes non listées ne sont pas des modules)
@@ -54,6 +55,7 @@ const ROUTE_MODULE = {
   '/app/admissions': 'admissions',
   '/app/hr': 'hr',
   '/app/accounting': 'accounting',
+  '/app/academic': 'academic',
   '/app/events': 'events',
   '/app/staff': 'staff',
   '/app/pointage': 'pointage',

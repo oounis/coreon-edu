@@ -22,6 +22,9 @@ const ALL_NAV=[
   // Comptabilité : barème, remises, factures, reçus. Une facture émise ne se
   // modifie pas — elle s'annule par un avoir. C'est ça, une compta défendable.
   { to:'/app/accounting', label:'Comptabilité', icon:'Receipt', module:'accounting', roles:['schooladmin','admin'] },
+  // Bulletins & passage. Le passage d'année est IRRÉVERSIBLE et touche à l'argent :
+  // on le montre avant de l'exécuter (recherche 3-0).
+  { to:'/app/academic', label:'Bulletins & passage', icon:'FileBadge', module:'academic', roles:['schooladmin','admin','teacher'] },
   { to:'/app/pointage', label:'Mon pointage', icon:'Fingerprint', roles:['teacher','supervisor','security','admin'] },
   { to:'/app/evaluate', label:'Évaluer', icon:'ClipboardCheck', roles:['teacher'] },
   // ── Petite enfance : le trou du marché. Aucun ERP scolaire généraliste n'a ça.
