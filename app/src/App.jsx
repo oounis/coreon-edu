@@ -20,6 +20,7 @@ import Inscription from './pages/Inscription.jsx'
 import HR from './pages/HR.jsx'
 import Accounting from './pages/Accounting.jsx'
 import Academic from './pages/Academic.jsx'
+import Facilities from './pages/Facilities.jsx'
 import Requests from './pages/Requests.jsx'
 import Notices from './pages/Notices.jsx'
 import Schools from './pages/Schools.jsx'
@@ -100,6 +101,7 @@ export default function App(){
         <Route path="/app/hr" element={R(<HR/>, "/app/hr")}/>
         <Route path="/app/accounting" element={R(<Accounting/>, "/app/accounting")}/>
         <Route path="/app/academic" element={R(<Academic/>, "/app/academic")}/>
+        <Route path="/app/facilities" element={R(<Facilities/>, "/app/facilities")}/>
 
         <Route path="/app/requests" element={R(<Requests/>, "/app/requests")}/>
         <Route path="/app/messages" element={R(<Messages/>, "/app/messages")}/>

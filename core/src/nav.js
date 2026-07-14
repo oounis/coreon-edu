@@ -25,6 +25,9 @@ const ALL_NAV=[
   // Bulletins & passage. Le passage d'année est IRRÉVERSIBLE et touche à l'argent :
   // on le montre avant de l'exécuter (recherche 3-0).
   { to:'/app/academic', label:'Bulletins & passage', icon:'FileBadge', module:'academic', roles:['schooladmin','admin','teacher'] },
+  // Location des installations : les murs de l'école sont vides le soir et le
+  // week-end. Une SECONDE ligne de revenus — qu'aucun ERP scolaire ne propose.
+  { to:'/app/facilities', label:'Installations', icon:'Waves', module:'facilities', roles:['schooladmin','admin'] },
   { to:'/app/pointage', label:'Mon pointage', icon:'Fingerprint', roles:['teacher','supervisor','security','admin'] },
   { to:'/app/evaluate', label:'Évaluer', icon:'ClipboardCheck', roles:['teacher'] },
   // ── Petite enfance : le trou du marché. Aucun ERP scolaire généraliste n'a ça.

@@ -32,6 +32,7 @@ export const ROUTE_ROLES={
   '/app/hr': ['schooladmin','admin'],
   '/app/accounting': ['schooladmin','admin'],
   '/app/academic': ['schooladmin','admin','teacher'],
+  '/app/facilities': ['schooladmin','admin'],
   '/setup': ['schooladmin'],
   '/app/requests': ['teacher','admin','schooladmin'],
   '/app/messages': ALL,

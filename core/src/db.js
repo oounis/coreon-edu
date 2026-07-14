@@ -259,6 +259,20 @@ function seed(){
     {id:"dc1",studentId:"s29",kind:"fratrie",pct:10,amount:0,
      reason:"Deuxième enfant inscrit (sa sœur Amira est en 5ème A).",by:"Lina Aderra",at:Date.now()-3*24*3600*1000},
   ]
+  // ── Installations louables ────────────────────────────────────────────────
+  // `schoolSlots` : les créneaux de l'école. INTOUCHABLES — un cours d'EPS ne se
+  // fait pas déloger par un club qui paie. La pédagogie passe avant l'argent.
+  const facilities=[
+    {id:"f_pool",name:"Piscine",kind:"piscine",capacity:30,rateInternal:0,rateExternal:80,
+     schoolSlots:[{day:1,from:"09:00",to:"12:00",label:"Natation scolaire"},
+                  {day:3,from:"09:00",to:"12:00",label:"Natation scolaire"}]},
+    {id:"f_field",name:"Terrain de football",kind:"terrain",capacity:22,rateInternal:0,rateExternal:60,
+     schoolSlots:[{day:2,from:"08:00",to:"12:00",label:"EPS"},
+                  {day:4,from:"08:00",to:"12:00",label:"EPS"}]},
+    {id:"f_gym",name:"Gymnase",kind:"gymnase",capacity:40,rateInternal:0,rateExternal:50,
+     schoolSlots:[{day:5,from:"08:00",to:"13:00",label:"EPS"}]},
+    {id:"f_audi",name:"Auditorium",kind:"auditorium",capacity:200,rateInternal:0,rateExternal:150,schoolSlots:[]},
+  ]
   const teachers=[
     {id:"t_ee",name:"Ines Belhadj",subject:"Petite enfance",classes:["kg_ns","kg_pk","kg_1"],gender:"Fille",qualification:"Éducatrice de jeunes enfants",experience:6,joiningDate:"2023-09-01",designation:"Éducatrice",phone:"+216 20 444 444",email:"creche@alnour.tn",address:"Tunis",salary:1500},
     {id:"t1",name:"Othman Ounis",subject:"Mathématiques",classes:["c5a","c6a"],gender:"Garçon",qualification:"Maîtrise en Mathématiques",experience:8,joiningDate:"2022-09-01",designation:"Instituteur principal",phone:"+216 20 333 333",email:"enseignant@alnour.tn",address:"Tunis",salary:1800},
@@ -428,7 +442,7 @@ function seed(){
     {id:'l4',at:Date.now()-7*HR, agentName:'Mongi Zouaoui',kind:'visiteur',place:'Portail principal',text:'Livraison Papeterie El Amel — badge V-001, sorti à 08:31.'},
   ]
 
-  return {classes,students,teachers,users,applications,journal:[],hrContracts,hrLeaves,hrPayrolls:[],feeSchedule,discounts,invoices:[],receipts:[],reports:[],promotions:[],payments,evaluations,incidents,requests,books,routes,homework,events,socialEvents,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,visitors,rounds,logbook,timetables:genTimetables(classes),settings,schools}
+  return {classes,students,teachers,users,applications,journal:[],hrContracts,hrLeaves,hrPayrolls:[],feeSchedule,discounts,invoices:[],receipts:[],reports:[],promotions:[],facilities,bookings:[],memberships:[],payments,evaluations,incidents,requests,books,routes,homework,events,socialEvents,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,visitors,rounds,logbook,timetables:genTimetables(classes),settings,schools}
 }
 // `levels` : les niveaux que l'école accueille RÉELLEMENT. C'est ce qui décide
 // des modules visibles (core/src/levels.js). L'école de démo fait crèche ET
