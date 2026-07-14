@@ -22,6 +22,7 @@
 import { db, save } from './db.js'
 import { now, todayIso } from './clock.js'
 import { levelOf, labelOf } from './levels.js'
+import { notify } from './notify.js'
 
 /** Les étapes. `terminal` = plus rien ne bouge sans une action humaine explicite. */
 export const STAGES = {
@@ -79,13 +80,27 @@ export function apply({ childName, dob, level, parentName, parentPhone, parentEm
   }
   write([a, ...applications()])
   // La preuve, pas l'espoir : on relit le stockage.
-  if (appById(a.id)) return { app: a, filesDropped: false }
+  if (appById(a.id)) return announced({ app: a, filesDropped: false })
   if (files.length) {
     const light = { ...a, files: [], history: [...a.history, { at: now(), stage: 'nouvelle', by: 'Système', note: 'Pièces non conservées (stockage plein) — à réclamer.' }] }
     write([light, ...applications().filter(x => x.id !== a.id)])
-    if (appById(a.id)) return { app: light, filesDropped: true }
+    if (appById(a.id)) return announced({ app: light, filesDropped: true })
   }
   return { error: 'Votre candidature n’a pas pu être enregistrée sur cet appareil (stockage plein ou navigation privée). Réessayez, ou contactez l’école directement.' }
+}
+
+/** Une candidature qui arrive PRÉVIENT la direction — jamais en silence. */
+function announced(r) {
+  const { app } = r
+  for (const role of ['schooladmin', 'admin']) {
+    notify({
+      role, kind: 'request', actor: app.parentName,
+      title: 'Nouvelle candidature',
+      body: `${app.childName} · ${labelOf(app.level)}${app.files.length ? ` · ${app.files.length} pièce(s)` : ''}`,
+      link: '/app/admissions',
+    })
+  }
+  return r
 }
 
 /** L'administration ajoute une pièce reçue au guichet (papier scanné). */

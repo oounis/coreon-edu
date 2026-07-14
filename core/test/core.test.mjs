@@ -174,6 +174,9 @@ test('inscription : jamais de faux reçu — le stockage plein est dit, pas aval
     parentName: 'O. Ounis', parentPhone: '+21600000000' })
   assert.ok(r2.app && r2.filesDropped === false)
   assert.ok(appById(r2.app.id))
+  // une candidature qui arrive PRÉVIENT la direction — jamais en silence
+  const notifs = db().notifications.filter(n => n.title === 'Nouvelle candidature' && n.body.includes('Marwan'))
+  assert.deepEqual(notifs.map(n => n.role).sort(), ['admin', 'schooladmin'])
 
   // 3) quota totalement plein : une ERREUR franche, pas de reçu
   tick()
