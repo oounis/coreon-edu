@@ -282,3 +282,42 @@ test('présence : un identifiant de classe peut contenir des underscores', () =>
   assert.equal(attKey('kg_pk', '2026-07-15'), 'kg_pk_2026-07-15')
   assert.ok(!isNaN(new Date(attParts(attKey('kg_1', '2026-07-15')).iso)), 'la date relue est valide')
 })
+
+// ── Le suivi du comportement : encourager d'abord, jamais classer (règle n°9) ─
+import { observe, studentSummary as behaviorSummary, classClimate, removeEntry, TRAITS, positiveTraits } from '../src/behavior.js'
+
+test('comportement : observer nourrit le parcours de l\'enfant et prévient le parent', () => {
+  const d = db()
+  const teacher = d.users.find(u => u.id === 't1')
+  const before = behaviorSummary('s1').total
+  const beforeNotifs = d.notifications.length
+  const r = observe({ studentId: 's1', trait: 'entraide', note: 'A aidé un camarade.', byId: teacher.id, byName: teacher.name })
+  assert.ok(r.entry && !r.error)
+  assert.equal(behaviorSummary('s1').total, before + 1)
+  assert.ok(db().notifications.length > beforeNotifs, 'le parent est prévenu')
+})
+
+test('comportement : l\'encouragement domine — les positifs d\'abord', () => {
+  // le catalogue met les traits positifs en tête, et ils sont plus nombreux
+  assert.ok(positiveTraits().length >= Object.values(TRAITS).filter(t => !t.positive).length,
+    'au moins autant d\'encouragements que de rappels')
+  assert.equal(Object.values(TRAITS)[0].positive, true, 'le premier trait est positif')
+})
+
+test('comportement : un enfant voit SON parcours, la direction voit une TENDANCE (pas de palmarès)', () => {
+  // le climat d'une classe rend des tendances agrégées, jamais un classement d'élèves
+  const climate = classClimate('c5a')
+  assert.ok('positiveRate' in climate && 'byTrait' in climate)
+  assert.ok(!('ranking' in climate) && !('topStudents' in climate), 'aucun classement d\'élèves')
+})
+
+test('comportement : rien ne s\'efface — un retrait est tracé', () => {
+  const d = db()
+  const t = d.users.find(u => u.id === 't1')
+  const { entry } = observe({ studentId: 's3', trait: 'participation', byId: t.id, byName: t.name })
+  removeEntry(entry.id, t.name)
+  const still = db().behavior.find(e => e.id === entry.id)
+  assert.ok(still, 'l\'entrée existe toujours')
+  assert.ok(still.removed && still.removed.by, 'mais elle est marquée retirée, avec trace')
+  assert.ok(!behaviorSummary('s3').recent.some(e => e.id === entry.id), 'et ne compte plus dans le bilan')
+})

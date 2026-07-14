@@ -36,6 +36,7 @@ export const FEATURES = {
   facilities: true,  // location piscine, terrain, gymnase, salles
   accidents: true,   // déclaration d'accident : validation + accusé du parent
   childfile: true,   // santé, vaccins, personnes autorisées, jalons
+  behavior: true,    // suivi du comportement : encourager d'abord, jamais classer
   interop: true,     // export OneRoster v1.2
 }
 
@@ -52,6 +53,7 @@ const ROUTE_MODULE = {
   '/app/payments': 'payments',
   '/app/finance': 'finance',
   '/app/incidents': 'incidents',
+  '/app/behavior': 'behavior',
   '/app/requests': 'requests',
   '/app/social': 'social',
   '/app/security': 'security',

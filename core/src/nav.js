@@ -89,6 +89,12 @@ const ALL_NAV=[
   { to:'/app/accidents', section:'eleves', label:'Accidents', icon:'HeartPulse', module:'accidents',
     roles:['teacher','supervisor','admin','schooladmin','parent'],
     labelFor:{ parent:'Déclarations d’accident' } },
+  // Suivi du comportement : l'idée maîtresse — suivre l'élève au quotidien.
+  // Encourager d'abord, jamais classer (règle n°9). Le parent voit le parcours
+  // de SON enfant.
+  { to:'/app/behavior', section:'pedagogie', pinned:['teacher'], label:'Comportement', icon:'Smile', module:'behavior',
+    roles:['teacher','admin','schooladmin','parent'],
+    labelFor:{ parent:'Comportement de mon enfant' } },
   { to:'/app/requests', section:'equipe', label:'Demandes', icon:'FileText', roles:['teacher','admin','schooladmin'] },
   { to:'/app/messages', section:'quotidien', label:'Messages', icon:'MessageSquare', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent'] },
   { to:'/app/notices', section:'quotidien', label:'Annonces', icon:'Megaphone', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent'] },
