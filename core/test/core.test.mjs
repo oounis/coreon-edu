@@ -74,6 +74,70 @@ test('uid : identifiants distincts', () => {
   assert.equal(seen.size, 200)
 })
 
+// ── Le bureau (workbench.js) : l'atelier, pas la vitrine ─────────────────────
+import { decisionsFor } from '../src/workbench.js'
+import { requestLeave } from '../src/hr.js'
+import { declare, approve, sendToParent, acknowledge } from '../src/accidents.js'
+
+test('bureau : chaque étape d’un accident allume puis éteint la bonne décision', () => {
+  const d = db()
+  const admin = d.users.find(u => u.id === 'u_admin')
+  const dir = d.users.find(u => u.role === 'schooladmin')
+  const parent = d.users.find(u => u.id === 'p1')          // parent de s1
+  const cnt = (u, k) => decisionsFor(u).find(i => i.key === k)?.count ?? 0
+
+  const a0 = cnt(admin, 'accident-valider'), v0 = cnt(dir, 'accident-valider')
+  const { accident } = declare({ childId: 's1', zones: ['tete'], kind: 'bosse',
+    severity: 'benin', whatHappened: 'Chute pendant la récréation.', byId: admin.id, byName: admin.name })
+  assert.equal(cnt(dir, 'accident-valider'), v0 + 1, 'le directeur voit la déclaration à valider')
+  assert.equal(cnt(admin, 'accident-valider'), a0, 'le témoin ne se valide pas lui-même')
+
+  const e0 = cnt(dir, 'accident-envoyer')
+  assert.ok(!approve(accident.id, dir.id, dir.name).error)
+  assert.equal(cnt(dir, 'accident-valider'), v0, 'validé : la décision s’éteint')
+  assert.equal(cnt(dir, 'accident-envoyer'), e0 + 1, 'et la suivante s’allume : envoyer au parent')
+
+  const s0 = cnt(parent, 'parent-ack')
+  assert.ok(!sendToParent(accident.id).error)
+  assert.equal(cnt(dir, 'accident-envoyer'), e0)
+  assert.equal(cnt(parent, 'parent-ack'), s0 + 1, 'le parent voit SA décision : signer')
+
+  assert.ok(!acknowledge(accident.id, parent.name).error)
+  assert.equal(cnt(parent, 'parent-ack'), s0, 'signé : plus rien n’attend le parent')
+})
+
+test('bureau : personne ne décide de sa propre demande de congé', () => {
+  const d = db()
+  const admin = d.users.find(u => u.id === 'u_admin')
+  const dir = d.users.find(u => u.role === 'schooladmin')
+  const cnt = (u) => decisionsFor(u).find(i => i.key === 'hr-conges')?.count ?? 0
+  const a0 = cnt(admin), d0 = cnt(dir)
+  requestLeave({ staffId: admin.id, kind: 'annuel', from: '2026-08-01', to: '2026-08-03' })
+  assert.equal(cnt(dir), d0 + 1, 'le directeur voit la demande de l’admin')
+  assert.equal(cnt(admin), a0, 'l’admin ne voit pas sa propre demande')
+})
+
+test('bureau : une demande du personnel n’apparaît qu’à l’étape de SON circuit', () => {
+  const d = db()
+  const admin = d.users.find(u => u.id === 'u_admin')
+  const dir = d.users.find(u => u.role === 'schooladmin')
+  // req1 (semence) : chain ['admin','schooladmin'], currentLevel 0 → à l'admin, pas au directeur
+  const req = d.requests.find(r => r.id === 'req1')
+  assert.ok(req && req.status === 'pending' && req.currentLevel === 0)
+  const at = u => decisionsFor(u).find(i => i.key === 'req-viser')?.count ?? 0
+  assert.ok(at(admin) >= 1, 'l’étape courante est chez l’admin')
+  assert.equal(at(dir), 0, 'le directeur n’est pas encore sollicité')
+})
+
+test('bureau : la gravité trie — ce qui protège un enfant passe avant l’argent', () => {
+  const d = db()
+  const dir = d.users.find(u => u.role === 'schooladmin')
+  const RANK = { danger: 0, warn: 1, info: 2 }
+  const tones = decisionsFor(dir).map(i => RANK[i.tone])
+  assert.ok(tones.length > 0, 'l’école semée a du travail en attente')
+  assert.ok(tones.every((t, i) => i === 0 || tones[i - 1] <= t), 'tri par gravité stable')
+})
+
 // ── Le reçu ne ment jamais (admissions.js × storage.js) ──────────────────────
 // Le 2026-07-14, deux vraies pré-inscriptions ont été perdues : quatre photos en
 // base64 dépassaient le quota du navigateur, l'écriture échouait EN SILENCE, et

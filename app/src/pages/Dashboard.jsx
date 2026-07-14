@@ -4,9 +4,11 @@ import { Link } from 'react-router-dom'
 import { ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, AreaChart, Area } from 'recharts'
 import { SoftBars, SoftBarsH, Gauge, DistributionBar } from '../components/charts.jsx'
 import { SERIES, LEVELS, axis as chartAxis, grid as chartGrid, tooltip as chartTip } from '@core/charts.js'
-import { Users, GraduationCap, Wallet, ShieldAlert, ClipboardCheck, CreditCard, Star, ArrowRight, Bell, FileText, TrendingUp, CalendarCheck, Radio, Stethoscope, Sunrise, UserX, CalendarDays, ChevronRight, Building2 } from 'lucide-react'
+import { Users, GraduationCap, Wallet, ShieldAlert, ClipboardCheck, CreditCard, Star, ArrowRight, Bell, FileText, TrendingUp, CalendarCheck, Radio, Stethoscope, UserX, CalendarDays, ChevronRight, Building2, Search, CheckCircle2 } from 'lucide-react'
 import { current } from '@core/auth.js'
-import { db, FEE_MONTHS, studentById, classById } from '@core/db.js'
+import { db, FEE_MONTHS, studentById, classById, settings } from '@core/db.js'
+import { decisionsFor } from '@core/workbench.js'
+import { menuFor } from '@core/nav.js'
 import { StatCard, Card, PageHead, Badge, Avatar, Btn, IconTile, EmptyState, STATUS } from '../components/ui.jsx'
 import { currentClass, classForSlot, SCHEDULE } from '@core/data.js'
 import { studentSummary, bulletinFor, mentionFor, strengthsWeaknesses, lessonBreakdown } from '@core/results.js'
@@ -150,7 +152,12 @@ export default function Dashboard(){
       <Link to="/app/incidents" className={`${BTN_PRIMARY} mt-4`}><ShieldAlert size={17}/> Signaler un incident</Link></>)
   }
 
-  // schooladmin / admin
+  // schooladmin / admin — L'ATELIER, PAS LA VITRINE (recherche vérifiée 3-0 :
+  // l'accueil administrateur de PowerSchool est un champ de recherche ; les KPI
+  // vivent sous Reports). L'ordre de l'écran est l'ordre du travail :
+  // ① ce qui attend MA décision  ② la recherche  ③ aujourd'hui  ④ le métier.
+  // Les chiffres existent toujours — en second rang, où ils doivent vivre.
+  const decisions=decisionsFor(u)
   const fc={paid:0,pending:0,overdue:0,due:0}; Object.values(d.payments).forEach(arr=>arr.forEach(p=>fc[p.status]++))
   // « À confirmer » = versements signalés par les parents, pas encore encaissés :
   // ils ne comptent PAS dans le recouvrement (collected = fc.paid).
@@ -164,43 +171,59 @@ export default function Dashboard(){
     Object.values(d.attendance[key]).forEach(v=>{ day[v]!=null&&day[v]++ }) }
   const attDates=Object.keys(attDays).sort()
   const attend=attDates.slice(-14).map(iso=>({m:new Date(iso).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}),present:attDays[iso].present,absent:attDays[iso].absent+attDays[iso].late}))
-  // « Ce matin » : l'essentiel de la journée pour la direction
   const latestAtt=attDates[attDates.length-1]
   const absToday=latestAtt?attDays[latestAtt].absent:0, lateToday=latestAtt?attDays[latestAtt].late:0
   const todayIso=todayIsoLocal()
   const eventsToday=d.events.filter(e=>e.date===todayIso)
+  const nextEvents=[...d.events].filter(e=>e.date>=todayIso).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,3)
   const openInc=d.incidents.filter(i=>i.status==='open').length
-  const pendReq=d.requests.filter(r=>r.status==='pending').length
+  // les raccourcis du métier : ce que CE rôle ouvre pour travailler — depuis le
+  // menu (nav.js), donc filtrés par rôle ET par les niveaux de l'école.
+  const menu=menuFor(u.role, settings())
+  const navItems=[...menu.pinned,...menu.groups.flatMap(g=>g.items)]
+  const WANT=['/app/admissions','/app/students','/app/attendance','/app/accidents','/app/hr','/app/accounting','/app/requests','/app/facilities']
+  const shortcuts=WANT.map(to=>navItems.find(n=>n.to===to)).filter(Boolean)
   // effectif par cycle
   // Effectif par classe : une seule grandeur (un nombre d'élèves), donc UNE seule
   // couleur. Peindre chaque barre différemment laissait croire à quatre catégories.
   const cycleData=d.classes.map(c=>({name:c.name,value:d.students.filter(s=>s.classId===c.id).length,color:SERIES[0]})).filter(x=>x.value>0)
-  return (<><PageHead title={greet} sub="Vue d'ensemble de l'école."/>
-    {/* Ce matin — l'essentiel en 30 secondes */}
-    <Card className="p-4 mb-5">
-      <div className="flex items-center gap-4 flex-wrap">
-        <div className="flex items-center gap-2.5 shrink-0">
-          <IconTile icon={<Sunrise size={19}/>} tint="butter" size={42}/>
-          <div><div className="font-extrabold leading-tight">Ce matin</div>
-            <div className="text-xs text-muted capitalize">{new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</div></div>
-        </div>
-        <div className="h-9 w-px bg-line hidden md:block"/>
-        <div className="flex items-center gap-2 flex-wrap flex-1">
-          <BriefChip to="/app/attendance" icon={<UserX size={14}/>} color={absToday?STATUS.danger:STATUS.ok}
+  return (<><PageHead title={greet} sub="Votre atelier — ce qui attend votre décision passe en premier."/>
+    <HeroSearch/>
+    <div className="grid lg:grid-cols-3 gap-4 mb-4">
+      <Workbench items={decisions} className="lg:col-span-2"/>
+      <Card className="p-5">
+        <h3 className="font-bold mb-0.5">Aujourd'hui</h3>
+        <p className="text-xs text-muted capitalize mb-3">{new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</p>
+        <div className="space-y-1">
+          <TodayRow to="/app/attendance" icon={<UserX size={15}/>} color={absToday?STATUS.danger:STATUS.ok}
             label={absToday?`${absToday} absent${absToday>1?'s':''}${lateToday?` · ${lateToday} retard${lateToday>1?'s':''}`:''}`:'Aucun absent'}/>
-          <BriefChip to="/app/incidents" icon={<ShieldAlert size={14}/>} color={openInc?STATUS.warn:STATUS.ok}
-            label={openInc?`${openInc} incident${openInc>1?'s':''} ouvert${openInc>1?'s':''}`:'Aucun incident'}/>
-          <BriefChip to="/app/requests" icon={<FileText size={14}/>} color={pendReq?STATUS.info:STATUS.ok}
-            label={pendReq?`${pendReq} demande${pendReq>1?'s':''} à traiter`:'Demandes à jour'}/>
-          <BriefChip to="/app/events" icon={<CalendarDays size={14}/>} color={eventsToday.length?'#7539E4':STATUS.neutral}
-            label={eventsToday.length?`Aujourd'hui : ${eventsToday[0].title}${eventsToday.length>1?` +${eventsToday.length-1}`:''}`:"Aucun événement aujourd'hui"}/>
+          <TodayRow to="/app/incidents" icon={<ShieldAlert size={15}/>} color={openInc?STATUS.warn:STATUS.ok}
+            label={openInc?`${openInc} incident${openInc>1?'s':''} ouvert${openInc>1?'s':''}`:'Aucun incident ouvert'}/>
+          <TodayRow to="/app/events" icon={<CalendarDays size={15}/>} color={eventsToday.length?'#7539E4':STATUS.neutral}
+            label={eventsToday.length?`${eventsToday[0].title}${eventsToday.length>1?` +${eventsToday.length-1}`:''}`:"Aucun événement aujourd'hui"}/>
         </div>
-      </div>
-    </Card>
+        <div className="text-[11px] font-extrabold uppercase tracking-wide text-muted mt-4 mb-2">À venir</div>
+        <div className="space-y-2">
+          {nextEvents.map(e=>(<Link key={e.id} to="/app/events" className="flex items-center gap-2.5 text-sm group">
+            <IconTile icon={<CalendarCheck size={14}/>} tint="brand" size={32} radius="rounded-lg"/>
+            <span className="min-w-0"><span className="block font-medium truncate group-hover:accent-text">{e.title}</span>
+              <span className="block text-[11px] text-muted">{e.date} · {e.type}</span></span></Link>))}
+          {nextEvents.length===0&&<div className="text-xs text-muted">Aucun événement planifié.</div>}
+        </div>
+      </Card>
+    </div>
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 mb-6">
+      {shortcuts.map(s=>(<Link key={s.to} to={s.to} className="card px-2 py-3 flex flex-col items-center gap-1.5 text-center hover:shadow-md hover:-translate-y-0.5 transition group">
+        <span className="w-9 h-9 grid place-items-center rounded-xl bg-canvas text-muted group-hover:accent-soft group-hover:accent-text transition"><Ic n={s.icon} size={17}/></span>
+        <span className="text-[12px] font-semibold leading-tight">{s.label}</span></Link>))}
+    </div>
+    {/* ── Les chiffres — en second rang, comme il se doit ─────────────────── */}
+    <div className="flex items-baseline gap-2 mb-3"><h2 className="text-lg font-extrabold">Les chiffres</h2>
+      <span className="text-xs text-muted">l'état de l'école, pour qui veut regarder</span></div>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
       <StatCard label="Élèves" value={d.students.length} tint="grape" icon={<Users/>} to="/app/students"/>
       <StatCard label="Enseignants" value={d.teachers.length} tint="butter" icon={<GraduationCap/>} to="/app/teachers"/>
-      <StatCard label="Incidents ouverts" value={d.incidents.filter(i=>i.status==='open').length} tint="coral" icon={<ShieldAlert/>} to="/app/incidents"/>
+      <StatCard label="Incidents ouverts" value={openInc} tint="coral" icon={<ShieldAlert/>} to="/app/incidents"/>
       <StatCard label="Demandes en attente" value={d.requests.filter(r=>r.status==='pending').length} tint="sky" icon={<FileText/>} to="/app/requests"/>
     </div>
     <div className="grid lg:grid-cols-3 gap-4 mb-4">
@@ -227,21 +250,12 @@ export default function Dashboard(){
       </Link>
     </div>
     <div className="grid lg:grid-cols-3 gap-4">
-      {cycleData.length>0 && <Link to="/app/students" className="card p-5 block hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-3 flex items-center justify-between">Effectif par classe <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3>
+      {cycleData.length>0 && <Link to="/app/students" className="card p-5 block lg:col-span-2 hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-3 flex items-center justify-between">Effectif par classe <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3>
         <SoftBars data={cycleData} height={176} showValues/>
       </Link>}
       <Link to="/app/finance" className="card p-5 block hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-3 flex items-center justify-between">Taux de recouvrement <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3>
         <div className="grid place-items-center h-44"><Gauge value={collectRate} color={STATUS.ok} label={`${collected} / ${totalFees} mois`} size={142}/></div>
       </Link>
-      <Card className="p-5"><h3 className="font-bold mb-3">Prochains événements</h3>
-        <div className="space-y-2.5">
-          {[...d.events].filter(e=>e.date>=todayIsoLocal()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4).map(e=>(<Link key={e.id} to="/app/events" className="flex items-center gap-3 text-sm group">
-            <IconTile icon={<CalendarCheck size={16}/>} tint="brand" size={40} radius="rounded-xl"/>
-            <div className="min-w-0"><div className="font-medium truncate group-hover:accent-text">{e.title}</div><div className="text-xs text-muted">{e.date} · {e.type}</div></div>
-          </Link>))}
-          {d.events.length===0 && <EmptyState icon={<CalendarCheck size={22}/>} title="Aucun événement" sub="Les prochains événements de l'école apparaîtront ici."/>}
-        </div>
-      </Card>
     </div>
     <Card className="p-5 mt-4"><div className="flex items-center justify-between mb-3"><h3 className="font-bold flex items-center gap-1.5"><ClipboardCheck size={16}/> Évaluations enregistrées</h3><Link to="/app/results" className="text-xs font-semibold accent-text inline-flex items-center gap-1">Suivi élèves <ChevronRight size={13}/></Link></div>
       {d.evaluations.length? <div className="overflow-x-auto scroll-thin -mx-5 -mb-5"><table className="w-full text-sm"><thead><tr className="text-left text-[12px] uppercase tracking-wide text-muted bg-canvas"><th className="px-4 py-3 font-semibold">Date</th><th className="px-4 py-3 font-semibold">Classe</th><th className="px-4 py-3 font-semibold">Matière</th><th className="px-4 py-3 font-semibold">Leçon</th><th className="px-4 py-3 font-semibold">Enseignant</th><th className="px-4 py-3 font-semibold text-center">Élèves notés</th><th className="px-4 py-3 font-semibold text-center">Moyenne</th></tr></thead>
@@ -293,9 +307,47 @@ function PlatformDashboard({ d, greet }){
   </>)
 }
 
-function BriefChip({ to, icon, color, label }){
-  return <Link to={to} className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-full border border-line bg-white hover:shadow-sm transition"
-    style={{color}}>{icon}{label}<ChevronRight size={12} className="opacity-60"/></Link>
+// ── L'atelier ────────────────────────────────────────────────────────────────
+// La recherche d'abord : chez PowerSchool, l'accueil administrateur EST un champ
+// de recherche. Ce bouton ouvre la même palette que Ctrl+K — une seule recherche.
+function HeroSearch(){
+  return (<button onClick={()=>window.dispatchEvent(new Event('coreon:open-palette'))}
+    className="card w-full flex items-center gap-3 px-4 py-3.5 mb-4 text-left hover:shadow-md transition group">
+    <Search size={18} className="text-muted group-hover:accent-text transition"/>
+    <span className="flex-1 text-sm text-muted">Rechercher un élève, un enseignant, une page…</span>
+    <span className="hidden sm:flex items-center gap-1">
+      <span className="text-[11px] font-bold text-muted border border-line rounded-md px-1.5 py-0.5 bg-canvas">Ctrl</span>
+      <span className="text-[11px] font-bold text-muted border border-line rounded-md px-1.5 py-0.5 bg-canvas">K</span></span>
+  </button>)
+}
+
+// « À décider » — la liste de travail calculée des FAITS (core/workbench.js).
+// Vide, elle reste une information : l'école est à jour.
+function Workbench({ items, className='' }){
+  const TONE={danger:STATUS.danger,warn:STATUS.warn,info:STATUS.info}
+  return (<Card className={`p-5 ${className}`}>
+    <div className="flex items-center justify-between mb-2">
+      <h3 className="font-bold">À décider</h3>
+      {items.length>0&&<span className="text-xs font-bold px-2.5 py-0.5 rounded-full accent-soft accent-text tabular-nums">{items.reduce((s,i)=>s+i.count,0)}</span>}
+    </div>
+    {items.length===0
+      ? <EmptyState icon={<CheckCircle2 size={22}/>} title="Rien n'attend votre décision" sub="L'école est à jour. C'est une information, pas un écran vide."/>
+      : <div className="divide-y divide-line">
+          {items.map(it=>{ const c=TONE[it.tone]||STATUS.info
+            return (<Link key={it.key} to={it.to} className="flex items-center gap-3 py-2.5 group">
+              <span className="w-9 h-9 grid place-items-center rounded-xl shrink-0" style={{background:c+'16',color:c}}><Ic n={it.icon} size={17}/></span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold group-hover:accent-text">{it.label}</span>
+                <span className="block text-[12px] text-muted truncate">{it.sub}</span></span>
+              <ChevronRight size={15} className="text-muted shrink-0 group-hover:accent-text"/>
+            </Link>)})}
+        </div>}
+  </Card>)
+}
+
+function TodayRow({ to, icon, color, label }){
+  return <Link to={to} className="flex items-center gap-2.5 text-sm font-semibold rounded-xl px-2.5 py-2 -mx-1 hover:bg-canvas transition"
+    style={{color}}>{icon}<span className="flex-1 min-w-0 truncate">{label}</span><ChevronRight size={13} className="opacity-60"/></Link>
 }
 
 function ParentDashboard({u,d,greet}){
@@ -322,9 +374,12 @@ function ParentDashboard({u,d,greet}){
   const live=cls?statusAt(child.classId,ns.dayIdx,preview,false):null
   const larea=live?AREAS[live.place]:null
   const pm=live?placeMeta(live):null
+  // ce qui attend LA décision du parent : signer un accident, régler un retard
+  const decisions=decisionsFor(u)
   if(!child) return <Card><EmptyState icon={<Users size={26}/>} title="Aucun enfant associé" sub="Demandez à la direction de lier votre compte à votre enfant."/></Card>
   return (<><PageHead title={greet} sub="Votre enfant, en un coup d'œil."
       action={kids.length>1&&<select value={child.id} onChange={e=>setPickedId(e.target.value)} className="rounded-xl border border-line bg-white px-3 py-2 text-sm font-semibold">{kids.map(k=><option key={k.id} value={k.id}>{k.name}</option>)}</select>}/>
+    {decisions.length>0&&<Workbench items={decisions} className="mb-5"/>}
     {child&&live&&<Link to="/app/live" className="relative block rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition mb-5 group text-white" style={{background:`linear-gradient(120deg, ${larea.color} 0%, #0E2135 100%)`}}>
       <div className="relative flex items-center gap-4 p-5 min-h-[124px]">
         <div className="min-w-0">

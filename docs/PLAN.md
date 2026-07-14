@@ -76,10 +76,10 @@ sécurité · incidents · événements · messages · emploi du temps · demand
 
 | Dette | Gravité |
 |---|---|
-| **Les pièces jointes sont du théâtre.** `Attach.jsx` ne stocke que `{type, name}` — **jamais le fichier**. Un administrateur ne peut donc **rien ouvrir**. Et la pré-inscription n'a **aucun champ d'upload**, alors que l'écran Inscriptions parle de « pièces ». Othman l'a vu. | **Haute** — c'est une promesse que le produit ne tient pas |
-| Le menu de gauche est **plat** : 22 entrées sans hiérarchie | Moyenne |
-| Les tableaux de bord affichent des **statistiques**, pas un **espace de travail** | Moyenne |
-| Aucun test d'intégration UI (tout est vérifié par tests d'exécution du cœur) | Moyenne |
+| ~~Les pièces jointes sont du théâtre~~ → **réglé** (§2.1, y compris le quota silencieux) | — |
+| ~~Le menu de gauche est plat~~ → **réglé** (§2.5, étages + Ctrl+K) | — |
+| ~~Les tableaux de bord affichent des statistiques~~ → **réglé** (§2.2, l'atelier) | — |
+| Aucun test d'intégration UI automatisé dans le dépôt (le cœur est testé par exécution ; l'UI est vérifiée en pilotant le navigateur à la main de session en session — le script mérite d'entrer dans le dépôt) | Moyenne |
 
 ---
 
@@ -87,23 +87,35 @@ sécurité · incidents · événements · messages · emploi du temps · demand
 
 Numérotées comme lui. Chacune a un état et une décision.
 
-### 2.1 — Pré-inscription : les pièces jointes ❌ → EN COURS
-**Le constat d'Othman est juste, et le défaut est pire qu'il ne le pense.**
-Le formulaire public n'a aucun upload ; l'écran Inscriptions laisse l'administration
-**cocher** qu'une pièce est « fournie » alors qu'**aucun fichier n'existe** ; et le
-composant `Attach` lui-même ne garde que le **nom** du fichier.
+### 2.1 — Pré-inscription : les pièces jointes ✅ → FAIT (deux fois)
+**Le constat d'Othman est juste, et le défaut était TRIPLE.**
+① Le formulaire public n'avait aucun upload ; ② `Attach` ne gardait que le **nom**
+du fichier ; ③ — découvert le 14 au soir sur **deux vraies pré-inscriptions
+d'Othman** — le stockage du navigateur (~5 Mo) débordait avec les photos en
+base64, l'écriture échouait **en silence** (`catch {}` dans storage.js), et le
+parent repartait avec un reçu et une référence… d'un dossier **jamais enregistré**.
+Un faux reçu viole la règle n°7 : le produit inventait un fait.
 
-**Décision :** le parent téléverse réellement (acte de naissance, photo, carnet de
-vaccination, bulletin) ; le fichier est stocké ; l'administration **l'ouvre**.
-Une case cochée sans fichier derrière est un mensonge d'interface.
+**Corrigé, et verrouillé par test d'exécution :** `setItem` répond (true/false) ;
+`apply()` **vérifie** que le dossier est écrit, réessaie **sans** les pièces si
+elles ne tiennent pas (et le DIT : `filesDropped`), sinon rend une **erreur
+franche** ; les photos sont **compressées** avant stockage (1400 px JPEG — une
+photo de 2 Mo devient ~370 Ko, vérifié au navigateur) ; toute sauvegarde échouée
+déclenche une alerte visible (`onSaveFailure`).
 
-### 2.2 — Tableaux de bord par rôle ❌ → **SUIVANT** (la recherche confirme Othman)
+### 2.2 — Tableaux de bord par rôle ✅ → **FAIT**
 Vérifié 3-0 : l'accueil administrateur de **PowerSchool est un CHAMP DE RECHERCHE** ;
 les KPI sont relégués **sous Reports**. Un tableau de bord d'ERP est un **atelier**, pas
-une vitrine. Nos tableaux de bord montrent des chiffres : **c'est l'erreur, pas la
-référence.**
-À livrer : `ce qui attend MA décision` + `recherche` + `raccourcis du métier` +
-`aujourd'hui`. Les chiffres en second rang.
+une vitrine.
+
+**Livré :** `core/src/workbench.js` — la liste « **À décider** » se calcule des
+**FAITS** (étapes des candidatures, chaîne d'accident, congés, circuits de
+demandes, versements signalés, paie), jamais des statistiques. Deux paires d'yeux
+respectées : personne ne voit ses propres dossiers dans sa liste. Tri par gravité :
+l'enfant avant l'argent. L'accueil direction = recherche (ouvre la palette Ctrl+K)
++ À décider + Aujourd'hui + raccourcis du métier ; **les chiffres en second rang**
+sous leur propre titre. Le parent a sa liste aussi (accident à signer, retards).
+Vide, la liste **dit** que l'école est à jour. Verrouillé par 4 tests d'exécution.
 
 ### 2.3 — Ticketing interne ✅ → **TRANCHÉ PAR LA RECHERCHE : NE PAS LE CONSTRUIRE**
 **Othman a eu raison d'exiger une vérification avant de construire.**
@@ -162,13 +174,13 @@ Doivent dire « entreprise technologique moderne », pas « logiciel scolaire de
 
 | # | Chantier | Pourquoi maintenant |
 |---|---|---|
-| 1 | **Pièces jointes** (2.1) | Le produit ment. On répare d'abord ce qui ment |
-| 2 | **Recherche ERP + ticketing** (2.4, 2.3) | Elle conditionne 2.2, 2.5 et la feuille de route |
-| 3 | **Menu** (2.5) | Peu cher, gros effet perçu |
-| 4 | **Tableaux de bord** (2.2) | Guidé par la recherche |
-| 5 | **Pages d'accueil** (2.6) | La première impression de KogiaGroup |
+| ~~1~~ | ~~**Pièces jointes** (2.1)~~ ✅ | Fait — y compris le faux reçu du stockage plein |
+| ~~2~~ | ~~**Recherche ERP + ticketing** (2.4, 2.3)~~ ✅ | Fait — COMPETITIVE_v2.md |
+| ~~3~~ | ~~**Menu** (2.5)~~ ✅ | Fait — étages + Ctrl+K |
+| ~~4~~ | ~~**Tableaux de bord** (2.2)~~ ✅ | Fait — l'atelier (workbench.js) |
+| 5 | **Pages d'accueil** (2.6) | La première impression de KogiaGroup — **SUIVANT** |
 | 6 | **Arabe / RTL** | Débloque le Golfe |
-| 7 | Ticketing *ou* extension des « Demandes » | Selon ce que dit la recherche |
+| 7 | Extension des « Demandes » (2.3) | demande → catégorie → assigné → échéance → clôture |
 
 ---
 
@@ -200,3 +212,6 @@ l'interface n'est pas une règle.*
 | 2026-07-14 | **OneRoster maintenant**, pas plus tard | « La chose la plus coûteuse à rater, et presque gratuite à faire aujourd'hui » |
 | 2026-07-14 | Le site KogiaGroup ne montre **qu'un** produit | Un site ne montre que ce qui est prêt |
 | 2026-07-14 | **Rechercher avant de construire** le ticketing | Demande d'Othman, et c'est la bonne méthode |
+| 2026-07-14 | **Une écriture de stockage qui échoue doit répondre, jamais s'avaler** | Deux vraies pré-inscriptions perdues avec un faux reçu — règle n°7 violée par le produit lui-même |
+| 2026-07-14 | Les photos sont **compressées avant stockage** (1400 px JPEG) | Une pièce sert à être lue à l'écran, pas imprimée — et quatre pièces doivent tenir dans un navigateur |
+| 2026-07-14 | Le tableau de bord se calcule des **faits**, pas des statistiques | `workbench.js` : chaque ligne est une décision, avec son écran. PowerSchool a raison : l'accueil est une recherche |
