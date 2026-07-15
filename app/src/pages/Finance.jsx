@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { db, mutate, FEE_MONTHS, studentById } from '@core/db.js'
 import { notify } from '@core/notify.js'
-import { PageHead, Card, StatCard, Avatar, Btn, EmptyState, STATUS } from '../components/ui.jsx'
+import { PageHead, Card, StatCard, Avatar, Btn, EmptyState, Modal, STATUS } from '../components/ui.jsx'
 import { Wallet, BellRing, Hourglass, Check } from 'lucide-react'
 import toast from 'react-hot-toast'
 const COL={paid:STATUS.ok,pending:STATUS.warn,overdue:STATUS.danger,due:STATUS.neutral}
@@ -14,6 +14,11 @@ const NEXT={due:'paid',overdue:'paid',pending:'paid',paid:'due'}
 export default function Finance(){
   const [,force]=useState(0); const d=db()
   const counts={paid:0,pending:0,overdue:0,due:0}; Object.values(d.payments).forEach(a=>a.forEach(p=>counts[p.status]++))
+  // Chaque tuile s'ouvre : derrière « 12 en retard » il y a des familles à relancer.
+  const [tile,setTile]=useState(null) // 'paid' | 'pending' | 'overdue' | 'due'
+  const byStatus=k=>d.students
+    .map(s=>({s,months:(d.payments[s.id]||[]).map((p,mi)=>({...p,mi})).filter(p=>p.status===k)}))
+    .filter(x=>x.months.length)
 
   // Prévient le parent quand SON mois change d'état — c'est le retour attendu
   // après qu'il a signalé son versement.
@@ -59,11 +64,34 @@ export default function Finance(){
     <PageHead title="Frais & Finances" sub="Confirmez les versements signalés, encaissez au guichet, relancez les retards."
       action={<Btn onClick={remindAll} disabled={lateStudents.length===0}><BellRing size={15}/> Relancer tous les retards ({lateStudents.length})</Btn>}/>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-      <StatCard label="Payés" value={counts.paid} tint="mint" icon={<Wallet/>}/>
-      <StatCard label="À confirmer" value={counts.pending} tint="butter" icon={<Hourglass/>} sub="signalés par les parents"/>
-      <StatCard label="En retard" value={counts.overdue} tint="coral" icon={<Wallet/>}/>
-      <StatCard label="Impayés (à venir)" value={counts.due} tint="sky" icon={<Wallet/>}/>
+      <StatCard label="Payés" value={counts.paid} tint="mint" icon={<Wallet/>} onClick={()=>setTile('paid')}/>
+      <StatCard label="À confirmer" value={counts.pending} tint="butter" icon={<Hourglass/>} sub="signalés par les parents" onClick={()=>setTile('pending')}/>
+      <StatCard label="En retard" value={counts.overdue} tint="coral" icon={<Wallet/>} onClick={()=>setTile('overdue')}/>
+      <StatCard label="Impayés (à venir)" value={counts.due} tint="sky" icon={<Wallet/>} onClick={()=>setTile('due')}/>
     </div>
+
+    {tile && (()=>{ const rows=byStatus(tile)
+      const TITLE={paid:'Mois payés',pending:'Versements à confirmer',overdue:'Mois en retard',due:'Mois impayés (à venir)'}
+      return (
+      <Modal open onClose={()=>setTile(null)} title={`${TITLE[tile]} · ${counts[tile]} mois`} size="xl"
+        footer={<>{tile==='pending'&&rows.length>0&&<Btn onClick={()=>{confirmAll();setTile(null)}}><Check size={15}/> Tout confirmer</Btn>}
+          {tile==='overdue'&&rows.length>0&&<Btn onClick={()=>{remindAll();setTile(null)}}><BellRing size={15}/> Relancer tous</Btn>}
+          <Btn variant="ghost" onClick={()=>setTile(null)}>Fermer</Btn></>}>
+        {rows.length===0 ? <EmptyState icon={<Wallet size={24}/>} title="Aucun mois dans cet état" sub="Rien à afficher pour le moment."/>
+        : <div className="space-y-1.5">
+          {rows.map(({s,months})=>(
+            <div key={s.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
+              <Avatar name={s.name} seed={s.id} size={32}/>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold truncate">{s.name}</span>
+                <span className="flex flex-wrap gap-1 mt-0.5">
+                  {months.map(p=><span key={p.mi} className="text-[11px] font-bold px-1.5 py-0.5 rounded-full" style={{background:COL[tile]+'18',color:COL[tile]}}>{p.month}</span>)}
+                </span></span>
+              {tile==='pending'&&<Btn size="sm" onClick={()=>cycle(s.id,months[0].mi)}><Check size={14}/> Confirmer</Btn>}
+              {tile==='overdue'&&<Btn size="sm" variant="soft" onClick={()=>remind(s.id)}><BellRing size={13}/> Relancer</Btn>}
+            </div>))}
+        </div>}
+      </Modal>) })()}
 
     {toConfirm.length>0 && <Card className="p-4 mb-5">
       <div className="flex items-center justify-between mb-3 flex-wrap gap-2">

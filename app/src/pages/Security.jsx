@@ -44,6 +44,9 @@ export default function Security() {
     .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
   const tonight = toCover.filter(e => e.date === today)
   const openIncidents = (d.incidents || []).filter(i => i.status === 'open').length
+  // Chaque tuile s'ouvre : les événements de ce soir, qui est dans l'école,
+  // les rondes du jour, les incidents encore ouverts.
+  const [tile, setTile] = useState(null) // tonight | inside | rounds | incidents
 
   return (<>
     <PageHead title="Poste de sécurité" sub={`${settings().schoolName} · portail, visiteurs, rondes et soirées`}
@@ -56,11 +59,60 @@ export default function Security() {
       ]} />} />
 
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-      <StatCard tint="brand" icon={<CalendarClock size={20} />} value={tonight.length} label="Ce soir" sub={tonight.length ? 'à couvrir' : 'rien de prévu'} />
-      <StatCard tint="grape" icon={<UserCheck size={20} />} value={insideNow} label="Visiteurs dans l'école" />
-      <StatCard tint="sky" icon={<Flashlight size={20} />} value={(d.rounds || []).filter(r => r.date === today).length} label="Rondes aujourd'hui" />
-      <StatCard tint="coral" icon={<AlertTriangle size={20} />} value={openIncidents} label="Incidents ouverts" />
+      <StatCard tint="brand" icon={<CalendarClock size={20} />} value={tonight.length} label="Ce soir" sub={tonight.length ? 'à couvrir' : 'rien de prévu'} onClick={() => setTile('tonight')} />
+      <StatCard tint="grape" icon={<UserCheck size={20} />} value={insideNow} label="Visiteurs dans l'école" onClick={() => setTile('inside')} />
+      <StatCard tint="sky" icon={<Flashlight size={20} />} value={(d.rounds || []).filter(r => r.date === today).length} label="Rondes aujourd'hui" onClick={() => setTile('rounds')} />
+      <StatCard tint="coral" icon={<AlertTriangle size={20} />} value={openIncidents} label="Incidents ouverts" onClick={() => setTile('incidents')} />
     </div>
+
+    {tile && (() => {
+      const insideList = (d.visitors || []).filter(v => v.date === today && isInside(v))
+      const roundsList = (d.rounds || []).filter(r => r.date === today)
+      const openList = (d.incidents || []).filter(i => i.status === 'open')
+      const C = {
+        tonight: { title: 'Ce soir — à couvrir', body: tonight.length === 0
+          ? <EmptyState icon={<ShieldCheck size={24} />} title="Rien de prévu ce soir" sub="Les événements approuvés qui demandent une présence apparaîtront ici." />
+          : tonight.map(ev => (
+            <div key={ev.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold truncate">{ev.title}</span>
+                <span className="block text-[12px] text-muted">{ev.time} · {ev.place} · organisé par {ev.byName}</span></span>
+              <Btn size="sm" variant="soft" onClick={() => { setTile(null); setTab('evenements') }}>Check-list</Btn>
+            </div>)) },
+        inside: { title: `Visiteurs dans l'école · ${insideList.length}`, body: insideList.length === 0
+          ? <EmptyState icon={<DoorOpen size={24} />} title="Aucun visiteur dans l'école" sub="Toutes les visites du jour sont terminées." />
+          : insideList.map(v => (
+            <div key={v.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
+              <Avatar name={v.name} seed={v.id} size={32} />
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold truncate">{v.name} <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-md ml-1" style={{ background: STATUS.neutralSoft, color: STATUS.neutral }}>{v.badge}</span></span>
+                <span className="block text-[12px] text-muted truncate">{v.purpose} · reçu par {v.hostName} · entré à {v.inAt}</span></span>
+            </div>)) },
+        rounds: { title: `Rondes aujourd'hui · ${roundsList.length}`, body: roundsList.length === 0
+          ? <EmptyState icon={<Flashlight size={24} />} title="Aucune ronde aujourd'hui" sub="Démarrez une ronde depuis l'onglet Rondes." />
+          : roundsList.map(r => { const anomalies = r.points.filter(p => p.anomaly)
+            return (
+            <div key={r.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold">{r.agentName} <span className="text-muted font-normal tabular-nums">· {r.startAt} → {r.endAt}</span></span>
+                <span className="block text-[12px] text-muted">{r.points.length} point(s) de passage{anomalies.length ? '' : ' · rien à signaler'}</span></span>
+              {anomalies.length > 0 && <span className="text-[12px] font-bold px-2 py-1 rounded-full" style={{ background: STATUS.warnSoft, color: STATUS.warn }}>{anomalies.length} anomalie(s)</span>}
+            </div>) }) },
+        incidents: { title: `Incidents ouverts · ${openList.length}`, body: openList.length === 0
+          ? <EmptyState icon={<ShieldCheck size={24} />} title="Aucun incident ouvert" sub="Tout est réglé — rien en attente." />
+          : openList.map(i => (
+            <div key={i.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold truncate">{i.title}</span>
+                <span className="block text-[12px] text-muted truncate">{i.type} · signalé par {i.by} · {format(new Date(i.at), 'EEEE d MMMM', { locale: fr })}</span></span>
+              <Badge tone={i.severity === 'high' ? 'danger' : 'warn'} label={i.severity === 'high' ? 'Grave' : 'À suivre'} status={i.severity} />
+            </div>)) },
+      }[tile]
+      return (
+        <Modal open onClose={() => setTile(null)} title={C.title} size="xl"
+          footer={<Btn variant="ghost" onClick={() => setTile(null)}>Fermer</Btn>}>
+          {C.body}
+        </Modal>) })()}
 
     {tab === 'evenements' && <EventsTab u={u} d={d} toCover={toCover} refresh={refresh} />}
     {tab === 'visiteurs' && <VisitorsTab u={u} d={d} refresh={refresh} />}

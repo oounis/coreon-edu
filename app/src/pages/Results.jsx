@@ -3,7 +3,7 @@ import { N } from '@core/tokens.js'
 import { db, classById } from '@core/db.js'
 import { BUCKETS } from '@core/data.js'
 import { studentSummary, mentionFor, lessonBreakdown } from '@core/results.js'
-import { PageHead, StatCard, SectionCard, EmptyState, Avatar, Tabs, Chip, SearchInput, Table, Modal, STATUS } from '../components/ui.jsx'
+import { PageHead, StatCard, SectionCard, EmptyState, Avatar, Btn, Tabs, Chip, SearchInput, Table, Modal, STATUS } from '../components/ui.jsx'
 import GradeHistory from '../components/GradeHistory.jsx'
 import LessonMap from '../components/LessonMap.jsx'
 import { ClipboardCheck, Gauge, Users, LifeBuoy, Trophy, TrendingUp, TrendingDown, Minus, ChevronRight, BarChart3, Search, BookMarked } from 'lucide-react'
@@ -36,6 +36,9 @@ export default function Results(){
   const [classId,setClassId]=useState('all')
   const [q,setQ]=useState('')
   const [view,setView]=useState(null) // student for the history modal
+  // Chaque tuile s'ouvre : la liste des évaluations, les moyennes par classe,
+  // les élèves évalués, ceux à accompagner — un clic, pas une chasse.
+  const [tile,setTile]=useState(null) // evals | overall | students | struggling
 
   const data=useMemo(()=>{
     const since=Date.now()-CUT[period]*DAY
@@ -96,11 +99,53 @@ export default function Results(){
         sub="Élargissez la période ou choisissez une autre classe."/></SectionCard>
     ) : (<>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-        <StatCard tint="brand"  icon={<ClipboardCheck size={20}/>} value={data.evals.length} label="Évaluations"/>
-        <StatCard tint="mint"   icon={<Gauge size={20}/>}          value={data.overall!=null?`${data.overall}/100`:'—'} label="Moyenne générale"/>
-        <StatCard tint="sky"    icon={<Users size={20}/>}          value={data.students.length} label="Élèves évalués"/>
-        <StatCard tint="coral"  icon={<LifeBuoy size={20}/>}       value={struggling} label="En difficulté" sub="moy. < 40"/>
+        <StatCard tint="brand"  icon={<ClipboardCheck size={20}/>} value={data.evals.length} label="Évaluations" onClick={()=>setTile('evals')}/>
+        <StatCard tint="mint"   icon={<Gauge size={20}/>}          value={data.overall!=null?`${data.overall}/100`:'—'} label="Moyenne générale" onClick={()=>setTile('overall')}/>
+        <StatCard tint="sky"    icon={<Users size={20}/>}          value={data.students.length} label="Élèves évalués" onClick={()=>setTile('students')}/>
+        <StatCard tint="coral"  icon={<LifeBuoy size={20}/>}       value={struggling} label="En difficulté" sub="moy. < 40" onClick={()=>setTile('struggling')}/>
       </div>
+
+      {tile && (()=>{ const openStudent=s=>{ setTile(null); setView(s) }
+        const strugglingRows=[...ranked].reverse().filter(x=>x.avg<40)
+        const C={
+          evals:{ title:`Évaluations de la période · ${data.evals.length}`, body:(
+            <div className="space-y-1.5">
+              {[...data.evals].sort((a,b)=>b.at-a.at).map(e=>{ const m=mentionFor(e.avg)
+                return (
+                <div key={e.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-semibold truncate">{e.subject}{e.lesson?` · ${e.lesson}`:''}</span>
+                    <span className="block text-[12px] text-muted">{classById(e.classId)?.name} · {format(new Date(e.at),'EEEE d MMMM',{locale:fr})} · {e.scores.length} élèves</span></span>
+                  <span className="text-sm font-extrabold" style={{color:m.color}}>{e.avg}/100</span>
+                </div>)})}
+            </div>)},
+          overall:{ title:'Moyenne générale — le détail', body:(<>
+            <div className="flex items-end gap-4 mb-4">
+              <span className="text-4xl font-extrabold" style={{color:mentionFor(data.overall).color}}>{data.overall}/100</span>
+              <span className="text-sm text-muted pb-1">{data.evals.length} évaluations · {data.students.length} élèves</span>
+            </div>
+            <div className="text-xs font-bold uppercase tracking-wide text-muted mb-2">Par classe</div>
+            <div className="space-y-2.5">
+              {classAvgs.sort((a,b)=>b.avg-a.avg).map(({c,n,avg})=>{ const m=mentionFor(avg); return (
+                <div key={c.id} className="flex items-center gap-3">
+                  <span className="w-24 text-sm font-bold shrink-0 truncate">{c.name}</span>
+                  <div className="flex-1 h-2.5 rounded-full bg-canvas overflow-hidden"><div className="h-full rounded-full" style={{width:`${avg}%`,background:m.color}}/></div>
+                  <span className="w-16 text-right text-sm font-extrabold" style={{color:m.color}}>{avg}/100</span>
+                  <span className="w-16 text-right text-xs text-muted">{n} élèves</span>
+                </div>) })}
+            </div></>)},
+          students:{ title:`Élèves évalués · ${ranked.length}`, body:(
+            <div className="space-y-1">{ranked.map((x,i)=><RankRow key={x.s.id} x={x} i={i} onOpen={()=>openStudent(x.s)}/>)}</div>)},
+          struggling:{ title:'En difficulté · moyenne < 40', body: strugglingRows.length===0
+            ? <EmptyState icon={<LifeBuoy size={24}/>} title="Aucun élève en difficulté" sub="Aucune moyenne sous 40 sur la période."/>
+            : <div className="space-y-1">{strugglingRows.map((x,i)=><RankRow key={x.s.id} x={x} i={i} onOpen={()=>openStudent(x.s)}/>)}</div>},
+        }[tile]
+        return (
+        <Modal open onClose={()=>setTile(null)} title={C.title} size="xl"
+          footer={<>{['students','struggling'].includes(tile)&&<span className="text-[11px] text-muted mr-auto self-center">Cliquez sur un élève pour ouvrir son historique complet.</span>}
+            <Btn variant="ghost" onClick={()=>setTile(null)}>Fermer</Btn></>}>
+          {C.body}
+        </Modal>) })()}
 
       <div className="grid lg:grid-cols-[1fr_340px] gap-4 mb-5">
         <SectionCard icon={<TrendingUp size={16}/>} tint="brand" title="Évolution de la moyenne" sub={`Moyenne des évaluations · ${PERIODS.find(p=>p.value===period).label.toLowerCase()}`}>

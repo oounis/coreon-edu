@@ -230,6 +230,8 @@ export default function Social() {
   }
 
   const myEvents = events.filter(e => hasJoined(e, u.id))
+  // Chaque tuile s'ouvre : derrière le chiffre, les activités concernées.
+  const [tile, setTile] = useState(null) // live | pending | settled | last
 
   return (<>
     <PageHead title={seesAll ? 'Espaces & activités' : SPACES[mySpace].label}
@@ -237,13 +239,33 @@ export default function Social() {
       action={canPropose && <Btn onClick={() => { setF(BLANK(mySpace)); setOpen(true) }}><Plus size={16} /> Proposer une activité</Btn>} />
 
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-      <StatCard tint="brand" icon={<Sparkles size={20} />} value={live.length} label="Activités ouvertes" sub="inscriptions en cours" />
-      <StatCard tint="butter" icon={<Hourglass size={20} />} value={seesAll ? pendingAll.length : toDecide.length} label={seesAll ? "En cours de validation" : "En attente de l'école"} />
-      <StatCard tint="mint" icon={<Check size={20} />} value={settled.length} label="Confirmées" />
+      <StatCard tint="brand" icon={<Sparkles size={20} />} value={live.length} label="Activités ouvertes" sub="inscriptions en cours" onClick={() => setTile('live')} />
+      <StatCard tint="butter" icon={<Hourglass size={20} />} value={seesAll ? pendingAll.length : toDecide.length} label={seesAll ? "En cours de validation" : "En attente de l'école"} onClick={() => setTile('pending')} />
+      <StatCard tint="mint" icon={<Check size={20} />} value={settled.length} label="Confirmées" onClick={() => setTile('settled')} />
       {seesAll
-        ? <StatCard tint="grape" icon={<Users size={20} />} value={events.length} label="Propositions au total" />
-        : <StatCard tint="grape" icon={<UserCheck size={20} />} value={myEvents.length} label="Mes participations" />}
+        ? <StatCard tint="grape" icon={<Users size={20} />} value={events.length} label="Propositions au total" onClick={() => setTile('last')} />
+        : <StatCard tint="grape" icon={<UserCheck size={20} />} value={myEvents.length} label="Mes participations" onClick={() => setTile('last')} />}
     </div>
+
+    {tile && (() => {
+      const list = { live, pending: seesAll ? pendingAll : toDecide, settled, last: seesAll ? events : myEvents }[tile]
+      const TITLE = { live: 'Activités ouvertes', pending: seesAll ? 'En cours de validation' : "En attente de l'école",
+        settled: 'Activités confirmées', last: seesAll ? 'Toutes les propositions' : 'Mes participations' }
+      return (
+        <Modal open onClose={() => setTile(null)} title={`${TITLE[tile]} · ${list.length}`} size="xl"
+          footer={<Btn variant="ghost" onClick={() => setTile(null)}>Fermer</Btn>}>
+          {list.length === 0 ? <EmptyState icon={<Sparkles size={24} />} title="Aucune activité dans cet état" sub="Rien à afficher pour le moment." />
+            : <div className="space-y-1.5">
+              {list.map(ev => (
+                <div key={ev.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
+                  <span className="accent-text shrink-0"><Ic n={catOf(ev.cat).icon} size={20} /></span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-semibold truncate">{ev.title}</span>
+                    <span className="block text-[12px] text-muted truncate">{format(parseISO(ev.date), 'EEEE d MMMM', { locale: fr })} · {ev.time} · {ev.place} · proposé par {ev.byName}</span></span>
+                  <span className="text-[12px] text-muted shrink-0">{goingCount(ev)} inscrit(s)</span>
+                </div>))}
+            </div>}
+        </Modal>) })()}
 
     {/* File d'attente de la Direction */}
     {toDecide.length > 0 && (

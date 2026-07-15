@@ -61,6 +61,11 @@ export default function Pointage(){
   const used=myLeaves.filter(l=>l.status==='approved'&&l.type==='annuel'&&new Date(l.from).getFullYear()===year).reduce((n,l)=>n+l.days,0)
   const stLv={approved:['Approuvé',STATUS.ok],pending:['En attente',STATUS.warn],rejected:['Refusé',STATUS.danger]}
   const [open,setOpen]=useState(false)
+  // Chaque tuile s'ouvre : mes jours du mois, mes heures, mes retards, mes congés.
+  const [tile,setTile]=useState(null) // days | hours | lates | leave
+  const monthRows=Object.keys(d.staffClock||{}).filter(iso=>iso.startsWith(month)&&d.staffClock[iso]?.[id])
+    .sort().reverse().map(iso=>{ const c=d.staffClock[iso][id]
+      return {iso,...c,mins:c.out?toMin(c.out)-toMin(c.in):null} })
 
   return (<>
     <PageHead title="Mon pointage" sub="Votre badgeuse : arrivées, sorties, heures et demandes de congé."
@@ -90,10 +95,10 @@ export default function Pointage(){
       </Card>
       <div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-          <StatCard tint="mint"  icon={<CalendarCheck size={20}/>} value={days} label="Jours pointés" sub={format(now,'MMMM',{locale:fr})}/>
-          <StatCard tint="sky"   icon={<Timer size={20}/>}        value={fmtH(minutes)} label="Heures travaillées"/>
-          <StatCard tint="butter" icon={<Clock size={20}/>}       value={lates} label="Retards"/>
-          <StatCard tint="grape" icon={<Plane size={20}/>}        value={`${Math.max(0,QUOTA-used)} j`} label="Congé annuel restant"/>
+          <StatCard tint="mint"  icon={<CalendarCheck size={20}/>} value={days} label="Jours pointés" sub={format(now,'MMMM',{locale:fr})} onClick={()=>setTile('days')}/>
+          <StatCard tint="sky"   icon={<Timer size={20}/>}        value={fmtH(minutes)} label="Heures travaillées" onClick={()=>setTile('hours')}/>
+          <StatCard tint="butter" icon={<Clock size={20}/>}       value={lates} label="Retards" onClick={()=>setTile('lates')}/>
+          <StatCard tint="grape" icon={<Plane size={20}/>}        value={`${Math.max(0,QUOTA-used)} j`} label="Congé annuel restant" onClick={()=>setTile('leave')}/>
         </div>
         <SectionCard icon={<Hourglass size={16}/>} tint="sky" title="Mes derniers pointages" bodyClass="p-3">
           {history.length===0 ? <EmptyState title="Aucun pointage" sub="Votre historique apparaîtra ici dès votre première arrivée."/>
@@ -118,6 +123,45 @@ export default function Pointage(){
           <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:col+'1E',color:col}}>{lbl}</span>
         </div>)})}
     </SectionCard>
+
+    {tile && (()=>{
+      const monthLabel=format(now,'MMMM yyyy',{locale:fr})
+      const DayRow=h=>(
+        <div key={h.iso} className="flex items-center justify-between px-3 py-2 rounded-xl border border-line text-sm">
+          <span className="text-muted capitalize">{format(new Date(h.iso),'EEEE d MMMM',{locale:fr})}</span>
+          <span className="font-semibold tabular-nums">{h.in} → {h.out||'—'}</span>
+          <span className="font-bold" style={{color:h.in>LATE?STATUS.warn:STATUS.ok}}>{h.mins?fmtH(h.mins):'en cours'}</span>
+        </div>)
+      const lateRows=monthRows.filter(h=>h.in>LATE)
+      const annuals=myLeaves.filter(l=>l.type==='annuel'&&l.status==='approved'&&new Date(l.from).getFullYear()===year)
+      const C={
+        days:{ title:`Jours pointés · ${monthLabel}`, body: monthRows.length===0
+          ? <EmptyState title="Aucun pointage ce mois-ci" sub="Vos journées apparaîtront ici dès votre première arrivée."/>
+          : <div className="space-y-1.5">{monthRows.map(DayRow)}</div> },
+        hours:{ title:`Heures travaillées · ${monthLabel}`, body:(<>
+          <div className="text-3xl font-extrabold accent-text mb-3 tabular-nums">{fmtH(minutes)}</div>
+          {monthRows.length===0 ? <EmptyState title="Aucun pointage ce mois-ci"/>
+          : <div className="space-y-1.5">{monthRows.map(DayRow)}</div>}</>) },
+        lates:{ title:`Retards · ${monthLabel}`, body: lateRows.length===0
+          ? <EmptyState title="Aucun retard ce mois-ci" sub={`Toutes vos arrivées sont avant ${LATE} — bravo !`}/>
+          : <div className="space-y-1.5">{lateRows.map(DayRow)}</div> },
+        leave:{ title:`Congé annuel · ${year}`, body:(<>
+          <div className="flex items-end gap-4 mb-3">
+            <span className="text-3xl font-extrabold accent-text">{Math.max(0,QUOTA-used)} j</span>
+            <span className="text-sm text-muted pb-1">restants sur {QUOTA} · {used} jour(s) pris</span>
+          </div>
+          {annuals.length===0 ? <EmptyState title="Aucun congé annuel pris cette année" sub="Vos congés approuvés apparaîtront ici."/>
+          : <div className="space-y-1.5">{annuals.map(lv=>(
+            <div key={lv.id} className="flex items-center justify-between px-3 py-2 rounded-xl border border-line text-sm">
+              <span className="text-muted">{lv.from===lv.to?lv.from:`${lv.from} → ${lv.to}`}</span>
+              <span className="font-bold">{lv.days} jour(s)</span>
+            </div>))}</div>}</>) },
+      }[tile]
+      return (
+      <Modal open onClose={()=>setTile(null)} title={C.title} size="lg"
+        footer={<Btn variant="ghost" onClick={()=>setTile(null)}>Fermer</Btn>}>
+        {C.body}
+      </Modal>) })()}
 
     <RequestModal open={open} onClose={()=>setOpen(false)} staffId={id} name={u.name} onDone={refresh}/>
   </>)

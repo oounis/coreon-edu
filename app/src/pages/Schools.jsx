@@ -21,6 +21,8 @@ export default function Schools(){
   const mrr=schools.filter(s=>s.status==='active').reduce((n,s)=>n+s.price,0)
   const trials=schools.filter(s=>s.status==='trial').length
   const sadmin=d.users.find(u=>u.role==='schooladmin')
+  // Chaque tuile s'ouvre : derrière le chiffre, les écoles concernées.
+  const [tile,setTile]=useState(null) // schools | students | mrr | trials
 
   const add=()=>{
     if(!f.name.trim()||!f.director.trim()||!f.email.trim()) return toast.error('Nom, directeur et e-mail requis')
@@ -44,11 +46,34 @@ export default function Schools(){
     <PageHead title="Écoles clientes" sub="Les établissements abonnés à Coreon Edu — vous créez l'école et son compte Direction, l'école gère le reste."
       action={<Btn onClick={()=>{setF(BLANK);setOpen(true)}}><Plus size={16}/> Ajouter une école</Btn>}/>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-      <StatCard label="Écoles clientes" value={schools.filter(s=>s.status!=='suspended').length} tint="brand" icon={<Building2/>}/>
-      <StatCard label="Élèves gérés" value={totalStudents} tint="sky" icon={<Users/>}/>
-      <StatCard label="Revenu mensuel" value={`${mrr} DT`} sub="abonnements actifs" tint="mint" icon={<Wallet/>}/>
-      <StatCard label="En essai" value={trials} tint="butter" icon={<Hourglass/>}/>
+      <StatCard label="Écoles clientes" value={schools.filter(s=>s.status!=='suspended').length} tint="brand" icon={<Building2/>} onClick={()=>setTile('schools')}/>
+      <StatCard label="Élèves gérés" value={totalStudents} tint="sky" icon={<Users/>} onClick={()=>setTile('students')}/>
+      <StatCard label="Revenu mensuel" value={`${mrr} DT`} sub="abonnements actifs" tint="mint" icon={<Wallet/>} onClick={()=>setTile('mrr')}/>
+      <StatCard label="En essai" value={trials} tint="butter" icon={<Hourglass/>} onClick={()=>setTile('trials')}/>
     </div>
+
+    {tile && (()=>{
+      const list={schools:schools.filter(s=>s.status!=='suspended'),students:schools.filter(s=>s.status!=='suspended'),
+        mrr:schools.filter(s=>s.status==='active'),trials:schools.filter(s=>s.status==='trial')}[tile]
+      const TITLE={schools:'Écoles clientes',students:`Élèves gérés · ${totalStudents}`,mrr:`Revenu mensuel · ${mrr} DT`,trials:"En période d'essai"}
+      return (
+      <Modal open onClose={()=>setTile(null)} title={TITLE[tile]} size="xl"
+        footer={<Btn variant="ghost" onClick={()=>setTile(null)}>Fermer</Btn>}>
+        {list.length===0 ? <EmptyState icon={<Building2 size={24}/>} title="Aucune école dans cet état" sub="Rien à afficher pour le moment."/>
+        : <div className="space-y-1.5">
+          {list.map(sc=>{ const st=ST[sc.status]||ST.active
+            return (
+            <div key={sc.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
+              <Avatar name={sc.name} seed={sc.id} size={34}/>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold truncate">{sc.name}</span>
+                <span className="block text-[12px] text-muted truncate">{sc.city} · plan {sc.plan} · cliente depuis {sc.since}</span></span>
+              {tile==='students'&&<span className="text-sm font-extrabold accent-text">{count(sc)} élèves</span>}
+              {tile==='mrr'&&<span className="text-sm font-extrabold" style={{color:STATUS.ok}}>{sc.price} DT/mois</span>}
+              {['schools','trials'].includes(tile)&&<span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:st.bg,color:st.fg}}>{st.label}</span>}
+            </div>) })}
+        </div>}
+      </Modal>) })()}
 
     {schools.length===0 ? <Card><EmptyState icon={<Building2 size={26}/>} title="Aucune école cliente" sub="Ajoutez votre première école pour lui ouvrir l'accès à la plateforme."/></Card>
     : <div className="grid lg:grid-cols-2 gap-4">

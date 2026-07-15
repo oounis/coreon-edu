@@ -55,13 +55,33 @@ function DayTab({ d, staff, refresh }){
   const save=()=>{ mutate(db=>{ db.staffAttendance=db.staffAttendance||{}; db.staffAttendance[today]={...marks} })
     toast.success('Présence du personnel enregistrée'); refresh() }
   const dayLabel=format(new Date(),'EEEE d MMMM',{locale:fr})
+  // Chaque tuile s'ouvre : derrière « 2 absents » il y a des noms.
+  const [tile,setTile]=useState(null) // present | late | absent | conge
   return (<>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-      <StatCard tint="mint"   icon={<BriefcaseBusiness size={20}/>} value={counts.present} label="Présents" sub={dayLabel}/>
-      <StatCard tint="butter" icon={<Clock size={20}/>}             value={counts.late}    label="Retards"/>
-      <StatCard tint="coral"  icon={<UserX size={20}/>}             value={counts.absent}  label="Absents"/>
-      <StatCard tint="grape"  icon={<Plane size={20}/>}             value={counts.conge}   label="En congé"/>
+      <StatCard tint="mint"   icon={<BriefcaseBusiness size={20}/>} value={counts.present} label="Présents" sub={dayLabel} onClick={()=>setTile('present')}/>
+      <StatCard tint="butter" icon={<Clock size={20}/>}             value={counts.late}    label="Retards" onClick={()=>setTile('late')}/>
+      <StatCard tint="coral"  icon={<UserX size={20}/>}             value={counts.absent}  label="Absents" onClick={()=>setTile('absent')}/>
+      <StatCard tint="grape"  icon={<Plane size={20}/>}             value={counts.conge}   label="En congé" onClick={()=>setTile('conge')}/>
     </div>
+
+    {tile && (()=>{ const [lbl,col]=ST[tile]; const rows=staff.filter(x=>(marks[x.id]||'present')===tile)
+      return (
+      <Modal open onClose={()=>setTile(null)} title={`${lbl} · ${dayLabel}`} size="xl"
+        footer={<Btn variant="ghost" onClick={()=>setTile(null)}>Fermer</Btn>}>
+        {rows.length===0 ? <EmptyState title={`Personne n'est « ${lbl.toLowerCase()} »`} sub="Rien à afficher pour ce statut aujourd'hui."/>
+        : <div className="space-y-1.5">
+          {rows.map(x=>{ const h=hist[x.id]
+            return (
+            <div key={x.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
+              <Avatar name={x.name} seed={x.id} size={34}/>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold truncate">{x.name}</span>
+                <span className="block text-[12px] text-muted truncate">{x.sub}{h?` · 30 j : ${h.absent} abs · ${h.late} ret · ${h.conge} congés`:''}</span></span>
+              <span className="text-[12px] font-bold px-3 py-1.5 rounded-full" style={{background:col+'1E',color:col}}>{lbl}</span>
+            </div>)})}
+        </div>}
+      </Modal>) })()}
     <ClockBoard d={d} staff={staff}/>
     <SectionCard icon={<BriefcaseBusiness size={16}/>} tint="brand" title={`Appel du personnel · ${dayLabel}`} className="mt-4"
       sub="Touchez un statut pour le changer : présent → retard → absent → congé"

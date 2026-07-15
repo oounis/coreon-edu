@@ -1,7 +1,8 @@
+import { useState } from 'react'
 import { STATUS } from '../components/ui.jsx'
 import { db } from '@core/db.js'
 import { current } from '@core/auth.js'
-import { PageHead, StatCard, SectionCard, EmptyState, Btn, Avatar } from '../components/ui.jsx'
+import { PageHead, StatCard, SectionCard, EmptyState, Btn, Avatar, Modal } from '../components/ui.jsx'
 import { Bus, Phone, Clock, Users, Route, School, MapPin } from 'lucide-react'
 
 // Simulated live position of a bus along its run (mock data → deterministic by clock).
@@ -80,14 +81,38 @@ export default function Transport(){
   // écrite en dur (98 %). On n'affiche plus que des chiffres réellement mesurés.
   const buses=new Set(routes.map(r=>r.bus)).size
   const stops=routes.reduce((s,r)=>s+(r.stops?.length||0),0)
+  // Chaque tuile s'ouvre : le détail par circuit, pas seulement le total.
+  const [tile,setTile]=useState(null) // routes | buses | kids | stops
   return (<>
     <PageHead title="Transport scolaire" sub={u?.role==='parent'?'Suivez le bus de votre enfant en temps réel.':'Flotte, circuits et suivi en direct.'}/>
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
-      <StatCard tint="brand"  icon={<Route size={20}/>}  value={routes.length} label="Circuits"/>
-      <StatCard tint="butter" icon={<Bus size={20}/>}    value={buses}         label="Bus en service"/>
-      <StatCard tint="sky"    icon={<Users size={20}/>}  value={totalKids}     label="Élèves transportés"/>
-      <StatCard tint="mint"   icon={<MapPin size={20}/>} value={stops}         label="Arrêts desservis"/>
+      <StatCard tint="brand"  icon={<Route size={20}/>}  value={routes.length} label="Circuits" onClick={()=>setTile('routes')}/>
+      <StatCard tint="butter" icon={<Bus size={20}/>}    value={buses}         label="Bus en service" onClick={()=>setTile('buses')}/>
+      <StatCard tint="sky"    icon={<Users size={20}/>}  value={totalKids}     label="Élèves transportés" onClick={()=>setTile('kids')}/>
+      <StatCard tint="mint"   icon={<MapPin size={20}/>} value={stops}         label="Arrêts desservis" onClick={()=>setTile('stops')}/>
     </div>
+
+    {tile && (()=>{
+      const TITLE={routes:`Circuits · ${routes.length}`,buses:`Bus en service · ${buses}`,kids:`Élèves transportés · ${totalKids}`,stops:`Arrêts desservis · ${stops}`}
+      return (
+      <Modal open onClose={()=>setTile(null)} title={TITLE[tile]} size="xl"
+        footer={<Btn variant="ghost" onClick={()=>setTile(null)}>Fermer</Btn>}>
+        {routes.length===0 ? <EmptyState icon={<Bus size={24}/>} title="Aucun circuit de transport" sub="Ajoutez un circuit pour commencer."/>
+        : <div className="space-y-1.5">
+          {routes.map(r=>(
+            <div key={r.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
+              <Avatar name={r.driver} seed={r.id} size={32}/>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold truncate">{r.name} <span className="text-muted font-normal">· bus {r.bus}</span></span>
+                {tile==='stops'
+                  ? <span className="flex flex-wrap gap-1 mt-0.5">{(r.stops||[]).map(s=><span key={s} className="text-[11px] font-semibold px-1.5 py-0.5 rounded-full bg-canvas text-muted">{s}</span>)}</span>
+                  : <span className="block text-[12px] text-muted truncate">{r.driver} · {(r.stops||[]).length} arrêts · {r.students} élèves</span>}
+              </span>
+              {tile==='kids' && <span className="text-sm font-extrabold accent-text">{r.students}</span>}
+              {tile==='buses' && r.phone && <a href={`tel:${r.phone}`} className="text-xs font-semibold inline-flex items-center gap-1 accent-text"><Phone size={13}/> Appeler</a>}
+            </div>))}
+        </div>}
+      </Modal>) })()}
     {routes.length===0
       ? <SectionCard headless><EmptyState icon={<Bus size={26}/>} title="Aucun circuit de transport" sub="Ajoutez un circuit pour commencer à suivre les bus et informer les parents."/></SectionCard>
       : <div className="grid lg:grid-cols-2 gap-4">{ordered.map(r=><RouteCard key={r.id} r={r} mine={r.id===mineId}/>)}</div>}
