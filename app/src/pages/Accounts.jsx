@@ -1,44 +1,87 @@
+// ════════════════════════════════════════════════════════════════════════════
+// COMPTES — l'« Active Directory » de l'école, aux mains de la Direction.
+// La plateforme livre UN compte Direction ; tout le reste se crée, se modifie,
+// se rattache et se désactive ICI. Le cœur (accounts.js) tient les règles :
+// un e-mail un compte, le dernier compte Direction est intouchable, on ne
+// supprime jamais — on désactive.
+// ════════════════════════════════════════════════════════════════════════════
 import { useState } from 'react'
-import { db, mutate, uid, setParentChildren } from '@core/db.js'
+import { db } from '@core/db.js'
 import { ROLE } from '@core/theme.js'
 import { notify } from '@core/notify.js'
+import { createAccount, updateAccount, setDisabled, resetPassword, directory, MANAGEABLE_ROLES } from '@core/accounts.js'
 import { STAFF_POSITIONS, GOVERNORATES, docTypesFor, validCIN } from '@core/tunisia.js'
-import { PageHead, Table, Avatar, Btn, Modal, Field, Input, Select, Section, STATUS } from '../components/ui.jsx'
+import { PageHead, Avatar, Btn, Modal, Field, Input, Select, Section, SearchInput, STATUS } from '../components/ui.jsx'
 import Attach from '../components/Attach.jsx'
-import { UserPlus, ShieldCheck, KeyRound, Ban, Check, Paperclip } from 'lucide-react'
+import { UserPlus, KeyRound, Ban, Check, Paperclip, Pencil, Users } from 'lucide-react'
 import toast from 'react-hot-toast'
+
 // Civilité ADULTE : « Homme »/« Femme » — les activités réservées aux mères ou aux
-// pères (social.js) comparent user.gender à ces valeurs ; « Garçon »/« Fille »
-// aurait bloqué l'inscription de tout compte créé ici.
+// pères (social.js) comparent user.gender à ces valeurs.
 const BLANK={role:'teacher',name:'',email:'',pw:'',cin:'',gender:'Homme',governorate:'Tunis',position:'Instituteur',phone:'',address:'',occupation:'',subject:'',childIds:[],attachments:[]}
+
 export default function Accounts(){
-  const [,force]=useState(0); const [open,setOpen]=useState(false); const [view,setView]=useState(null); const [f,setF]=useState(BLANK)
-  const d=db()
+  const [,force]=useState(0); const refresh=()=>force(x=>x+1)
+  const [open,setOpen]=useState(false); const [view,setView]=useState(null); const [edit,setEdit]=useState(null)
+  const [f,setF]=useState(BLANK); const [q,setQ]=useState('')
+  const d=db(); const dir=directory()
+  const query=q.trim().toLowerCase()
+  const match=u=>!query||u.name.toLowerCase().includes(query)||String(u.email||'').toLowerCase().includes(query)
+
   const create=()=>{
-    if(!f.name.trim()||!f.email.trim())return toast.error('Nom et e-mail requis')
     if(f.cin && !validCIN(f.cin))return toast.error('CIN invalide (8 chiffres)')
-    const id=uid('u')
-    mutate(db=>{
-      const user={id,role:f.role,name:f.name.trim(),email:f.email.trim(),pw:f.pw||'1234',cin:f.cin,gender:f.gender,governorate:f.governorate,phone:f.phone,address:f.address,attachments:f.attachments}
-      if(f.role==='parent'){ user.occupation=f.occupation; user.childIds=[] }
-      else { user.position=f.position }
-      if(f.role==='teacher'){ const tid=uid('t'); db.teachers.push({id:tid,name:user.name,subject:f.subject||'—',designation:f.position,classes:[],experience:0,phone:f.phone,email:user.email,cin:f.cin,governorate:f.governorate,position:f.position,attachments:f.attachments}); user.teacherId=tid }
-      db.users.push(user)
-      // écrit aussi student.parentId, sinon le parent ne reçoit rien
-      if(f.role==='parent') setParentChildren(db,id,f.childIds||[])
-    })
-    notify({to:id,kind:'info',actor:'Direction',title:'compte créé',body:`Bienvenue — rôle ${ROLE[f.role].label}.`,link:'/app'})
-    toast.success(`Compte ${ROLE[f.role].label} créé`); setOpen(false); setF(BLANK); force(x=>x+1)
+    const r=createAccount(f)
+    if(r.error)return toast.error(r.error)
+    notify({to:r.user.id,kind:'info',actor:'Direction',title:'compte créé',body:`Bienvenue — rôle ${ROLE[f.role].label}.`,link:'/app'})
+    toast.success(`Compte ${ROLE[f.role].label} créé`); setOpen(false); setF(BLANK); refresh()
   }
-  const resetPw=(usr)=>{ const tmp=Math.random().toString(36).slice(2,8); mutate(db=>{const x=db.users.find(y=>y.id===usr.id); if(x)x.pw=tmp}); notify({to:usr.id,kind:'info',actor:'Direction',title:'mot de passe réinitialisé',body:'Un nouveau mot de passe temporaire vous a été attribué.'}); toast.success(`Nouveau mot de passe : ${tmp}`); setView({...usr,pw:tmp}); force(x=>x+1) }
-  const toggleActive=(usr)=>{ const now=!usr.disabled; mutate(db=>{const x=db.users.find(y=>y.id===usr.id); if(x)x.disabled=now}); toast.success(now?'Compte désactivé':'Compte réactivé'); setView({...usr,disabled:now}); force(x=>x+1) }
-  const toggleChild=sid=>setF(p=>({...p,childIds:p.childIds.includes(sid)?p.childIds.filter(x=>x!==sid):[...p.childIds,sid]}))
-  const isStaff=['teacher','admin','supervisor'].includes(f.role)
+  const saveEdit=()=>{
+    const patch={...edit}
+    if(!patch.subject) delete patch.subject   // vide = « inchangée », jamais un effacement
+    const r=updateAccount(patch.id,patch)
+    if(r.error)return toast.error(r.error)
+    toast.success('Compte mis à jour'); setEdit(null); setView(r.user); refresh()
+  }
+  const resetPw=(usr)=>{
+    const r=resetPassword(usr.id)
+    if(r.error)return toast.error(r.error)
+    notify({to:usr.id,kind:'info',actor:'Direction',title:'mot de passe réinitialisé',body:'Un nouveau mot de passe temporaire vous a été attribué.'})
+    toast.success(`Nouveau mot de passe : ${r.pw}`); refresh()
+  }
+  const toggleActive=(usr)=>{
+    const r=setDisabled(usr.id,!usr.disabled)
+    if(r.error)return toast.error(r.error)
+    toast.success(usr.disabled?'Compte réactivé':'Compte désactivé')
+    setView({...usr,disabled:!usr.disabled}); refresh()
+  }
+  const toggleChild=(setter)=>sid=>setter(p=>({...p,childIds:(p.childIds||[]).includes(sid)?p.childIds.filter(x=>x!==sid):[...(p.childIds||[]),sid]}))
+  const isStaff=['schooladmin','admin','teacher','supervisor','security'].includes(f.role)
+
+  const ChildPicker=({value=[],onToggle})=>(
+    <div className="flex flex-wrap gap-2">{d.students.filter(s=>!s.archived).map(s=>{ const taken=s.parentId&&!value.includes(s.id)
+      return <button key={s.id} onClick={()=>onToggle(s.id)} title={taken?`Déjà lié à ${d.users.find(x=>x.id===s.parentId)?.name||'un autre parent'} — le relier ici le détachera`:undefined}
+        className={`text-sm px-3 py-1.5 rounded-full border ${value.includes(s.id)?'accent-soft accent-text':taken?'border-line opacity-55':'border-line'}`}>{s.name}{taken&&' ·'}</button> })}</div>)
+
   return (<>
-    <PageHead title="Comptes & personnel" sub="Créez les accès et les profils (avec pièces jointes)." action={<Btn onClick={()=>{setF(BLANK);setOpen(true)}}><UserPlus size={16}/> Créer un compte</Btn>}/>
+    <PageHead title="Comptes & personnel" sub="L'annuaire de l'école : la Direction crée, modifie, rattache et désactive tous les accès."
+      action={<div className="flex items-center gap-2">
+        <SearchInput value={q} onChange={e=>setQ(e.target.value)} placeholder="Rechercher un compte…" className="w-56"/>
+        <Btn onClick={()=>{setF(BLANK);setOpen(true)}}><UserPlus size={16}/> Créer un compte</Btn>
+      </div>}/>
+
+    {/* L'annuaire d'un coup d'œil — chaque pastille mène à sa section. */}
+    <div className="card p-3 mb-5 flex items-center gap-2 flex-wrap">
+      <span className="inline-flex items-center gap-1.5 text-sm font-bold px-2"><Users size={15} className="text-muted"/> {dir.total} comptes</span>
+      {dir.rows.map(r=>(
+        <a key={r.role} href={`#role-${r.role}`} className="text-[13px] font-semibold px-3 py-1.5 rounded-full border border-line hover:bg-canvas inline-flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full" style={{background:ROLE[r.role].color}}/>{ROLE[r.role].label} <b>{r.active}</b>
+          {r.disabled>0&&<span className="text-muted">· {r.disabled} désactivé(s)</span>}
+        </a>))}
+    </div>
+
     <div className="space-y-6">
-      {['schooladmin','admin','teacher','supervisor','parent'].filter(r=>d.users.some(u=>u.role===r)).map(r=>{const R=ROLE[r];const us=d.users.filter(u=>u.role===r);return(
-        <div key={r}>
+      {MANAGEABLE_ROLES.filter(r=>d.users.some(u=>u.role===r&&match(u))).map(r=>{const R=ROLE[r];const us=d.users.filter(u=>u.role===r&&match(u));return(
+        <div key={r} id={`role-${r}`}>
           <div className="flex items-center gap-2 mb-3"><span className="w-2.5 h-2.5 rounded-full" style={{background:R.color}}/><h2 className="font-bold">{R.label}</h2><span className="text-xs text-muted">· {us.length} compte(s)</span></div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {us.map(u=>(
@@ -52,9 +95,11 @@ export default function Accounts(){
         </div>
       )})}
     </div>
+
+    {/* ── Créer ── */}
     <Modal open={open} onClose={()=>setOpen(false)} title="Créer un compte / profil" size="2xl" footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={create}>Créer le compte</Btn></>}>
       <Section title="Compte">
-        <Field label="Rôle"><Select value={f.role} onChange={e=>setF({...f,role:e.target.value})}>{['admin','teacher','supervisor','parent'].map(r=><option key={r} value={r}>{ROLE[r].label}</option>)}</Select></Field>
+        <Field label="Rôle"><Select value={f.role} onChange={e=>setF({...f,role:e.target.value})}>{MANAGEABLE_ROLES.map(r=><option key={r} value={r}>{ROLE[r].label}</option>)}</Select></Field>
         <Field label="Nom complet *"><Input value={f.name} onChange={e=>setF({...f,name:e.target.value})}/></Field>
         <Field label="E-mail *"><Input value={f.email} onChange={e=>setF({...f,email:e.target.value})} placeholder="nom@alnour.tn"/></Field>
         <Field label="Mot de passe temporaire"><Input value={f.pw} onChange={e=>setF({...f,pw:e.target.value})} placeholder="défaut 1234"/></Field>
@@ -71,14 +116,12 @@ export default function Accounts(){
       <Section title="Contact"><Field label="Téléphone"><Input value={f.phone} onChange={e=>setF({...f,phone:e.target.value})}/></Field><Field label="Adresse"><Input value={f.address} onChange={e=>setF({...f,address:e.target.value})}/></Field>
         {f.role==='parent'&&<Field label="Profession"><Input value={f.occupation} onChange={e=>setF({...f,occupation:e.target.value})}/></Field>}</Section>
       {f.role==='parent'&&<div className="mb-4"><div className="text-xs font-bold uppercase tracking-wide accent-text mb-2">Enfants</div>
-        {/* on affiche aussi les élèves déjà rattachés, en signalant à quel parent :
-            le filtre `!s.parentId` empêchait toute correction d'un mauvais lien */}
-        <div className="flex flex-wrap gap-2">{d.students.map(s=>{ const taken=s.parentId&&!f.childIds.includes(s.id)
-          return <button key={s.id} onClick={()=>toggleChild(s.id)} title={taken?`Déjà lié à ${d.users.find(x=>x.id===s.parentId)?.name||'un autre parent'} — le relier ici le détachera`:undefined}
-            className={`text-sm px-3 py-1.5 rounded-full border ${f.childIds.includes(s.id)?'accent-soft accent-text':taken?'border-line opacity-55':'border-line'}`}>{s.name}{taken&&' ·'}</button> })}</div></div>}
+        <ChildPicker value={f.childIds} onToggle={toggleChild(setF)}/></div>}
       <div className="mb-2"><div className="text-xs font-bold uppercase tracking-wide accent-text mb-2">Pièces à fournir</div>
         <Attach types={docTypesFor(f.role)} value={f.attachments} onChange={a=>setF({...f,attachments:a})}/></div>
     </Modal>
+
+    {/* ── Profil ── */}
     <Modal open={!!view} onClose={()=>setView(null)} title="Profil" size="xl">
       {view&&(<div><div className="flex items-center gap-4 mb-4"><Avatar name={view.name} seed={view.id} size={56}/><div><div className="text-xl font-extrabold">{view.name}</div><div className="text-muted text-sm">{ROLE[view.role]?.label}{view.position&&` · ${view.position}`}</div></div></div>
         <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm mb-4">{[['E-mail',view.email],['CIN',view.cin],['Gouvernorat',view.governorate],['Téléphone',view.phone],['Adresse',view.address],['Profession',view.occupation]].filter(x=>x[1]).map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium">{v}</span></div>)}</div>
@@ -87,10 +130,31 @@ export default function Accounts(){
         {view.role!=='owner' && <div className="mt-5 pt-4 border-t border-line flex flex-wrap gap-2 items-center">
           <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${view.disabled?'bg-canvas text-muted':''}`} style={view.disabled?{}:{background:STATUS.okSoft,color:STATUS.ok}}>{view.disabled?'● Désactivé':'● Actif'}</span>
           <div className="flex-1"/>
+          <Btn variant="ghost" onClick={()=>{setEdit({id:view.id,name:view.name,email:view.email,phone:view.phone||'',role:view.role,position:view.position||'',subject:'',occupation:view.occupation||'',childIds:view.childIds||[]});setView(null)}}><Pencil size={15}/> Modifier</Btn>
           <Btn variant="ghost" onClick={()=>resetPw(view)}><KeyRound size={15}/> Réinitialiser le mot de passe</Btn>
           {view.disabled? <Btn onClick={()=>toggleActive(view)}><Check size={15}/> Réactiver</Btn> : <Btn variant="danger" onClick={()=>toggleActive(view)}><Ban size={15}/> Désactiver</Btn>}
         </div>}
       </div>)}
+    </Modal>
+
+    {/* ── Modifier : identité, contact, RÔLE, enfants ── */}
+    <Modal open={!!edit} onClose={()=>setEdit(null)} title="Modifier le compte" size="xl"
+      footer={<><Btn variant="ghost" onClick={()=>setEdit(null)}>Annuler</Btn><Btn onClick={saveEdit}>Enregistrer</Btn></>}>
+      {edit&&<>
+        <Section title="Compte">
+          <Field label="Nom complet"><Input value={edit.name} onChange={e=>setEdit({...edit,name:e.target.value})}/></Field>
+          <Field label="E-mail"><Input value={edit.email} onChange={e=>setEdit({...edit,email:e.target.value})}/></Field>
+          <Field label="Rôle" hint="Le dernier compte Direction actif ne peut pas être rétrogradé.">
+            <Select value={edit.role} onChange={e=>setEdit({...edit,role:e.target.value})}>{MANAGEABLE_ROLES.map(r=><option key={r} value={r}>{ROLE[r].label}</option>)}</Select></Field>
+          <Field label="Téléphone"><Input value={edit.phone} onChange={e=>setEdit({...edit,phone:e.target.value})}/></Field>
+        </Section>
+        {edit.role!=='parent'&&<Section title="Fonction" cols={2}>
+          <Field label="Poste / fonction"><Select value={edit.position} onChange={e=>setEdit({...edit,position:e.target.value})}>{STAFF_POSITIONS.map(g=><optgroup key={g.group} label={g.group}>{g.items.map(p=><option key={p}>{p}</option>)}</optgroup>)}</Select></Field>
+          <Field label="Matière (enseignant)"><Input value={edit.subject} onChange={e=>setEdit({...edit,subject:e.target.value})} placeholder="Inchangée si vide"/></Field>
+        </Section>}
+        {edit.role==='parent'&&<div className="mb-2"><div className="text-xs font-bold uppercase tracking-wide accent-text mb-2">Enfants rattachés</div>
+          <ChildPicker value={edit.childIds} onToggle={toggleChild(setEdit)}/></div>}
+      </>}
     </Modal>
   </>)
 }

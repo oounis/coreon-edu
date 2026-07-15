@@ -599,3 +599,26 @@ test('acl : la fusion d\'écriture ne prend que les collections du rôle', () =>
   assert.equal(merged.invoices.length, 1, 'les factures aussi')
   assert.equal(merged.attendance.k.s1, 'absent', 'l\'appel est pris')
 })
+
+// ── Les comptes : l'annuaire de l'école, sous règles ─────────────────────────
+import { createAccount, updateAccount, setDisabled, resetPassword } from '../src/accounts.js'
+
+test('comptes : un e-mail un compte, et le dernier compte Direction est intouchable', () => {
+  const r1 = createAccount({ role: 'security', name: 'Agent Test', email: 'agent.test@alnour.tn', pw: 'x' })
+  assert.ok(r1.user && r1.user.role === 'security', 'la Direction crée aussi les comptes sécurité')
+  assert.ok(createAccount({ role: 'teacher', name: 'Doublon', email: 'AGENT.TEST@alnour.tn' }).error, 'e-mail déjà pris (insensible à la casse) → refus')
+  assert.ok(createAccount({ role: 'pirate', name: 'X', email: 'x@alnour.tn' }).error, 'rôle inconnu → refus')
+
+  const dirs = db().users.filter(u => u.role === 'schooladmin' && !u.disabled)
+  assert.equal(dirs.length, 1, 'l\'école de démo a UNE Direction active')
+  assert.ok(setDisabled(dirs[0].id, true).error, 'désactiver la dernière Direction → refus (école verrouillée dehors)')
+  assert.ok(updateAccount(dirs[0].id, { role: 'teacher' }).error, 'la rétrograder → refus aussi')
+
+  const r2 = updateAccount(r1.user.id, { role: 'supervisor', name: 'Agent Promu' })
+  assert.equal(r2.user.role, 'supervisor', 'changer un rôle ordinaire fonctionne')
+  assert.ok(setDisabled(r1.user.id, true).ok && db().users.some(u => u.id === r1.user.id), 'désactivé, jamais supprimé — la trace reste')
+  const pw = resetPassword(r1.user.id)
+  assert.ok(pw.pw && pw.pw.length >= 6, 'mot de passe temporaire généré')
+  const owner = db().users.find(u => u.role === 'owner')
+  assert.ok(updateAccount(owner.id, { name: 'X' }).error, 'le compte plateforme ne se gère pas depuis l\'école')
+})

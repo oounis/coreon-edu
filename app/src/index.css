@@ -61,14 +61,14 @@
    les produits Kogia. C'est un petit détail qui fait que tout paraît fabriqué exprès. */
 html { scroll-behavior: smooth; font-size: 15px }
 
-/* ── Densité : l'écran à 100 % rend comme un zoom navigateur à 75 % ──────────
-   Retour d'Othman (2026-07-15) : à 75 % l'interface respire ; à 100 % tout est
-   trop grand. `zoom` reproduit EXACTEMENT le rendu Ctrl+molette : texte, espaces,
+/* ── Densité : l'écran à 100 % rend comme un zoom navigateur à 85 % ──────────
+   Retour d'Othman (2026-07-15) : à 100 % tout est trop grand, à 75 % trop
+   petit — 85 % est le point juste. `zoom` reproduit EXACTEMENT le rendu Ctrl+molette : texte, espaces,
    icônes et graphiques se réduisent ENSEMBLE — un rem-scale laisserait tous les
    px arbitraires (text-[12px], tailles d'icônes, avatars) hors d'échelle.
-   Sous 1024 px on reste à 1:1 : réduire de 25 % des cibles tactiles casserait
+   Sous 1024 px on reste à 1:1 : réduire les cibles tactiles casserait
    l'usage mobile. L'impression aussi reste à 1:1 (documents officiels). */
-@media (min-width: 1024px) { html { zoom: 0.75 } }
+@media (min-width: 1024px) { html { zoom: 0.85 } }
 @media print { html { zoom: 1 } }
 
 /* ── L'arabe (chantier RTL, carnet v2) ─────────────────────────────────────
