@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { current } from '@core/auth.js'
 import { db, mutate, studentById, classById , attParts } from '@core/db.js'
 import { notify } from '@core/notify.js'
-import { PageHead, Card, StatCard, SectionCard, Avatar, Btn, Badge, EmptyState, STATUS } from '../components/ui.jsx'
+import { PageHead, Card, StatCard, SectionCard, Avatar, Btn, Badge, EmptyState, Modal, STATUS } from '../components/ui.jsx'
 import { currentClass, teacherSchedule } from '@core/data.js'
 import { todayIso, isoOf } from '@core/clock.js'
 import { Check, CalendarCheck, UserX, Clock, AlertTriangle, BellRing, TrendingUp, Users, BriefcaseBusiness } from 'lucide-react'
@@ -43,6 +43,9 @@ function SchoolView(){
 
 function StudentsInsights(){
   const d=db(); const [,force]=useState(0)
+  // Chaque chiffre du tableau de bord s'ouvre : derrière « 3 absents » il y a
+  // trois enfants, et la direction veut les voir d'un clic, pas les chercher.
+  const [detail,setDetail]=useState(null) // 'rate' | 'absent' | 'late' | 'chronic'
   const A=useMemo(()=>{
     const days={} // iso → {present,absent,late, absents:[{sid,classId,status}]}
     for(const key in (d.attendance||{})){
@@ -77,6 +80,19 @@ function StudentsInsights(){
     return {days,latest,chronic,perClass,trend}
   },[d])
 
+  // La présence par classe DU JOUR — pour le détail derrière « Taux de présence ».
+  const dayPerClass=useMemo(()=>{
+    if(!A.latest) return []
+    const per={}
+    for(const key in (d.attendance||{})){
+      const {classId,iso}=attParts(key)
+      if(iso!==A.latest) continue
+      const pc=per[classId]=per[classId]||{present:0,absent:0,late:0}
+      for(const st of Object.values(d.attendance[key])) pc[st]!=null&&pc[st]++
+    }
+    return Object.entries(per)
+  },[d,A])
+
   if(!A.latest) return <Card><EmptyState icon={<CalendarCheck size={26}/>} title="Aucun appel enregistré" sub="Les appels des enseignants alimenteront cette vue."/></Card>
 
   const today=A.days[A.latest]
@@ -93,10 +109,10 @@ function StudentsInsights(){
 
   return (<>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-      <StatCard tint="mint"  icon={<CalendarCheck size={20}/>} value={`${rate}%`} label="Taux de présence" sub={dayLabel}/>
-      <StatCard tint="coral" icon={<UserX size={20}/>}         value={today.absent} label="Absents"/>
-      <StatCard tint="butter" icon={<Clock size={20}/>}        value={today.late} label="Retards"/>
-      <StatCard tint="grape" icon={<AlertTriangle size={20}/>} value={A.chronic.length} label="Absences répétées" sub="≥ 4 sur 30 j"/>
+      <StatCard tint="mint"  icon={<CalendarCheck size={20}/>} value={`${rate}%`} label="Taux de présence" sub={dayLabel} onClick={()=>setDetail('rate')}/>
+      <StatCard tint="coral" icon={<UserX size={20}/>}         value={today.absent} label="Absents" onClick={()=>setDetail('absent')}/>
+      <StatCard tint="butter" icon={<Clock size={20}/>}        value={today.late} label="Retards" onClick={()=>setDetail('late')}/>
+      <StatCard tint="grape" icon={<AlertTriangle size={20}/>} value={A.chronic.length} label="Absences répétées" sub="≥ 4 sur 30 j" onClick={()=>setDetail('chronic')}/>
     </div>
 
     <div className="grid lg:grid-cols-[1fr_360px] gap-4 mb-4">
@@ -146,7 +162,66 @@ function StudentsInsights(){
         </div>
       </SectionCard>
     </div>
+
+    <StatDetailModal detail={detail} onClose={()=>setDetail(null)} A={A} today={today} rate={rate}
+      dayLabel={dayLabel} dayPerClass={dayPerClass} notifyParent={notifyParent}/>
   </>)
+}
+
+/* ── Le détail derrière chaque chiffre : un clic sur la tuile l'ouvre ────── */
+function StatDetailModal({ detail, onClose, A, today, rate, dayLabel, dayPerClass, notifyParent }){
+  if(!detail) return null
+
+  // Une ligne d'élève, partout la même : avatar, classe, statut, prévenir le parent.
+  const Row=({s,classId,status,extra,body})=>(
+    <div className="flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-canvas">
+      <Avatar name={s.name} seed={s.id} size={32}/>
+      <span className="min-w-0 flex-1"><span className="block text-sm font-semibold truncate leading-tight">{s.name}</span>
+        <span className="block text-[12px] text-muted">{classById(classId)?.name||''}{extra&&<span> · {extra}</span>}</span></span>
+      {status&&<Badge status={status}/>}
+      <button onClick={()=>notifyParent(s,body)} title="Prévenir le parent"
+        className="w-8 h-8 grid place-items-center rounded-lg text-muted hover:accent-text hover:bg-canvas shrink-0"><BellRing size={15}/></button>
+    </div>)
+
+  const list=(status)=>{
+    const rows=today.absents.filter(a=>a.status===status).map(({sid,classId})=>({s:studentById(sid),classId})).filter(x=>x.s)
+    return rows.length===0
+      ? <EmptyState icon={<Check size={22}/>} title={status==='absent'?'Aucun absent':'Aucun retard'} sub={`Personne n'a été marqué ${FR[status].toLowerCase()} ce jour-là.`}/>
+      : rows.map(({s,classId})=><Row key={s.id} s={s} classId={classId} status={status}
+          body={`${s.name} a été marqué(e) ${FR[status].toLowerCase()} le ${dayLabel}.`}/>)
+  }
+
+  const C={
+    rate:{ title:`Taux de présence · ${dayLabel}`, body:(<>
+      <div className="flex items-end gap-6 mb-4">
+        <span className="text-4xl font-extrabold" style={{color:STATUS.ok}}>{rate}%</span>
+        <span className="text-sm text-muted pb-1"><b style={{color:STATUS.ok}}>{today.present}</b> présents · <b style={{color:STATUS.danger}}>{today.absent}</b> absents · <b style={{color:STATUS.warn}}>{today.late}</b> retards</span>
+      </div>
+      <div className="text-xs font-bold uppercase tracking-wide text-muted mb-2">Par classe, ce jour-là</div>
+      <div className="space-y-2.5">
+        {dayPerClass.map(([cid,c])=>{ const t=c.present+c.absent+c.late; const r=t?Math.round(c.present/t*100):100
+          const col=r>=95?STATUS.ok:r>=90?STATUS.warn:STATUS.danger
+          return (
+            <div key={cid} className="flex items-center gap-3">
+              <span className="w-24 text-sm font-bold shrink-0 truncate">{classById(cid)?.name||cid}</span>
+              <div className="flex-1 h-2.5 rounded-full bg-canvas overflow-hidden"><div className="h-full rounded-full" style={{width:`${r}%`,background:col}}/></div>
+              <span className="w-12 text-right text-sm font-extrabold" style={{color:col}}>{r}%</span>
+              <span className="w-20 text-right text-xs text-muted">{c.absent} abs · {c.late} ret</span>
+            </div>) })}
+      </div></>)},
+    absent:{ title:`Absents · ${dayLabel}`, body:list('absent') },
+    late:{ title:`Retards · ${dayLabel}`, body:list('late') },
+    chronic:{ title:'Absences répétées · 30 derniers jours', body: A.chronic.length===0
+      ? <EmptyState icon={<Check size={22}/>} title="Aucun absentéisme répété" sub="Aucun élève n'a manqué 4 jours ou plus ce mois-ci."/>
+      : A.chronic.map(x=><Row key={x.s.id} s={x.s} classId={x.s.classId} extra={`${x.absent} absences · ${x.late} retards`}
+          body={`${x.s.name} cumule ${x.absent} absences sur les 30 derniers jours. Merci de contacter la direction.`}/>) },
+  }[detail]
+
+  return (
+    <Modal open onClose={onClose} title={C.title} size="xl" footer={<Btn variant="ghost" onClick={onClose}>Fermer</Btn>}>
+      {C.body}
+    </Modal>
+  )
 }
 
 /* ── Enseignant / Surveillant : faire l'appel ───────────────────────────── */
