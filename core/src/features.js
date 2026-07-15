@@ -39,6 +39,10 @@ export const FEATURES = {
   behavior: true,    // suivi du comportement : encourager d'abord, jamais classer
   gallery: true,     // moments : partage photo/vidéo — l'attente n°1 d'une crèche
   canteen: true,     // cantine : menu de la semaine + ALERTE allergie (sécurité enfant)
+  documents: true,   // documents officiels : certificats numérotés, registre au guichet
+  budget: true,      // budget & rapports : encaissé, versé, dépensé — que des chiffres réels
+  inventory: true,   // inventaire léger : quantités, seuils, mouvements journalisés
+  recruit: true,     // recrutement : le pipeline d'embauche, sans saut d'étape
   interop: true,     // export OneRoster v1.2
 }
 
@@ -58,6 +62,10 @@ const ROUTE_MODULE = {
   '/app/behavior': 'behavior',
   '/app/gallery': 'gallery',
   '/app/canteen': 'canteen',
+  '/app/documents': 'documents',
+  '/app/budget': 'budget',
+  '/app/inventory': 'inventory',
+  '/app/recruit': 'recruit',
   '/app/requests': 'requests',
   '/app/social': 'social',
   '/app/security': 'security',

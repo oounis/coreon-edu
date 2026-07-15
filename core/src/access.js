@@ -29,6 +29,11 @@ export const ROUTE_ROLES={
   '/app/behavior': ['teacher','admin','schooladmin','parent'],
   '/app/gallery': ['teacher','admin','schooladmin','parent'],
   '/app/canteen': ['teacher','admin','schooladmin','parent'],
+  // Le guichet des documents officiels : administration et direction seulement.
+  '/app/documents': ['admin','schooladmin'],
+  '/app/budget': ['schooladmin','admin'],
+  '/app/inventory': ['schooladmin','admin'],
+  '/app/recruit': ['schooladmin','admin'],
   // Le journal du jour : l'éducatrice le remplit, le parent le lit.
   '/app/journal': ['teacher','admin','schooladmin','parent'],
   '/app/admissions': ['schooladmin','admin'],

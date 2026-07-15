@@ -16,6 +16,10 @@ import Incidents from './pages/Incidents.jsx'
 import Behavior from './pages/Behavior.jsx'
 import Gallery from './pages/Gallery.jsx'
 import Canteen from './pages/Canteen.jsx'
+import Documents from './pages/Documents.jsx'
+import Budget from './pages/Budget.jsx'
+import Inventory from './pages/Inventory.jsx'
+import Recruit from './pages/Recruit.jsx'
 import Journal from './pages/Journal.jsx'
 import Admissions from './pages/Admissions.jsx'
 import Setup from './pages/Setup.jsx'
@@ -105,6 +109,10 @@ export default function App(){
         <Route path="/app/behavior" element={R(<Behavior/>, "/app/behavior")}/>
         <Route path="/app/gallery" element={R(<Gallery/>, "/app/gallery")}/>
         <Route path="/app/canteen" element={R(<Canteen/>, "/app/canteen")}/>
+        <Route path="/app/documents" element={R(<Documents/>, "/app/documents")}/>
+        <Route path="/app/budget" element={R(<Budget/>, "/app/budget")}/>
+        <Route path="/app/inventory" element={R(<Inventory/>, "/app/inventory")}/>
+        <Route path="/app/recruit" element={R(<Recruit/>, "/app/recruit")}/>
         <Route path="/app/journal" element={R(<Journal/>, "/app/journal")}/>
         <Route path="/app/admissions" element={R(<Admissions/>, "/app/admissions")}/>
         <Route path="/app/hr" element={R(<HR/>, "/app/hr")}/>

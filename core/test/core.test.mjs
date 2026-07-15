@@ -502,3 +502,73 @@ test('règle n°8 : la pédagogie passe avant l\'argent — un cours ne se fait 
   const ok = book({ facilityId: 'f_pool', date: '2026-07-20', from: '14:00', to: '16:00', audience: 'externe', who: 'Club Riadh', by: 'Test' })
   assert.ok(ok.booking, ok.error || 'hors créneau scolaire, la location est bienvenue')
 })
+
+// ── Les documents officiels : numérotés, journalisés, jamais effacés ─────────
+import { issueDocument, registry } from '../src/documents.js'
+
+test('documents : série sans trou, états contrôlés, registre append-only', () => {
+  const active = activeStudents()[0]
+  const year = new Date().getFullYear()
+  const r1 = issueDocument({ type: 'scolarite', studentId: active.id, by: 'Test' })
+  assert.ok(r1.doc, r1.error)
+  assert.match(r1.doc.number, new RegExp(`^CS-${year}-\\d{4}$`), 'numéro de série par type et par année')
+  const r2 = issueDocument({ type: 'scolarite', studentId: active.id, addressedTo: 'CNSS', by: 'Test' })
+  assert.equal(+r2.doc.number.slice(-4), +r1.doc.number.slice(-4) + 1, 'la série ne saute pas')
+  assert.ok(issueDocument({ type: 'radiation', studentId: active.id, by: 'Test' }).error, 'pas de radiation pour un élève actif')
+  const archived = archivedStudents()[0]
+  assert.ok(archived, 'un dossier archivé existe (règle n°5)')
+  assert.ok(issueDocument({ type: 'scolarite', studentId: archived.id, by: 'Test' }).error, 'pas de scolarité pour un dossier archivé')
+  const rad = issueDocument({ type: 'radiation', studentId: archived.id, by: 'Test' })
+  assert.ok(rad.doc && rad.doc.number.startsWith('CR-'), 'la radiation sort du dossier archivé')
+  assert.ok(registry().every(x => x.number && x.at && x.by), 'chaque entrée est numérotée, datée, signée')
+})
+
+// ── Budget : que des chiffres réels, la dépense s'annule motivée ─────────────
+import { addExpense, voidExpense, expenses, monthlyReport } from '../src/budget.js'
+
+test('budget : le rapport additionne le réel, la dépense s\'annule motivée', () => {
+  const month = isoOf(new Date()).slice(0, 7)
+  const before = monthlyReport(month)
+  assert.ok(addExpense({ label: '', amount: 50, by: 'Test' }).error, 'sans libellé → refus')
+  assert.ok(addExpense({ label: 'Papier', amount: 0, by: 'Test' }).error, 'montant nul → refus')
+  const r = addExpense({ label: 'Ramettes A4', amount: 80, category: 'fournitures', by: 'Test' })
+  assert.ok(r.expense)
+  const after = monthlyReport(month)
+  assert.equal(after.spent, before.spent + 80)
+  assert.equal(after.balance, before.balance - 80)
+  assert.ok(voidExpense(r.expense.id, '', 'Test').error, 'annulation sans motif → refus')
+  assert.ok(voidExpense(r.expense.id, 'Doublon', 'Test').ok)
+  assert.equal(monthlyReport(month).spent, before.spent, 'annulée : sortie du rapport')
+  assert.ok(expenses().some(x => x.id === r.expense.id && x.cancelled), 'mais la trace reste')
+})
+
+// ── Inventaire : jamais sous zéro, seuil alerté, mouvements tracés ───────────
+import { addItem, adjust, lowStock, itemById } from '../src/inventory.js'
+
+test('inventaire : jamais sous zéro, seuil alerté, mouvements tracés', () => {
+  const r = addItem({ name: 'Feutres', category: 'pedagogique', qty: 2, minQty: 3, by: 'Test' })
+  assert.ok(r.item)
+  assert.ok(lowStock().some(x => x.id === r.item.id), '2 ≤ seuil 3 → alerte')
+  assert.ok(adjust(r.item.id, -5, 'Test').error, 'jamais sous zéro')
+  assert.equal(adjust(r.item.id, +10, 'Test', 'Achat rentrée').qty, 12)
+  assert.ok(!lowStock().some(x => x.id === r.item.id), 'au-dessus du seuil : plus d\'alerte')
+  const it = itemById(r.item.id)
+  assert.ok(it.moves.length >= 2 && it.moves.every(m => m.by && m.at), 'chaque mouvement est signé et daté')
+})
+
+// ── Recrutement : pas d'offre sans entretien, refus motivé ───────────────────
+import { openPost, addCandidate, advanceCandidate } from '../src/recruit.js'
+
+test('recrutement : on n\'embauche pas un CV — pas d\'offre sans entretien, refus motivé', () => {
+  const p = openPost({ title: 'Éducatrice petite enfance', type: 'Éducatrice / Éducateur', by: 'Test' })
+  const c = addCandidate({ postId: p.post.id, name: 'Candidate Test' })
+  assert.ok(c.candidate)
+  assert.ok(advanceCandidate(c.candidate.id, 'offre', 'Test').error, 'reçue → offre : saut refusé')
+  assert.ok(advanceCandidate(c.candidate.id, 'embauchee', 'Test').error, 'reçue → embauchée : saut refusé')
+  assert.ok(advanceCandidate(c.candidate.id, 'refusee', 'Test', '').error, 'refus sans motif → refus')
+  assert.ok(advanceCandidate(c.candidate.id, 'entretien', 'Test').candidate)
+  assert.ok(advanceCandidate(c.candidate.id, 'offre', 'Test').candidate)
+  const hired = advanceCandidate(c.candidate.id, 'embauchee', 'Test')
+  assert.equal(hired.candidate.stage, 'embauchee')
+  assert.ok(hired.candidate.history.length >= 4, 'le parcours est écrit, étape par étape')
+})

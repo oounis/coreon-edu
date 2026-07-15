@@ -293,6 +293,21 @@ sert la crèche et le primaire (0–12 ans) : les enfants ne se connectent pas. 
 portail PARENT est le portail de l'enfant à cet âge. (Les listes ERB génériques
 visent aussi le lycée ; Coreon est plus jeune.)
 
-**Prochains candidats, filtrés pour l'âge :** inventaire léger, budget/rapports
-financiers, documents & certificats imprimables, recrutement RH. À l'écart tant
-qu'il n'y a pas de backend : les intégrations (Google/MS/paiement) et l'IA.
+**Livré (2026-07-15, suite) — les quatre derniers candidats du chantier :**
+- ✅ **Documents officiels** (`documents.js`) — le guichet : certificat de
+  scolarité, attestations, radiation. Numéro de SÉRIE par type et par année,
+  registre append-only (une série qui saute est une remarque d'audit),
+  radiation seulement sur dossier archivé (règle n°5), aperçu + PDF.
+- ✅ **Budget & rapports** (`budget.js`) — encaissé (reçus + locations payées),
+  versé (paie), dépensé (carnet de dépenses) : QUE des chiffres réels (règle
+  n°7). Une dépense s'annule motivée, jamais ne s'efface (règle n°4). Courbe
+  annuelle, export CSV, chaque tuile s'ouvre.
+- ✅ **Inventaire léger** (`inventory.js`) — quantités, seuils, ALERTE « à
+  racheter », chaque mouvement journalisé (qui, quand, combien), jamais sous zéro.
+- ✅ **Recrutement** (`recruit.js`) — reçue → entretien → offre → embauchée,
+  SANS saut d'étape (on n'embauche pas un CV sans entretien), refus motivé,
+  parcours écrit. L'embauche renvoie vers RH & Paie + Comptes.
+39 tests d'exécution · parcours navigateur `e2e/parcours.gestion.mjs` (12 vérifications).
+
+**Le chantier 2 est CLOS.** À l'écart tant qu'il n'y a pas de backend :
+les intégrations (Google/MS/paiement) et l'IA.

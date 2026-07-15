@@ -529,7 +529,7 @@ export function saveSettings(patch){ return mutate(d=>{ d.settings={...DEFAULT_S
 // à chaque évolution du schéma (coreon_db_v17 → v18 …), ce qui abandonnait la base
 // précédente et RÉINSTALLAIT les données de démonstration par-dessus les vraies
 // données de l'école. La version vit désormais DANS la base (`_v`) et on migre.
-const COLLECTIONS={classes:[],students:[],teachers:[],users:[],evaluations:[],incidents:[],requests:[],behavior:[],moments:[],canteen:{},books:[],routes:[],homework:[],events:[],socialEvents:[],exams:[],messages:[],notifications:[],staffLeaves:[],schools:[],visitors:[],rounds:[],logbook:[],payments:{},attendance:{},staffAttendance:{},staffClock:{},timetables:{}}
+const COLLECTIONS={classes:[],students:[],teachers:[],users:[],evaluations:[],incidents:[],requests:[],behavior:[],moments:[],canteen:{},documents:[],expenses:[],inventory:[],recruitPosts:[],recruitCandidates:[],books:[],routes:[],homework:[],events:[],socialEvents:[],exams:[],messages:[],notifications:[],staffLeaves:[],schools:[],visitors:[],rounds:[],logbook:[],payments:{},attendance:{},staffAttendance:{},staffClock:{},timetables:{}}
 
 function migrate(d){
   const from=d._v||0

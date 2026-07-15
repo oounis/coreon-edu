@@ -103,6 +103,15 @@ const ALL_NAV=[
   // l'enfant appliquée au repas (croisement avec le dossier).
   { to:'/app/canteen', section:'vie', label:'Cantine', icon:'UtensilsCrossed', module:'canteen',
     roles:['teacher','admin','schooladmin','parent'] },
+  // Documents officiels : le guichet — certificats numérotés, registre.
+  { to:'/app/documents', section:'eleves', label:'Documents', icon:'ScrollText', module:'documents',
+    roles:['admin','schooladmin'] },
+  { to:'/app/budget', section:'argent', label:'Budget & rapports', icon:'Scale', module:'budget',
+    roles:['schooladmin','admin'] },
+  { to:'/app/inventory', section:'vie', label:'Inventaire', icon:'Boxes', module:'inventory',
+    roles:['schooladmin','admin'] },
+  { to:'/app/recruit', section:'equipe', label:'Recrutement', icon:'UserPlus', module:'recruit',
+    roles:['schooladmin','admin'] },
   { to:'/app/requests', section:'equipe', label:'Demandes', icon:'FileText', roles:['teacher','admin','schooladmin'] },
   { to:'/app/messages', section:'quotidien', label:'Messages', icon:'MessageSquare', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent'] },
   { to:'/app/notices', section:'quotidien', label:'Annonces', icon:'Megaphone', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent'] },
