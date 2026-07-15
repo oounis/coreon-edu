@@ -467,7 +467,7 @@ function seed(){
     {id:'l4',at:Date.now()-7*HR, agentName:'Mongi Zouaoui',kind:'visiteur',place:'Portail principal',text:'Livraison Papeterie El Amel — badge V-001, sorti à 08:31.'},
   ]
 
-  return {classes,students,teachers,users,applications,journal:[],hrContracts,hrLeaves,hrPayrolls:[],feeSchedule,discounts,invoices:[],receipts:[],reports:[],promotions:[],facilities,bookings:[],memberships:[],accidents,health,pickups,departures:[],milestones:{},payments,evaluations,incidents,requests,behavior:seedBehavior(students),moments:seedMoments(students),books,routes,homework,events,socialEvents,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,visitors,rounds,logbook,timetables:genTimetables(classes),settings,schools}
+  return {classes,students,teachers,users,applications,journal:[],hrContracts,hrLeaves,hrPayrolls:[],feeSchedule,discounts,invoices:[],receipts:[],reports:[],promotions:[],facilities,bookings:[],memberships:[],accidents,health,pickups,departures:[],milestones:{},payments,evaluations,incidents,requests,behavior:seedBehavior(students),moments:seedMoments(students),canteen:seedCanteen(students),books,routes,homework,events,socialEvents,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,visitors,rounds,logbook,timetables:genTimetables(classes),settings,schools}
 }
 // Quelques observations de comportement de démonstration — l'encouragement
 // d'abord, pour que l'écran raconte quelque chose dès la première ouverture.
@@ -501,6 +501,23 @@ function seedMoments(students){
   if(has('s1')) out.push({id:'mo_seed2',classId:students.find(s=>s.id==='s1')?.classId||'c5a',childIds:['s1'],caption:"Amira a lu son premier texte devant la classe. Bravo !",media:[img('#6EE7B7','#3B82F6')],consentOnly:false,by:'t1',byName:'Othman Ounis',at:Date.now()-26*H,likes:[]})
   return out
 }
+// Un menu de la semaine de démonstration — dont un plat aux arachides le lundi,
+// pour que l'ALERTE ALLERGIE se déclenche sur Amira (allergique aux arachides)
+// dès la première ouverture : c'est la fonctionnalité qui protège l'enfant.
+function seedCanteen(students){
+  const dish=(name,allergens=[])=>({name,allergens})
+  const menu={
+    lun:[dish("Poulet, sauce cacahuète",['arachide']), dish("Riz aux légumes"), dish("Yaourt",['lait'])],
+    mar:[dish("Poisson pané",['poisson','gluten']), dish("Purée de pommes de terre",['lait']), dish("Compote de pommes")],
+    mer:[dish("Pâtes bolognaise",['gluten']), dish("Salade verte"), dish("Fruit de saison")],
+    jeu:[dish("Omelette",['oeuf']), dish("Haricots verts"), dish("Fromage blanc",['lait'])],
+    ven:[dish("Couscous aux légumes",['gluten']), dish("Salade"), dish("Flan",['lait','oeuf'])],
+  }
+  // inscrire à la cantine quelques enfants, dont Amira (s1) et Adam (s29) —
+  // ceux qui portent une allergie, pour que la démonstration ait du sens.
+  const subs=['s1','s2','s3','s29','s4'].filter(id=>students.some(s=>s.id===id))
+  return { menu, subscribers: subs }
+}
 // `levels` : les niveaux que l'école accueille RÉELLEMENT. C'est ce qui décide
 // des modules visibles (core/src/levels.js). L'école de démo fait crèche ET
 // primaire — c'est justement le cas que personne d'autre ne sait servir.
@@ -512,7 +529,7 @@ export function saveSettings(patch){ return mutate(d=>{ d.settings={...DEFAULT_S
 // à chaque évolution du schéma (coreon_db_v17 → v18 …), ce qui abandonnait la base
 // précédente et RÉINSTALLAIT les données de démonstration par-dessus les vraies
 // données de l'école. La version vit désormais DANS la base (`_v`) et on migre.
-const COLLECTIONS={classes:[],students:[],teachers:[],users:[],evaluations:[],incidents:[],requests:[],behavior:[],moments:[],books:[],routes:[],homework:[],events:[],socialEvents:[],exams:[],messages:[],notifications:[],staffLeaves:[],schools:[],visitors:[],rounds:[],logbook:[],payments:{},attendance:{},staffAttendance:{},staffClock:{},timetables:{}}
+const COLLECTIONS={classes:[],students:[],teachers:[],users:[],evaluations:[],incidents:[],requests:[],behavior:[],moments:[],canteen:{},books:[],routes:[],homework:[],events:[],socialEvents:[],exams:[],messages:[],notifications:[],staffLeaves:[],schools:[],visitors:[],rounds:[],logbook:[],payments:{},attendance:{},staffAttendance:{},staffClock:{},timetables:{}}
 
 function migrate(d){
   const from=d._v||0

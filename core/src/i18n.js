@@ -99,6 +99,7 @@ export const AR = {
   'Demandes': 'المطالب',
   'Comportement': 'السلوك',
   'Moments': 'اللحظات',
+  'Cantine': 'المطعم',
   'Comportement de mon enfant': 'سلوك طفلي',
   'Suivi du comportement': 'متابعة السلوك',
   'Messages': 'الرسائل',

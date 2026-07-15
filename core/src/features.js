@@ -38,6 +38,7 @@ export const FEATURES = {
   childfile: true,   // santé, vaccins, personnes autorisées, jalons
   behavior: true,    // suivi du comportement : encourager d'abord, jamais classer
   gallery: true,     // moments : partage photo/vidéo — l'attente n°1 d'une crèche
+  canteen: true,     // cantine : menu de la semaine + ALERTE allergie (sécurité enfant)
   interop: true,     // export OneRoster v1.2
 }
 
@@ -56,6 +57,7 @@ const ROUTE_MODULE = {
   '/app/incidents': 'incidents',
   '/app/behavior': 'behavior',
   '/app/gallery': 'gallery',
+  '/app/canteen': 'canteen',
   '/app/requests': 'requests',
   '/app/social': 'social',
   '/app/security': 'security',

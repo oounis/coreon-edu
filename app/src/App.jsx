@@ -15,6 +15,7 @@ import Payments from './pages/Payments.jsx'
 import Incidents from './pages/Incidents.jsx'
 import Behavior from './pages/Behavior.jsx'
 import Gallery from './pages/Gallery.jsx'
+import Canteen from './pages/Canteen.jsx'
 import Journal from './pages/Journal.jsx'
 import Admissions from './pages/Admissions.jsx'
 import Setup from './pages/Setup.jsx'
@@ -103,6 +104,7 @@ export default function App(){
         <Route path="/app/incidents" element={R(<Incidents/>, "/app/incidents")}/>
         <Route path="/app/behavior" element={R(<Behavior/>, "/app/behavior")}/>
         <Route path="/app/gallery" element={R(<Gallery/>, "/app/gallery")}/>
+        <Route path="/app/canteen" element={R(<Canteen/>, "/app/canteen")}/>
         <Route path="/app/journal" element={R(<Journal/>, "/app/journal")}/>
         <Route path="/app/admissions" element={R(<Admissions/>, "/app/admissions")}/>
         <Route path="/app/hr" element={R(<HR/>, "/app/hr")}/>

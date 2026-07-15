@@ -362,3 +362,35 @@ test('moments : partager exige une photo ou un mot ; le cœur du parent (like) b
   toggleLike(moment.id, p1.id)
   assert.ok(!db().moments.find(m => m.id === moment.id).likes.includes(p1.id), 'le cœur se retire')
 })
+
+// ── La cantine : le menu qui PROTÈGE l'enfant (croisement allergies) ─────────
+import { atRiskForDay, studentReactsTo, setDay, toggleSubscriber, allergensOfDay, weekForChild, summary as canteenSummary } from '../src/canteen.js'
+
+test('cantine : l\'alerte allergie est CALCULÉE du dossier, jamais oubliée', () => {
+  const d = db()
+  const amira = d.students.find(s => s.id === 's1')   // allergies: Arachides
+  assert.equal(studentReactsTo(amira, 'arachide'), true, 'arachide attrape « Arachides »')
+  assert.equal(studentReactsTo(amira, 'lait'), false)
+  // le menu de démo a un plat aux arachides le lundi → Amira (inscrite) est en alerte
+  const risk = atRiskForDay('lun')
+  assert.ok(risk.some(r => r.student.id === 's1'), 'Amira apparaît dans l\'alerte du lundi')
+  assert.ok(risk.find(r => r.student.id === 's1').allergens.some(a => a.key === 'arachide'))
+})
+
+test('cantine : on ratisse large — « cacahuète » attrape l\'allergie aux arachides', () => {
+  const d = db()
+  const amira = d.students.find(s => s.id === 's1')
+  // un plat qui dit « cacahuète » sans dire « arachide » doit quand même alerter
+  setDay('mer', [{ name: 'Sauce cacahuète', allergens: ['arachide'] }])
+  assert.ok(atRiskForDay('mer').some(r => r.student.id === 's1'), 'faux négatif interdit : on alerte')
+})
+
+test('cantine : inscription/désinscription, et le menu d\'un enfant porte ses drapeaux', () => {
+  toggleSubscriber('s5')
+  assert.ok(atRiskForDay('lun') !== null)   // ne casse pas
+  const week = weekForChild('s1')
+  const lundi = week.find(w => w.key === 'lun')
+  assert.ok(lundi.risks.some(r => /Arachide/i.test(r.label)), 'le lundi d\'Amira porte l\'alerte arachide')
+  const sum = canteenSummary()
+  assert.ok(sum.daysPlanned >= 1 && sum.subscribers >= 1)
+})

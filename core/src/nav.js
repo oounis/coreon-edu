@@ -99,6 +99,10 @@ const ALL_NAV=[
   // La vie privée des enfants est tenue par le cœur (gallery.js).
   { to:'/app/gallery', section:'quotidien', pinned:['parent'], label:'Moments', icon:'Camera', module:'gallery',
     roles:['teacher','admin','schooladmin','parent'] },
+  // Cantine : le menu de la semaine, et l'ALERTE ALLERGIE — la sécurité de
+  // l'enfant appliquée au repas (croisement avec le dossier).
+  { to:'/app/canteen', section:'vie', label:'Cantine', icon:'UtensilsCrossed', module:'canteen',
+    roles:['teacher','admin','schooladmin','parent'] },
   { to:'/app/requests', section:'equipe', label:'Demandes', icon:'FileText', roles:['teacher','admin','schooladmin'] },
   { to:'/app/messages', section:'quotidien', label:'Messages', icon:'MessageSquare', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent'] },
   { to:'/app/notices', section:'quotidien', label:'Annonces', icon:'Megaphone', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent'] },

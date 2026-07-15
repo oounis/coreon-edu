@@ -280,13 +280,19 @@ l'école d'un enfant de 3 à 11 ans ? »
   classer (règle n°9). L'idée maîtresse d'Othman, enfin outillée.
 - ✅ **Moments** (`gallery.js`) — partage photo/vidéo, l'attente n°1 d'une
   crèche. Vie privée des enfants tenue par le cœur.
+- ✅ **Cantine** (`canteen.js`) — le menu de la semaine ET l'ALERTE ALLERGIE :
+  le menu du jour est croisé avec le dossier de chaque enfant inscrit, l'école
+  voit « à ne pas servir à » AVANT le service, le parent lit l'alerte en clair
+  sur le menu de SON enfant. L'alerte est calculée, jamais saisie — et on
+  ratisse large (« cacahuète » attrape l'allergie aux arachides) : un faux
+  positif fait vérifier, un faux négatif envoie un enfant à l'hôpital.
+  3 tests d'exécution + parcours navigateur `e2e/parcours.cantine.mjs` (14 vérifications).
 
 **Décision de périmètre (2026-07-15) :** ❌ **PAS de portail élève.** Le produit
 sert la crèche et le primaire (0–12 ans) : les enfants ne se connectent pas. Le
 portail PARENT est le portail de l'enfant à cet âge. (Les listes ERB génériques
 visent aussi le lycée ; Coreon est plus jeune.)
 
-**Prochains candidats, filtrés pour l'âge :** cantine (menus, allergies —
-la crèche en a besoin), inventaire léger, budget/rapports financiers, documents
-& certificats imprimables, recrutement RH. À l'écart tant qu'il n'y a pas de
-backend : les intégrations (Google/MS/paiement) et l'IA.
+**Prochains candidats, filtrés pour l'âge :** inventaire léger, budget/rapports
+financiers, documents & certificats imprimables, recrutement RH. À l'écart tant
+qu'il n'y a pas de backend : les intégrations (Google/MS/paiement) et l'IA.
