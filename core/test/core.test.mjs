@@ -413,3 +413,92 @@ test('cantine : inscription/désinscription, et le menu d\'un enfant porte ses d
   const sum = canteenSummary()
   assert.ok(sum.daysPlanned >= 1 && sum.subscribers >= 1)
 })
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LES 5 RÈGLES QUI N'AVAIENT PAS DE TÉMOIN — la dette la plus honnête du
+// projet (docs/quality/test-plan.md) se ferme ici. Chaque règle non négociable
+// a désormais son test d'exécution.
+// ═══════════════════════════════════════════════════════════════════════════
+import { addPickup, revokePickup, mayCollect, handOver, pickupsOf } from '../src/childcare.js'
+import { issueInvoice, cancelInvoice, invoices } from '../src/accounting.js'
+import { withdraw, activeStudents, archivedStudents } from '../src/academic.js'
+import { advance, enrol, seatsOf, setFiles, docsFor } from '../src/admissions.js'
+
+// Le parcours LÉGITIME d'une candidature jusqu'à « accepté » : le test passe
+// par la porte (pièces fournies, étude), jamais par-dessus le mur.
+function acceptedApplication(childName, level) {
+  const a = apply({ childName, dob: '2022-01-01', level, parentName: 'Parent Test', parentPhone: '+216 20 111 222', parentEmail: 't@test.tn' })
+  advance(a.app.id, 'pieces', 'Test')
+  setFiles(a.app.id, docsFor(level).map(d => ({ type: d.key, name: `${d.key}.pdf`, size: 10, mime: 'application/pdf', data: 'x' })))
+  advance(a.app.id, 'examen', 'Test')
+  advance(a.app.id, 'accepte', 'Test')
+  return appById(a.app.id)
+}
+import { book, conflictFor } from '../src/facilities.js'
+
+test('règle n°1 : un enfant ne part JAMAIS avec quelqu\'un hors liste', () => {
+  const child = db().students.find(s => !s.archived)
+  assert.ok(handOver(child.id, 'personne_inconnue', 'Éducatrice').error, 'hors liste → refus')
+  addPickup(child.id, { name: 'Salma Trabelsi', relation: 'Oncle / Tante', phone: '+216 20 000 000', cin: '01234567', addedBy: 'test' })
+  const p = pickupsOf(child.id).find(x => x.cin === '01234567')
+  assert.ok(p && mayCollect(child.id, p.id).allowed, 'personne autorisée → oui')
+  const ok = handOver(child.id, p.id, 'Éducatrice')
+  assert.equal(ok.departure?.personName, 'Salma Trabelsi', 'le départ est journalisé : qui, quand, remis par qui')
+  revokePickup(child.id, p.id, 'Direction', 'retrait demandé par le parent')
+  assert.equal(mayCollect(child.id, p.id).allowed, false, 'autorisation retirée → refus')
+  assert.ok(handOver(child.id, p.id, 'Éducatrice').error)
+  assert.ok(pickupsOf(child.id).some(x => x.id === p.id), 'on DÉSACTIVE, on ne supprime pas : la trace reste')
+})
+
+test('règle n°4 : une facture émise ne se modifie pas — on l\'annule par un AVOIR', () => {
+  let issued = null
+  for (const s of db().students) { const r = issueInvoice(s.id, 'Test'); if (r.invoice) { issued = r.invoice; break } }
+  assert.ok(issued, 'au moins un élève est facturable')
+  const before = invoices().length
+  assert.ok(cancelInvoice(issued.id, '', 'Test').error, 'annuler sans motif → refus (indéfendable)')
+  assert.ok(cancelInvoice(issued.id, 'Erreur de saisie', 'Test').ok)
+  const inv = invoices().find(i => i.id === issued.id)
+  assert.equal(invoices().length, before, 'la facture n\'est jamais supprimée')
+  assert.equal(inv.stage, 'annulee')
+  assert.match(inv.creditNote, /^AV-/, 'l\'avoir porte un numéro de série')
+  assert.equal(inv.cancelReason, 'Erreur de saisie')
+  assert.ok(cancelInvoice(issued.id, 'encore', 'Test').error, 'une annulée ne s\'annule pas deux fois')
+})
+
+test('règle n°5 : on ARCHIVE, on ne supprime jamais un dossier scolaire', () => {
+  const total = db().students.length
+  const s = activeStudents()[0]
+  assert.ok(withdraw(s.id, '', 'Direction').error, 'un motif est obligatoire')
+  assert.ok(withdraw(s.id, 'Départ à l\'étranger', 'Direction').ok)
+  assert.equal(db().students.length, total, 'aucune suppression — le dossier reste')
+  const after = db().students.find(x => x.id === s.id)
+  assert.ok(after.archived && after.archivedReason && after.archivedBy, 'archivé, motivé, signé')
+  assert.ok(archivedStudents().some(x => x.id === s.id))
+  assert.ok(!activeStudents().some(x => x.id === s.id))
+})
+
+test('règle n°6 : la capacité décide — jamais une place promise qui n\'existe pas', () => {
+  const cls = db().classes[0]
+  let guard = 0
+  while (seatsOf(cls.id).free > 0 && guard++ < 40) {
+    const a = acceptedApplication(`Enfant Test${guard}`, cls.level)
+    const r = enrol(a.id, cls.id, 'Test')
+    assert.ok(r.studentId, r.error)
+  }
+  assert.equal(seatsOf(cls.id).free, 0, 'la classe est pleine')
+  const extra = acceptedApplication('Enfant DeTrop', cls.level)
+  const refused = enrol(extra.id, cls.id, 'Test')
+  assert.ok(refused.error && /pleine/i.test(refused.error), 'pas de promesse : refus explicite')
+  assert.equal(seatsOf(cls.id).taken, seatsOf(cls.id).capacity, 'jamais au-dessus de la capacité')
+  assert.equal(appById(extra.id).stage, 'attente', 'la candidature part en liste d\'attente, pas à la poubelle')
+})
+
+test('règle n°8 : la pédagogie passe avant l\'argent — un cours ne se fait pas déloger', () => {
+  // Lundi 2026-07-20 : « Natation scolaire » 09:00–12:00 sur la piscine (créneau seedé).
+  const c = conflictFor('f_pool', '2026-07-20', '10:00', '11:00')
+  assert.ok(c.blocked, 'le créneau scolaire est intouchable')
+  const refused = book({ facilityId: 'f_pool', date: '2026-07-20', from: '10:00', to: '11:00', audience: 'externe', who: 'Club Riadh', by: 'Test' })
+  assert.ok(refused.error && /scolaire/i.test(refused.error), 'même un client qui paie est refusé')
+  const ok = book({ facilityId: 'f_pool', date: '2026-07-20', from: '14:00', to: '16:00', audience: 'externe', who: 'Club Riadh', by: 'Test' })
+  assert.ok(ok.booking, ok.error || 'hors créneau scolaire, la location est bienvenue')
+})

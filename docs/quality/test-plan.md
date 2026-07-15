@@ -7,19 +7,19 @@ règles non négociables** (`docs/PLAN.md` §5) et des parcours qui font le prod
 
 | # | La règle | Prouvée par | État |
 |---|---|---|---|
-| 1 | Un enfant ne part **jamais** avec quelqu'un qui n'est pas sur la liste | `childcare.js` — personnes autorisées | ⚠️ **Trou : pas de test d'exécution.** À écrire — c'est la règle la plus grave du métier |
+| 1 | Un enfant ne part **jamais** avec quelqu'un qui n'est pas sur la liste | `core.test.mjs` « règle n°1 : un enfant ne part JAMAIS avec quelqu'un hors liste » | ✅ (2026-07-15) |
 | 2 | **Deux paires d'yeux** sur un accident : qui déclare ne valide pas | `core.test.mjs` « bureau : chaque étape d'un accident… » | ✅ |
 | 3 | Personne ne valide **sa propre** demande (congé, dépense) | `core.test.mjs` « personne ne décide de sa propre demande », « séparation des pouvoirs » | ✅ |
-| 4 | Une facture émise **ne se modifie pas** — on l'annule par un avoir | `accounting.js` | ⚠️ **Trou : pas de test d'exécution.** À écrire |
-| 5 | On **archive**, on ne supprime jamais un dossier scolaire | `academic.js` (passage/archive) | ⚠️ Trou |
-| 6 | **La capacité décide** : jamais une place promise qui n'existe pas | `admissions.js` `enrol()` → liste d'attente | ⚠️ Trou (le code la tient ; le test manque) |
+| 4 | Une facture émise **ne se modifie pas** — on l'annule par un avoir | `core.test.mjs` « règle n°4 : … on l'annule par un AVOIR » | ✅ (2026-07-15) |
+| 5 | On **archive**, on ne supprime jamais un dossier scolaire | `core.test.mjs` « règle n°5 : on ARCHIVE… » | ✅ (2026-07-15) |
+| 6 | **La capacité décide** : jamais une place promise qui n'existe pas | `core.test.mjs` « règle n°6 : la capacité décide » — le test passe par la porte (pièces → étude → accepté) | ✅ (2026-07-15) |
 | 7 | **On n'invente rien** — ni un chiffre, ni un client, ni une donnée | `core.test.mjs` « jamais de faux reçu » ; faux témoignages supprimés du site | ✅ (partiellement — c'est aussi une règle éditoriale) |
-| 8 | La **pédagogie** passe avant l'argent (un cours ne se fait pas déloger) | `facilities.js` | ⚠️ Trou |
+| 8 | La **pédagogie** passe avant l'argent (un cours ne se fait pas déloger) | `core.test.mjs` « règle n°8 : la pédagogie passe avant l'argent » | ✅ (2026-07-15) |
 | 9 | On **observe** un enfant, on ne le note pas — et on ne le compare à personne | `results.js` / évaluation | ⚠️ Trou (règle de conception, difficile à tester) |
 
-> **Ce tableau est la dette de qualité la plus honnête du projet : 5 règles sur 9
-> tiennent uniquement parce que le code est correct — pas parce qu'un test
-> l'empêche de régresser.** C'est le prochain chantier qualité.
+> **Dette fermée le 2026-07-15 :** 8 règles sur 9 sont désormais tenues par un
+> test d'exécution. La règle n°9 (observer, ne pas classer) reste une règle de
+> conception — elle se vérifie en revue, pas en test.
 
 ## Les parcours du produit
 
