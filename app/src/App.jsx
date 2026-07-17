@@ -10,6 +10,7 @@ import Login from './pages/Login.jsx'
 //    ni jsPDF, ni les graphiques. Chaque page devient son propre fichier (code-splitting).
 const Dashboard = lazy(() => import('./pages/Dashboard.jsx'))
 const Students = lazy(() => import('./pages/Students.jsx'))
+const StudentProfile = lazy(() => import('./pages/StudentProfile.jsx'))
 const Teachers = lazy(() => import('./pages/Teachers.jsx'))
 const Accounts = lazy(() => import('./pages/Accounts.jsx'))
 const Evaluate = lazy(() => import('./pages/Evaluate.jsx'))
@@ -92,6 +93,7 @@ export default function App(){
         <Route path="/app/settings" element={R(<Settings/>, "/app/settings")}/>
         <Route path="/app/accounts" element={R(<Accounts/>, "/app/accounts")}/>
         <Route path="/app/students" element={R(<Students/>, "/app/students")}/>
+        <Route path="/app/eleve/:id" element={R(<StudentProfile/>, "/app/eleve")}/>
         <Route path="/app/teachers" element={R(<Teachers/>, "/app/teachers")}/>
         <Route path="/app/staff" element={R(<Staff/>, "/app/staff")}/>
         <Route path="/app/pointage" element={R(<Pointage/>, "/app/pointage")}/>

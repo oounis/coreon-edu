@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { current } from '@core/auth.js'
 import { db, mutate, uid, classById, userById, CYCLES, studentsOfClass, setStudentParent } from '@core/db.js'
 import { PageHead, Avatar, Btn, Modal, Field, Input, Select, Section, SearchInput, EmptyState, Card } from '../components/ui.jsx'
 import { GOVERNORATES, DOC_TYPES, LEGAL } from '@core/tunisia.js'
 import Attach from '../components/Attach.jsx'
-import Bulletin from '../components/Bulletin.jsx'
-import GradeHistory from '../components/GradeHistory.jsx'
-import { UserPlus, Droplet, Search, ShieldCheck, FileText, ChevronRight, ArrowLeft, Users, GraduationCap } from 'lucide-react'
+import DataTable from '../components/DataTable.jsx'
+import { UserPlus, ShieldCheck } from 'lucide-react'
+import { attParts } from '@core/db.js'
+import { Badge, STATUS } from '../components/ui.jsx'
 import toast from 'react-hot-toast'
+import { notify } from '@core/notify.js'
 const BLANK={name:'',gender:'Garçon',dob:'',bloodGroup:'O+',nationality:'Tunisienne',grade:'5ème année',section:'A',rollNo:'',admissionDate:'',prevSchool:'',fatherName:'',motherName:'',guardianPhone:'',parentId:'',address:'',phone:'',email:'',medical:'Aucune',allergies:'Aucune',emergencyName:'',emergencyPhone:'',cin:'',governorate:'Tunis',attachments:[],consent:false}
 const cycleOf=g=>CYCLES.find(c=>c.grades.includes(g))?.cycle||'Primaire'
 import { BRAND } from '@core/tokens.js'
@@ -17,11 +19,12 @@ const CYCLE_COLOR={Primaire:BRAND.indigo}
 export default function Students(){
   const u=current(); const canEdit=['schooladmin','admin'].includes(u.role)
   const [,force]=useState(0); const refresh=()=>force(x=>x+1)
-  const [open,setOpen]=useState(false); const [viewS,setViewS]=useState(null); const [bulletin,setBulletin]=useState(null)
-  const [q,setQ]=useState(''); const [sel,setSel]=useState(null); const [f,setF]=useState(BLANK)
+  const [open,setOpen]=useState(false); const [f,setF]=useState(BLANK)
+  const [cycle,setCycle]=useState('all'); const [classe,setClasse]=useState('all')
+  const navigate=useNavigate()
   const d=db(); const parents=d.users.filter(x=>x.role==='parent')
   const loc=useLocation()
-  useEffect(()=>{ const id=loc.state?.openStudent; if(id){ const s=d.students.find(x=>x.id===id); if(s) setViewS(s) } },[loc.state])
+  useEffect(()=>{ const id=loc.state?.openStudent; if(id) navigate(`/app/eleve/${id}`,{replace:true}) },[loc.state])
 
   const add=()=>{ if(!f.name.trim())return toast.error('Le nom est requis'); if(!f.consent)return toast.error('Veuillez accepter le consentement (loi 2004-63)')
     let cid; mutate(db=>{ let cls=db.classes.find(c=>c.grade===f.grade && c.name.endsWith(' '+f.section))
@@ -32,57 +35,78 @@ export default function Students(){
       db.payments[sid]=["Sep","Oct","Nov","Déc","Jan","Fév","Mar","Avr","Mai","Juin"].map(m=>({month:m,status:'due'})) })
     toast.success('Élève inscrit'); setOpen(false); setF(BLANK); refresh() }
 
-  const query=q.trim().toLowerCase()
-  const matches= query? d.students.filter(s=>s.name.toLowerCase().includes(query)) : null
-  const byCycle=CYCLES.map(c=>({cycle:c.cycle,classes:d.classes.filter(cl=>cl.cycle===c.cycle)})).filter(g=>g.classes.length)
+  // ── Le répertoire : présence 30 j et impayés calculés une fois ──
+  const enrich = (() => {
+    const cutoff = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10)
+    const att = {}
+    for (const key in (d.attendance || {})) {
+      const { iso } = attParts(key)
+      if (iso < cutoff) continue
+      for (const [sid, st] of Object.entries(d.attendance[key])) {
+        const a = att[sid] = att[sid] || { p: 0, t: 0 }
+        a.t++; if (st === 'present') a.p++
+      }
+    }
+    return d.students.map(s => {
+      const a = att[s.id]
+      const unpaid = (d.payments[s.id] || []).filter(m => m.status === 'due' || m.status === 'overdue').length
+      return { ...s, _classe: classById(s.classId)?.name || '—', _cycle: classById(s.classId)?.cycle || '—',
+        _parent: userById(s.parentId)?.name || '', _tel: s.guardianPhone || s.phone || '',
+        _presence: a ? Math.round(a.p / a.t * 100) : null, _impayes: unpaid,
+        _allerg: s.allergies && s.allergies !== 'Aucune' ? s.allergies : '' }
+    })
+  })()
+  const rows = enrich.filter(s =>
+    (cycle === 'all' || s._cycle === cycle) && (classe === 'all' || s.classId === classe) && !s.archived)
+  const archived = enrich.filter(s => s.archived).length
 
-  const StudentCard=({s})=>(
-    <button onClick={()=>setViewS(s)} className="card p-3 flex items-center gap-3 text-left hover:shadow-lg hover:-translate-y-0.5 transition w-full">
-      <Avatar name={s.name} seed={s.id} size={44}/>
-      <div className="min-w-0 flex-1"><div className="font-semibold truncate">{s.name}</div><div className="text-xs text-muted">{s.gender} · {classById(s.classId)?.name}</div></div>
-      <span className="inline-flex items-center gap-1 text-[12px] text-muted"><Droplet size={11} className="text-coral"/>{s.bloodGroup}</span>
-    </button>
-  )
+  const columns = [
+    { key: 'name', label: 'Élève', value: r => r.name, render: r => (
+        <span className="flex items-center gap-2.5 min-w-[180px]"><Avatar name={r.name} seed={r.id} size={30}/>
+          <span className="font-semibold">{r.name}</span>
+          {r._allerg && <span title={`Allergie : ${r._allerg}`} className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{background:STATUS.warnSoft,color:STATUS.warn}}>ALLERGIE</span>}</span>) },
+    { key: '_classe', label: 'Classe' },
+    { key: '_cycle', label: 'Cycle' },
+    { key: '_parent', label: 'Parent', render: r => r._parent || <span className="text-muted">— non lié</span> },
+    { key: '_tel', label: 'Téléphone', hide: true },
+    { key: 'gender', label: 'Genre', hide: true },
+    { key: 'dob', label: 'Naissance', hide: true },
+    { key: '_presence', label: 'Présence 30 j', value: r => r._presence ?? -1, render: r => r._presence == null ? <span className="text-muted">—</span> :
+        <span className="font-bold" style={{color: r._presence >= 90 ? STATUS.ok : r._presence >= 75 ? STATUS.warn : STATUS.danger}}>{r._presence}%</span> },
+    { key: '_impayes', label: 'Impayés', value: r => r._impayes, render: r => r._impayes === 0 ? <span style={{color:STATUS.ok}}>✓</span> :
+        <span className="font-bold" style={{color:STATUS.danger}}>{r._impayes} mois</span> },
+    { key: 'bloodGroup', label: 'Sang', hide: true },
+  ]
 
   return (<>
-    <PageHead title="Élèves" sub={`${d.students.length} inscrits · ${d.classes.length} classes`}
+    <PageHead title="Élèves" sub={`${rows.length} actifs · ${d.classes.length} classes${archived ? ` · ${archived} archivé(s)` : ''}`}
       action={canEdit&&<Btn onClick={()=>{setF(BLANK);setOpen(true)}}><UserPlus size={16}/> Inscrire un élève</Btn>}/>
-    <SearchInput value={q} onChange={e=>setQ(e.target.value)} placeholder="Rechercher un élève par nom…" className="max-w-sm mb-5"/>
 
-    {matches ? (
-      <div><div className="text-sm text-muted mb-3">{matches.length} résultat(s) pour « {q} »</div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">{matches.map(s=><StudentCard key={s.id} s={s}/>)}</div>
-        {matches.length===0&&<Card><EmptyState icon={<Search size={26}/>} title="Aucun élève ne correspond" sub="Vérifiez l'orthographe ou essayez un autre nom."/></Card>}
-      </div>
-    ) : sel ? (
-      <div>
-        <button onClick={()=>setSel(null)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-ink mb-4"><ArrowLeft size={16}/> Toutes les classes</button>
-        <div className="flex items-center gap-3 mb-4">
-          <span className="w-11 h-11 rounded-2xl grid place-items-center text-white font-bold" style={{background:CYCLE_COLOR[classById(sel)?.cycle]}}><GraduationCap size={20}/></span>
-          <div><div className="text-xl font-extrabold">{classById(sel)?.name}</div><div className="text-sm text-muted">{classById(sel)?.cycle} · {studentsOfClass(sel).length} élèves</div></div>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">{studentsOfClass(sel).map(s=><StudentCard key={s.id} s={s}/>)}</div>
-      </div>
-    ) : (
-      <div className="space-y-7">
-        {byCycle.map(g=>(
-          <div key={g.cycle}>
-            <div className="flex items-center gap-2 mb-3"><span className="w-2.5 h-2.5 rounded-full" style={{background:CYCLE_COLOR[g.cycle]}}/><h2 className="font-bold">{g.cycle}</h2><span className="text-xs text-muted">· {g.classes.length} classe(s)</span></div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {g.classes.map(cl=>{const n=studentsOfClass(cl.id).length; const c=CYCLE_COLOR[g.cycle]; return(
-                <button key={cl.id} onClick={()=>setSel(cl.id)} className="card p-5 text-left hover:shadow-xl hover:-translate-y-0.5 transition relative overflow-hidden">
-                  <span className="absolute right-0 top-0 w-20 h-20 rounded-full -mr-6 -mt-6" style={{background:c+'14'}}/>
-                  <span className="relative w-12 h-12 rounded-2xl grid place-items-center text-white" style={{background:c}}><GraduationCap size={22}/></span>
-                  <div className="relative font-extrabold text-lg mt-3">{cl.name}</div>
-                  <div className="relative text-sm text-muted flex items-center gap-1.5 mt-0.5"><Users size={14}/> {n} élève{n>1?'s':''}</div>
-                  <div className="relative flex items-center gap-1 text-xs font-semibold mt-3" style={{color:c}}>Voir la classe <ChevronRight size={14}/></div>
-                </button>
-              )})}
-            </div>
-          </div>
-        ))}
-      </div>
-    )}
+    <DataTable
+      columns={columns} rows={rows} csvName="eleves"
+      searchPlaceholder="Rechercher un élève, un parent, une classe…"
+      initialSort={{ key: 'name', dir: 1 }}
+      onRow={r => navigate(`/app/eleve/${r.id}`)}
+      empty={{ title: 'Aucun élève', sub: 'Inscrivez le premier élève ou ajustez les filtres.' }}
+      toolbar={<div className="flex gap-2">
+        <select aria-label="Filtrer par cycle" value={cycle} onChange={e=>{setCycle(e.target.value);setClasse('all')}}
+          className="rounded-xl border border-line bg-white px-3 py-2 text-sm font-semibold">
+          <option value="all">Tous les cycles</option>
+          {[...new Set(d.classes.map(c=>c.cycle))].map(c=><option key={c} value={c}>{c}</option>)}
+        </select>
+        <select aria-label="Filtrer par classe" value={classe} onChange={e=>setClasse(e.target.value)}
+          className="rounded-xl border border-line bg-white px-3 py-2 text-sm font-semibold">
+          <option value="all">Toutes les classes</option>
+          {d.classes.filter(c=>cycle==='all'||c.cycle===cycle).map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+      </div>}
+      bulkActions={canEdit ? [{ label: 'Prévenir les parents', run: ids => {
+        let sent = 0
+        ids.forEach(sid => { const st = d.students.find(x => x.id === sid)
+          if (st?.parentId) { notify({ to: st.parentId, kind: 'info', actor: u.name, title: 'Message de l\'école', body: 'La direction souhaite vous contacter — merci de passer ou d\'appeler l\'école.' }); sent++ } })
+        toast.success(`${sent} parent(s) prévenu(s)`)
+      } }] : []}
+    />
 
     <Modal open={open} onClose={()=>setOpen(false)} title="Inscrire un nouvel élève" size="2xl" footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={add}>Inscrire</Btn></>}>
       <Section title="Informations personnelles">
@@ -123,11 +147,5 @@ export default function Students(){
       <label className="flex items-start gap-2 text-xs text-muted bg-canvas rounded-xl p-3"><input type="checkbox" checked={f.consent} onChange={e=>setF({...f,consent:e.target.checked})} className="mt-0.5"/><span><ShieldCheck size={13} className="inline accent-text"/> {LEGAL.consent}</span></label>
     </Modal>
 
-    <Modal open={!!viewS} onClose={()=>setViewS(null)} title="Fiche élève" size="xl">
-      {viewS&&(<div><div className="flex items-center gap-4 mb-5"><Avatar name={viewS.name} seed={viewS.id} size={56}/><div className="flex-1"><div className="text-xl font-extrabold">{viewS.name}</div><div className="text-muted text-sm">{classById(viewS.classId)?.name} · N° {viewS.rollNo} · {viewS.gender}</div></div><Btn variant="soft" onClick={()=>{const v=viewS;setViewS(null);setBulletin(v)}}><FileText size={15}/> Bulletin</Btn></div>
-        <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">{[['Naissance',viewS.dob],['Groupe sanguin',viewS.bloodGroup],['Nationalité',viewS.nationality],['Inscription',viewS.admissionDate],['École préc.',viewS.prevSchool],['Père',viewS.fatherName],['Mère',viewS.motherName],['Tél. tuteur',viewS.guardianPhone],['Compte parent',userById(viewS.parentId)?.name||'—'],['Adresse',viewS.address],['Téléphone',viewS.phone],['E-mail',viewS.email||'—'],['Médical',viewS.medical],['Allergies',viewS.allergies],['CIN/Acte',viewS.cin],['Gouvernorat',viewS.governorate],['Urgence',`${viewS.emergencyName} · ${viewS.emergencyPhone}`]].map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium text-right">{v||'—'}</span></div>)}</div>
-        <div className="mt-6 pt-5 border-t border-line"><GradeHistory studentId={viewS.id}/></div></div>)}
-    </Modal>
-    <Bulletin student={bulletin} onClose={()=>setBulletin(null)}/>
   </>)
 }

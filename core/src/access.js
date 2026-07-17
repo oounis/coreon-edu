@@ -8,6 +8,8 @@ export const ROUTE_ROLES={
   '/app/settings': ['schooladmin'],
   '/app/accounts': ['schooladmin'],
   '/app/students': ['schooladmin','admin','supervisor','teacher'],
+  // La fiche élève 360° : le personnel — le parent a ses propres vues.
+  '/app/eleve': ['schooladmin','admin','supervisor','teacher'],
   '/app/teachers': ['schooladmin','admin'],
   '/app/staff': ['schooladmin','admin'],
   '/app/pointage': ['teacher','supervisor','security','admin'],

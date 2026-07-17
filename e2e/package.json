@@ -17,10 +17,11 @@
     "gestion": "node parcours.gestion.mjs",
     "live": "node parcours.live.mjs",
     "mobile": "node parcours.mobile.mjs",
+    "eleves": "node parcours.eleves.mjs",
     "qualite": "node parcours.qualite.mjs",
     "perf": "node parcours.perf.mjs",
     "comptes": "node parcours.comptes.mjs",
-    "all": "node parcours.public.mjs && node parcours.demandes.mjs && node parcours.arabe.mjs && node parcours.smoke.mjs && node parcours.uiux.mjs && node parcours.comportement.mjs && node parcours.moments.mjs && node parcours.cantine.mjs && node parcours.presence.mjs && node parcours.tuiles.mjs && node parcours.gestion.mjs && node parcours.live.mjs && node parcours.comptes.mjs && node parcours.qualite.mjs && node parcours.perf.mjs && node parcours.mobile.mjs"
+    "all": "node parcours.public.mjs && node parcours.demandes.mjs && node parcours.arabe.mjs && node parcours.smoke.mjs && node parcours.uiux.mjs && node parcours.comportement.mjs && node parcours.moments.mjs && node parcours.cantine.mjs && node parcours.presence.mjs && node parcours.tuiles.mjs && node parcours.gestion.mjs && node parcours.live.mjs && node parcours.comptes.mjs && node parcours.eleves.mjs && node parcours.qualite.mjs && node parcours.perf.mjs && node parcours.mobile.mjs"
   },
   "dependencies": {
     "playwright-core": "^1.61.1"
