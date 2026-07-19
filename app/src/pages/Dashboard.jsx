@@ -169,7 +169,7 @@ export default function Dashboard(){
   const fc={paid:0,pending:0,overdue:0,due:0}; Object.values(d.payments).forEach(arr=>arr.forEach(p=>fc[p.status]++))
   // « À confirmer » = versements signalés par les parents, pas encore encaissés :
   // ils ne comptent PAS dans le recouvrement (collected = fc.paid).
-  const pie=[['Payés',STATUS.ok],['À confirmer',STATUS.warn],['En retard',STATUS.danger],['Impayés',STATUS.neutral]].map(([n,c],i)=>({name:n,value:Object.values(fc)[i],color:c}))
+  const pie=[[t('Payés'),STATUS.ok],[t('À confirmer'),STATUS.warn],[t('En retard'),STATUS.danger],[t('Impayés'),STATUS.neutral]].map(([n,c],i)=>({name:n,value:Object.values(fc)[i],color:c}))
   const totalFees=pie.reduce((s,p)=>s+p.value,0); const collected=fc.paid
   const collectRate=totalFees?Math.round((collected/totalFees)*100):0
   // présence réelle : agrégation des appels enregistrés (14 derniers jours d'école)
@@ -178,7 +178,7 @@ export default function Dashboard(){
     const day=attDays[iso]=attDays[iso]||{present:0,absent:0,late:0}
     Object.values(d.attendance[key]).forEach(v=>{ day[v]!=null&&day[v]++ }) }
   const attDates=Object.keys(attDays).sort()
-  const attend=attDates.slice(-14).map(iso=>({m:new Date(iso).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}),present:attDays[iso].present,absent:attDays[iso].absent+attDays[iso].late}))
+  const attend=attDates.slice(-14).map(iso=>({m:new Date(iso).toLocaleDateString(dateLocale(),{day:'2-digit',month:'short'}),present:attDays[iso].present,absent:attDays[iso].absent+attDays[iso].late}))
   const latestAtt=attDates[attDates.length-1]
   const absToday=latestAtt?attDays[latestAtt].absent:0, lateToday=latestAtt?attDays[latestAtt].late:0
   const todayIso=todayIsoLocal()
@@ -239,7 +239,7 @@ export default function Dashboard(){
           vit sur sa propre carte plus bas — deux jauges affichant 40 % faisaient doublon. */}
       <Link to="/app/finance" className="card p-5 block hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-1 flex items-center justify-between">{t('État des frais')} <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3><p className="text-xs text-muted mb-5">{t('Tous mois confondus')}</p>
         {/* un camembert force à comparer des angles ; une barre empilée compare des longueurs */}
-        <div className="mb-1"><div className="text-3xl font-extrabold tabular-nums leading-none">{collected}<span className="text-base font-semibold text-muted"> / {totalFees} mois</span></div>
+        <div className="mb-1"><div className="text-3xl font-extrabold tabular-nums leading-none">{collected}<span className="text-base font-semibold text-muted"> / {totalFees} {t('mois')}</span></div>
           <div className="text-xs text-muted mt-1">{t('réglés à ce jour')}</div></div>
         <div className="mt-5"><DistributionBar items={pie}/></div>
       </Link>
@@ -248,8 +248,8 @@ export default function Dashboard(){
           <defs><linearGradient id="gP" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={SERIES[0]} stopOpacity={.22}/><stop offset="100%" stopColor={SERIES[0]} stopOpacity={0}/></linearGradient></defs>
           <CartesianGrid {...chartGrid}/>
           <XAxis dataKey="m" {...chartAxis}/><YAxis {...chartAxis} width={42}/><Tooltip {...chartTip}/>
-          <Area type="monotone" dataKey="present" name="Présents" stroke={SERIES[0]} strokeWidth={2} fill="url(#gP)" dot={false} activeDot={{r:4,strokeWidth:2,stroke:'#fff'}}/>
-          <Area type="monotone" dataKey="absent" name="Absents" stroke={STATUS.danger} strokeWidth={2} fill="transparent" dot={false} activeDot={{r:4,strokeWidth:2,stroke:'#fff'}}/>
+          <Area type="monotone" dataKey="present" name={t('Présents')} stroke={SERIES[0]} strokeWidth={2} fill="url(#gP)" dot={false} activeDot={{r:4,strokeWidth:2,stroke:'#fff'}}/>
+          <Area type="monotone" dataKey="absent" name={t('Absents')} stroke={STATUS.danger} strokeWidth={2} fill="transparent" dot={false} activeDot={{r:4,strokeWidth:2,stroke:'#fff'}}/>
         </AreaChart></ResponsiveContainer></div>
         <div className="flex gap-4 mt-2 justify-center">
           <span className="inline-flex items-center gap-1.5 text-xs text-muted"><i className="w-2.5 h-2.5 rounded-full" style={{background:SERIES[0]}}/>{t('Présents')}</span>
@@ -262,14 +262,14 @@ export default function Dashboard(){
         <SoftBars data={cycleData} height={176} showValues/>
       </Link>}
       <Link to="/app/finance" className="card p-5 block hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-3 flex items-center justify-between">{t('Taux de recouvrement')} <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3>
-        <div className="grid place-items-center h-44"><Gauge value={collectRate} color={STATUS.ok} label={`${collected} / ${totalFees} mois`} size={142}/></div>
+        <div className="grid place-items-center h-44"><Gauge value={collectRate} color={STATUS.ok} label={`${collected} / ${totalFees} ${t('mois')}`} size={142}/></div>
       </Link>
     </div>
-    <Card className="p-5 mt-4"><div className="flex items-center justify-between mb-3"><h3 className="font-bold flex items-center gap-1.5"><ClipboardCheck size={16}/> {t('Évaluations enregistrées')}</h3><Link to="/app/results" className="text-xs font-semibold accent-text inline-flex items-center gap-1">Suivi élèves <ChevronRight size={13}/></Link></div>
-      {d.evaluations.length? <div className="overflow-x-auto scroll-thin -mx-5 -mb-5"><table className="w-full text-sm"><thead><tr className="text-left text-[12px] uppercase tracking-wide text-muted bg-canvas"><th className="px-4 py-3 font-semibold">Date</th><th className="px-4 py-3 font-semibold">Classe</th><th className="px-4 py-3 font-semibold">Matière</th><th className="px-4 py-3 font-semibold">Leçon</th><th className="px-4 py-3 font-semibold">Enseignant</th><th className="px-4 py-3 font-semibold text-center">Élèves notés</th><th className="px-4 py-3 font-semibold text-center">Moyenne</th></tr></thead>
+    <Card className="p-5 mt-4"><div className="flex items-center justify-between mb-3"><h3 className="font-bold flex items-center gap-1.5"><ClipboardCheck size={16}/> {t('Évaluations enregistrées')}</h3><Link to="/app/results" className="text-xs font-semibold accent-text inline-flex items-center gap-1">{t('Suivi élèves')} <ChevronRight size={13}/></Link></div>
+      {d.evaluations.length? <div className="overflow-x-auto scroll-thin -mx-5 -mb-5"><table className="w-full text-sm"><thead><tr className="text-left text-[12px] uppercase tracking-wide text-muted bg-canvas"><th className="px-4 py-3 font-semibold">{t('Date')}</th><th className="px-4 py-3 font-semibold">{t('Classe')}</th><th className="px-4 py-3 font-semibold">{t('Matière')}</th><th className="px-4 py-3 font-semibold">{t('Leçon')}</th><th className="px-4 py-3 font-semibold">{t('Enseignant')}</th><th className="px-4 py-3 font-semibold text-center">{t('Élèves notés')}</th><th className="px-4 py-3 font-semibold text-center">{t('Moyenne')}</th></tr></thead>
         <tbody className="divide-y divide-line">{d.evaluations.slice(0,8).map(ev=>{ const cls=d.classes.find(c=>c.id===ev.classId); const studs=d.students.filter(s=>s.classId===ev.classId); const scores=studs.map(s=>studentSummary(ev,s.id).score).filter(x=>x!=null); const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):null; const m=mentionFor(avg)
-        return (<tr key={ev.id}><td className="px-4 py-3 text-muted whitespace-nowrap">{new Date(ev.at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})}</td><td className="px-4 py-3 font-medium">{ev.className||cls?.name}</td><td className="px-4 py-3">{ev.subject}</td><td className="px-4 py-3 text-muted">{ev.lesson||"—"}</td><td className="px-4 py-3 text-muted">{ev.teacher}</td><td className="px-4 py-3 text-center">{scores.length}</td><td className="px-4 py-3 text-center font-bold" style={{color:m.color}}>{avg!=null?`${avg}/100`:'—'}</td></tr>) })}</tbody></table></div>
-       : <EmptyState icon={<ClipboardCheck size={22}/>} title="Aucune évaluation enregistrée" sub="Les évaluations des enseignants apparaîtront ici."/>}
+        return (<tr key={ev.id}><td className="px-4 py-3 text-muted whitespace-nowrap">{new Date(ev.at).toLocaleDateString(dateLocale(),{day:'2-digit',month:'short'})}</td><td className="px-4 py-3 font-medium">{ev.className||cls?.name}</td><td className="px-4 py-3">{ev.subject}</td><td className="px-4 py-3 text-muted">{ev.lesson||"—"}</td><td className="px-4 py-3 text-muted">{ev.teacher}</td><td className="px-4 py-3 text-center">{scores.length}</td><td className="px-4 py-3 text-center font-bold" style={{color:m.color}}>{avg!=null?`${avg}/100`:'—'}</td></tr>) })}</tbody></table></div>
+       : <EmptyState icon={<ClipboardCheck size={22}/>} title={t('Aucune évaluation enregistrée')} sub={t('Les évaluations des enseignants apparaîtront ici.')}/>}
     </Card></>)
 }
 
@@ -346,7 +346,7 @@ function Workbench({ items, className='' }){
               <span className="w-9 h-9 grid place-items-center rounded-xl shrink-0" style={{background:c+'16',color:c}}><Ic n={it.icon} size={17}/></span>
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-semibold group-hover:accent-text break-words">{it.label}</span>
-                <span className="block text-[12px] text-muted truncate">{it.sub}</span></span>
+                <span className="block text-[12px] text-muted truncate">{t(it.sub)}</span></span>
               <ChevronRight size={15} className="text-muted shrink-0 group-hover:accent-text"/>
             </Link>)})}
         </div>}

@@ -24,13 +24,14 @@ import { applications, docsComplete, openClasses } from './admissions.js'
 import { accidents } from './accidents.js'
 import { leaves, payrolls, monthLabel } from './hr.js'
 import { now, todayIso } from './clock.js'
+import { t } from './i18n.js'
 
 const HOURS = 3600 * 1000
 /** Un accusé de réception qui attend plus de 24 h devient un retard à relancer. */
 export const ACK_LATE_HOURS = 24
 
-/** « 3 candidatures » / « 1 candidature » — le français d'abord. */
-const n_ = (n, sing, plur) => `${n} ${n > 1 ? plur : sing}`
+/** « 3 candidatures » / « 1 candidature » — le libellé suit la langue (t()). */
+const n_ = (n, sing, plur) => `${n} ${t(n > 1 ? plur : sing)}`
 
 /**
  * LA LISTE DE TRAVAIL. Retourne des items triés par gravité :
@@ -144,8 +145,8 @@ export function decisionsFor(user) {
     payrolls().filter(p => p.stage !== 'paye').forEach(p => add(1, {
       key: 'hr-paie-' + p.month, icon: 'Banknote', tone: 'warn', to: '/app/hr',
       label: p.stage === 'brouillon'
-        ? `paie de ${monthLabel(p.month)} à valider`
-        : `paie de ${monthLabel(p.month)} validée — à verser`,
+        ? `${t('paie de')} ${monthLabel(p.month)} ${t('à valider')}`
+        : `${t('paie de')} ${monthLabel(p.month)} ${t('validée — à verser')}`,
       sub: p.stage === 'brouillon'
         ? 'Un brouillon se corrige ; une paie validée ne bouge plus.'
         : 'Le virement clôt le mois.',
@@ -180,7 +181,7 @@ export function decisionsFor(user) {
       count: confies.length, key: 'req-mes-travaux', icon: 'Hammer',
       tone: late ? 'warn' : 'info', to: '/app/requests',
       label: n_(confies.length, 'travail qui m’est confié', 'travaux qui me sont confiés'),
-      sub: late ? `${late} en retard sur l’échéance.` : 'Clôturez quand c’est fait — la trace s’écrit toute seule.',
+      sub: late ? `${late} ${t('en retard sur l’échéance.')}` : 'Clôturez quand c’est fait — la trace s’écrit toute seule.',
     })
   }
 
