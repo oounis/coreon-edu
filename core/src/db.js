@@ -442,6 +442,18 @@ function seed(){
         srec[id]= r<0.03?'absent': r<0.065?'late': r<0.09?'conge':'present' })
       staffAttendance[iso]=srec
     }
+    // La fenêtre « Absents » de la direction doit toujours pouvoir agir : on
+    // garantit qu'au moins UN enfant dont le parent a un compte (p1..p5) est
+    // absent aujourd'hui — et SEULEMENT si le hasard du jour n'en a produit
+    // aucun (on ne réécrit jamais une donnée déjà correcte). Sans cela, certains
+    // jours, « Prévenir le parent » n'apparaissait pour personne.
+    const isoT=new Date().toISOString().slice(0,10)
+    const linked=['s1','s2','s3','s11','s4']
+    const absentToday=id=>{ const s=students.find(x=>x.id===id); return s && attendance[s.classId+'_'+isoT]?.[id]==='absent' }
+    if(!linked.some(absentToday)){
+      const s=students.find(x=>x.id==='s1'); const rec=s && attendance[s.classId+'_'+isoT]
+      if(rec) rec['s1']='absent'
+    }
   }
   const settings={ levels:['nursery','prekg','kg1','kg2','g1','g2','g3','g4','g5','g6'], schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026',
     director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis',
