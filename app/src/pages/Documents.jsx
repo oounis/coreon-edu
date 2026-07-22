@@ -23,7 +23,7 @@ function docModel(rec) {
   const cls = classById(rec.classId)
   const rows = [
     ['Nom & prénom', rec.studentName],
-    ['Classe', cls ? `${cls.name} (${cls.grade || ''})` : '—'],
+    ['Classe', cls ? `${cls.name} (${cls.grade || ''})` : '·'],
     ['Année scolaire', sc.year],
   ]
   const BODY = {
@@ -51,14 +51,14 @@ function PaperDoc({ rec }) {
       <h2 className="text-center text-xl font-extrabold uppercase my-4">{m.title}</h2>
       <p className="leading-7">{m.intro}</p>
       <div className="my-3 pl-4 border-l-2" style={{ borderColor: '#EEF2FF' }}>
-        {m.rows.map(([k, v]) => <div key={k}><b>{k} :</b> {v || '—'}</div>)}
+        {m.rows.map(([k, v]) => <div key={k}><b>{k} :</b> {v || '·'}</div>)}
       </div>
       <p className="leading-7">{m.body}</p>
       <div className="mt-6 grid grid-cols-2 gap-4">
-        <div className="text-xs text-muted"><b>Délivré par :</b><div className="flex items-center gap-1 mt-1"><Check size={10} className="shrink-0" /> {m.by} — {m.today}</div></div>
+        <div className="text-xs text-muted"><b>Délivré par :</b><div className="flex items-center gap-1 mt-1"><Check size={10} className="shrink-0" /> {m.by} · {m.today}</div></div>
         <div className="text-center"><div className="h-12" /><div className="border-t border-ink/30 pt-1 text-xs">Cachet & signature de la Direction</div></div>
       </div>
-      <div className="text-[11px] text-muted mt-6 pt-2 border-t border-line">Document n° {m.ref}, inscrit au registre — généré par Coreon Edu, conforme à la {LEGAL.law} (INPDP).</div>
+      <div className="text-[11px] text-muted mt-6 pt-2 border-t border-line">Document n° {m.ref}, inscrit au registre · généré par Coreon Edu, conforme à la {LEGAL.law} (INPDP).</div>
     </div>)
 }
 
@@ -71,11 +71,11 @@ function downloadPDF(rec) {
   y = 44; doc.setTextColor(20); doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.text(m.title.toUpperCase(), W / 2, y, { align: 'center' })
   y += 12; doc.setFont('helvetica', 'normal'); doc.setFontSize(11)
   doc.text(doc.splitTextToSize(m.intro, W - 40), 20, y); y += 10
-  doc.setFont('helvetica', 'bold'); m.rows.forEach(([k, v]) => { doc.text(`${k} : `, 24, y); const kw = doc.getTextWidth(`${k} : `); doc.setFont('helvetica', 'normal'); doc.text(String(v || '—'), 24 + kw, y); doc.setFont('helvetica', 'bold'); y += 7 })
+  doc.setFont('helvetica', 'bold'); m.rows.forEach(([k, v]) => { doc.text(`${k} : `, 24, y); const kw = doc.getTextWidth(`${k} : `); doc.setFont('helvetica', 'normal'); doc.text(String(v || '·'), 24 + kw, y); doc.setFont('helvetica', 'bold'); y += 7 })
   y += 4; doc.setFont('helvetica', 'normal'); doc.text(doc.splitTextToSize(m.body, W - 40), 20, y); y += 26
-  doc.setFontSize(9); doc.setTextColor(110); doc.text(`Délivré par : ${m.by} — ${m.today}`, 20, y)
+  doc.setFontSize(9); doc.setTextColor(110); doc.text(`Délivré par : ${m.by} · ${m.today}`, 20, y)
   doc.text('Cachet & signature de la Direction', W - 20, y + 6, { align: 'right' })
-  doc.setFontSize(7.5); doc.text(`Document n° ${m.ref}, inscrit au registre — généré par Coreon Edu, conforme à la ${LEGAL.law} (INPDP).`, 20, 285)
+  doc.setFontSize(7.5); doc.text(`Document n° ${m.ref}, inscrit au registre : généré par Coreon Edu, conforme à la ${LEGAL.law} (INPDP).`, 20, 285)
   doc.save(`${m.ref}_${rec.studentName.replace(/ /g, '_')}.pdf`)
   toast.success('PDF téléchargé')
 }
@@ -95,7 +95,7 @@ export default function Documents() {
     if (!sid) return toast.error("Choisissez l'élève")
     const r = issueDocument({ type, studentId: sid, addressedTo, by: u.name })
     if (r.error) return toast.error(r.error)
-    toast.success(`${docTypeOf(type).label} n° ${r.doc.number} — inscrit au registre`)
+    toast.success(`${docTypeOf(type).label} n° ${r.doc.number} : inscrit au registre`)
     setAddressedTo(''); setView(r.doc); force(x => x + 1)
   }
 
@@ -116,7 +116,7 @@ export default function Documents() {
         <div className="grid sm:grid-cols-2 gap-3 items-end">
           <Field label={t?.needs === 'archived' ? 'Élève (dossiers archivés)' : 'Élève'}>
             <Select value={sid} onChange={e => setSid(e.target.value)}>
-              <option value="">— Choisir —</option>
+              <option value="">Choisir</option>
               {pool.map(s => <option key={s.id} value={s.id}>{s.name}{s.classId ? ` · ${classById(s.classId)?.name || ''}` : ''}</option>)}
             </Select>
           </Field>
@@ -124,14 +124,14 @@ export default function Documents() {
             <Input value={addressedTo} onChange={e => setAddressedTo(e.target.value)} placeholder="CNSS" />
           </Field>
         </div>
-        {pool.length === 0 && <p className="text-[12px] text-muted mt-2">Aucun élève dans cet état{t?.needs === 'archived' ? ' — la radiation ne concerne que les dossiers archivés' : ''}.</p>}
+        {pool.length === 0 && <p className="text-[12px] text-muted mt-2">Aucun élève dans cet état{t?.needs === 'archived' ? 'la radiation ne concerne que les dossiers archivés' : ''}.</p>}
         <Btn className="mt-3" onClick={issue}><ScrollText size={15} /> Délivrer & inscrire au registre</Btn>
       </Card>
 
       <Card className="p-4">
         <div className="text-xs font-bold uppercase tracking-wide text-muted mb-2">Le registre</div>
         <div className="text-3xl font-extrabold">{sum.thisMonth}<span className="text-sm font-semibold text-muted ml-2">ce mois-ci · {sum.total} au total</span></div>
-        <p className="text-[12px] text-muted mt-2">Chaque document porte un numéro de série par type et par année. Le registre ne s'efface jamais — une série qui saute est une remarque d'audit.</p>
+        <p className="text-[12px] text-muted mt-2">Chaque document porte un numéro de série par type et par année. Le registre ne s'efface jamais : une série qui saute est une remarque d'audit.</p>
       </Card>
     </div>
 

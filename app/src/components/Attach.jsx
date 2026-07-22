@@ -102,7 +102,7 @@ export default function Attach({ types, value = [], onChange, readOnly = false }
         ...value.filter(a => a.type !== t),
         { type: t, name: f.name, size: stored.size, mime: stored.mime, data: stored.data, at: Date.now() },
       ])
-      toast.success(`${t} — reçu.`)
+      toast.success(`${t} · reçu.`)
     } catch {
       toast.error('Ce fichier n’a pas pu être lu. Réessayez.')
     } finally {

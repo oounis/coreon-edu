@@ -162,7 +162,7 @@ export function cancelInvoice(id, reason, by) {
   const inv = invoices().find(i => i.id === id)
   if (!inv) return { error: 'Facture introuvable.' }
   if (inv.stage === 'annulee') return { error: 'Déjà annulée.' }
-  if (!reason?.trim()) return { error: 'Un motif est obligatoire — une annulation sans motif n’est pas défendable.' }
+  if (!reason?.trim()) return { error: 'Un motif est obligatoire : une annulation sans motif n’est pas défendable.' }
   const d = db()
   d.invoices = d.invoices.map(i => i.id !== id ? i : {
     ...i, stage: 'annulee', cancelledAt: now(), cancelReason: reason, cancelledBy: by,

@@ -27,15 +27,15 @@ export default function Payments(){
     const m=months[i]
     if(m.status==='paid'||m.status==='pending') return
     mutate(db=>{db.payments[child.id][i].status='pending'})
-    notify({role:'admin',kind:'payment',actor:u.name,title:'Paiement signalé',body:`${child.name} · ${m.month} — à confirmer`,link:'/app/finance'})
-    notify({role:'schooladmin',kind:'payment',actor:u.name,title:'Paiement signalé',body:`${child.name} · ${m.month} — à confirmer`,link:'/app/finance'})
+    notify({role:'admin',kind:'payment',actor:u.name,title:'Paiement signalé',body:`${child.name} · ${m.month} · à confirmer`,link:'/app/finance'})
+    notify({role:'schooladmin',kind:'payment',actor:u.name,title:'Paiement signalé',body:`${child.name} · ${m.month} · à confirmer`,link:'/app/finance'})
     toast.success(`${m.month} signalé · en attente de confirmation de l'administration`); force(x=>x+1) }
 
   const declareAll=()=>{
     if(declarable.length===0) return
     mutate(db=>{db.payments[child.id].forEach(m=>{ if(m.status==='due'||m.status==='overdue') m.status='pending' })})
-    notify({role:'admin',kind:'payment',actor:u.name,title:'Paiement signalé',body:`${child.name} · ${declarable.length} mois signalés — à confirmer`,link:'/app/finance'})
-    notify({role:'schooladmin',kind:'payment',actor:u.name,title:'Paiement signalé',body:`${child.name} · ${declarable.length} mois signalés — à confirmer`,link:'/app/finance'})
+    notify({role:'admin',kind:'payment',actor:u.name,title:'Paiement signalé',body:`${child.name} · ${declarable.length} mois signalés : à confirmer`,link:'/app/finance'})
+    notify({role:'schooladmin',kind:'payment',actor:u.name,title:'Paiement signalé',body:`${child.name} · ${declarable.length} mois signalés : à confirmer`,link:'/app/finance'})
     toast.success("Versement signalé · l'administration confirmera après encaissement"); force(x=>x+1) }
   if(!child) return <Card><EmptyState icon={<CreditCard size={26}/>} title="Aucun enfant associé" sub="Demandez à la direction de lier votre compte à votre enfant."/></Card>
   return (<>

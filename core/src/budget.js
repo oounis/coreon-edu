@@ -27,7 +27,7 @@ export const expenses = () => db().expenses || []
 
 export function addExpense({ date = todayIso(), category = 'autre', label, amount, by }) {
   const a = Number(amount) || 0
-  if (!String(label || '').trim()) return { error: 'Dites ce qui a été payé — une dépense sans libellé ne se défend pas.' }
+  if (!String(label || '').trim()) return { error: 'Dites ce qui a été payé : une dépense sans libellé ne se défend pas.' }
   if (a <= 0) return { error: 'Le montant doit être positif.' }
   const rec = {
     id: 'ex' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),

@@ -42,7 +42,7 @@ export default function Journal({ user }) {
 
       {user.role !== 'parent' && (
         <Card style={{ marginBottom: 12 }}>
-          <Text style={{ color: C.muted, fontSize: 13 }}>Lecture seule sur mobile — la saisie du journal se fait sur l'ordinateur de la classe.</Text>
+          <Text style={{ color: C.muted, fontSize: 13 }}>Lecture seule sur mobile : la saisie du journal se fait sur l'ordinateur de la classe.</Text>
         </Card>
       )}
 
@@ -62,7 +62,7 @@ export default function Journal({ user }) {
               <View key={m.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 <Ic n={m.icon} size={16} color={C.muted} />
                 <Text style={{ flex: 1, color: C.ink, fontSize: 13 }}>{m.label}</Text>
-                {ate ? <Badge label={ate.label} color={TONE[ate.tone]} /> : <Text style={{ color: C.muted, fontSize: 12 }}>—</Text>}
+                {ate ? <Badge label={ate.label} color={TONE[ate.tone]} /> : <Text style={{ color: C.muted, fontSize: 12 }}> </Text>}
               </View>)
           })}
         </View>

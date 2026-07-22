@@ -72,7 +72,7 @@ export default function StudentProfile() {
   const go = anchor => document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   const tellParent = () => {
     if (!parent) return toast.error('Aucun compte parent lié')
-    notify({ to: parent.id, studentId: s.id, email: true, kind: 'info', actor: u.name, title: `Au sujet de ${s.name.split(' ')[0]}`, body: 'La direction souhaite vous parler — merci de passer ou d\'appeler l\'école.' })
+    notify({ to: parent.id, studentId: s.id, email: true, kind: 'info', actor: u.name, title: `Au sujet de ${s.name.split(' ')[0]}`, body: 'La direction souhaite vous parler : merci de passer ou d\'appeler l\'école.' })
     toast.success(`Parent de ${s.name.split(' ')[0]} prévenu${parent.email ? ' (in-app + email)' : ''}`)
   }
 
@@ -97,7 +97,7 @@ export default function StudentProfile() {
             {allergic && <Badge tone="warn" label={`Allergie : ${s.allergies}`} status="allergy" />}
           </div>
           <div className="text-sm text-muted mt-0.5">
-            {cls ? `${cls.name} · ${cls.cycle}` : 'Sans classe'}{s.dob && ` · né(e) le ${s.dob}`}{s.bloodGroup && s.bloodGroup !== '—' && ` · ${s.bloodGroup}`}
+            {cls ? `${cls.name} · ${cls.cycle}` : 'Sans classe'}{s.dob && ` · né(e) le ${s.dob}`}{s.bloodGroup && s.bloodGroup !== '·' && ` · ${s.bloodGroup}`}
           </div>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -110,8 +110,8 @@ export default function StudentProfile() {
 
     {/* ── Les quatre chiffres — chacun mène à sa section ── */}
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-      <Tile icon={<CalendarCheck size={19} />} value={stats.rate != null ? `${stats.rate}%` : '—'} label={`Présence · 30 j (${stats.totalMarks} appels)`} tone={STATUS.ok} anchor="sec-presence" />
-      <Tile icon={<Gauge size={19} />} value={stats.avg != null ? `${stats.avg}/100` : '—'} label="Moyenne de l'année" anchor="sec-resultats" />
+      <Tile icon={<CalendarCheck size={19} />} value={stats.rate != null ? `${stats.rate}%` : '·'} label={`Présence · 30 j (${stats.totalMarks} appels)`} tone={STATUS.ok} anchor="sec-presence" />
+      <Tile icon={<Gauge size={19} />} value={stats.avg != null ? `${stats.avg}/100` : '·'} label="Moyenne de l'année" anchor="sec-resultats" />
       <Tile icon={<Wallet size={19} />} value={stats.unpaid.length} label="Mois impayés" tone={stats.unpaid.length ? STATUS.danger : STATUS.ok} anchor="sec-paiements" />
       <Tile icon={<Smile size={19} />} value={stats.encouragements} label={`Encouragements (${stats.behavior.length} obs.)`} tone={STATUS.ok} anchor="sec-comportement" />
     </div>
@@ -120,11 +120,11 @@ export default function StudentProfile() {
       {/* Famille & contact */}
       <SectionCard icon={<Users size={16} />} tint="brand" title="Famille & contact" bodyClass="p-4">
         <div className="space-y-1.5 text-sm">
-          {[['Parent (compte)', parent ? parent.name : '— aucun compte lié'],
+          {[['Parent (compte)', parent ? parent.name : 'aucun compte lié'],
             ['Père', s.fatherName], ['Mère', s.motherName],
             ['Téléphone', s.guardianPhone || s.phone], ['E-mail', s.email || parent?.email],
             ['Adresse', s.address], ['Urgence', s.emergencyName && `${s.emergencyName} · ${s.emergencyPhone}`]]
-            .filter(x => x[1] && x[1] !== '—').map(([k, v]) => (
+            .filter(x => x[1] && x[1] !== '·').map(([k, v]) => (
               <div key={k} className="flex justify-between gap-4 border-b border-line py-1.5 last:border-0">
                 <span className="text-muted">{k}</span><span className="font-medium text-right truncate">{v}</span></div>))}
         </div>
@@ -143,7 +143,7 @@ export default function StudentProfile() {
       {/* Résultats */}
       <SectionCard icon={<Gauge size={16} />} tint="grape" title="Résultats" sub="Moyenne de l'année et mention" bodyClass="p-4">
         <div id="sec-resultats" className="flex items-end gap-3">
-          <span className="text-3xl font-extrabold" style={{ color: stats.avg != null ? mentionFor(stats.avg).color : undefined }}>{stats.avg != null ? `${stats.avg}/100` : '—'}</span>
+          <span className="text-3xl font-extrabold" style={{ color: stats.avg != null ? mentionFor(stats.avg).color : undefined }}>{stats.avg != null ? `${stats.avg}/100` : '·'}</span>
           {stats.avg != null && <span className="text-sm font-bold px-2 py-0.5 rounded-full mb-1" style={{ background: mentionFor(stats.avg).color + '1E', color: mentionFor(stats.avg).color }}>{mentionFor(stats.avg).label}</span>}
         </div>
         <div className="mt-3"><Btn size="sm" variant="soft" onClick={() => setBulletin(true)}><FileText size={14} /> Voir le bulletin complet</Btn></div>
@@ -156,7 +156,7 @@ export default function StudentProfile() {
             const col = { paid: STATUS.ok, pending: STATUS.warn, overdue: STATUS.danger, due: STATUS.neutral }[m.status]
             return <span key={i} title={m.status} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: col + '1E', color: col }}>{m.month}</span>})}
         </div>
-        {stats.invoices.length > 0 && <p className="text-[12px] text-muted mt-2">{stats.invoices.length} facture(s) émise(s) — détail dans Comptabilité.</p>}
+        {stats.invoices.length > 0 && <p className="text-[12px] text-muted mt-2">{stats.invoices.length} facture(s) émise(s) · détail dans Comptabilité.</p>}
       </SectionCard>
 
       {/* Santé & sécurité */}
@@ -167,14 +167,14 @@ export default function StudentProfile() {
           <div className="flex justify-between border-b border-line py-1.5"><span className="text-muted">Suivi médical</span><span className="font-medium">{s.medical || 'Aucun'}</span></div>
           <div className="flex justify-between border-b border-line py-1.5"><span className="text-muted">Vaccins</span>
             <span className="font-medium" style={stats.vaccines.due?.length ? { color: STATUS.warn } : {}}>
-              {stats.vaccines.unknown ? '—' : `${stats.vaccines.done.length} faits${stats.vaccines.due.length ? ` · ${stats.vaccines.due.length} en retard` : ' · à jour'}`}</span></div>
+              {stats.vaccines.unknown ? '·' : `${stats.vaccines.done.length} faits${stats.vaccines.due.length ? ` · ${stats.vaccines.due.length} en retard` : ' · à jour'}`}</span></div>
           <div className="flex justify-between py-1.5"><span className="text-muted flex items-center gap-1"><ShieldCheck size={13} /> Personnes autorisées</span>
-            <span className="font-medium">{stats.pickups.length ? stats.pickups.map(p => p.name.split(' ')[0]).join(', ') : 'Aucune — à compléter !'}</span></div>
+            <span className="font-medium">{stats.pickups.length ? stats.pickups.map(p => p.name.split(' ')[0]).join(', ') : 'Aucune · à compléter !'}</span></div>
         </div>
       </SectionCard>
 
       {/* Comportement */}
-      <SectionCard icon={<Smile size={16} />} tint="mint" title="Comportement" sub="On observe pour encourager — jamais pour classer" bodyClass="p-4">
+      <SectionCard icon={<Smile size={16} />} tint="mint" title="Comportement" sub="On observe pour encourager : jamais pour classer" bodyClass="p-4">
         <div id="sec-comportement">
           {stats.behavior.length === 0 ? <p className="text-sm text-muted">Aucune observation.</p>
             : stats.behavior.slice(0, 5).map(e => {

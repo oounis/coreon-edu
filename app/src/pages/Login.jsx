@@ -68,7 +68,7 @@ export default function Login() {
             {t("L'école qu'on a envie d'ouvrir.")}
           </h1>
           <p className="mt-5 text-white/75 leading-relaxed" style={{ maxWidth: '42ch' }}>
-            Évaluer une classe en 30&nbsp;secondes, suivre la journée de son enfant en direct, organiser la vie commune — web et mobile, les mêmes données.
+            Évaluer une classe en 30&nbsp;secondes, suivre la journée de son enfant en direct, organiser la vie commune : web et mobile, les mêmes données.
           </p>
 
           {/* aperçu produit : une carte de verre aux chiffres vivants */}
@@ -148,7 +148,7 @@ export default function Login() {
             </div>
 
             <div className="mt-7 pt-6" style={{ borderTop: `1px solid ${N.line}` }}>
-              <div className="text-xs font-semibold text-muted mb-2.5">{t('Démo — connexion en un clic :')}</div>
+              <div className="text-xs font-semibold text-muted mb-2.5">{t('Démo · connexion en un clic :')}</div>
               <div className="flex flex-wrap gap-2">
                 <button onClick={() => { loginAs('u_owner'); nav('/app') }}
                   className="lg-pill text-xs font-semibold px-3 py-1.5 rounded-full border border-line bg-white" style={{ color: ROLE.owner.color }}>

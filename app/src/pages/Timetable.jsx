@@ -42,7 +42,7 @@ export default function Timetable(){
       sub={<span className="inline-flex items-center gap-2 flex-wrap">
         {mode==='me'&&teacher ? <>{teacher.name} · {teacher.subject}</> : <>Classe {clsName}</>}
         <span className="text-line">|</span>{sessions} séances · Lun–Ven · 6 périodes
-        {editable && <span className="inline-flex items-center gap-1 text-[12px] font-bold accent-soft accent-text px-2 py-0.5 rounded-full"><Pencil size={11}/> mode édition — cliquez sur une case</span>}
+        {editable && <span className="inline-flex items-center gap-1 text-[12px] font-bold accent-soft accent-text px-2 py-0.5 rounded-full"><Pencil size={11}/> mode édition · cliquez sur une case</span>}
       </span>}
       action={
         <div className="flex items-end gap-3">
@@ -51,7 +51,7 @@ export default function Timetable(){
         </div>
       }/>
 
-    {isSummer()&&<div className="flex items-center gap-2.5 rounded-2xl px-4 py-3 mb-3 text-sm font-semibold" style={{background:'linear-gradient(90deg,#FEF3C7,#FDE68A55)',color:'#92400E'}}><Sun size={16}/> Vacances d'été — voici l'emploi du temps type ; les cours reprennent le {rentreeLabel()}.</div>}
+    {isSummer()&&<div className="flex items-center gap-2.5 rounded-2xl px-4 py-3 mb-3 text-sm font-semibold" style={{background:'linear-gradient(90deg,#FEF3C7,#FDE68A55)',color:'#92400E'}}><Sun size={16}/> Vacances d'été · voici l'emploi du temps type ; les cours reprennent le {rentreeLabel()}.</div>}
     <div className="card p-3 overflow-x-auto scroll-thin" style={{height:isSummer()?'max(440px, calc(100vh - 260px))':'max(480px, calc(100vh - 205px))'}}>
       <div className="h-full min-w-[680px] grid gap-1.5" style={{gridTemplateColumns:'56px repeat(5,1fr)', gridTemplateRows:'34px repeat(6,1fr)'}}>
         <div/>
@@ -69,7 +69,7 @@ export default function Timetable(){
     <Modal open={!!edit} onClose={()=>setEdit(null)} title="Modifier la séance"
       footer={<><Btn variant="danger" onClick={clearCell}><Trash2 size={15}/> Libérer</Btn><div className="flex-1"/><Btn variant="ghost" onClick={()=>setEdit(null)}>Annuler</Btn><Btn onClick={saveCell}>Enregistrer</Btn></>}>
       {edit&&<div className="grid sm:grid-cols-2 gap-3">
-        <Field label="Matière"><Select value={edit.subject} onChange={e=>setEdit({...edit,subject:e.target.value})}><option value="">— Libre —</option>{TT_SUBJECTS.map(([n])=><option key={n}>{n}</option>)}</Select></Field>
+        <Field label="Matière"><Select value={edit.subject} onChange={e=>setEdit({...edit,subject:e.target.value})}><option value="">Libre</option>{TT_SUBJECTS.map(([n])=><option key={n}>{n}</option>)}</Select></Field>
         <Field label="Salle"><Select value={edit.room} onChange={e=>setEdit({...edit,room:e.target.value})}>{ROOMS.map(r=><option key={r}>{r}</option>)}</Select></Field>
         <div className="sm:col-span-2 text-xs text-muted">{DAYS[edit.di]} · {PERIODS[edit.pi][0]}–{PERIODS[edit.pi][1]}</div>
       </div>}
@@ -84,7 +84,7 @@ function Row({ row, pi, todayIdx, editable, onCell }){
       if(!c) return (
         <button key={di} onClick={()=>onCell(pi,di,null)} disabled={!editable}
           className={`h-full w-full rounded-xl grid place-items-center text-muted/70 ${di===todayIdx?'bg-canvas':'bg-canvas/50'} ${editable?'hover:bg-canvas border-2 border-dashed border-line':''}`}>
-          {editable? <Plus size={14}/> : <span className="text-[11px]">—</span>}
+          {editable? <Plus size={14}/> : <span className="text-[11px]"> </span>}
         </button>)
       const {Icon,color}=subjectMeta(c.subject)
       return (

@@ -31,7 +31,7 @@ function RemoteLogin({ onDone }) {
     <div className="min-h-screen grid place-items-center bg-canvas p-4">
       <form onSubmit={submit} className="card w-full max-w-sm p-7">
         <div className="text-2xl font-extrabold mb-1">Coreon Edu</div>
-        <p className="text-sm text-muted mb-5">L'école de votre établissement — connectez-vous.</p>
+        <p className="text-sm text-muted mb-5">L'école de votre établissement : connectez-vous.</p>
         <label className="block mb-3">
           <span className="text-xs font-semibold text-muted">E-mail</span>
           <input type="email" required value={email} onChange={e => setEmail(e.target.value)}

@@ -50,7 +50,7 @@ export default function Messages(){
       </Card>
     </div>
     <Modal open={newOpen} onClose={()=>setNewOpen(false)} title="Nouveau message" footer={<><Btn variant="ghost" onClick={()=>setNewOpen(false)}>Annuler</Btn><Btn onClick={startNew}>Démarrer</Btn></>}>
-      <Field label="Destinataire"><Select value={to} onChange={e=>setTo(e.target.value)}><option value="">— choisir —</option>{others.map(u=><option key={u.id} value={u.id}>{u.name} · {ROLE[u.role]?.label}</option>)}</Select></Field>
+      <Field label="Destinataire"><Select value={to} onChange={e=>setTo(e.target.value)}><option value="">choisir</option>{others.map(u=><option key={u.id} value={u.id}>{u.name} · {ROLE[u.role]?.label}</option>)}</Select></Field>
     </Modal>
   </>)
 }

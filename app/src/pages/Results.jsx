@@ -100,7 +100,7 @@ export default function Results(){
     ) : (<>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
         <StatCard tint="brand"  icon={<ClipboardCheck size={20}/>} value={data.evals.length} label="Évaluations" onClick={()=>setTile('evals')}/>
-        <StatCard tint="mint"   icon={<Gauge size={20}/>}          value={data.overall!=null?`${data.overall}/100`:'—'} label="Moyenne générale" onClick={()=>setTile('overall')}/>
+        <StatCard tint="mint"   icon={<Gauge size={20}/>}          value={data.overall!=null?`${data.overall}/100`:'·'} label="Moyenne générale" onClick={()=>setTile('overall')}/>
         <StatCard tint="sky"    icon={<Users size={20}/>}          value={data.students.length} label="Élèves évalués" onClick={()=>setTile('students')}/>
         <StatCard tint="coral"  icon={<LifeBuoy size={20}/>}       value={struggling} label="En difficulté" sub="moy. < 40" onClick={()=>setTile('struggling')}/>
       </div>
@@ -119,7 +119,7 @@ export default function Results(){
                   <span className="text-sm font-extrabold" style={{color:m.color}}>{e.avg}/100</span>
                 </div>)})}
             </div>)},
-          overall:{ title:'Moyenne générale — le détail', body:(<>
+          overall:{ title:'Moyenne générale · le détail', body:(<>
             <div className="flex items-end gap-4 mb-4">
               <span className="text-4xl font-extrabold" style={{color:mentionFor(data.overall).color}}>{data.overall}/100</span>
               <span className="text-sm text-muted pb-1">{data.evals.length} évaluations · {data.students.length} élèves</span>
@@ -164,13 +164,13 @@ export default function Results(){
         <SectionCard icon={<Trophy size={16}/>} tint="mint" title="Top élèves" sub="Les meilleures moyennes de la période" bodyClass="p-3">
           {top.map((x,i)=><RankRow key={x.s.id} x={x} i={i} onOpen={()=>setView(x.s)} best/>)}
         </SectionCard>
-        <SectionCard icon={<LifeBuoy size={16}/>} tint="coral" title="À accompagner" sub="Les moyennes les plus fragiles — à suivre de près" bodyClass="p-3">
+        <SectionCard icon={<LifeBuoy size={16}/>} tint="coral" title="À accompagner" sub="Les moyennes les plus fragiles : à suivre de près" bodyClass="p-3">
           {low.map((x,i)=><RankRow key={x.s.id} x={x} i={i} onOpen={()=>setView(x.s)}/>)}
         </SectionCard>
       </div>
 
       <SectionCard icon={<BookMarked size={16}/>} tint="grape" title="Performance par matière & leçon"
-        sub={`${classId==='all'?"Toute l'école":d.classes.find(c=>c.id===classId)?.name} · moyenne de toutes les évaluations de la période — le cœur du pilotage pédagogique`} className="mb-5">
+        sub={`${classId==='all'?"Toute l'école":d.classes.find(c=>c.id===classId)?.name} · moyenne de toutes les évaluations de la période · le cœur du pilotage pédagogique`} className="mb-5">
         <LessonMap data={subjectAgg}/>
       </SectionCard>
 
@@ -211,7 +211,7 @@ export default function Results(){
       </SectionCard>
     </>)}
 
-    <Modal open={!!view} onClose={()=>setView(null)} title={view?`Historique — ${view.name}`:''} size="2xl">
+    <Modal open={!!view} onClose={()=>setView(null)} title={view?`Historique · ${view.name}`:''} size="2xl">
       {view&&<>
         <div className="flex items-center gap-3 mb-4"><Avatar name={view.name} seed={view.id} size={44}/>
           <div><div className="font-bold">{view.name}</div><div className="text-xs text-muted">{classById(view.classId)?.name} · {classById(view.classId)?.cycle}</div></div></div>

@@ -91,7 +91,7 @@ function EventsTab({ u, toCover, force, accent }) {
           )}
 
           <Text style={{ fontSize: 12, fontWeight: '800', color: C.muted, marginTop: 10, marginBottom: 4 }}>Pourquoi une présence est nécessaire</Text>
-          {reasons.map(r => <Text key={r} style={{ fontSize: 12, color: C.ink, marginTop: 2 }}>· {r}</Text>)}
+          {reasons.map(r => <Text key={r} style={{ fontSize: 12, color: C.ink, marginTop: 2 }}> {r}</Text>)}
 
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 8 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
@@ -142,7 +142,7 @@ function ChecklistSheet({ evId, u, onClose, force }) {
     // Clore la check-list écrit d'office dans la main courante : c'est la trace.
     mutate(db => {
       db.logbook.unshift({ id: uid('l'), at: Date.now(), agentName: u.name, kind: 'evenement',
-        place: ev.place, text: `« ${ev.title} » — check-list de sécurité complétée (${checklistTotal()} points).` })
+        place: ev.place, text: `« ${ev.title} » · check-list de sécurité complétée (${checklistTotal()} points).` })
     })
     notify({ role: 'schooladmin', kind: 'info', actor: u.name, title: 'Événement sécurisé',
       body: `« ${ev.title} » : check-list complétée.`, link: '/app/security' })
@@ -193,7 +193,7 @@ function VisitorsTab({ u, d, force, accent }) {
 
   const checkIn = () => {
     if (!f.name.trim()) return setErr('Nom du visiteur requis')
-    if (!f.idNumber.trim()) return setErr("Pièce d'identité requise — c'est le seul contrôle réel")
+    if (!f.idNumber.trim()) return setErr("Pièce d'identité requise : c'est le seul contrôle réel")
     if (!f.hostName.trim()) return setErr('Qui reçoit ce visiteur ?')
     const escort = needsEscort(f.purpose)
     if (escort && !f.escortName.trim()) return setErr("Cette visite exige un accompagnateur : indiquez qui accompagne")
@@ -203,7 +203,7 @@ function VisitorsTab({ u, d, force, accent }) {
         org: f.org.trim(), purpose: f.purpose, hostName: f.hostName.trim(), inAt: hm(appNow()), outAt: null,
         badge: badgeNumber(n), escort, escortName: f.escortName.trim(), vehicle: f.vehicle.trim(), agentName: u.name })
       db.logbook.unshift({ id: uid('l'), at: Date.now(), agentName: u.name, kind: 'visiteur', place: 'Portail principal',
-        text: `Entrée de ${f.name.trim()} (${f.purpose}) — badge ${badgeNumber(n)}${escort ? `, accompagné par ${f.escortName.trim()}` : ''}.` })
+        text: `Entrée de ${f.name.trim()} (${f.purpose}) badge ${badgeNumber(n)}${escort ? `, accompagné par ${f.escortName.trim()}` : ''}.` })
     })
     setOpen(false); setF(BLANK_V()); setErr(''); force()
   }
@@ -212,7 +212,7 @@ function VisitorsTab({ u, d, force, accent }) {
     mutate(db => {
       const x = db.visitors.find(y => y.id === v.id); if (x) x.outAt = t
       db.logbook.unshift({ id: uid('l'), at: Date.now(), agentName: u.name, kind: 'visiteur', place: 'Portail principal',
-        text: `Sortie de ${v.name} — badge ${v.badge} rendu à ${t}.` })
+        text: `Sortie de ${v.name} badge ${v.badge} rendu à ${t}.` })
     })
     force()
   }
@@ -235,7 +235,7 @@ function VisitorsTab({ u, d, force, accent }) {
                   <Text style={{ color: C.muted, fontSize: 12, marginTop: 2 }} numberOfLines={2}>{v.purpose} · reçu par {v.hostName}{v.org ? ` · ${v.org}` : ''}</Text>
                   <Text style={{ color: C.muted, fontSize: 11, marginTop: 2 }}>
                     {v.idType} {maskId(v.idNumber)}{v.vehicle ? ` · ${v.vehicle}` : ''}
-                    {v.escort && <Text style={{ fontWeight: '800', color: WARN }}> · accompagné par {v.escortName}</Text>}
+                    {v.escort && <Text style={{ fontWeight: '800', color: WARN }}> accompagné par {v.escortName}</Text>}
                   </Text>
                 </View>
                 <View style={{ alignItems: 'flex-end', gap: 6 }}>
@@ -261,7 +261,7 @@ function VisitorsTab({ u, d, force, accent }) {
         <Input value={f.org} onChangeText={t => setF({ ...f, org: t })} placeholder="Papeterie El Amel" />
         <Lbl>Pièce d'identité</Lbl>
         <Wrap>{ID_TYPES.map(t => <Chip key={t} label={t} color={accent} active={f.idType === t} onPress={() => setF({ ...f, idType: t })} />)}</Wrap>
-        <Lbl>Numéro * — enregistré, jamais affiché en entier</Lbl>
+        <Lbl>Numéro * : enregistré, jamais affiché en entier</Lbl>
         <Input value={f.idNumber} onChangeText={t => setF({ ...f, idNumber: t })} placeholder="0912xxxx" />
         <Lbl>Motif de la visite</Lbl>
         <Wrap>{PURPOSES.map(p => <Chip key={p} label={p} color={accent} active={f.purpose === p} onPress={() => setF({ ...f, purpose: p })} />)}</Wrap>
@@ -270,7 +270,7 @@ function VisitorsTab({ u, d, force, accent }) {
         <Lbl>Véhicule (immatriculation)</Lbl>
         <Input value={f.vehicle} onChangeText={t => setF({ ...f, vehicle: t })} placeholder="214 TU 3120" />
         {needsEscort(f.purpose) && <>
-          <Lbl>Accompagnateur * — cette visite mène auprès des élèves</Lbl>
+          <Lbl>Accompagnateur * : cette visite mène auprès des élèves</Lbl>
           <Input value={f.escortName} onChangeText={t => setF({ ...f, escortName: t })} placeholder="Dali Brahmi" />
           <View style={{ flexDirection: 'row', gap: 8, backgroundColor: WARN + '14', borderRadius: 12, padding: 10, marginTop: 12 }}>
             <Ic n="AlertTriangle" size={14} color={WARN} />
@@ -311,7 +311,7 @@ function RoundsTab({ u, d, force, accent }) {
   }
 
   return (<>
-    <Section title={live ? `Ronde en cours — démarrée à ${live.startAt}` : 'Nouvelle ronde'} style={{ marginTop: 0 }}
+    <Section title={live ? `Ronde en cours · démarrée à ${live.startAt}` : 'Nouvelle ronde'} style={{ marginTop: 0 }}
       right={live
         ? <Btn small icon="Check" label="Clore" color={OK} onPress={finish} />
         : <Btn small icon="Flashlight" label="Démarrer" color={accent} onPress={start} />}>
@@ -330,7 +330,7 @@ function RoundsTab({ u, d, force, accent }) {
                 ? <Text style={{ fontSize: 12, fontWeight: '800', color: OK }}>{p.at}</Text>
                 : live
                   ? <Btn small kind="ghost" label="Pointer" color={accent} onPress={() => mark(cp.k)} />
-                  : <Text style={{ fontSize: 11, color: C.muted }}>—</Text>}
+                  : <Text style={{ fontSize: 11, color: C.muted }}> </Text>}
             </View>
             {live && !p && (
               <Input style={{ marginTop: 8, fontSize: 12, padding: 9 }} placeholder="Anomalie (facultatif)"
@@ -446,7 +446,7 @@ function LogTab({ u, d, force, accent }) {
         </Wrap>
         <Lbl>Lieu</Lbl>
         <Input value={f.place} onChangeText={t => setF({ ...f, place: t })} />
-        <Lbl>Constat — faits, heure, personnes, actions menées</Lbl>
+        <Lbl>Constat : faits, heure, personnes, actions menées</Lbl>
         <Input value={f.text} onChangeText={t => setF({ ...f, text: t })} multiline numberOfLines={3}
           style={{ minHeight: 80, textAlignVertical: 'top' }} placeholder="Ce que vous avez vu, fait, et ce qui a suivi." />
       </Sheet>
@@ -457,7 +457,7 @@ function LogTab({ u, d, force, accent }) {
 /* ── 5) Consignes ────────────────────────────────────────────────────────── */
 function ConsignesTab() {
   return (<>
-    <Section title="Numéros d'urgence — Tunisie" style={{ marginTop: 0 }}>
+    <Section title="Numéros d'urgence · Tunisie" style={{ marginTop: 0 }}>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
         {URGENCES.map(x => (
           <Card key={x.k} style={{ flexBasis: '47%', flexGrow: 1 }}
@@ -489,7 +489,7 @@ function ConsignesTab() {
       ))}
       <Text style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>
         Ces consignes suivent le cadre tunisien : Code de la sécurité et de la prévention des risques d'incendie
-        (loi 2009-11) et instructions de la Protection civile — plan d'évacuation affiché, équipe de sécurité désignée,
+        (loi 2009-11) et instructions de la Protection civile : plan d'évacuation affiché, équipe de sécurité désignée,
         moyens de secours vérifiés. Elles ne remplacent pas la formation de l'agent, elles la rappellent.
       </Text>
     </Section>

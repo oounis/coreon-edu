@@ -23,7 +23,7 @@ import { todayIso } from './clock.js'
 export const DOC_TYPES = {
   scolarite: {
     key: 'scolarite', label: 'Certificat de scolarité', prefix: 'CS', needs: 'active',
-    hint: 'Le plus demandé au guichet — CNSS, banque, employeur.',
+    hint: 'Le plus demandé au guichet : CNSS, banque, employeur.',
   },
   inscription: {
     key: 'inscription', label: "Attestation d'inscription", prefix: 'AI', needs: 'active',
@@ -31,11 +31,11 @@ export const DOC_TYPES = {
   },
   presence: {
     key: 'presence', label: 'Attestation de présence', prefix: 'AP', needs: 'active',
-    hint: "L'élève fréquente l'établissement — souvent exigée par l'employeur d'un parent.",
+    hint: "L'élève fréquente l'établissement · souvent exigée par l'employeur d'un parent.",
   },
   radiation: {
     key: 'radiation', label: 'Certificat de radiation', prefix: 'CR', needs: 'archived',
-    hint: "L'élève a quitté l'établissement — la nouvelle école l'exige. Dossier archivé seulement.",
+    hint: "L'élève a quitté l'établissement · la nouvelle école l'exige. Dossier archivé seulement.",
   },
 }
 export const DOC_LIST = Object.values(DOC_TYPES)
@@ -59,7 +59,7 @@ export function issueDocument({ type, studentId, addressedTo = '', by }) {
   if (t.needs === 'active' && s.archived)
     return { error: 'Ce document ne se délivre que pour un élève actif. Pour un départ : certificat de radiation.' }
   if (t.needs === 'archived' && !s.archived)
-    return { error: "La radiation ne se délivre que pour un dossier archivé — cet élève est encore inscrit." }
+    return { error: "La radiation ne se délivre que pour un dossier archivé : cet élève est encore inscrit." }
 
   const rec = {
     id: 'doc' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),

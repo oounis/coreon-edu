@@ -34,20 +34,20 @@ export default function Students({ user, params, nav }) {
     const cls = classById(s.classId)
     const parent = userById(s.parentId)
     const rows = [
-      ['Classe', cls ? `${cls.name} · ${cls.cycle}` : '—'],
+      ['Classe', cls ? `${cls.name} · ${cls.cycle}` : '·'],
       ['Genre', s.gender],
       ['Groupe sanguin', s.bloodGroup],
       ['Père', s.fatherName],
       ['Mère', s.motherName],
       ['Tél. tuteur', s.guardianPhone],
-      ['Compte parent', parent?.name || '—'],
+      ['Compte parent', parent?.name || '·'],
     ]
     return (
       <Card style={{ marginTop: 2, marginBottom: 10, borderWidth: 1, borderColor: accent + '33' }}>
         {rows.map(([k, v]) => (
           <View key={k} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: C.line }}>
             <Text style={{ color: C.muted, fontSize: 13 }}>{k}</Text>
-            <Text style={{ color: C.ink, fontSize: 13, fontWeight: '600', flexShrink: 1, textAlign: 'right', marginLeft: 12 }}>{v || '—'}</Text>
+            <Text style={{ color: C.ink, fontSize: 13, fontWeight: '600', flexShrink: 1, textAlign: 'right', marginLeft: 12 }}>{v || '·'}</Text>
           </View>
         ))}
         <View style={{ marginTop: 12 }}>
@@ -91,7 +91,7 @@ export default function Students({ user, params, nav }) {
               <Row
                 avatar={<Avatar name={s.name} color={CYCLE_COLOR[classById(s.classId)?.cycle] || accent} size={40} />}
                 title={s.name}
-                sub={`${s.gender} · ${classById(s.classId)?.name || '—'}`}
+                sub={`${s.gender} · ${classById(s.classId)?.name || '·'}`}
                 right={
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                     <Ic n="Droplet" size={12} color="#FF6B81" />

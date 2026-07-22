@@ -67,8 +67,8 @@ function MarkView({ user }) {
     setSaving(true)
     mutate(db => { db.attendance[key] = marks })
     const flagged = cls.students.filter(s => marks[s.id] !== 'present')
-    notify({ role: 'admin', kind: 'info', title: `Appel — ${cls.cls.name}`, body: `${counts.present} présents · ${counts.absent} absents · ${counts.late} retards (${cls.subject})`, link: '/app/attendance' })
-    notify({ role: 'schooladmin', kind: 'info', title: `Appel — ${cls.cls.name}`, body: `${counts.absent} absent(s), ${counts.late} retard(s)`, link: '/app/attendance' })
+    notify({ role: 'admin', kind: 'info', title: `Appel · ${cls.cls.name}`, body: `${counts.present} présents · ${counts.absent} absents · ${counts.late} retards (${cls.subject})`, link: '/app/attendance' })
+    notify({ role: 'schooladmin', kind: 'info', title: `Appel · ${cls.cls.name}`, body: `${counts.absent} absent(s), ${counts.late} retard(s)`, link: '/app/attendance' })
     flagged.forEach(s => { if (s.parentId) notify({ to: s.parentId, kind: 'info', title: `Présence de ${s.name.split(' ')[0]}`, body: `${s.name} a été marqué(e) ${FR[marks[s.id]].toLowerCase()} aujourd'hui (${cls.subject}).`, link: '/app' }) })
     setOkMsg('Appel enregistré · direction et parents notifiés')
     setTimeout(() => setOkMsg(''), 5000)
@@ -78,7 +78,7 @@ function MarkView({ user }) {
   if (schoolPhase() === 'vacances') return (
     <Screen title="Appel / Présence" sub="Pas d'appel pendant les vacances d'été.">
       <EmptyState icon="Sun" title="L'appel du matin est en pause"
-        sub="Les élèves sont en vacances — la feuille d'appel se rouvrira le jour de la rentrée." />
+        sub="Les élèves sont en vacances · la feuille d'appel se rouvrira le jour de la rentrée." />
     </Screen>
   )
 
@@ -96,7 +96,7 @@ function MarkView({ user }) {
                 borderWidth: 1, borderColor: i === slotIdx ? accent : C.line,
               }}>
                 <Text style={{ color: i === slotIdx ? '#fff' : C.ink, fontWeight: '700', fontSize: 13 }}>
-                  {s.cls.name} <Text style={{ fontWeight: '400', opacity: 0.75 }}>· {s.start}</Text>
+                  {s.cls.name} <Text style={{ fontWeight: '400', opacity: 0.75 }}> {s.start}</Text>
                 </Text>
                 {s.isLive && (
                   <View style={{ backgroundColor: i === slotIdx ? '#ffffff40' : COL.present + '22', borderRadius: 999, paddingVertical: 2, paddingHorizontal: 7 }}>
@@ -159,8 +159,8 @@ function MarkView({ user }) {
             <View key={h.date} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 7, borderBottomWidth: i < history.length - 1 ? 1 : 0, borderBottomColor: C.line }}>
               <Text style={{ color: C.muted, fontSize: 13, flex: 1 }}>{h.date}</Text>
               <Text style={{ fontSize: 12 }}>
-                <Text style={{ color: COL.present, fontWeight: '800' }}>{h.present}</Text><Text style={{ color: C.muted }}> présents · </Text>
-                <Text style={{ color: COL.absent, fontWeight: '800' }}>{h.absent}</Text><Text style={{ color: C.muted }}> absents · </Text>
+                <Text style={{ color: COL.present, fontWeight: '800' }}>{h.present}</Text><Text style={{ color: C.muted }}> présents </Text>
+                <Text style={{ color: COL.absent, fontWeight: '800' }}>{h.absent}</Text><Text style={{ color: C.muted }}> absents </Text>
                 <Text style={{ color: COL.late, fontWeight: '800' }}>{h.late}</Text><Text style={{ color: C.muted }}> retards</Text>
               </Text>
             </View>
@@ -210,7 +210,7 @@ function SchoolView({ user }) {
   }, [d])
 
   if (!A.latest) return (
-    <Screen title="Présence — vue école" sub="Le suivi de présence des élèves.">
+    <Screen title="Présence · vue école" sub="Le suivi de présence des élèves.">
       <Card><EmptyState icon="CalendarCheck" title="Aucun appel enregistré" sub="Les appels des enseignants alimenteront cette vue." /></Card>
     </Screen>
   )
@@ -228,7 +228,7 @@ function SchoolView({ user }) {
   }
 
   return (
-    <Screen title="Présence — vue école" sub="Le suivi de présence des élèves. Un tap sur la cloche prévient le parent.">
+    <Screen title="Présence · vue école" sub="Le suivi de présence des élèves. Un tap sur la cloche prévient le parent.">
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
         <Tile icon="CalendarCheck" color={COL.present} label="Taux de présence" sub={dayLabel} value={`${rate}%`} />
         <Tile icon="UserX" color={COL.absent} label="Absents" value={String(today.absent)} />
@@ -261,7 +261,7 @@ function SchoolView({ user }) {
         </Card>
       </Section>
 
-      <Section title="Absences répétées — 30 derniers jours">
+      <Section title="Absences répétées · 30 derniers jours">
         <Card style={{ padding: 10 }}>
           {A.chronic.length === 0
             ? <EmptyState icon="Check" title="Aucun absentéisme répété" sub="Aucun élève n'a manqué 4 jours ou plus ce mois-ci." />

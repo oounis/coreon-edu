@@ -38,13 +38,13 @@ export default function Pointage(){
       db.staffClock[today][id]={in:t,out:null}
       db.staffAttendance=db.staffAttendance||{}; db.staffAttendance[today]=db.staffAttendance[today]||{}
       db.staffAttendance[today][id]= t>LATE ? 'late' : 'present' })
-    toast.success(t>LATE?`Arrivée pointée à ${t} — retard enregistré`:`Bonne journée ! Arrivée pointée à ${t}`)
+    toast.success(t>LATE?`Arrivée pointée à ${t} : retard enregistré`:`Bonne journée ! Arrivée pointée à ${t}`)
     refresh()
   }
   const checkOut=()=>{
     const t=hm(appNow())
     mutate(db=>{ const c=db.staffClock?.[today]?.[id]; if(c) c.out=t })
-    toast.success(`Sortie pointée à ${t} — à demain !`); refresh()
+    toast.success(`Sortie pointée à ${t} · à demain !`); refresh()
   }
 
   // mon mois : jours, heures, retards
@@ -77,7 +77,7 @@ export default function Pointage(){
         {isSummer() ? <>
           <div className="inline-flex items-center gap-1.5 text-[12px] font-bold px-3 py-1 rounded-full" style={{background:'#FEF3C7',color:'#92400E'}}>VACANCES D'ÉTÉ</div>
           <div className="text-lg font-extrabold mt-2">Badgeuse en pause</div>
-          <p className="text-sm text-muted mt-1">Le pointage reprend le <b>{rentreeLabel()}</b>. Vos heures et votre historique restent consultables ci-contre — bel été !</p>
+          <p className="text-sm text-muted mt-1">Le pointage reprend le <b>{rentreeLabel()}</b>. Vos heures et votre historique restent consultables ci-contre : bel été !</p>
         </> : !clock ? <>
           <div className="text-lg font-extrabold">Prêt pour la journée ?</div>
           <p className="text-sm text-muted mt-1 capitalize">{format(now,'EEEE d MMMM · HH:mm',{locale:fr})}</p>
@@ -91,7 +91,7 @@ export default function Pointage(){
         {!isSummer() && clock&&clock.out && <>
           <div className="text-lg font-extrabold">Journée terminée</div>
           <p className="text-sm text-muted mt-1">{clock.in} → {clock.out} · {fmtH(elapsed)}</p>
-          <p className="text-xs text-muted mt-3">Merci pour aujourd'hui — à demain !</p></>}
+          <p className="text-xs text-muted mt-3">Merci pour aujourd'hui · à demain !</p></>}
       </Card>
       <div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
@@ -105,7 +105,7 @@ export default function Pointage(){
           : <div className="grid sm:grid-cols-2 gap-1.5">{history.map(h=>(
             <div key={h.iso} className="flex items-center justify-between px-3 py-2 rounded-xl border border-line text-sm">
               <span className="text-muted capitalize">{format(new Date(h.iso),'EEE d MMM',{locale:fr})}</span>
-              <span className="font-semibold">{h.in} → {h.out||'—'}</span>
+              <span className="font-semibold">{h.in} → {h.out||'·'}</span>
               <span className="font-bold" style={{color:h.in>LATE?STATUS.warn:STATUS.ok}}>{h.mins?fmtH(h.mins):'en cours'}</span>
             </div>))}</div>}
         </SectionCard>
@@ -113,7 +113,7 @@ export default function Pointage(){
     </div>
 
     <SectionCard icon={<Plane size={16}/>} tint="grape" title="Mes demandes de congé & permissions" bodyClass="p-3">
-      {myLeaves.length===0 ? <EmptyState title="Aucune demande" sub="Demandez un congé ou une permission — la Direction est notifiée immédiatement."/>
+      {myLeaves.length===0 ? <EmptyState title="Aucune demande" sub="Demandez un congé ou une permission : la Direction est notifiée immédiatement."/>
       : myLeaves.map(lv=>{ const [lbl,col]=stLv[lv.status]
         return (
         <div key={lv.id} className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-canvas">
@@ -129,7 +129,7 @@ export default function Pointage(){
       const DayRow=h=>(
         <div key={h.iso} className="flex items-center justify-between px-3 py-2 rounded-xl border border-line text-sm">
           <span className="text-muted capitalize">{format(new Date(h.iso),'EEEE d MMMM',{locale:fr})}</span>
-          <span className="font-semibold tabular-nums">{h.in} → {h.out||'—'}</span>
+          <span className="font-semibold tabular-nums">{h.in} → {h.out||'·'}</span>
           <span className="font-bold" style={{color:h.in>LATE?STATUS.warn:STATUS.ok}}>{h.mins?fmtH(h.mins):'en cours'}</span>
         </div>)
       const lateRows=monthRows.filter(h=>h.in>LATE)
@@ -143,7 +143,7 @@ export default function Pointage(){
           {monthRows.length===0 ? <EmptyState title="Aucun pointage ce mois-ci"/>
           : <div className="space-y-1.5">{monthRows.map(DayRow)}</div>}</>) },
         lates:{ title:`Retards · ${monthLabel}`, body: lateRows.length===0
-          ? <EmptyState title="Aucun retard ce mois-ci" sub={`Toutes vos arrivées sont avant ${LATE} — bravo !`}/>
+          ? <EmptyState title="Aucun retard ce mois-ci" sub={`Toutes vos arrivées sont avant ${LATE} : bravo !`}/>
           : <div className="space-y-1.5">{lateRows.map(DayRow)}</div> },
         leave:{ title:`Congé annuel · ${year}`, body:(<>
           <div className="flex items-end gap-4 mb-3">
@@ -180,7 +180,7 @@ function RequestModal({ open, onClose, staffId, name, onDone }){
       db.staffLeaves.push({id:uid('lv'),staffId,type:f.type,from:f.from,to,days:perm?0:days,hours:perm?Number(f.hours)||1:null,reason:f.reason.trim(),status:'pending',at:Date.now(),by:null}) })
     notify({role:'schooladmin',kind:'info',actor:name,title:'Nouvelle demande de congé',
       body:`${name} demande : ${LEAVE_TYPES[f.type]}${perm?` (${f.hours} h)`:''} · ${f.from}${!perm&&to!==f.from?` → ${to}`:''}.`,link:'/app/staff'})
-    toast.success('Demande envoyée — la Direction a été notifiée')
+    toast.success('Demande envoyée : la Direction a été notifiée')
     setF(BLANK); onClose(); onDone()
   }
   return (
@@ -193,7 +193,7 @@ function RequestModal({ open, onClose, staffId, name, onDone }){
           : <span/>}
         <Field label={perm?'Date':'Du'}><Input type="date" value={f.from} onChange={e=>setF({...f,from:e.target.value})}/></Field>
         {!perm && <Field label="Au"><Input type="date" value={f.to} onChange={e=>setF({...f,to:e.target.value})}/></Field>}
-        <div className="sm:col-span-2"><Field label="Motif"><Textarea value={f.reason} onChange={e=>setF({...f,reason:e.target.value})} className="h-16" placeholder="Optionnel — visible par la Direction"/></Field></div>
+        <div className="sm:col-span-2"><Field label="Motif"><Textarea value={f.reason} onChange={e=>setF({...f,reason:e.target.value})} className="h-16" placeholder="Optionnel · visible par la Direction"/></Field></div>
       </div>
     </Modal>
   )

@@ -56,7 +56,7 @@ export default function Admissions() {
 
   return (
     <>
-      <PageHead title="Inscriptions" sub="De la candidature en ligne à l’élève inscrit — sans jamais ressaisir." />
+      <PageHead title="Inscriptions" sub="De la candidature en ligne à l’élève inscrit : sans jamais ressaisir." />
 
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-5">
         {[
@@ -121,7 +121,7 @@ export default function Admissions() {
       {/* Le dossier COMPLET : identité, contact, pièces, inscription, décision,
           historique. Un seul endroit, pas trois écrans. */}
       <Modal open={!!a} onClose={() => setOpen(null)} size="xl"
-        title={a ? `Dossier — ${a.childName}` : ''}
+        title={a ? `Dossier · ${a.childName}` : ''}
         footer={a && !STAGES[a.stage]?.terminal && (
           <>
             {STAGES[a.stage].next.filter(n => n !== 'inscrit').map(n => (
@@ -140,13 +140,13 @@ export default function Admissions() {
             </div>
             <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
               <Info label="Enfant" value={a.childName} />
-              <Info label="Naissance" value={a.dob ? `${a.dob}${ageOf(a.dob) != null ? ` · ${ageOf(a.dob)} ans` : ''}` : '—'} />
+              <Info label="Naissance" value={a.dob ? `${a.dob}${ageOf(a.dob) != null ? ` · ${ageOf(a.dob)} ans` : ''}` : '·'} />
               <Info label="Niveau demandé" value={labelOf(a.level)} />
               <Info label="Parent / tuteur" value={a.parentName} />
               <Info label="Téléphone" value={a.parentPhone
-                ? <a href={`tel:${a.parentPhone}`} className="accent-text font-bold">{a.parentPhone}</a> : '—'} />
+                ? <a href={`tel:${a.parentPhone}`} className="accent-text font-bold">{a.parentPhone}</a> : '·'} />
               <Info label="E-mail" value={a.parentEmail
-                ? <a href={`mailto:${a.parentEmail}`} className="accent-text font-bold">{a.parentEmail}</a> : '—'} />
+                ? <a href={`mailto:${a.parentEmail}`} className="accent-text font-bold">{a.parentEmail}</a> : '·'} />
             </div>
             {a.note && (
               <div className="rounded-xl border border-line bg-canvas px-4 py-3">
@@ -179,7 +179,7 @@ export default function Admissions() {
                 <div className="text-sm font-bold mb-1">Inscrire dans une classe</div>
                 <p className="text-xs text-muted mb-2">
                   La place est vérifiée au moment de l’inscription. Si la classe est pleine,
-                  la candidature passe en liste d’attente — nous ne promettons pas une place
+                  la candidature passe en liste d’attente : nous ne promettons pas une place
                   qui n’existe pas.
                 </p>
                 <div className="grid gap-1.5">
@@ -216,8 +216,8 @@ export default function Admissions() {
                 {a.history.map((h, i) => (
                   <div key={i} className="text-[12px] text-muted flex items-center gap-2">
                     <Ic n="Dot" size={14} />
-                    <b className="text-ink">{stageLabel(h.stage)}</b> · {fmt(h.at)} · {h.by}
-                    {h.note && <span>— {h.note}</span>}
+                    <b className="text-ink">{stageLabel(h.stage)}</b> {fmt(h.at)} · {h.by}
+                    {h.note && <span>· {h.note}</span>}
                   </div>
                 ))}
               </div>
@@ -235,9 +235,9 @@ export default function Admissions() {
                     {a.emails.map(e => (
                       <div key={e.id} className="text-[12px] text-muted flex items-center gap-2">
                         <Ic n={e.status === 'envoyé' ? 'MailCheck' : e.status === 'échec' ? 'MailX' : 'MailPlus'} size={14} />
-                        <b className="text-ink">{stageLabel(e.stage)}</b> · {fmt(e.at)}
+                        <b className="text-ink">{stageLabel(e.stage)}</b> {fmt(e.at)}
                         <Badge tone={e.status === 'envoyé' ? 'ok' : e.status === 'échec' ? 'danger' : 'info'} label={e.status} />
-                        <span className="truncate">— {e.subject}</span>
+                        <span className="truncate">· {e.subject}</span>
                       </div>
                     ))}
                     <div className="text-[11px] text-muted mt-1">
@@ -246,7 +246,7 @@ export default function Admissions() {
                   </div>
                 ) : <div className="text-[12px] text-muted">Aucun email pour l’instant.</div>)
               ) : (
-                <div className="text-[12px] text-muted">Ce candidat n’a pas laissé d’email — suivi par téléphone.</div>
+                <div className="text-[12px] text-muted">Ce candidat n’a pas laissé d’email : suivi par téléphone.</div>
               )}
             </div>
           </div>

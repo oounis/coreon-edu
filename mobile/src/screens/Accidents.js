@@ -28,7 +28,7 @@ export default function Accidents({ user }) {
   }
 
   return (
-    <Screen title="Accidents" sub={isParent ? "Ce que l'école vous a déclaré — et votre confirmation de lecture." : 'La déclaration se rédige sur le web (schéma corporel).'}>
+    <Screen title="Accidents" sub={isParent ? "Ce que l'école vous a déclaré · et votre confirmation de lecture." : 'La déclaration se rédige sur le web (schéma corporel).'}>
       {sorted.length === 0 && (
         <Card><EmptyState icon="HeartPulse" title={isParent ? 'Rien à signaler' : 'Aucun accident déclaré'}
           sub={isParent ? "Si l'école vous déclare un incident, il apparaîtra ici." : 'Les déclarations apparaîtront ici.'} /></Card>

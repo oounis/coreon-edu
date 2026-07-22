@@ -139,7 +139,7 @@ export function preparePayroll(month, staff) {
     const daily = base / 30
     const deduction = Math.round(daily * off)
     return {
-      staffId: s.id, name: s.name, role: s.role || s.designation || '—',
+      staffId: s.id, name: s.name, role: s.role || s.designation || '·',
       contract: c?.kind || null,
       base, unpaidDays: off, deduction, bonus: 0,
       net: Math.max(0, base - deduction),

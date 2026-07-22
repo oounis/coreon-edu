@@ -65,6 +65,6 @@ export const REQUEST_TYPES=Object.fromEntries(Object.entries(REQUEST_DEFS).map((
 // Cadre légal (référence affichée dans le produit)
 export const LEGAL={
   law:"Loi organique n° 2004-63 du 27 juillet 2004",
-  authority:"INPDP — Instance Nationale de Protection des Données Personnelles",
+  authority:"INPDP : Instance Nationale de Protection des Données Personnelles",
   consent:"J'autorise l'établissement à traiter ces données personnelles dans le cadre de la scolarité, conformément à la loi organique n° 2004-63 relative à la protection des données à caractère personnel (INPDP).",
 }

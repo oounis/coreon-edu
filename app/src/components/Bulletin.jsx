@@ -58,9 +58,9 @@ export default function Bulletin({ student, onClose }){
 
             {/* synthèse */}
             <div className="grid grid-cols-3 gap-3 mb-6">
-              <SummaryBox label="Moyenne générale" value={b.overall!=null?`${b.overall}/100`:'—'} accent/>
+              <SummaryBox label="Moyenne générale" value={b.overall!=null?`${b.overall}/100`:'·'} accent/>
               <SummaryBox label="Mention" value={b.mention.label} color={b.mention.color}/>
-              <SummaryBox label="Taux de présence" value={b.attRate!=null?`${b.attRate}%`:'—'}/>
+              <SummaryBox label="Taux de présence" value={b.attRate!=null?`${b.attRate}%`:'·'}/>
             </div>
 
             {/* moyennes par matière */}
@@ -108,7 +108,7 @@ export default function Bulletin({ student, onClose }){
               <div className="space-y-2 mb-6">
                 {b.sessions.filter(s=>s.note).slice(-3).reverse().map((s,i)=>(
                   <div key={i} className="text-sm border-l-2 border-line pl-3">
-                    <span className="font-medium">{s.subject}</span> <span className="text-muted">· {s.teacher}</span>
+                    <span className="font-medium">{s.subject}</span> <span className="text-muted"> {s.teacher}</span>
                     <div className="text-muted">« {s.note} »</div>
                   </div>
                 ))}
@@ -120,7 +120,7 @@ export default function Bulletin({ student, onClose }){
               <div><div className="text-muted text-xs">Signature de la Direction</div><div className="h-12 border-b border-line"/></div>
               <div><div className="text-muted text-xs">Signature du Parent / Tuteur</div><div className="h-12 border-b border-line"/></div>
             </div>
-            <div className="text-[11px] text-muted text-center mt-6">Document généré par Coreon Edu — bulletin indicatif, sans valeur officielle dans cette démo.</div>
+            <div className="text-[11px] text-muted text-center mt-6">Document généré par Coreon Edu : bulletin indicatif, sans valeur officielle dans cette démo.</div>
           </div>
         </Dialog.Panel>
       </div>
@@ -128,7 +128,7 @@ export default function Bulletin({ student, onClose }){
   )
 }
 
-function Line({k,v}){ return <div className="flex gap-1.5"><span className="text-muted">{k} :</span><span className="font-medium">{v||'—'}</span></div> }
+function Line({k,v}){ return <div className="flex gap-1.5"><span className="text-muted">{k} :</span><span className="font-medium">{v||'·'}</span></div> }
 function SummaryBox({label,value,accent,color}){
   return <div className={`rounded-xl border border-line p-3 text-center ${accent?'accent-soft':''}`}>
     <div className="text-2xl font-extrabold leading-none" style={color?{color}:accent?{}:{}}>{value}</div>

@@ -77,7 +77,7 @@ export default function Dashboard(){
       </div>
       <Card className="p-5 mt-4"><div className="flex items-center justify-between mb-3"><h3 className="font-bold flex items-center gap-1.5"><ClipboardCheck size={16}/> {t('Mes évaluations enregistrées')}</h3><span className="text-xs text-muted">{myEvals.length} {t('au total')}</span></div>
         {myEvals.length? <div className="space-y-2">{myEvals.slice(0,6).map(ev=>{ const studs=d.students.filter(s=>s.classId===ev.classId); const scores=studs.map(s=>studentSummary(ev,s.id).score).filter(x=>x!=null); const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):null; const m=mentionFor(avg)
-          return (<div key={ev.id} className="flex items-center justify-between text-sm border-b border-line pb-2 last:border-0"><div><span className="font-medium">{ev.className} · {ev.subject}</span><span className="text-xs text-muted ml-2">{new Date(ev.at).toLocaleDateString(dateLocale(),{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</span></div><div className="text-right"><span className="text-muted text-xs mr-2">{scores.length} {t('notés')}</span><span className="font-bold" style={{color:m.color}}>{avg!=null?`${avg}/100`:'—'}</span></div></div>) })}</div>
+          return (<div key={ev.id} className="flex items-center justify-between text-sm border-b border-line pb-2 last:border-0"><div><span className="font-medium">{ev.className} · {ev.subject}</span><span className="text-xs text-muted ml-2">{new Date(ev.at).toLocaleDateString(dateLocale(),{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</span></div><div className="text-right"><span className="text-muted text-xs mr-2">{scores.length} {t('notés')}</span><span className="font-bold" style={{color:m.color}}>{avg!=null?`${avg}/100`:'·'}</span></div></div>) })}</div>
          : <EmptyState icon={<ClipboardCheck size={22}/>} title={t('Aucune évaluation enregistrée')} sub={t('Vos évaluations enregistrées apparaîtront ici.')}/>}
       </Card></>)
   }
@@ -101,12 +101,12 @@ export default function Dashboard(){
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
         <StatCard label={t("À couvrir ce soir")} value={tonight.length} sub={tonight.length?tonight[0].time:t('rien de prévu')} tint="brand" icon={<ShieldAlert/>} to="/app/security"/>
         <StatCard label={t("Visiteurs dans l'école")} value={inside.length} tint="grape" icon={<Users/>} to="/app/security"/>
-        <StatCard label={t("Dernière ronde")} value={lastRound?lastRound.startAt:'—'} sub={lastRound?`${lastRound.points.length} ${t('zones')}`:t('aucune aujourd’hui')} tint="sky" icon={<CalendarCheck/>} to="/app/security"/>
+        <StatCard label={t("Dernière ronde")} value={lastRound?lastRound.startAt:'·'} sub={lastRound?`${lastRound.points.length} ${t('zones')}`:t('aucune aujourd’hui')} tint="sky" icon={<CalendarCheck/>} to="/app/security"/>
         <StatCard label={t('Incidents ouverts')} value={open.length} tint="coral" icon={<ShieldAlert/>} to="/app/incidents"/>
       </div>
       <div className="grid lg:grid-cols-2 gap-4">
         <Card className="p-5"><h3 className="font-bold mb-1">{t('Prochains événements à couvrir')}</h3>
-          <p className="text-xs text-muted mb-3">{t('Approuvés par la Direction — soirées, affluence, personnes extérieures')}</p>
+          <p className="text-xs text-muted mb-3">{t('Approuvés par la Direction : soirées, affluence, personnes extérieures')}</p>
           {toCover.length? <div className="space-y-2">{toCover.slice(0,5).map(e=>(
             <Link key={e.id} to="/app/security" className="flex items-center gap-3 text-sm border-b border-line pb-2 last:border-0 hover:bg-canvas rounded-lg px-1 transition">
               <span className="text-muted"><Ic n={isNightEvent(e) ? 'Moon' : 'Sun'} size={17} /></span>
@@ -197,7 +197,7 @@ export default function Dashboard(){
   // Effectif par classe : une seule grandeur (un nombre d'élèves), donc UNE seule
   // couleur. Peindre chaque barre différemment laissait croire à quatre catégories.
   const cycleData=d.classes.map(c=>({name:c.name,value:d.students.filter(s=>s.classId===c.id).length,color:SERIES[0]})).filter(x=>x.value>0)
-  return (<><PageHead title={greet} sub={t('Votre atelier — ce qui attend votre décision passe en premier.')}/>
+  return (<><PageHead title={greet} sub={t('Votre atelier : ce qui attend votre décision passe en premier.')}/>
     <HeroSearch/>
     <div className="grid lg:grid-cols-3 gap-4 mb-4">
       <Workbench items={decisions} className="lg:col-span-2"/>
@@ -273,7 +273,7 @@ export default function Dashboard(){
     <Card className="p-5 mt-4"><div className="flex items-center justify-between mb-3"><h3 className="font-bold flex items-center gap-1.5"><ClipboardCheck size={16}/> {t('Évaluations enregistrées')}</h3><Link to="/app/results" className="text-xs font-semibold accent-text inline-flex items-center gap-1">{t('Suivi élèves')} <ChevronRight size={13}/></Link></div>
       {d.evaluations.length? <div className="overflow-x-auto scroll-thin -mx-5 -mb-5"><table className="w-full text-sm"><thead><tr className="text-left text-[12px] uppercase tracking-wide text-muted bg-canvas"><th className="px-4 py-3 font-semibold">{t('Date')}</th><th className="px-4 py-3 font-semibold">{t('Classe')}</th><th className="px-4 py-3 font-semibold">{t('Matière')}</th><th className="px-4 py-3 font-semibold">{t('Leçon')}</th><th className="px-4 py-3 font-semibold">{t('Enseignant')}</th><th className="px-4 py-3 font-semibold text-center">{t('Élèves notés')}</th><th className="px-4 py-3 font-semibold text-center">{t('Moyenne')}</th></tr></thead>
         <tbody className="divide-y divide-line">{d.evaluations.slice(0,8).map(ev=>{ const cls=d.classes.find(c=>c.id===ev.classId); const studs=d.students.filter(s=>s.classId===ev.classId); const scores=studs.map(s=>studentSummary(ev,s.id).score).filter(x=>x!=null); const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):null; const m=mentionFor(avg)
-        return (<tr key={ev.id}><td className="px-4 py-3 text-muted whitespace-nowrap">{new Date(ev.at).toLocaleDateString(dateLocale(),{day:'2-digit',month:'short'})}</td><td className="px-4 py-3 font-medium">{ev.className||cls?.name}</td><td className="px-4 py-3">{ev.subject}</td><td className="px-4 py-3 text-muted">{ev.lesson||"—"}</td><td className="px-4 py-3 text-muted">{ev.teacher}</td><td className="px-4 py-3 text-center">{scores.length}</td><td className="px-4 py-3 text-center font-bold" style={{color:m.color}}>{avg!=null?`${avg}/100`:'—'}</td></tr>) })}</tbody></table></div>
+        return (<tr key={ev.id}><td className="px-4 py-3 text-muted whitespace-nowrap">{new Date(ev.at).toLocaleDateString(dateLocale(),{day:'2-digit',month:'short'})}</td><td className="px-4 py-3 font-medium">{ev.className||cls?.name}</td><td className="px-4 py-3">{ev.subject}</td><td className="px-4 py-3 text-muted">{ev.lesson||"·"}</td><td className="px-4 py-3 text-muted">{ev.teacher}</td><td className="px-4 py-3 text-center">{scores.length}</td><td className="px-4 py-3 text-center font-bold" style={{color:m.color}}>{avg!=null?`${avg}/100`:'·'}</td></tr>) })}</tbody></table></div>
        : <EmptyState icon={<ClipboardCheck size={22}/>} title={t('Aucune évaluation enregistrée')} sub={t('Les évaluations des enseignants apparaîtront ici.')}/>}
     </Card></>)
 }
@@ -291,7 +291,7 @@ function PlatformDashboard({ d, greet }){
     {name:t('En essai'),value:trials.length,color:STATUS.warn},
   ].filter(x=>x.value>0)
   const STL={active:[t('Active'),STATUS.ok],trial:[t("Essai"),STATUS.warn],suspended:[t('Suspendue'),STATUS.neutral]}
-  return (<><PageHead title={greet} sub={t("Console plateforme — vos écoles clientes en un coup d'œil.")}/>
+  return (<><PageHead title={greet} sub={t("Console plateforme : vos écoles clientes en un coup d'œil.")}/>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
       {/* Les quatre chiffres mènent au même endroit : la liste des écoles, seul
           écran où l'on peut agir dessus. Trois d'entre eux n'avaient ni `to` ni
@@ -316,7 +316,7 @@ function PlatformDashboard({ d, greet }){
               <span className="min-w-0 flex-1"><span className="block text-sm font-semibold truncate group-hover:accent-text">{sc.name}</span>
                 <span className="block text-[12px] text-muted">{sc.city} · {count(sc)} {t('élèves')} · {t('depuis')} {sc.since}</span></span>
               <span className="text-[12px] font-bold px-2 py-0.5 rounded-full" style={{background:col+'1E',color:col}}>{lbl}</span>
-              <span className="text-sm font-extrabold w-20 text-right">{sc.status==='active'?`${money(sc.price)}/m`:'—'}</span>
+              <span className="text-sm font-extrabold w-20 text-right">{sc.status==='active'?`${money(sc.price)}/m`:'·'}</span>
             </Link>) })}
         </div>
       </Card>
@@ -444,9 +444,9 @@ function ParentDashboard({u,d,greet}){
       </div>
     </Link>}
     <div className="grid sm:grid-cols-4 gap-4 mb-5">
-      <StatCard label={t("Moyenne générale")} value={b?.overall!=null?`${b.overall}/100`:'—'} sub={b?.mention.label} tint="mint" icon={<Star/>} onClick={()=>child&&setBulletin(child)}/>
+      <StatCard label={t("Moyenne générale")} value={b?.overall!=null?`${b.overall}/100`:'·'} sub={b?.mention.label} tint="mint" icon={<Star/>} onClick={()=>child&&setBulletin(child)}/>
       <StatCard label={t("Mois payés")} value={`${paid}/${months.length}`} tint="sky" icon={<CreditCard/>} to="/app/payments"/>
-      <StatCard label={t("Présence")} value={b?.attRate!=null?`${b.attRate}%`:'—'} tint="grape" icon={<CalendarCheck/>} to="/app/live"/>
+      <StatCard label={t("Présence")} value={b?.attRate!=null?`${b.attRate}%`:'·'} tint="grape" icon={<CalendarCheck/>} to="/app/live"/>
       {/* comptait toutes les notifications (lues comprises) et supposait le rôle parent */}
       <StatCard label={t("Non lues")} value={unreadFor(u)} tint="butter" icon={<Bell/>} to="/app/notifications"/>
     </div>
@@ -489,20 +489,20 @@ function ParentDashboard({u,d,greet}){
     </Card>}
     {(sw.strong.length>0||sw.weak.length>0) && <Card className="p-5 mb-4">
       <h3 className="font-bold mb-1">{t('Où en est')} {child?.name.split(' ')[0]} {t('?')}</h3>
-      <p className="text-xs text-muted mb-3">{t("Par leçon, d'après les évaluations des enseignants — pour l'aider là où ça compte.")}</p>
+      <p className="text-xs text-muted mb-3">{t("Par leçon, d'après les évaluations des enseignants : pour l'aider là où ça compte.")}</p>
       <div className="grid sm:grid-cols-2 gap-4">
         <div><div className="text-xs font-bold uppercase tracking-wide mb-2" style={{color:STATUS.ok}}>{t('Points forts')}</div>
           <div className="space-y-1.5">{sw.strong.map(l=>(
             <div key={l.subject+l.lesson} className="flex items-center justify-between text-sm rounded-xl px-3 py-2" style={{background:STATUS.ok+'10'}}>
-              <span className="font-medium truncate">{l.lesson} <span className="text-muted text-xs">· {l.subject}</span></span>
+              <span className="font-medium truncate">{l.lesson} <span className="text-muted text-xs"> {l.subject}</span></span>
               <span className="font-bold shrink-0" style={{color:STATUS.ok}}>{l.avg}/100</span></div>))}
-            {sw.strong.length===0&&<div className="text-xs text-muted">{t('Encore un peu tôt — les points forts apparaîtront ici.')}</div>}</div></div>
+            {sw.strong.length===0&&<div className="text-xs text-muted">{t('Encore un peu tôt : les points forts apparaîtront ici.')}</div>}</div></div>
         <div><div className="text-xs font-bold uppercase tracking-wide mb-2" style={{color:STATUS.warn}}>{t('À renforcer')}</div>
           <div className="space-y-1.5">{sw.weak.map(l=>(
             <div key={l.subject+l.lesson} className="flex items-center justify-between text-sm rounded-xl px-3 py-2" style={{background:STATUS.warn+'12'}}>
-              <span className="font-medium truncate">{l.lesson} <span className="text-muted text-xs">· {l.subject}</span></span>
+              <span className="font-medium truncate">{l.lesson} <span className="text-muted text-xs"> {l.subject}</span></span>
               <span className="font-bold shrink-0" style={{color:STATUS.warn}}>{l.avg}/100</span></div>))}
-            {sw.weak.length===0&&<div className="text-xs text-muted">{t('Rien à signaler — tout est au vert !')}</div>}</div></div>
+            {sw.weak.length===0&&<div className="text-xs text-muted">{t('Rien à signaler · tout est au vert !')}</div>}</div></div>
       </div>
     </Card>}
     <div className="flex gap-3 flex-wrap">

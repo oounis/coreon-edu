@@ -143,7 +143,7 @@ function EventCard({ ev, u, isDirection, seesAll, onJoin, onWithdraw, onCancel, 
         <View style={{ flex: 1 }}>
           {ev.pricePerPerson
             ? <>
-                <Text style={{ fontSize: 12, color: C.ink }}><Text style={{ fontWeight: '800' }}>{money(ev.pricePerPerson)} par personne</Text>{ev.priceCovers ? ` — ${ev.priceCovers}` : ''}</Text>
+                <Text style={{ fontSize: 12, color: C.ink }}><Text style={{ fontWeight: '800' }}>{money(ev.pricePerPerson)} par personne</Text>{ev.priceCovers ? `${ev.priceCovers}` : ''}</Text>
                 <Text style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>À régler auprès de l'administration, uniquement si l'école confirme l'activité.</Text>
               </>
             : <Text style={{ fontSize: 12, fontWeight: '800', color: C.ink }}>Gratuit</Text>}
@@ -155,7 +155,7 @@ function EventCard({ ev, u, isDirection, seesAll, onJoin, onWithdraw, onCancel, 
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
             <Text style={{ fontSize: 12, fontWeight: '700', color: C.ink }}>
               {adultCount(ev)} / {ev.minParticipants} {(spaceKey === 'parent') ? 'parents' : 'personnes'}
-              {childCount(ev) > 0 && <Text style={{ fontWeight: '400', color: C.muted }}> · {plural(childCount(ev), 'enfant', 'enfants')}</Text>}
+              {childCount(ev) > 0 && <Text style={{ fontWeight: '400', color: C.muted }}> {plural(childCount(ev), 'enfant', 'enfants')}</Text>}
             </Text>
             <Text style={{ fontSize: 12, color: C.muted }}>{need > 0 ? `encore ${need}` : 'quorum atteint'}</Text>
           </View>
@@ -167,7 +167,7 @@ function EventCard({ ev, u, isDirection, seesAll, onJoin, onWithdraw, onCancel, 
             </View>
             {left != null && <Text style={{ fontSize: 12, color: C.muted }}>{plural(left, 'place restante', 'places restantes')}</Text>}
           </View>
-          {maybeList(ev).length > 0 && <Text style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>{maybeList(ev).length} « peut-être » — ne comptent pas dans le quorum</Text>}
+          {maybeList(ev).length > 0 && <Text style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>{maybeList(ev).length} « peut-être » · ne comptent pas dans le quorum</Text>}
           {waitlist(ev).length > 0 && <Text style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{waitlist(ev).length} en liste d'attente</Text>}
         </View>
       )}
@@ -211,7 +211,7 @@ function EventCard({ ev, u, isDirection, seesAll, onJoin, onWithdraw, onCancel, 
                   <Ic n="Check" size={13} color={OK} />
                   <Text style={{ color: OK, fontWeight: '800', fontSize: 12 }}>{me.waitlisted ? "En liste d'attente" : me.rsvp === 'oui' ? 'Vous participez' : 'Peut-être'}</Text>
                 </View>
-                {stale && <Btn small label="Le prix a changé — reconfirmer" color={WARN} onPress={onJoin} />}
+                {stale && <Btn small label="Le prix a changé · reconfirmer" color={WARN} onPress={onJoin} />}
                 <Btn small kind="ghost" label="Se désister" color={C.muted} onPress={onWithdraw} />
               </>
             : blocked
@@ -251,7 +251,7 @@ function ProposeSheet({ f, setF, space, minDate, err, onSubmit, onClose, accent 
         <Err msg={err} />
         <Btn label="Publier la proposition" icon="Sparkles" color={accent} disabled={!f.title.trim()} onPress={onSubmit} />
         <Text style={{ fontSize: 11, color: C.muted, marginTop: 9 }}>
-          Ouverte {RSVP_WINDOW_H} h. Si {f.minParticipants || DEFAULT_MIN} personnes s'inscrivent, elle part à l'Administration puis à la Direction. Sinon elle s'annule et personne ne paie — rien n'est prélevé ici.
+          Ouverte {RSVP_WINDOW_H} h. Si {f.minParticipants || DEFAULT_MIN} personnes s'inscrivent, elle part à l'Administration puis à la Direction. Sinon elle s'annule et personne ne paie · rien n'est prélevé ici.
         </Text>
       </>}>
 
@@ -330,7 +330,7 @@ function ProposeSheet({ f, setF, space, minDate, err, onSubmit, onClose, accent 
         <Input value={f.reason} onChangeText={t => setF({ ...f, reason: t })} placeholder="ex. cours de danse entre mamans, avec garde d'enfants" />
       </>}
 
-      <Lbl>Date * — au plus tôt le {fmtShort(minDate)} : l'école doit réserver le lieu ({MIN_LEAD_DAYS} jours)</Lbl>
+      <Lbl>Date * · au plus tôt le {fmtShort(minDate)} : l'école doit réserver le lieu ({MIN_LEAD_DAYS} jours)</Lbl>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {dates.map(d => <Chip key={d} label={fmtShort(d)} color={accent} active={f.date === d} onPress={() => setF({ ...f, date: d })} />)}
       </ScrollView>
@@ -364,7 +364,7 @@ function JoinSheet({ ev, u, onClose, onConfirm, accent }) {
         {[['oui', 'Je participe'], ['peut-etre', 'Peut-être']].map(([k, l]) =>
           <Chip key={k} label={l} color={accent} active={rsvp === k} onPress={() => setRsvp(k)} />)}
       </Wrap>
-      <Text style={{ fontSize: 12, color: C.muted, marginTop: 8 }}>« Peut-être » ne compte pas dans le quorum — c'est un signal pour l'organisateur.</Text>
+      <Text style={{ fontSize: 12, color: C.muted, marginTop: 8 }}>« Peut-être » ne compte pas dans le quorum : c'est un signal pour l'organisateur.</Text>
 
       {rsvp === 'oui' && (
         <View style={{ flexDirection: 'row', gap: 16, marginTop: 6 }}>
@@ -395,7 +395,7 @@ function JoinSheet({ ev, u, onClose, onConfirm, accent }) {
               <Text style={{ fontWeight: '800', fontSize: 13, color: '#8A5A12' }}>Cette activité est payante</Text>
             </View>
             <Text style={{ fontSize: 13, color: C.ink, marginTop: 6 }}>
-              <Text style={{ fontWeight: '800' }}>{money(price)} par personne</Text>{ev.priceCovers ? ` — ${ev.priceCovers}` : ''}.
+              <Text style={{ fontWeight: '800' }}>{money(price)} par personne</Text>{ev.priceCovers ? `${ev.priceCovers}` : ''}.
             </Text>
             <Text style={{ fontSize: 13, color: C.ink, marginTop: 3 }}>
               Vous vous engagez pour <Text style={{ fontWeight: '800' }}>{plural(adults + (kidsAllowed ? children : 0), 'personne', 'personnes')}</Text>, soit <Text style={{ fontWeight: '800', fontSize: 15 }}>{money(amount)}</Text>.
@@ -433,8 +433,8 @@ function DecideSheet({ ev, clash, role, onClose, onSettle, accent }) {
     ['Public', aud.label],
     ['Enfants', kidsOf(ev.kids).label],
     ['Participants', `${plural(adultCount(ev), 'adulte', 'adultes')}${childCount(ev) ? ` · ${plural(childCount(ev), 'enfant', 'enfants')}` : ''} (quorum ${ev.minParticipants})`],
-    ['Prix', ev.pricePerPerson ? `${money(ev.pricePerPerson)} / personne — ${ev.priceCovers}` : 'Gratuit'],
-    ['Total attendu', ev.pricePerPerson ? money(total) : '—'],
+    ['Prix', ev.pricePerPerson ? `${money(ev.pricePerPerson)} / personne : ${ev.priceCovers}` : 'Gratuit'],
+    ['Total attendu', ev.pricePerPerson ? money(total) : '·'],
   ]
   return (
     <Sheet title={isFinal ? "Approuver l'activité" : "Instruire l'activité"} onClose={onClose}
@@ -470,7 +470,7 @@ function DecideSheet({ ev, clash, role, onClose, onSettle, accent }) {
             <Ic n="ShieldCheck" size={13} color="#334155" />
             <Text style={{ fontSize: 12, fontWeight: '800', color: '#334155' }}>Présence de l'agent de sécurité requise</Text>
           </View>
-          {reasons.map(r => <Text key={r} style={{ fontSize: 12, color: '#334155', marginTop: 2 }}>· {r}</Text>)}
+          {reasons.map(r => <Text key={r} style={{ fontSize: 12, color: '#334155', marginTop: 2 }}> {r}</Text>)}
           <Text style={{ fontSize: 11, color: '#33415599', marginTop: 5 }}>L'agent est prévenu dès l'approbation ; il lui faut {SECURITY_NOTICE_H} h pour préparer.</Text>
         </View>
       )}
@@ -513,7 +513,7 @@ export default function Social({ user, params, nav }) {
         notify({ to: ev.by, kind: 'info', actor: 'Espaces', title: 'Activité annulée', body: `« ${ev.title} » n'a pas réuni ${ev.minParticipants} participants. Personne n'a été débité.`, link: '/app/social' })
         ;(ev.participants || []).forEach(p => p.userId !== ev.by && notify({ to: p.userId, kind: 'info', actor: 'Espaces', title: 'Activité annulée', body: `« ${ev.title} » est annulée faute de participants. Vous n'avez rien à payer.`, link: '/app/social' }))
       }
-      if (to === 'soumis') notify({ role: 'admin', kind: 'request', actor: 'Espaces', title: 'Activité à instruire', body: `« ${ev.title} » a atteint son quorum — vérifiez le lieu et la sécurité, puis visez.`, link: '/app/social' })
+      if (to === 'soumis') notify({ role: 'admin', kind: 'request', actor: 'Espaces', title: 'Activité à instruire', body: `« ${ev.title} » a atteint son quorum : vérifiez le lieu et la sécurité, puis visez.`, link: '/app/social' })
     })
     if (changed.length) force()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -543,7 +543,7 @@ export default function Social({ user, params, nav }) {
     const max = f.maxParticipants ? Number(f.maxParticipants) : null
     if (max && max < min) return setErr('La capacité ne peut pas être inférieure au quorum.')
     const price = Math.max(0, Number(f.pricePerPerson) || 0)
-    if (price > 0 && !f.priceCovers.trim()) return setErr("Dites ce que le prix couvre — les participants doivent le savoir avant de s'inscrire.")
+    if (price > 0 && !f.priceCovers.trim()) return setErr("Dites ce que le prix couvre · les participants doivent le savoir avant de s'inscrire.")
 
     const at = Date.now()
     const ev = {
@@ -586,7 +586,7 @@ export default function Social({ user, params, nav }) {
     confirmAsk({
       title: 'Se désister',
       message: late
-        ? `« ${ev.title} » a lieu dans moins de 48 h : votre désistement est tardif — pensez à prévenir l'organisateur.`
+        ? `« ${ev.title} » a lieu dans moins de 48 h : votre désistement est tardif · pensez à prévenir l'organisateur.`
         : `Vous ne participerez plus à « ${ev.title} ».`,
       cancelLabel: 'Rester inscrit', confirmLabel: 'Me désister',
       onConfirm: () => {
@@ -620,7 +620,7 @@ export default function Social({ user, params, nav }) {
   const settle = (ev, approved, note, setSheetErr) => {
     const fresh = db().socialEvents.find(x => x.id === ev.id)
     if (!fresh || !canDecide(fresh, u)) { setDecide(null); return }
-    if (!approved && !note.trim()) return setSheetErr('Indiquez le motif du refus — les participants le liront.')
+    if (!approved && !note.trim()) return setSheetErr('Indiquez le motif du refus : les participants le liront.')
 
     const isFinal = fresh.status === 'vise'
     const next = !approved ? 'refuse' : isFinal ? 'approuve' : 'vise'
@@ -635,7 +635,7 @@ export default function Social({ user, params, nav }) {
     })
 
     if (next === 'vise') {
-      notify({ role: 'schooladmin', kind: 'request', actor: u.name, title: 'Activité visée — décision attendue', body: `« ${ev.title} » a été visée par l'Administration. Votre approbation finale est requise.`, link: '/app/social' })
+      notify({ role: 'schooladmin', kind: 'request', actor: u.name, title: 'Activité visée · décision attendue', body: `« ${ev.title} » a été visée par l'Administration. Votre approbation finale est requise.`, link: '/app/social' })
       notify({ to: ev.by, kind: 'info', actor: roleLabel, title: 'Votre activité avance', body: `« ${ev.title} » est visée par l'Administration ; la Direction doit encore l'approuver.`, link: '/app/social' })
       setDecide(null); return force()
     }
@@ -677,7 +677,7 @@ export default function Social({ user, params, nav }) {
 
   return (
     <Screen title={seesAll ? 'Espaces & activités' : SPACES[mySpace].label}
-      sub={seesAll ? "Les activités des parents, des enseignants et du personnel — l'Administration instruit, la Direction approuve." : SPACES[mySpace].sub}
+      sub={seesAll ? "Les activités des parents, des enseignants et du personnel · l'Administration instruit, la Direction approuve." : SPACES[mySpace].sub}
       right={canPropose ? <Btn small icon="Plus" label="Proposer" color={accent} onPress={() => { setF(BLANK(mySpace)); setErr(''); setOpen(true) }} /> : null}>
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
@@ -694,7 +694,7 @@ export default function Social({ user, params, nav }) {
         <Section title={u.role === 'admin' ? 'Activités à instruire' : 'Activités à approuver'}>
           <Card>
             <Text style={{ fontSize: 12, color: C.muted, marginBottom: 4 }}>
-              {u.role === 'admin' ? 'Quorum atteint : vérifiez le lieu, la sécurité, puis visez pour la Direction.' : "Visées par l'Administration — votre approbation est finale."}
+              {u.role === 'admin' ? 'Quorum atteint : vérifiez le lieu, la sécurité, puis visez pour la Direction.' : "Visées par l'Administration · votre approbation est finale."}
             </Text>
             {toDecide.map(ev => (
               <Row key={ev.id} avatar={<Text style={{ fontSize: 24 }}>{catOf(ev.cat).icon}</Text>}
@@ -720,7 +720,7 @@ export default function Social({ user, params, nav }) {
           ? <Card>
               <EmptyState icon="Sparkles" title="Aucune activité pour l'instant"
                 sub={seesAll ? "Personne n'a encore rien proposé, dans aucun espace."
-                  : canPropose ? 'Proposez la première — les autres vous rejoindront.'
+                  : canPropose ? 'Proposez la première : les autres vous rejoindront.'
                   : "Rien n'a encore été proposé dans cet espace."} />
               {canPropose && <Btn icon="Plus" label="Proposer une activité" color={accent} onPress={() => { setF(BLANK(mySpace)); setErr(''); setOpen(true) }} />}
             </Card>

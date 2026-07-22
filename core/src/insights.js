@@ -130,7 +130,7 @@ export function schoolInsights(d = db(), { days = 7 } = {}) {
       key: 'assiduite', icon: 'Stethoscope', tone: 'warn',
       value: String(at.watch.length),
       label: `Enfant${at.watch.length > 1 ? 's' : ''} à surveiller`,
-      sub: 'Absences répétées cette semaine — prendre des nouvelles',
+      sub: 'Absences répétées cette semaine : prendre des nouvelles',
       to: '/app/attendance',
     })
   }

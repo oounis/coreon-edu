@@ -58,7 +58,7 @@ function ParentView({ user, accent }) {
 function StaffView({ accent }) {
   const totalAlerts = DAYS.reduce((n, d) => n + atRiskForDay(d.key).length, 0)
   return (
-    <Screen title="Cantine" sub="Le menu se modifie sur le web — l'alerte, elle, vous suit partout.">
+    <Screen title="Cantine" sub="Le menu se modifie sur le web · l'alerte, elle, vous suit partout.">
       <Card style={{ marginBottom: 12, backgroundColor: (totalAlerts ? WARN : OK) + '12' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <Ic n={totalAlerts ? 'TriangleAlert' : 'ShieldCheck'} size={20} color={totalAlerts ? WARN : OK} />
@@ -87,7 +87,7 @@ function StaffView({ accent }) {
                 {risk.map(r => (
                   <Text key={r.student.id} style={{ color: C.ink, fontSize: 13, marginBottom: 2 }}>
                     <Text style={{ fontWeight: '800' }}>{r.student.name.split(' ')[0]}</Text>
-                    <Text style={{ color: C.muted }}> — {r.allergens.map(a => a.label).join(', ')}</Text>
+                    <Text style={{ color: C.muted }}> {r.allergens.map(a => a.label).join(', ')}</Text>
                   </Text>))}
               </View>)}
           </Card>)

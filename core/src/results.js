@@ -32,7 +32,7 @@ export function evaluationHistory(allEvals, sid){
 // Une mention est un STATUT, pas une série : elle porte les couleurs réservées du
 // livre de marque, et toujours avec son libellé — jamais la couleur seule.
 export function mentionFor(score){
-  if(score==null) return {label:'—',color:STATUS.neutral}
+  if(score==null) return {label:'·',color:STATUS.neutral}
   if(score>=85) return {label:t('Excellent'),color:STATUS.ok}
   if(score>=70) return {label:t('Très bien'),color:STATUS.info}
   if(score>=55) return {label:t('Bien'),color:BRAND.indigo}

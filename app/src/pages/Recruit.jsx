@@ -87,20 +87,20 @@ export default function Recruit() {
           </div>
         </div>
         <div className="grid sm:grid-cols-2 gap-x-6 gap-y-1 text-sm mb-3 bg-canvas rounded-xl p-3">
-          <div className="flex items-center gap-1.5"><Phone size={13} className="text-muted" /> {cand.phone ? <a className="accent-text font-semibold" href={`tel:${cand.phone}`}>{cand.phone}</a> : '—'}</div>
-          <div className="flex items-center gap-1.5"><Mail size={13} className="text-muted" /> {cand.email ? <a className="accent-text font-semibold" href={`mailto:${cand.email}`}>{cand.email}</a> : '—'}</div>
+          <div className="flex items-center gap-1.5"><Phone size={13} className="text-muted" /> {cand.phone ? <a className="accent-text font-semibold" href={`tel:${cand.phone}`}>{cand.phone}</a> : '·'}</div>
+          <div className="flex items-center gap-1.5"><Mail size={13} className="text-muted" /> {cand.email ? <a className="accent-text font-semibold" href={`mailto:${cand.email}`}>{cand.email}</a> : '·'}</div>
         </div>
         {cand.note && <p className="text-sm text-muted mb-3">« {cand.note} »</p>}
         <div className="text-xs font-bold uppercase text-muted mb-1">Parcours</div>
         {cand.history.map((h, i) => (
           <div key={i} className="text-xs py-1 border-b border-line last:border-0">
-            <b>{R_STAGES[h.stage]?.label}</b> · {h.by} · {format(new Date(h.at), 'd MMM yyyy HH:mm', { locale: fr })}
-            {h.note && <span className="text-muted"> — {h.note}</span>}
+            <b>{R_STAGES[h.stage]?.label}</b> {h.by} · {format(new Date(h.at), 'd MMM yyyy HH:mm', { locale: fr })}
+            {h.note && <span className="text-muted"> {h.note}</span>}
           </div>))}
         {!R_STAGES[cand.stage].terminal && <div className="mt-3">
           <Field label="Note (obligatoire pour un refus)"><Textarea value={note} onChange={e => setNote(e.target.value)} className="h-16" placeholder="Compte rendu d'entretien, motif de refus…" /></Field>
         </div>}
-        {cand.stage === 'embauchee' && <p className="text-[12px] text-muted mt-3">Embauchée ✓ — créez maintenant son contrat dans <b>RH & Paie</b> et son compte dans <b>Comptes</b>.</p>}
+        {cand.stage === 'embauchee' && <p className="text-[12px] text-muted mt-3">Embauchée ✓ : créez maintenant son contrat dans <b>RH & Paie</b> et son compte dans <b>Comptes</b>.</p>}
       </>}
     </Modal>
 

@@ -44,7 +44,7 @@ function StaffBehavior({ u }) {
   const climate = classId ? classClimate(classId) : null
 
   return (<>
-    <PageHead title={t('Suivi du comportement')} sub="On encourage d'abord. On observe un enfant — on ne le compare à personne."
+    <PageHead title={t('Suivi du comportement')} sub="On encourage d'abord. On observe un enfant : on ne le compare à personne."
       action={<Select value={classId} onChange={e => setClassId(e.target.value)} className="w-auto">
         {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</Select>} />
 
@@ -98,7 +98,7 @@ function ObserveModal({ student, u, onClose }) {
     if (!picked) return toast.error('Choisissez un comportement à noter.')
     const r = observe({ studentId: student.id, trait: picked, note, byId: u.id, byName: u.name })
     if (r.error) return toast.error(r.error)
-    toast.success(TRAITS[picked].positive ? 'Encouragement noté — le parent est prévenu 👏' : 'Observation notée')
+    toast.success(TRAITS[picked].positive ? 'Encouragement noté : le parent est prévenu 👏' : 'Observation notée')
     setNote(''); setPicked(null); force(x => x + 1)
   }
 
@@ -119,10 +119,10 @@ function ObserveModal({ student, u, onClose }) {
           <div className="flex flex-wrap gap-2">{positiveTraits().map(tr => <Trait key={tr.key} tr={tr} />)}</div>
         </div>
         <div>
-          <div className="text-sm font-bold mb-2 text-muted">À suivre — pour aider, jamais pour punir</div>
+          <div className="text-sm font-bold mb-2 text-muted">À suivre · pour aider, jamais pour punir</div>
           <div className="flex flex-wrap gap-2">{toImproveTraits().map(tr => <Trait key={tr.key} tr={tr} />)}</div>
         </div>
-        <Field label="Un mot (facultatif) — c'est ce que le parent lira">
+        <Field label="Un mot (facultatif) : c'est ce que le parent lira">
           <Textarea value={note} onChange={e => setNote(e.target.value)} className="h-16" placeholder="A aidé un camarade à ranger la classe…" />
         </Field>
 
@@ -134,7 +134,7 @@ function ObserveModal({ student, u, onClose }) {
                 return (
                   <div key={e.id} className="flex items-center gap-2.5 text-sm rounded-xl px-2 py-1.5" style={{ background: TONE[tr.tone] + '10' }}>
                     <span className="w-7 h-7 grid place-items-center rounded-lg shrink-0" style={{ background: TONE[tr.tone] + '20', color: TONE[tr.tone] }}><Ic n={tr.icon} size={14} /></span>
-                    <span className="min-w-0 flex-1"><span className="block font-semibold truncate">{tr.label}{e.note && <span className="font-normal text-muted"> — {e.note}</span>}</span>
+                    <span className="min-w-0 flex-1"><span className="block font-semibold truncate">{tr.label}{e.note && <span className="font-normal text-muted"> {e.note}</span>}</span>
                       <span className="block text-[11px] text-muted">{e.byName} · {ago(e.at)}</span></span>
                     <button onClick={() => { removeEntry(e.id, u.name); force(x => x + 1) }} title="Retirer (tracé)" className="text-muted hover:text-ink shrink-0"><X size={14} /></button>
                   </div>
@@ -184,7 +184,7 @@ function ParentBehavior({ u }) {
             return (
               <div key={e.id} className="flex items-center gap-3 border-b border-line pb-2 last:border-0">
                 <span className="w-9 h-9 grid place-items-center rounded-xl shrink-0" style={{ background: TONE[tr.tone] + '16', color: TONE[tr.tone] }}><Ic n={tr.icon} size={17} /></span>
-                <span className="min-w-0 flex-1"><span className="block text-sm font-semibold">{tr.label}{e.note && <span className="font-normal text-muted"> — {e.note}</span>}</span>
+                <span className="min-w-0 flex-1"><span className="block text-sm font-semibold">{tr.label}{e.note && <span className="font-normal text-muted"> {e.note}</span>}</span>
                   <span className="block text-[11px] text-muted">{e.byName} · {ago(e.at)}</span></span>
               </div>
             )

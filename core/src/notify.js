@@ -28,7 +28,7 @@ function emailNotification({ to, role, classId, studentId, actor, title, body })
   if (role === 'parent' && classId) parentEmailsOfClass(classId).forEach(e => rcpts.add(e))
   if (!rcpts.size) return
   const subject = title ? title.charAt(0).toUpperCase() + title.slice(1) : 'École Al-Nour'
-  const text = `${actor ? actor + ' — ' : ''}${body || ''}\n\n— École Al-Nour (Coreon EDU)`
+  const text = `${actor ? actor + ' · ' : ''}${body || ''}\n\nÉcole Al-Nour (Coreon EDU)`
   rcpts.forEach(addr => { sendMail({ to: addr, subject, text }) })
 }
 

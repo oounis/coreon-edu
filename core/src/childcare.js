@@ -71,7 +71,7 @@ export const pickupsOf = childId => pickups()[childId] || []
 
 export function addPickup(childId, { name, relation, phone, cin, addedBy }) {
   if (!name?.trim()) return { error: 'Le nom est requis.' }
-  if (!cin?.trim()) return { error: 'La pièce d’identité est obligatoire — c’est ce qu’on vérifiera au portail.' }
+  if (!cin?.trim()) return { error: 'La pièce d’identité est obligatoire : c’est ce qu’on vérifiera au portail.' }
   const d = db()
   const list = pickupsOf(childId)
   d.pickups = {

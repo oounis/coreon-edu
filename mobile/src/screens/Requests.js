@@ -163,11 +163,11 @@ export default function Requests({ user, params, nav }) {
       else { req.currentLevel++; if (req.currentLevel >= req.chain.length) req.status = 'approved' }
     })
     const req = db().requests.find(x => x.id === r.id)
-    if (decision === 'rejected') notify({ to: r.by, kind: 'request', actor: u.name, title: 'demande rejetée', body: `${r.type} — ${comment || 'sans motif'}`, link: '/app/requests' })
-    else if (req.status === 'approved') notify({ to: r.by, kind: 'request', actor: 'Administration', title: 'demande approuvée', body: `${r.type} — validée${REQUEST_DEFS[r.type]?.doc ? ', document disponible' : ''}.`, link: '/app/requests' })
+    if (decision === 'rejected') notify({ to: r.by, kind: 'request', actor: u.name, title: 'demande rejetée', body: `${r.type} · ${comment || 'sans motif'}`, link: '/app/requests' })
+    else if (req.status === 'approved') notify({ to: r.by, kind: 'request', actor: 'Administration', title: 'demande approuvée', body: `${r.type} · validée${REQUEST_DEFS[r.type]?.doc ? ', document disponible' : ''}.`, link: '/app/requests' })
     else {
       notify({ role: req.chain[req.currentLevel], kind: 'request', actor: u.name, title: `validation requise : ${r.type}`, body: `De ${r.byName}`, link: '/app/requests' })
-      notify({ to: r.by, kind: 'request', actor: u.name, title: 'demande validée (étape)', body: `${r.type} — en cours`, link: '/app/requests' })
+      notify({ to: r.by, kind: 'request', actor: u.name, title: 'demande validée (étape)', body: `${r.type} · en cours`, link: '/app/requests' })
     }
     setView(null); setComment(''); force()
   }
@@ -230,8 +230,8 @@ export default function Requests({ user, params, nav }) {
           </View>
 
           <View style={{ backgroundColor: '#F6F7FB', borderRadius: 12, padding: 12, marginTop: 10 }}>
-            <Text style={{ fontSize: 12, color: C.ink }}><Text style={{ color: C.muted }}>Demandeur : </Text><Text style={{ fontWeight: '800' }}>{viewR.byName}</Text> ({ROLE[vUser?.role]?.label || '—'})</Text>
-            <Text style={{ fontSize: 12, color: C.ink, marginTop: 3 }}><Text style={{ color: C.muted }}>CIN : </Text>{vUser?.cin || '—'}</Text>
+            <Text style={{ fontSize: 12, color: C.ink }}><Text style={{ color: C.muted }}>Demandeur : </Text><Text style={{ fontWeight: '800' }}>{viewR.byName}</Text> ({ROLE[vUser?.role]?.label || '·'})</Text>
+            <Text style={{ fontSize: 12, color: C.ink, marginTop: 3 }}><Text style={{ color: C.muted }}>CIN : </Text>{vUser?.cin || '·'}</Text>
             <Text style={{ fontSize: 12, color: C.ink, marginTop: 3 }}><Text style={{ color: C.muted }}>Date : </Text>{dmyhm(viewR.at)}</Text>
             <Text style={{ fontSize: 12, color: C.ink, marginTop: 3 }}><Text style={{ color: C.muted }}>Circuit : </Text>{viewR.chain.map(r => ROLE[r]?.label).join(' → ')}</Text>
           </View>
@@ -242,7 +242,7 @@ export default function Requests({ user, params, nav }) {
             return (
               <View key={f.k} style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12, borderBottomWidth: 1, borderBottomColor: C.line, paddingVertical: 7 }}>
                 <Text style={{ fontSize: 12, color: C.muted, flex: 1 }}>{f.l}</Text>
-                <Text style={{ fontSize: 12, fontWeight: '600', color: C.ink, flex: 1, textAlign: 'right' }}>{v || '—'}</Text>
+                <Text style={{ fontSize: 12, fontWeight: '600', color: C.ink, flex: 1, textAlign: 'right' }}>{v || '·'}</Text>
               </View>
             )
           })}
@@ -255,7 +255,7 @@ export default function Requests({ user, params, nav }) {
               {viewR.approvals.map((a, i) => (
                 <Text key={i} style={{ fontSize: 12, color: C.muted, marginBottom: 4 }}>
                   <Text style={{ fontWeight: '800', color: a.decision === 'approved' ? OK : DANGER }}>{a.decision === 'approved' ? 'Approuvé' : 'Rejeté'}</Text>
-                  {' '}par {a.by} ({ROLE[a.role]?.label}) · {dmy(a.at)}{a.comment ? ` — ${a.comment}` : ''}
+                  {' '}par {a.by} ({ROLE[a.role]?.label}) · {dmy(a.at)}{a.comment ? `${a.comment}` : ''}
                 </Text>
               ))}
             </View>
@@ -264,7 +264,7 @@ export default function Requests({ user, params, nav }) {
           {viewR.status === 'approved' && REQUEST_DEFS[viewR.type]?.doc && (
             <View style={{ flexDirection: 'row', gap: 8, backgroundColor: OK + '14', borderRadius: 12, padding: 10, marginTop: 12 }}>
               <Ic n="Printer" size={15} color={OK} />
-              <Text style={{ flex: 1, fontSize: 12, color: C.ink }}>Document officiel prêt — l'aperçu et le PDF se téléchargent depuis l'application web.</Text>
+              <Text style={{ flex: 1, fontSize: 12, color: C.ink }}>Document officiel prêt : l'aperçu et le PDF se téléchargent depuis l'application web.</Text>
             </View>
           )}
 

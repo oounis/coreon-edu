@@ -79,7 +79,7 @@ export default function Accidents() {
   if (isParent) {
     const mine = (me.childIds || []).flatMap(forChild).filter(a => ['envoye', 'accuse'].includes(a.stage))
     if (!mine.length) return <EmptyState icon="ShieldCheck" title="Aucune déclaration."
-      sub="S’il arrive quelque chose à votre enfant, l’école vous le dira ici — et vous devrez le confirmer." />
+      sub="S’il arrive quelque chose à votre enfant, l’école vous le dira ici : et vous devrez le confirmer." />
     return (
       <>
         <PageHead title="Déclarations d’accident" sub="Ce que l’école vous a signalé. Merci de confirmer que vous l’avez lu." />
@@ -88,7 +88,7 @@ export default function Accidents() {
             <Card key={a.id} className="p-5">
               <div className="flex items-start justify-between gap-3 flex-wrap">
                 <div>
-                  <div className="font-bold">{nameOf(a.childId)} — {INJURY_KINDS[a.kind]?.label}</div>
+                  <div className="font-bold">{nameOf(a.childId)} · {INJURY_KINDS[a.kind]?.label}</div>
                   <div className="text-xs text-muted font-semibold">{when(a.at)} · {zoneLabels(a.zones)}</div>
                 </div>
                 <Badge label={SEVERITY[a.severity]?.label} tone={SEVERITY[a.severity]?.tone} />
@@ -114,7 +114,7 @@ export default function Accidents() {
                       const r = await remoteOp('acknowledge', [a.id])
                       if (r.error) return toast.error(r.error)
                     } else acknowledge(a.id, me.name)
-                    toast.success('Merci — c’est confirmé.'); refresh() }}>
+                    toast.success('Merci · c’est confirmé.'); refresh() }}>
                     <Ic n="Check" size={15} /> J’ai lu et je confirme
                   </Btn>
                 </div>
@@ -161,7 +161,7 @@ export default function Accidents() {
               <div className="mt-2 grid gap-1">
                 {waiting.map(a => (
                   <div key={a.id} className="flex items-center gap-2 flex-wrap">
-                    <span>{nameOf(a.childId)} — depuis <b>{a.waitingHours} h</b></span>
+                    <span>{nameOf(a.childId)} · depuis <b>{a.waitingHours} h</b></span>
                     {!!a.reminders.length && <span className="text-muted">({a.reminders.length} relance(s))</span>}
                     <Btn size="sm" variant="soft" onClick={() => { remind(a.id, me.name); toast.success('Relance envoyée.'); refresh() }}>
                       Relancer
@@ -188,7 +188,7 @@ export default function Accidents() {
                 <div className="flex items-center gap-3">
                   <Avatar name={nameOf(a.childId)} seed={a.childId} />
                   <div>
-                    <div className="font-bold">{nameOf(a.childId)} — {INJURY_KINDS[a.kind]?.label}</div>
+                    <div className="font-bold">{nameOf(a.childId)} · {INJURY_KINDS[a.kind]?.label}</div>
                     <div className="text-xs text-muted font-semibold">{when(a.at)} · {zoneLabels(a.zones)}</div>
                   </div>
                 </div>
@@ -203,13 +203,13 @@ export default function Accidents() {
 
               {/* La chaîne de custodie, lisible d'un coup d'œil. */}
               <div className="text-[12px] text-muted mt-3 grid gap-0.5">
-                <span>Constaté par <b>{a.witness.name}</b> — {when(a.witness.at)}</span>
-                {a.approver && <span>Validé par <b>{a.approver.name}</b> — {when(a.approver.at)}</span>}
-                {a.sentAt && <span>Envoyé au parent — {when(a.sentAt)}</span>}
+                <span>Constaté par <b>{a.witness.name}</b> {when(a.witness.at)}</span>
+                {a.approver && <span>Validé par <b>{a.approver.name}</b> {when(a.approver.at)}</span>}
+                {a.sentAt && <span>Envoyé au parent · {when(a.sentAt)}</span>}
                 {a.ack && <span style={{ color: STATUS.ok }}>
-                  <b>Confirmé par {a.ack.by}</b> — {when(a.ack.at)}
+                  <b>Confirmé par {a.ack.by}</b> {when(a.ack.at)}
                 </span>}
-                {a.reminders.map((r, i) => <span key={i}>Relance {i + 1} — {when(r.at)}</span>)}
+                {a.reminders.map((r, i) => <span key={i}>Relance {i + 1} · {when(r.at)}</span>)}
                 {a.notes.map((n, i) => <span key={i}>Note de {n.by} ({when(n.at)}) : {n.text}</span>)}
               </div>
 
@@ -217,7 +217,7 @@ export default function Accidents() {
                 {a.stage === 'brouillon' && (
                   mineDeclared
                     ? <span className="text-xs text-muted font-semibold flex items-center gap-1">
-                        <Ic n="Lock" size={12} /> Vous l’avez rédigée — un autre responsable doit la valider.
+                        <Ic n="Lock" size={12} /> Vous l’avez rédigée : un autre responsable doit la valider.
                       </span>
                     : <Btn size="sm" onClick={() => {
                         const r = approve(a.id, me.id, me.name)
@@ -262,7 +262,7 @@ function DeclareModal({ me, onClose, onDone }) {
   const go = () => {
     const r = declare({ childId, zones, kind, severity, whatHappened: what, care, byId: me.id, byName: me.name })
     if (r.error) return toast.error(r.error)
-    toast.success('Déclaration rédigée — un autre responsable doit la valider.')
+    toast.success('Déclaration rédigée : un autre responsable doit la valider.')
     onDone()
   }
 

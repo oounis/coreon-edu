@@ -51,7 +51,7 @@ export default function Timetable({ user, params, nav }) {
 
   return (
     <Screen title="Emploi du temps"
-      sub={`${me ? `${teacher.name} · ${teacher.subject}` : `Classe ${clsName || '—'}`} · ${sessions} séances · Lun–Ven`}>
+      sub={`${me ? `${teacher.name} · ${teacher.subject}` : `Classe ${clsName || '·'}`} · ${sessions} séances · Lun–Ven`}>
 
       {(user.role === 'teacher' || classes.length > 1) && (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', rowGap: 8, marginBottom: 14 }}>
@@ -69,13 +69,13 @@ export default function Timetable({ user, params, nav }) {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FEF3C7', borderRadius: 16, padding: 13, marginBottom: 14 }}>
           <Ic n="Sun" size={16} color="#92400E" />
           <Text style={{ flex: 1, color: '#92400E', fontSize: 13, fontWeight: '600' }}>
-            Vacances d'été — voici l'emploi du temps type ; les cours reprennent le {rentreeLabel()}.
+            Vacances d'été · voici l'emploi du temps type ; les cours reprennent le {rentreeLabel()}.
           </Text>
         </View>
       )}
 
       {sessions === 0 && (
-        <EmptyState icon="CalendarDays" title="Aucune séance" sub="La semaine est vide pour le moment — la Direction établit l'emploi du temps sur le web." />
+        <EmptyState icon="CalendarDays" title="Aucune séance" sub="La semaine est vide pour le moment · la Direction établit l'emploi du temps sur le web." />
       )}
 
       {sessions > 0 && DAYS.map((day, di) => {

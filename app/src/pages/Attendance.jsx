@@ -35,7 +35,7 @@ export default function Attendance(){
 /* ── Direction / Administration : vue école (élèves) ────────────────────── */
 function SchoolView(){
   return (<>
-    <PageHead title="Présence — vue école" sub="Le suivi de présence des élèves. La présence du personnel a son propre module."
+    <PageHead title="Présence · vue école" sub="Le suivi de présence des élèves. La présence du personnel a son propre module."
       action={<Btn variant="soft" onClick={()=>{location.hash='#/app/staff'}}><BriefcaseBusiness size={15}/> Personnel</Btn>}/>
     <StudentsInsights/>
   </>)
@@ -138,7 +138,7 @@ function StudentsInsights(){
     </div>
 
     <div className="grid lg:grid-cols-2 gap-4">
-      <SectionCard icon={<AlertTriangle size={16}/>} tint="butter" title="Absences répétées — 30 derniers jours" sub="Élèves à suivre de près (4 absences ou plus)" bodyClass="p-3">
+      <SectionCard icon={<AlertTriangle size={16}/>} tint="butter" title="Absences répétées · 30 derniers jours" sub="Élèves à suivre de près (4 absences ou plus)" bodyClass="p-3">
         {A.chronic.length===0 ? <EmptyState icon={<Check size={22}/>} title="Aucun absentéisme répété" sub="Aucun élève n'a manqué 4 jours ou plus ce mois-ci."/>
         : A.chronic.map(x=>(
           <div key={x.s.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
@@ -179,7 +179,7 @@ function StatDetailModal({ detail, onClose, A, today, rate, dayLabel, dayPerClas
     <div className="flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-canvas">
       <Avatar name={s.name} seed={s.id} size={32}/>
       <span className="min-w-0 flex-1"><span className="block text-sm font-semibold truncate leading-tight">{s.name}</span>
-        <span className="block text-[12px] text-muted">{classById(classId)?.name||''}{extra&&<span> · {extra}</span>}</span></span>
+        <span className="block text-[12px] text-muted">{classById(classId)?.name||''}{extra&&<span> {extra}</span>}</span></span>
       {status&&<Badge status={status}/>}
       <button onClick={()=>notifyParent(s,body)} title="Prévenir le parent"
         className="w-8 h-8 grid place-items-center rounded-lg text-muted hover:accent-text hover:bg-canvas shrink-0"><BellRing size={15}/></button>
@@ -257,8 +257,8 @@ function MarkView(){
     setSaving(true)
     mutate(db=>{db.attendance[key]=marks})
     const flagged=cls.students.filter(s=>marks[s.id]!=='present')
-    notify({role:'admin',kind:'info',title:`Appel — ${cls.cls.name}`,body:`${counts.present} présents · ${counts.absent} absents · ${counts.late} retards (${cls.subject})`,link:'/app/attendance'})
-    notify({role:'schooladmin',kind:'info',title:`Appel — ${cls.cls.name}`,body:`${counts.absent} absent(s), ${counts.late} retard(s)`,link:'/app/attendance'})
+    notify({role:'admin',kind:'info',title:`Appel · ${cls.cls.name}`,body:`${counts.present} présents · ${counts.absent} absents · ${counts.late} retards (${cls.subject})`,link:'/app/attendance'})
+    notify({role:'schooladmin',kind:'info',title:`Appel · ${cls.cls.name}`,body:`${counts.absent} absent(s), ${counts.late} retard(s)`,link:'/app/attendance'})
     flagged.forEach(s=>{ if(s.parentId) notify({to:s.parentId,kind:'info',title:`Présence de ${s.name.split(' ')[0]}`,body:`${s.name} a été marqué(e) ${FR[marks[s.id]].toLowerCase()} aujourd'hui (${cls.subject}).`,link:'/app'}) })
     toast.success('Appel enregistré · direction et parents notifiés')
     setTick(x=>x+1); setTimeout(()=>setSaving(false),600)
@@ -266,7 +266,7 @@ function MarkView(){
 
   if(isSummer()) return (<>
     <PageHead title="Appel / Présence" sub="Pas d'appel pendant les vacances d'été."/>
-    <SummerFreeze feature="L'appel du matin" detail="Les élèves sont en vacances — la feuille d'appel se rouvrira le jour de la rentrée."/>
+    <SummerFreeze feature="L'appel du matin" detail="Les élèves sont en vacances : la feuille d'appel se rouvrira le jour de la rentrée."/>
   </>)
 
   return (<>
@@ -281,7 +281,7 @@ function MarkView(){
             aria-pressed={i===slotIdx}
             className={`text-sm font-semibold px-3 py-2 rounded-xl border transition ${i===slotIdx?'border-transparent text-white':'border-line hover:bg-canvas'}`}
             style={i===slotIdx?{background:'var(--accent)'}:{}}>
-            {s.cls.name} <span className="opacity-70 font-normal">· {s.start}</span>
+            {s.cls.name} <span className="opacity-70 font-normal"> {s.start}</span>
             {s.isLive && <span className="ml-1.5 text-[11px] font-bold px-1.5 py-0.5 rounded-full" style={{background:i===slotIdx?'rgba(255,255,255,.25)':STATUS.ok+'22',color:i===slotIdx?'#fff':STATUS.ok}}>EN COURS</span>}
           </button>))}
       </div>

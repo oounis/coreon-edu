@@ -39,7 +39,7 @@ export default function ChildFile() {
 
   return (
     <>
-      <PageHead title="Dossier de l’enfant" sub="Santé, personnes autorisées, jalons — ce qu’un ERP scolaire n’a jamais." />
+      <PageHead title="Dossier de l’enfant" sub="Santé, personnes autorisées, jalons : ce qu’un ERP scolaire n’a jamais." />
 
       <div className="flex flex-wrap gap-2 mb-4">
         {kids.map(k => (
@@ -109,8 +109,7 @@ function Departs({ child, refresh }) {
         <Card className="p-4 mb-4" style={{ background: STATUS.okSoft }}>
           <div className="text-[13px] font-bold flex items-center gap-2" style={{ color: STATUS.ok }}>
             <Ic n="CheckCheck" size={15} />
-            Parti aujourd’hui à {hhmm(gone[0].at)} avec {gone[0].personName} ({gone[0].relation}) —
-            remis par {gone[0].by}
+            Parti aujourd’hui à {hhmm(gone[0].at)} avec {gone[0].personName} ({gone[0].relation}) · remis par {gone[0].by}
           </div>
         </Card>
       )}
@@ -148,7 +147,7 @@ function Departs({ child, refresh }) {
         ))}
       </div>
 
-      <Modal open={open} onClose={() => setOpen(false)} title={`Autoriser une personne — ${child.name}`}
+      <Modal open={open} onClose={() => setOpen(false)} title={`Autoriser une personne · ${child.name}`}
         footer={<><Btn variant="ghost" onClick={() => setOpen(false)}>Annuler</Btn><Btn onClick={add}>Autoriser</Btn></>}>
         <div className="grid gap-4">
           <Field label="Nom et prénom *"><Input value={f.name} onChange={e => setF({ ...f, name: e.target.value })} /></Field>
@@ -188,7 +187,7 @@ function Sante({ child, refresh }) {
             <div className="text-[13px]">
               <b>{v.due.length} vaccin(s) dus et non enregistrés</b> pour l’âge de {child.name.split(' ')[0]}
               {' '}({v.ageMonths} mois) : {v.due.map(x => x.label).join(', ')}.
-              <div className="mt-1 text-muted">Une crèche a l’obligation de le savoir — et de le dire aux parents.</div>
+              <div className="mt-1 text-muted">Une crèche a l’obligation de le savoir : et de le dire aux parents.</div>
             </div>
           </div>
         </Card>
@@ -254,7 +253,7 @@ function Jalons({ child, refresh }) {
             <b>On observe. On ne note pas un enfant, et on ne le compare à personne.</b>
             <div className="mt-1">
               S’il y a quelque chose qu’on devrait voir à cet âge et qu’on ne voit pas,
-              ce n’est pas un diagnostic — c’est une <b>conversation à avoir</b> avec les parents.
+              ce n’est pas un diagnostic : c’est une <b>conversation à avoir</b> avec les parents.
             </div>
           </div>
         </div>

@@ -85,7 +85,7 @@ export default function Login({ onLogin }) {
             </View>
           </View>
           <Text style={[S.h1, { marginTop: 14 }]}>coreon <Text style={{ color: BRAND }}>edu</Text></Text>
-          <Text style={[S.sub, { marginTop: 4 }]}>{"L'école, en un coup d'œil — dans votre poche."}</Text>
+          <Text style={[S.sub, { marginTop: 4 }]}>{"L'école, en un coup d'œil · dans votre poche."}</Text>
         </Animated.View>
 
         <Animated.View style={[S.card, { padding: 20 }, enter(1)]}>
@@ -115,7 +115,7 @@ export default function Login({ onLogin }) {
         </Animated.View>
 
         <Animated.View style={enter(2)}>
-          <Text style={[S.label, { textAlign: 'center', marginTop: 22, marginBottom: 12 }]}>Démonstration — entrer comme :</Text>
+          <Text style={[S.label, { textAlign: 'center', marginTop: 22, marginBottom: 12 }]}>Démonstration · entrer comme :</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
             {quick.map(u => {
               const r = ROLE[u.role]

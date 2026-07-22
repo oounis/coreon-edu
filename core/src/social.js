@@ -40,8 +40,8 @@ export const CANCEL_WINDOW_H = 48     // au-delà, un désistement est « tardif
 // la même exigence ici : c'est aussi la meilleure protection contre le parent qui
 // arrive au terrain en pensant que c'est gratuit.
 export const joinButtonLabel = ev => (ev.pricePerPerson || 0) > 0
-  ? `Réserver ma place — ${ev.pricePerPerson} ${currency()} si confirmé`
-  : 'Réserver ma place — gratuit'
+  ? `Réserver ma place : ${ev.pricePerPerson} ${currency()} si confirmé`
+  : 'Réserver ma place · gratuit'
 
 // ── États ───────────────────────────────────────────────────────────────────
 // Toute proposition passe par DEUX validations : l'Administration instruit
@@ -61,7 +61,7 @@ export const STATES = {
   collecte: { label: 'Inscriptions ouvertes', color: STATUS.info },
   quorum:   { label: 'Quorum atteint',        color: STATUS.ok },
   soumis:   { label: "En attente de l'Administration", color: STATUS.warn },
-  vise:     { label: 'Visé — en attente de la Direction', color: BRAND.indigo },
+  vise:     { label: 'Visé · en attente de la Direction', color: BRAND.indigo },
   approuve: { label: 'Approuvé',              color: STATUS.ok },
   refuse:   { label: 'Refusé',                color: STATUS.danger },
   annule:   { label: 'Annulé',                color: STATUS.neutral },
@@ -92,7 +92,7 @@ export const SPACES = {
   },
   teacher: {
     key: 'teacher', label: 'Espace enseignants', members: 'aux enseignants', roles: ['teacher'],
-    sub: 'Formations, réunions pédagogiques, sorties entre collègues — proposées par vous, validées par l\'école.',
+    sub: 'Formations, réunions pédagogiques, sorties entre collègues : proposées par vous, validées par l\'école.',
   },
   staff: {
     key: 'staff', label: 'Espace personnel', members: 'au personnel de l’école', roles: ['admin', 'schooladmin', 'supervisor', 'security'],
@@ -140,7 +140,7 @@ export const CATEGORIES_OF = {
 // de 2018 contre les discriminations invitent à prendre au sérieux.
 // `restricted` s'accorde avec « activité » (féminin) : « réservée aux mères ».
 export const AUDIENCES = [
-  { k: 'mixte',  label: 'Mixte — tous les parents', short: 'Mixte', gender: null,    restricted: null },
+  { k: 'mixte',  label: 'Mixte · tous les parents', short: 'Mixte', gender: null,    restricted: null },
   { k: 'meres',  label: 'Réservé aux mères',        short: 'Mères', gender: 'Femme', restricted: 'réservée aux mères' },
   { k: 'peres',  label: 'Réservé aux pères',        short: 'Pères', gender: 'Homme', restricted: 'réservée aux pères' },
   // Hors espace parents on ne parle plus de « mères » et de « pères ».
@@ -160,7 +160,7 @@ export const defaultAudience = space => AUDIENCES_OF[space][0].k
 // Les enfants : la question que tout parent se pose avant de dire oui.
 export const KIDS = [
   { k: 'bienvenus', label: 'Enfants bienvenus',        hint: 'Vous pouvez venir avec vos enfants.' },
-  { k: 'sans',      label: 'Sans les enfants',         hint: 'Activité réservée aux adultes — merci de ne pas amener les enfants.' },
+  { k: 'sans',      label: 'Sans les enfants',         hint: 'Activité réservée aux adultes : merci de ne pas amener les enfants.' },
   { k: 'garde',     label: 'Garde d’enfants prévue',   hint: 'Une garde est organisée sur place pendant l’activité.' },
   { k: 'pour',      label: 'Pour les enfants',         hint: 'L’activité est destinée aux enfants, accompagnés d’un parent.' },
 ]
@@ -221,7 +221,7 @@ export function joinBlockedReason(ev, user) {
   if (hasJoined(ev, user.id)) return null
   const aud = audienceOf(ev.audience)
   if (aud.gender) {
-    if (!user.gender) return `Activité ${aud.restricted} — renseignez votre civilité dans votre profil pour vous inscrire.`
+    if (!user.gender) return `Activité ${aud.restricted} : renseignez votre civilité dans votre profil pour vous inscrire.`
     if (user.gender !== aud.gender) return `Activité ${aud.restricted}.`
   }
   return null   // complet → on n'interdit pas, on met en liste d'attente
@@ -281,9 +281,9 @@ export function securityNeeds(ev) {
   // En pleine journée, l'agent est déjà au portail — un café des parents à 9 h ne
   // demande pas de vacation. On ne crie pas au loup, sinon plus personne n'écoute.
   const reasons = []
-  if (isNightEvent(ev)) reasons.push('Événement en soirée — ouverture et fermeture du portail, éclairage')
+  if (isNightEvent(ev)) reasons.push('Événement en soirée : ouverture et fermeture du portail, éclairage')
   if (goingCount(ev) >= CROWD_THRESHOLD) reasons.push(`Affluence : ${goingCount(ev)} personnes attendues`)
-  if (ev.place && ev.place.startsWith('Extérieur')) reasons.push('Activité hors de l’école — sortie et retour du groupe')
+  if (ev.place && ev.place.startsWith('Extérieur')) reasons.push('Activité hors de l’école : sortie et retour du groupe')
   // La présence de personnes extérieures aggrave, mais ne suffit pas à elle seule.
   if (reasons.length && ev.space === 'parent') reasons.push('Accueil de personnes extérieures au personnel (parents)')
   return reasons
@@ -354,7 +354,7 @@ export const IDEAS_TEACHER = [
   { title: 'Conseil de cycle',                     cat: 'pedago',    audience: 'tous',   kids: 'sans', place: 'Salle de classe',   min: 4, price: 0, desc: 'Harmoniser les progressions et les évaluations du cycle.' },
   { title: 'Préparation du conseil de classe',     cat: 'pedago',    audience: 'tous',   kids: 'sans', place: 'Salle de classe',   min: 3, price: 0, desc: 'Faire le point sur chaque élève avant le conseil.' },
   { title: 'Atelier numérique en classe',          cat: 'formation', audience: 'tous',   kids: 'sans', place: 'Salle Info',        min: 5, price: 0, desc: 'Prendre en main les outils numériques de la classe.' },
-  { title: 'Sortie pédagogique — repérage',        cat: 'sortie',    audience: 'tous',   kids: 'sans', place: 'Extérieur (hors école)', min: 3, price: 8, desc: 'Repérer le lieu avant la sortie avec les élèves.', covers: 'le transport' },
+  { title: 'Sortie pédagogique · repérage',        cat: 'sortie',    audience: 'tous',   kids: 'sans', place: 'Extérieur (hors école)', min: 3, price: 8, desc: 'Repérer le lieu avant la sortie avec les élèves.', covers: 'le transport' },
   { title: 'Marche entre collègues',               cat: 'sport',     audience: 'tous',   kids: 'sans', place: 'Extérieur (hors école)', min: 4, price: 0, desc: 'Une heure de marche après les cours.' },
   { title: 'Yoga entre enseignantes',              cat: 'sport',     audience: 'femmes', kids: 'sans', place: 'Gymnase',           min: 5, price: 6, desc: 'Une heure de yoga doux après la classe.', covers: 'la professeure' },
   { title: 'Repas de fin de trimestre',            cat: 'fete',      audience: 'tous',   kids: 'bienvenus', place: 'Salle polyvalente', min: 6, price: 12, desc: 'On clôture le trimestre ensemble.', covers: 'le traiteur' },

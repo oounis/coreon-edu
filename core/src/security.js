@@ -32,13 +32,13 @@ export const URGENCES = [
 // ── Consignes (procédures d'urgence) ────────────────────────────────────────
 export const CONSIGNES = [
   {
-    k: 'evacuation', label: 'Évacuation — incendie', icon: 'Flame', color: STATUS.danger,
+    k: 'evacuation', label: 'Évacuation · incendie', icon: 'Flame', color: STATUS.danger,
     steps: [
       "Donner l'alarme et prévenir la Direction.",
-      'Appeler la Protection civile (198) — adresse, nature du sinistre, nombre de personnes.',
+      'Appeler la Protection civile (198) : adresse, nature du sinistre, nombre de personnes.',
       'Ouvrir le portail en grand pour les secours ; dégager la voie d’accès.',
       'Guider l’évacuation vers le point de rassemblement (cour, côté rue).',
-      'Vérifier salles, sanitaires et bibliothèque — personne ne reste.',
+      'Vérifier salles, sanitaires et bibliothèque : personne ne reste.',
       'Compter les présents avec la Direction ; annoncer les manquants aux secours.',
       "Ne jamais laisser quiconque retourner à l'intérieur.",
     ],
@@ -59,7 +59,7 @@ export const CONSIGNES = [
       'Ne pas s’interposer physiquement.',
       'Alerter la Direction et la Police secours (197) ; décrire la personne.',
       'Isoler les élèves : confinement des classes concernées.',
-      'Noter l’heure, le signalement, le point d’entrée — main courante.',
+      'Noter l’heure, le signalement, le point d’entrée : main courante.',
       'Préserver les images de vidéosurveillance.',
     ],
   },
@@ -90,7 +90,7 @@ export const CONSIGNES = [
 export const CHECKPOINTS = [
   { k: 'portail', label: 'Portail principal' },
   { k: 'cour', label: 'Cour de récréation' },
-  { k: 'batiment', label: 'Bâtiment — salles de classe' },
+  { k: 'batiment', label: 'Bâtiment · salles de classe' },
   { k: 'biblio', label: 'Bibliothèque' },
   { k: 'gymnase', label: 'Gymnase' },
   { k: 'terrain', label: 'Terrain de football' },
@@ -139,7 +139,7 @@ export const badgeNumber = n => `V-${String(n).padStart(3, '0')}`
 export const CHECKLIST = {
   avant: [
     { k: 'brief', label: 'Consignes reçues : horaires, effectif attendu, contact de l’organisateur' },
-    { k: 'liste', label: 'Liste des inscrits en main — on n’entre pas sans y figurer' },
+    { k: 'liste', label: 'Liste des inscrits en main : on n’entre pas sans y figurer' },
     { k: 'portail', label: 'Plan de portail : une seule entrée ouverte, les autres verrouillées' },
     { k: 'issues', label: 'Issues de secours dégagées et ouvrables de l’intérieur' },
     { k: 'eclairage', label: 'Éclairage vérifié : accès, parking, cheminement, éclairage de secours' },

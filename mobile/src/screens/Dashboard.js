@@ -31,7 +31,7 @@ function ParentBody({ u, d, nav }) {
   const area = live ? AREAS[live.place] : null
   const pill = phase === 'live' ? `EN DIRECT · ${fmt(preview)}` : phase === 'after' ? 'Journée terminée' : phase === 'before' ? 'Ouvre à 08:00' : phase === 'vacances' ? "Vacances d'été" : 'Week-end'
 
-  if (!child) return <Card><Text style={{ color: C.muted }}>Aucun enfant associé — demandez à la direction de lier votre compte.</Text></Card>
+  if (!child) return <Card><Text style={{ color: C.muted }}>Aucun enfant associé : demandez à la direction de lier votre compte.</Text></Card>
 
   return (
     <>
@@ -64,9 +64,9 @@ function ParentBody({ u, d, nav }) {
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
         <Tile icon="Star" color="#2BD9A8" label="Moyenne générale" sub={b?.mention?.label}
-          value={b?.overall != null ? `${b.overall}/100` : '—'} onPress={() => nav.navigate('~bulletin', { childId: child.id })} />
+          value={b?.overall != null ? `${b.overall}/100` : '·'} onPress={() => nav.navigate('~bulletin', { childId: child.id })} />
         <Tile icon="CreditCard" color="#22D3EE" label="Mois payés" value={`${paid}/${months.length}`} onPress={() => nav.navigate('/app/payments')} />
-        <Tile icon="CalendarCheck" color="#8B5CF6" label="Présence" value={b?.attRate != null ? `${b.attRate}%` : '—'} />
+        <Tile icon="CalendarCheck" color="#8B5CF6" label="Présence" value={b?.attRate != null ? `${b.attRate}%` : '·'} />
         <Tile icon="Bell" color="#FFA62B" label="Non lues" value={String(unread)} onPress={() => nav.navigate('/app/notifications')} />
       </View>
 

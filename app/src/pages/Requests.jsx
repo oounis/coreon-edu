@@ -57,9 +57,9 @@ export default function Requests(){
       if(decision==='rejected') req.status='rejected'
       else { req.currentLevel++; if(req.currentLevel>=req.chain.length) req.status='approved' } })
     const req=db().requests.find(x=>x.id===r.id)
-    if(decision==='rejected') notify({to:r.by,email:true,kind:'request',actor:u.name,title:'demande rejetée',body:`${r.type} — ${comment||'sans motif'}`,link:'/app/requests'})
-    else if(req.status==='approved') notify({to:r.by,email:true,kind:'request',actor:'Administration',title:'demande approuvée',body:`${r.type} — validée${REQUEST_DEFS[r.type]?.doc?', document disponible':''}.`,link:'/app/requests'})
-    else { notify({role:req.chain[req.currentLevel],kind:'request',actor:u.name,title:`validation requise : ${r.type}`,body:`De ${r.byName}`,link:'/app/requests'}); notify({to:r.by,kind:'request',actor:u.name,title:'demande validée (étape)',body:`${r.type} — en cours`,link:'/app/requests'}) }
+    if(decision==='rejected') notify({to:r.by,email:true,kind:'request',actor:u.name,title:'demande rejetée',body:`${r.type} · ${comment||'sans motif'}`,link:'/app/requests'})
+    else if(req.status==='approved') notify({to:r.by,email:true,kind:'request',actor:'Administration',title:'demande approuvée',body:`${r.type} · validée${REQUEST_DEFS[r.type]?.doc?', document disponible':''}.`,link:'/app/requests'})
+    else { notify({role:req.chain[req.currentLevel],kind:'request',actor:u.name,title:`validation requise : ${r.type}`,body:`De ${r.byName}`,link:'/app/requests'}); notify({to:r.by,kind:'request',actor:u.name,title:'demande validée (étape)',body:`${r.type} · en cours`,link:'/app/requests'}) }
     toast.success(decision==='approved'?'Demande approuvée':'Demande rejetée'); setView(null); setComment(''); refresh()
   }
 
@@ -79,9 +79,9 @@ export default function Requests(){
           <div className="text-xs text-muted mt-0.5">par {r.byName} · {formatDistanceToNow(r.at,{addSuffix:true,locale:fr})}</div>
           {/* le travail qui suit la signature : à qui, pour quand, où ça en est */}
           {r.assigneeId&&r.status==='approved'&&<div className="text-xs mt-1 font-semibold flex items-center gap-1.5" style={{color:overdue?STATUS.danger:STATUS.info}}>
-            <Hammer size={12}/> confié à {r.assigneeName}{r.deadline&&<> · échéance {r.deadline}{overdue&&' — DÉPASSÉE'}</>}</div>}
+            <Hammer size={12}/> confié à {r.assigneeName}{r.deadline&&<> échéance {r.deadline}{overdue&&'DÉPASSÉE'}</>}</div>}
           {r.status==='closed'&&<div className="text-xs mt-1 font-semibold flex items-center gap-1.5" style={{color:r.closedLate?STATUS.warn:STATUS.ok}}>
-            <Check size={12}/> clôturée par {r.closedBy}{r.closedLate&&' — en retard'}</div>}
+            <Check size={12}/> clôturée par {r.closedBy}{r.closedLate&&'en retard'}</div>}
           <Chain r={r}/></div>
         <div className="flex items-center gap-2 shrink-0">
           {decidable && <span className="text-xs font-bold px-2 py-1 rounded-full" style={{background:STATUS.warnSoft,color:STATUS.warn}}>À examiner</span>}
@@ -91,13 +91,13 @@ export default function Requests(){
     </Card>)}
 
   return (<>
-    <PageHead title="Demandes & validations" sub={canRaise?'Déposez une demande et suivez son circuit — jusqu’à la clôture.':'Examinez, validez, assignez, clôturez. Tout est tracé.'}
+    <PageHead title="Demandes & validations" sub={canRaise?'Déposez une demande et suivez son circuit : jusqu’à la clôture.':'Examinez, validez, assignez, clôturez. Tout est tracé.'}
       action={<div className="flex gap-2">
         {isDirection&&<Btn variant="soft" onClick={()=>setBilan(true)}><BarChart3 size={16}/> Bilan du mois</Btn>}
         {canRaise&&<Btn onClick={()=>{setType2(myTypes[0]);setOpen(true)}}><Plus size={16}/> Nouvelle demande</Btn>}
       </div>}/>
 
-    {toDecide.length>0 && <div className="mb-6"><div className="text-xs font-bold uppercase text-muted mb-2">À valider ({toDecide.length}) — cliquez pour examiner</div>
+    {toDecide.length>0 && <div className="mb-6"><div className="text-xs font-bold uppercase text-muted mb-2">À valider ({toDecide.length}) · cliquez pour examiner</div>
       <div className="space-y-3">{toDecide.map(r=><Row key={r.id} r={r} decidable/>)}</div></div>}
 
     <div className="text-xs font-bold uppercase text-muted mb-2">{canRaise?'Mes demandes':'Toutes les demandes'}</div>
@@ -115,18 +115,18 @@ export default function Requests(){
         <div className="flex items-center justify-between mb-3"><div className="text-lg font-bold flex items-center gap-2">{view.type} <Badge status={view.status}/></div></div>
         <div className="grid sm:grid-cols-2 gap-x-6 gap-y-1 text-sm mb-4 bg-canvas rounded-xl p-3">
           <div><span className="text-muted">Demandeur :</span> <b>{view.byName}</b> ({ROLE[reqUser?.role]?.label})</div>
-          <div><span className="text-muted">CIN :</span> {reqUser?.cin||'—'}</div>
+          <div><span className="text-muted">CIN :</span> {reqUser?.cin||'·'}</div>
           <div><span className="text-muted">Date :</span> {format(view.at,'dd/MM/yyyy HH:mm')}</div>
           <div><span className="text-muted">Circuit :</span> {view.chain.map(r=>ROLE[r].label).join(' → ')}</div>
         </div>
         <div className="text-xs font-bold uppercase text-muted mb-2">Détails saisis</div>
         <div className="space-y-1 mb-4">
           {rd.fields.map(f=>{ const v=fieldVal(view,f); return (
-            <div key={f.k} className="flex justify-between gap-4 border-b border-line py-1.5 text-sm"><span className="text-muted">{f.l}</span><span className="font-medium text-right">{v||'—'}</span></div>) })}
+            <div key={f.k} className="flex justify-between gap-4 border-b border-line py-1.5 text-sm"><span className="text-muted">{f.l}</span><span className="font-medium text-right">{v||'·'}</span></div>) })}
         </div>
         <div className="text-xs font-bold uppercase text-muted mb-1">Circuit de validation</div><Chain r={view}/>
         {view.approvals.length>0 && <div className="mt-3 space-y-1">{view.approvals.map((a,i)=>(
-          <div key={i} className="text-xs"><b className="inline-flex items-center gap-1" style={{color:a.decision==='approved'?STATUS.ok:STATUS.danger}}>{a.decision==='approved'?<><Check size={11}/> Approuvé</>:<><X size={11}/> Rejeté</>}</b> par {a.by} ({ROLE[a.role]?.label}) · {format(a.at,'dd/MM/yyyy')}{a.comment&&<span className="text-muted"> — <MessageSquare size={11} className="inline -mt-0.5"/> {a.comment}</span>}</div>))}</div>}
+          <div key={i} className="text-xs"><b className="inline-flex items-center gap-1" style={{color:a.decision==='approved'?STATUS.ok:STATUS.danger}}>{a.decision==='approved'?<><Check size={11}/> Approuvé</>:<><X size={11}/> Rejeté</>}</b> par {a.by} ({ROLE[a.role]?.label}) · {format(a.at,'dd/MM/yyyy')}{a.comment&&<span className="text-muted"> <MessageSquare size={11} className="inline -mt-0.5"/> {a.comment}</span>}</div>))}</div>}
         {canDecide(view) && <div className="mt-4 pt-4 border-t border-line"><Field label="Votre commentaire (optionnel)"><Textarea value={comment} onChange={e=>setComment(e.target.value)} className="h-20" placeholder="Motif d'approbation ou de rejet…"/></Field></div>}
 
         {/* ── LE TRAVAIL QUI SUIT LA SIGNATURE (requests.js) ──────────────── */}
@@ -134,11 +134,11 @@ export default function Requests(){
           <div className="mt-4 pt-4 border-t border-line">
             <div className="text-xs font-bold uppercase text-muted mb-2 flex items-center gap-1.5"><Hammer size={13}/> Le travail</div>
             {view.assigneeId
-              ? <div className="text-sm mb-3">Confié à <b>{view.assigneeName}</b>{view.deadline&&<> · échéance <b style={{color:todayIso()>view.deadline?STATUS.danger:undefined}}>{view.deadline}</b></>}</div>
+              ? <div className="text-sm mb-3">Confié à <b>{view.assigneeName}</b>{view.deadline&&<> échéance <b style={{color:todayIso()>view.deadline?STATUS.danger:undefined}}>{view.deadline}</b></>}</div>
               : isDirection && (
                 <div className="grid sm:grid-cols-[1fr_auto_auto] gap-2 mb-3 items-end">
                   <Field label="Confier à"><Select value={assignee} onChange={e=>setAssignee(e.target.value)}>
-                    <option value="">—</option>{staff.map(s=><option key={s.id} value={s.id}>{s.name} ({ROLE[s.role]?.label})</option>)}</Select></Field>
+                    <option value=""> </option>{staff.map(s=><option key={s.id} value={s.id}>{s.name} ({ROLE[s.role]?.label})</option>)}</Select></Field>
                   <Field label="Échéance"><Input type="date" value={deadline} onChange={e=>setDeadline(e.target.value)}/></Field>
                   <Btn onClick={()=>{ const s=staff.find(x=>x.id===assignee)
                     const r=assignWork(view.id,{assigneeId:assignee,assigneeName:s?.name,deadline:deadline||null,byName:u.name})
@@ -151,7 +151,7 @@ export default function Requests(){
                 <div className="flex-1"><Field label="Mot de clôture (ce qui a été fait)"><Input value={comment} onChange={e=>setComment(e.target.value)} placeholder="Réparé, acheté, remis en main propre…"/></Field></div>
                 <Btn variant="soft" onClick={()=>{ const r=closeWork(view.id,{byId:u.id,byName:u.name,note:comment.trim()})
                   if(r.error) return toast.error(r.error)
-                  toast.success(r.late?'Clôturée — en retard sur l’échéance':'Clôturée'); setComment(''); setView(null); refresh() }}>
+                  toast.success(r.late?'Clôturée · en retard sur l’échéance':'Clôturée'); setComment(''); setView(null); refresh() }}>
                   <Check size={15}/> Clôturer</Btn>
               </div>)}
           </div>)}
@@ -159,21 +159,21 @@ export default function Requests(){
           <div className="mt-4 pt-4 border-t border-line text-sm">
             <div className="text-xs font-bold uppercase text-muted mb-1.5">Clôture</div>
             <div>Par <b>{view.closedBy}</b> le {format(view.closedAt,'dd/MM/yyyy HH:mm')}
-              {view.closedLate&&<b style={{color:STATUS.warn}}> — en retard sur l’échéance</b>}</div>
+              {view.closedLate&&<b style={{color:STATUS.warn}}>en retard sur l’échéance</b>}</div>
             {view.closeNote&&<div className="text-muted mt-1">« {view.closeNote} »</div>}
           </div>)}
         {(view.trace||[]).length>0 && (
           <div className="mt-4 pt-4 border-t border-line">
             <div className="text-xs font-bold uppercase text-muted mb-1.5">Qui a fait quoi</div>
             {view.trace.map((t,i)=>(<div key={i} className="text-xs py-0.5">
-              <b>{t.by}</b> — {t.action==='assigne'?'a assigné':'a clôturé'} · {format(t.at,'dd/MM/yyyy HH:mm')}
-              {t.note&&<span className="text-muted"> — {t.note}</span>}</div>))}
+              <b>{t.by}</b> {t.action==='assigne'?'a assigné':'a clôturé'} · {format(t.at,'dd/MM/yyyy HH:mm')}
+              {t.note&&<span className="text-muted"> {t.note}</span>}</div>))}
           </div>)}
       </div>) })()}
     </Modal>
 
     {/* ---------- LE BILAN DU MOIS — la demande d'origine d'Othman ---------- */}
-    <Modal open={bilan} onClose={()=>setBilan(false)} title="Bilan du mois — le travail accompli" size="xl"
+    <Modal open={bilan} onClose={()=>setBilan(false)} title="Bilan du mois · le travail accompli" size="xl"
       footer={<Btn variant="ghost" onClick={()=>setBilan(false)}>Fermer</Btn>}>
       {bilan && (()=>{ const rep=monthReport(month); return (<div>
         <Field label="Mois"><Input type="month" value={month} onChange={e=>setMonth(e.target.value)}/></Field>
@@ -193,7 +193,7 @@ export default function Requests(){
                 <span className="font-bold tabular-nums">{s.closed}{s.late>0&&<span className="font-semibold text-xs ml-1.5" style={{color:STATUS.warn}}>dont {s.late} en retard</span>}</span></div>))
               :<div className="text-xs text-muted">Personne n'a clôturé ce mois-ci.</div>}</div>
         </div>
-        <p className="text-[11px] text-muted mt-4">Compté depuis la trace des demandes — rien d'estimé, rien de saisi à la main.</p>
+        <p className="text-[11px] text-muted mt-4">Compté depuis la trace des demandes : rien d'estimé, rien de saisi à la main.</p>
       </div>) })()}
     </Modal>
 
@@ -207,8 +207,8 @@ export default function Requests(){
           {f.t==='checkbox'
             ? <label className="flex items-center gap-2 text-sm bg-canvas rounded-xl p-3"><input type="checkbox" checked={!!vals[f.k]} onChange={e=>setVals({...vals,[f.k]:e.target.checked})}/> {f.l}</label>
             : <Field label={f.l+(f.req?' *':'')}>
-                {f.t==='select'? <Select value={vals[f.k]||''} onChange={e=>setVals({...vals,[f.k]:e.target.value})}><option value="">—</option>{f.o.map(o=><option key={o}>{o}</option>)}</Select>
-                : f.t==='child'? <Select value={vals[f.k]||''} onChange={e=>setVals({...vals,[f.k]:e.target.value})}><option value="">—</option>{childOptions.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</Select>
+                {f.t==='select'? <Select value={vals[f.k]||''} onChange={e=>setVals({...vals,[f.k]:e.target.value})}><option value=""> </option>{f.o.map(o=><option key={o}>{o}</option>)}</Select>
+                : f.t==='child'? <Select value={vals[f.k]||''} onChange={e=>setVals({...vals,[f.k]:e.target.value})}><option value=""> </option>{childOptions.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</Select>
                 : f.t==='textarea'? <Textarea value={vals[f.k]||''} onChange={e=>setVals({...vals,[f.k]:e.target.value})} className="h-20"/>
                 : f.t==='attach'? <label className="flex items-center gap-2 text-sm border border-line rounded-xl px-3 py-2.5 cursor-pointer"><Paperclip size={14} className="text-muted"/>{vals[f.k]||'Joindre un fichier'}<input type="file" className="hidden" onChange={e=>setVals({...vals,[f.k]:e.target.files?.[0]?.name||''})}/></label>
                 : <Input type={f.t==='number'?'number':f.t==='date'?'date':f.t==='time'?'time':'text'} value={vals[f.k]||''} onChange={e=>setVals({...vals,[f.k]:e.target.value})}/>}
@@ -231,12 +231,12 @@ function docModel(r){
   if(r.type==='Certificat de scolarité'){ const s=studentById(f.child); const cls=classById(s?.classId)
     return { title:'Certificat de scolarité', ref:r.id.toUpperCase(), today, sc,
       intro:`La Direction de l'établissement ${sc.schoolName} certifie que l'élève :`,
-      rows:[['Nom & prénom',s?.name],['Classe',`${cls?.name||''} (${cls?.grade||''})`],['N° acte de naissance',s?.cin||'—'],['Année scolaire',f.year||sc.year]],
+      rows:[['Nom & prénom',s?.name],['Classe',`${cls?.name||''} (${cls?.grade||''})`],['N° acte de naissance',s?.cin||'·'],['Année scolaire',f.year||sc.year]],
       body:`est régulièrement inscrit(e) et suit ses études dans notre établissement. Le présent certificat est délivré pour servir et valoir ce que de droit${f.addressedTo?` (${f.addressedTo})`:''}.`, r }
   }
   const user=userById(r.by); const t=db().teachers.find(x=>x.id===user?.teacherId); const isSalary=r.type.includes('salaire')
   return { title:r.type, ref:r.id.toUpperCase(), today, sc, intro:`Nous soussignés, la Direction de l'établissement ${sc.schoolName}, attestons que :`,
-    rows:[['Nom & prénom',r.byName],['Fonction',t?.designation||user?.position||'Enseignant'],['CIN',user?.cin||t?.cin||'—'],['Date d\'embauche',t?.joiningDate||'—'],...(isSalary?[['Salaire mensuel brut',t?.salary?t.salary+' DT':'—']]:[])],
+    rows:[['Nom & prénom',r.byName],['Fonction',t?.designation||user?.position||'Enseignant'],['CIN',user?.cin||t?.cin||'·'],['Date d\'embauche',t?.joiningDate||'·'],...(isSalary?[['Salaire mensuel brut',t?.salary?t.salary+' DT':'·']]:[])],
     body:`est employé(e) au sein de notre établissement. La présente attestation est délivrée à l'intéressé(e)${f.addressedTo?`, à l'attention de ${f.addressedTo},`:''} pour servir et valoir ce que de droit${f.purpose?` (${f.purpose})`:''}.`, r }
 }
 function OfficialDoc({ r }){ const m=docModel(r); return (
@@ -248,9 +248,9 @@ function OfficialDoc({ r }){ const m=docModel(r); return (
     <p className="leading-7">{m.intro}</p>
     <div className="my-3 pl-4 border-l-2" style={{borderColor:'#EEF2FF'}}>{m.rows.map(([k,v])=><div key={k}><b>{k} :</b> {v}</div>)}</div>
     <p className="leading-7">{m.body}</p>
-    <div className="mt-6 grid grid-cols-2 gap-4"><div className="text-xs text-muted"><b>Circuit de validation :</b>{m.r.approvals.map((a,i)=><div key={i} className="flex items-center gap-1"><Check size={10} className="shrink-0"/> {ROLE[a.role]?.label} — {a.by} ({format(a.at,'dd/MM/yyyy')})</div>)}</div>
+    <div className="mt-6 grid grid-cols-2 gap-4"><div className="text-xs text-muted"><b>Circuit de validation :</b>{m.r.approvals.map((a,i)=><div key={i} className="flex items-center gap-1"><Check size={10} className="shrink-0"/> {ROLE[a.role]?.label} · {a.by} ({format(a.at,'dd/MM/yyyy')})</div>)}</div>
       <div className="text-center"><div className="h-12"></div><div className="border-t border-ink/30 pt-1 text-xs">Cachet & signature de la Direction</div></div></div>
-    <div className="text-[11px] text-muted mt-6 pt-2 border-t border-line">Document généré par Coreon Edu — conforme à la {LEGAL.law} (INPDP).</div>
+    <div className="text-[11px] text-muted mt-6 pt-2 border-t border-line">Document généré par Coreon Edu · conforme à la {LEGAL.law} (INPDP).</div>
   </div>) }
 function downloadPDF(r){
   const m=docModel(r); const doc=new jsPDF({unit:'mm',format:'a4'}); const W=210; let y=20
@@ -261,12 +261,12 @@ function downloadPDF(r){
   y=44; doc.setTextColor(20); doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.text(m.title.toUpperCase(),W/2,y,{align:'center'})
   y+=12; doc.setFont('helvetica','normal'); doc.setFontSize(11)
   doc.text(doc.splitTextToSize(m.intro,W-40),20,y); y+=10
-  doc.setFont('helvetica','bold'); m.rows.forEach(([k,v])=>{ doc.text(`${k} : `,24,y); const kw=doc.getTextWidth(`${k} : `); doc.setFont('helvetica','normal'); doc.text(String(v||'—'),24+kw,y); doc.setFont('helvetica','bold'); y+=7 })
+  doc.setFont('helvetica','bold'); m.rows.forEach(([k,v])=>{ doc.text(`${k} : `,24,y); const kw=doc.getTextWidth(`${k} : `); doc.setFont('helvetica','normal'); doc.text(String(v||'·'),24+kw,y); doc.setFont('helvetica','bold'); y+=7 })
   y+=4; doc.setFont('helvetica','normal'); doc.text(doc.splitTextToSize(m.body,W-40),20,y); y+=24
   doc.setFontSize(9); doc.setTextColor(110); doc.text('Circuit de validation :',20,y); y+=5
-  m.r.approvals.forEach(a=>{ doc.text(`  • ${ROLE[a.role]?.label} — ${a.by} (${format(a.at,'dd/MM/yyyy')})`,20,y); y+=5 })
+  m.r.approvals.forEach(a=>{ doc.text(`  • ${ROLE[a.role]?.label} · ${a.by} (${format(a.at,'dd/MM/yyyy')})`,20,y); y+=5 })
   doc.text('Cachet & signature de la Direction',W-20,y+6,{align:'right'})
-  doc.setFontSize(7.5); doc.text(`Document généré par Coreon Edu — conforme à la ${LEGAL.law} (INPDP).`,20,285)
+  doc.setFontSize(7.5); doc.text(`Document généré par Coreon Edu : conforme à la ${LEGAL.law} (INPDP).`,20,285)
   doc.save(`${m.title.replace(/ /g,'_')}_${m.r.byName.replace(/ /g,'_')}.pdf`)
   toast.success('PDF téléchargé')
 }

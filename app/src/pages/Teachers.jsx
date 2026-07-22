@@ -38,7 +38,7 @@ export default function Teachers(){
     <div className="space-y-6">
       {subjects.map(sub=>(
         <div key={sub}>
-          <div className="flex items-center gap-2 mb-3"><SubjectDot label={sub} size={26} iconSize={14} radius="rounded-lg"/><h2 className="font-bold">{sub}</h2><span className="text-xs text-muted">· {list.filter(t=>(t.subject||'Autre')===sub).length}</span></div>
+          <div className="flex items-center gap-2 mb-3"><SubjectDot label={sub} size={26} iconSize={14} radius="rounded-lg"/><h2 className="font-bold">{sub}</h2><span className="text-xs text-muted"> {list.filter(t=>(t.subject||'Autre')===sub).length}</span></div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">{list.filter(t=>(t.subject||'Autre')===sub).map(t=><TCard key={t.id} t={t}/>)}</div>
         </div>
       ))}
@@ -70,7 +70,7 @@ export default function Teachers(){
     </Modal>
     <Modal open={!!view} onClose={()=>setView(null)} title="Profil du personnel" size="xl">
       {view&&(<div><div className="flex items-center gap-4 mb-5"><Avatar name={view.name} seed={view.id} size={56}/><div><div className="text-xl font-extrabold">{view.name}</div><div className="text-muted text-sm">{view.designation} · {view.subject}</div></div></div>
-        <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">{[['Genre',view.gender],['CIN',view.cin],['Gouvernorat',view.governorate],['Date de naissance',view.dob],['Diplôme',view.qualification],['Expérience',`${view.experience} ans`],['Date d\'embauche',view.joiningDate],['Téléphone',view.phone],['E-mail',view.email],['Adresse',view.address],['Salaire',view.salary?`${view.salary} DT`:'—']].map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium text-right">{v||'—'}</span></div>)}</div></div>)}
+        <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">{[['Genre',view.gender],['CIN',view.cin],['Gouvernorat',view.governorate],['Date de naissance',view.dob],['Diplôme',view.qualification],['Expérience',`${view.experience} ans`],['Date d\'embauche',view.joiningDate],['Téléphone',view.phone],['E-mail',view.email],['Adresse',view.address],['Salaire',view.salary?`${view.salary} DT`:'·']].map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium text-right">{v||'·'}</span></div>)}</div></div>)}
     </Modal>
   </>)
 }

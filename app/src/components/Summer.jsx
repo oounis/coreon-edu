@@ -59,7 +59,7 @@ export function SummerFreeze({ feature, detail, children }) {
       <div className="inline-flex items-center gap-1.5 text-[12px] font-bold px-3 py-1 rounded-full mt-2" style={{ background: '#FEF3C7', color: '#92400E' }}>
         <Sun size={12} /> VACANCES D'ÉTÉ</div>
       <h2 className="text-xl font-extrabold mt-2">{feature} reprend à la rentrée</h2>
-      <p className="text-sm text-muted mt-1 max-w-md mx-auto">{detail} Rendez-vous le <b>{rentreeLabel()}</b> — d'ici là, profitez de l'été !</p>
+      <p className="text-sm text-muted mt-1 max-w-md mx-auto">{detail} Rendez-vous le <b>{rentreeLabel()}</b>d'ici là, profitez de l'été !</p>
       <div className="mt-4 flex justify-center gap-2 flex-wrap items-center">
         <DemoLiveButton />
         {children}

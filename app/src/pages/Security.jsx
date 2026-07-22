@@ -71,7 +71,7 @@ export default function Security() {
       const roundsList = (d.rounds || []).filter(r => r.date === today)
       const openList = (d.incidents || []).filter(i => i.status === 'open')
       const C = {
-        tonight: { title: t('Ce soir — à couvrir'), body: tonight.length === 0
+        tonight: { title: t('Ce soir · à couvrir'), body: tonight.length === 0
           ? <EmptyState icon={<ShieldCheck size={24} />} title={t('Rien de prévu ce soir')} sub={t('Les événements approuvés qui demandent une présence apparaîtront ici.')} />
           : tonight.map(ev => (
             <div key={ev.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
@@ -95,12 +95,12 @@ export default function Security() {
             return (
             <div key={r.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold">{r.agentName} <span className="text-muted font-normal tabular-nums">· {r.startAt} → {r.endAt}</span></span>
+                <span className="block text-sm font-semibold">{r.agentName} <span className="text-muted font-normal tabular-nums"> {r.startAt} → {r.endAt}</span></span>
                 <span className="block text-[12px] text-muted">{r.points.length} {t('point(s) de passage')}{anomalies.length ? '' : t(' · rien à signaler')}</span></span>
               {anomalies.length > 0 && <span className="text-[12px] font-bold px-2 py-1 rounded-full" style={{ background: STATUS.warnSoft, color: STATUS.warn }}>{anomalies.length} {t('anomalie(s)')}</span>}
             </div>) }) },
         incidents: { title: `${t('Incidents ouverts')} · ${openList.length}`, body: openList.length === 0
-          ? <EmptyState icon={<ShieldCheck size={24} />} title={t('Aucun incident ouvert')} sub={t('Tout est réglé — rien en attente.')} />
+          ? <EmptyState icon={<ShieldCheck size={24} />} title={t('Aucun incident ouvert')} sub={t('Tout est réglé · rien en attente.')} />
           : openList.map(i => (
             <div key={i.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
               <span className="min-w-0 flex-1">
@@ -204,7 +204,7 @@ function ChecklistModal({ ev, u, onClose, refresh }) {
     // Clore la check-list écrit d'office dans la main courante : c'est la trace.
     mutate(db => {
       db.logbook.unshift({ id: uid('l'), at: Date.now(), agentName: u.name, kind: 'evenement',
-        place: ev.place, text: `« ${ev.title} ${t('» — check-list de sécurité complétée (')}${checklistTotal()} ${t('points).')}` })
+        place: ev.place, text: `« ${ev.title} ${t('» · check-list de sécurité complétée (')}${checklistTotal()} ${t('points).')}` })
     })
     notify({ role: 'schooladmin', kind: 'info', actor: u.name, title: t('Événement sécurisé'),
       body: `« ${ev.title} ${t('» : check-list complétée.')}`, link: '/app/security' })
@@ -255,7 +255,7 @@ function VisitorsTab({ u, d, refresh }) {
 
   const checkIn = () => {
     if (!f.name.trim()) return toast.error(t('Nom du visiteur requis'))
-    if (!f.idNumber.trim()) return toast.error(t("Pièce d'identité requise — c'est le seul contrôle réel"))
+    if (!f.idNumber.trim()) return toast.error(t("Pièce d'identité requise : c'est le seul contrôle réel"))
     if (!f.hostName.trim()) return toast.error(t('Qui reçoit ce visiteur ?'))
     const escort = needsEscort(f.purpose)
     if (escort && !f.escortName.trim()) return toast.error(t("Cette visite exige un accompagnateur : indiquez qui accompagne"))
@@ -265,7 +265,7 @@ function VisitorsTab({ u, d, refresh }) {
         org: f.org.trim(), purpose: f.purpose, hostName: f.hostName.trim(), inAt: hm(appNow()), outAt: null,
         badge: badgeNumber(n), escort, escortName: f.escortName.trim(), vehicle: f.vehicle.trim(), agentName: u.name })
       db.logbook.unshift({ id: uid('l'), at: Date.now(), agentName: u.name, kind: 'visiteur', place: t('Portail principal'),
-        text: `${t('Entrée de')} ${f.name.trim()} (${f.purpose}) ${t('— badge')} ${badgeNumber(n)}${escort ? `${t(', accompagné par')} ${f.escortName.trim()}` : ''}.` })
+        text: `${t('Entrée de')} ${f.name.trim()} (${f.purpose}) ${t('badge')} ${badgeNumber(n)}${escort ? `${t(', accompagné par')} ${f.escortName.trim()}` : ''}.` })
     })
     toast.success(`${f.name.trim()} ${t('enregistré · badge')} ${badgeNumber(n)}`)
     setOpen(false); setF(BLANK_V()); refresh()
@@ -275,7 +275,7 @@ function VisitorsTab({ u, d, refresh }) {
     mutate(db => {
       const x = db.visitors.find(y => y.id === v.id); if (x) x.outAt = time
       db.logbook.unshift({ id: uid('l'), at: Date.now(), agentName: u.name, kind: 'visiteur', place: t('Portail principal'),
-        text: `${t('Sortie de')} ${v.name} ${t('— badge')} ${v.badge} ${t('rendu à')} ${time}.` })
+        text: `${t('Sortie de')} ${v.name} ${t('badge')} ${v.badge} ${t('rendu à')} ${time}.` })
     })
     toast.success(`${v.name} ${t('sorti · badge')} ${v.badge} ${t('rendu')}`); refresh()
   }
@@ -292,7 +292,7 @@ function VisitorsTab({ u, d, refresh }) {
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-semibold truncate">{v.name} <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-md ml-1" style={{ background: STATUS.neutralSoft, color: STATUS.neutral }}>{v.badge}</span></div>
                   <div className="text-[12px] text-muted truncate">{v.purpose} · {t('reçu par')} {v.hostName}{v.org && ` · ${v.org}`}</div>
-                  <div className="text-[11px] text-muted">{v.idType} {maskId(v.idNumber)}{v.vehicle && ` · ${v.vehicle}`}{v.escort && <span className="ml-1 font-bold" style={{ color: STATUS.warn }}>· {t('accompagné par')} {v.escortName}</span>}</div>
+                  <div className="text-[11px] text-muted">{v.idType} {maskId(v.idNumber)}{v.vehicle && ` · ${v.vehicle}`}{v.escort && <span className="ml-1 font-bold" style={{ color: STATUS.warn }}> {t('accompagné par')} {v.escortName}</span>}</div>
                 </div>
                 <div className="text-right shrink-0">
                   <div className="text-[12px] tabular-nums"><b>{v.inAt}</b>{v.outAt ? ` → ${v.outAt}` : ''}</div>
@@ -332,7 +332,7 @@ function RoundsTab({ u, d, refresh }) {
   const rounds = (d.rounds || []).filter(r => r.date === today).sort((a, b) => (b.startAt || '').localeCompare(a.startAt || ''))
   const [anomaly, setAnomaly] = useState({})
 
-  const start = () => { setLive({ startAt: hm(appNow()), points: {} }); toast.success(t('Ronde démarrée — pointez chaque zone')) }
+  const start = () => { setLive({ startAt: hm(appNow()), points: {} }); toast.success(t('Ronde démarrée · pointez chaque zone')) }
   const mark = k => setLive(l => ({ ...l, points: { ...l.points, [k]: { at: hm(appNow()), anomaly: anomaly[k] || '' } } }))
   const finish = () => {
     const points = CHECKPOINTS.filter(c => live.points[c.k]).map(c => ({ k: c.k, ...live.points[c.k] }))
@@ -352,7 +352,7 @@ function RoundsTab({ u, d, refresh }) {
   }
 
   return (<>
-    <SectionCard icon={<Flashlight size={16} />} tint="sky" title={live ? `${t('Ronde en cours — démarrée à')} ${live.startAt}` : t('Nouvelle ronde')}
+    <SectionCard icon={<Flashlight size={16} />} tint="sky" title={live ? `${t('Ronde en cours · démarrée à')} ${live.startAt}` : t('Nouvelle ronde')}
       sub={t("Pointez chaque zone à votre passage. Une anomalie remonte à la Direction et s'inscrit dans la main courante.")}
       action={live ? <Btn size="sm" onClick={finish}><Check size={14} /> {t('Clore la ronde')}</Btn> : <Btn size="sm" onClick={start}><Flashlight size={14} /> {t('Démarrer une ronde')}</Btn>}
       bodyClass="p-3" className="mb-4">
@@ -366,7 +366,7 @@ function RoundsTab({ u, d, refresh }) {
                 <span className="text-sm font-semibold flex-1">{c.label}</span>
                 {p ? <span className="text-[12px] font-bold tabular-nums" style={{ color: STATUS.ok }}>{p.at}</span>
                   : live ? <Btn size="sm" variant="soft" onClick={() => mark(c.k)}>{t('Pointer')}</Btn>
-                    : <span className="text-[11px] text-muted">—</span>}
+                    : <span className="text-[11px] text-muted"> </span>}
               </div>
               {live && !p && <Input className="mt-1.5 text-[12px]" placeholder={t('Anomalie (facultatif)')} value={anomaly[c.k] || ''} onChange={e => setAnomaly({ ...anomaly, [c.k]: e.target.value })} />}
               {p?.anomaly && <div className="text-[12px] mt-1 flex items-start gap-1.5" style={{ color: STATUS.warn }}><AlertTriangle size={12} className="mt-0.5" />{p.anomaly}</div>}
@@ -494,7 +494,7 @@ function ConsignesTab() {
     </div>
 
     <p className="text-[12px] text-muted mt-4">
-      {t("Ces consignes suivent le cadre tunisien : Code de la sécurité et de la prévention des risques d'incendie (loi 2009-11) et instructions de la Protection civile — plan d'évacuation affiché, équipe de sécurité désignée, moyens de secours vérifiés. Elles ne remplacent pas la formation de l'agent, elles la rappellent.")}
+      {t("Ces consignes suivent le cadre tunisien : Code de la sécurité et de la prévention des risques d'incendie (loi 2009-11) et instructions de la Protection civile : plan d'évacuation affiché, équipe de sécurité désignée, moyens de secours vérifiés. Elles ne remplacent pas la formation de l'agent, elles la rappellent.")}
     </p>
   </>)
 }

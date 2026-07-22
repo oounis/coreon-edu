@@ -33,7 +33,7 @@ export function createAccount(f) {
   const d = db()
   if (!String(f.name || '').trim() || !String(f.email || '').trim()) return { error: 'Nom et e-mail requis.' }
   if (!MANAGEABLE_ROLES.includes(f.role)) return { error: 'Rôle inconnu.' }
-  if (emailTaken(d, f.email)) return { error: 'Cet e-mail a déjà un compte — un e-mail, un compte.' }
+  if (emailTaken(d, f.email)) return { error: 'Cet e-mail a déjà un compte : un e-mail, un compte.' }
   const id = uid('u')
   mutate(db => {
     const user = {
@@ -45,7 +45,7 @@ export function createAccount(f) {
     else user.position = f.position || ''
     if (f.role === 'teacher') {
       const tid = uid('t')
-      db.teachers.push({ id: tid, name: user.name, subject: f.subject || '—', designation: f.position || '', classes: [], experience: 0, phone: f.phone || '', email: user.email, cin: f.cin || '', governorate: f.governorate || '', position: f.position || '', attachments: f.attachments || [] })
+      db.teachers.push({ id: tid, name: user.name, subject: f.subject || '·', designation: f.position || '', classes: [], experience: 0, phone: f.phone || '', email: user.email, cin: f.cin || '', governorate: f.governorate || '', position: f.position || '', attachments: f.attachments || [] })
       user.teacherId = tid
     }
     db.users.push(user)
@@ -81,7 +81,7 @@ export function setDisabled(id, disabled) {
   if (!u) return { error: 'Compte introuvable.' }
   if (u.role === 'owner') return { error: 'Le compte plateforme ne se gère pas depuis l\'école.' }
   if (disabled && isLastDirection(d, id))
-    return { error: 'Impossible : c\'est le dernier compte Direction actif — l\'école se verrouillerait dehors.' }
+    return { error: 'Impossible : c\'est le dernier compte Direction actif : l\'école se verrouillerait dehors.' }
   mutate(db => { const x = db.users.find(y => y.id === id); if (x) x.disabled = !!disabled })
   return { ok: true }
 }

@@ -128,14 +128,14 @@ export default function Incidents({ user, params, nav }) {
 
           <Lbl>Classe (pour cibler un élève, facultatif)</Lbl>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <Chip label="— aucune —" color={accent} active={!f.classId} onPress={() => setF({ ...f, classId: '', studentId: '' })} />
+            <Chip label="aucune" color={accent} active={!f.classId} onPress={() => setF({ ...f, classId: '', studentId: '' })} />
             {d.classes.map(cl => <Chip key={cl.id} label={cl.name} color={accent} active={f.classId === cl.id} onPress={() => setF({ ...f, classId: cl.id, studentId: '' })} />)}
           </ScrollView>
 
           {!!f.classId && <>
             <Lbl>Élève (facultatif)</Lbl>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <Chip label="— aucun —" color={accent} active={!f.studentId} onPress={() => setF({ ...f, studentId: '' })} />
+              <Chip label=", aucun" color={accent} active={!f.studentId} onPress={() => setF({ ...f, studentId: '' })} />
               {students.map(s => <Chip key={s.id} label={s.name} color={accent} active={f.studentId === s.id} onPress={() => setF({ ...f, studentId: s.id })} />)}
             </ScrollView>
           </>}

@@ -35,7 +35,7 @@ export default function Inventory() {
     .filter(g => g.list.length)
 
   return (<>
-    <PageHead title="Inventaire" sub="Ce que l'école possède, où, et quand ça va manquer — chaque mouvement laisse une trace."
+    <PageHead title="Inventaire" sub="Ce que l'école possède, où, et quand ça va manquer · chaque mouvement laisse une trace."
       action={<Btn onClick={() => setOpen(true)}><Plus size={15} /> Ajouter un article</Btn>} />
 
     <Card className="p-4 mb-4 flex items-center gap-3">
@@ -43,7 +43,7 @@ export default function Inventory() {
         {low.length ? <AlertTriangle size={20} /> : <PackageCheck size={20} />}
       </span>
       <button onClick={() => low.length && setAlerts(true)} className={`text-left ${low.length ? 'k-press' : 'cursor-default'}`}>
-        <div className="font-extrabold">{low.length ? `${low.length} article(s) sous le seuil — à racheter` : 'Aucun stock sous son seuil'}</div>
+        <div className="font-extrabold">{low.length ? `${low.length} article(s) sous le seuil : à racheter` : 'Aucun stock sous son seuil'}</div>
         <div className="text-xs text-muted">{low.length ? 'Cliquez pour voir la liste de courses.' : 'Chaque article porte un seuil : en dessous, il apparaît ici.'}</div>
       </button>
     </Card>
@@ -56,7 +56,7 @@ export default function Inventory() {
             <div key={it.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
               <button onClick={() => setHist(it.id)} title="Historique des mouvements" className="min-w-0 flex-1 text-left k-press">
                 <span className="block text-sm font-semibold truncate">{it.name}</span>
-                <span className="block text-[12px] text-muted">{it.location || '—'} · seuil {it.minQty}</span>
+                <span className="block text-[12px] text-muted">{it.location || '·'} · seuil {it.minQty}</span>
               </button>
               {it.qty <= it.minQty && <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: STATUS.warnSoft, color: STATUS.warn }}>BAS</span>}
               <div className="flex items-center gap-1.5 shrink-0">
@@ -67,21 +67,21 @@ export default function Inventory() {
             </div>))}
         </SectionCard>))}
 
-    <Modal open={alerts} onClose={() => setAlerts(false)} title="À racheter — stocks sous le seuil" size="lg"
+    <Modal open={alerts} onClose={() => setAlerts(false)} title="À racheter · stocks sous le seuil" size="lg"
       footer={<Btn variant="ghost" onClick={() => setAlerts(false)}>Fermer</Btn>}>
       {low.map(it => (
         <div key={it.id} className="flex items-center justify-between gap-3 px-2 py-2 rounded-xl hover:bg-canvas text-sm">
-          <span className="font-semibold">{it.name} <span className="text-muted font-normal">· {invCatOf(it.category).label}</span></span>
+          <span className="font-semibold">{it.name} <span className="text-muted font-normal"> {invCatOf(it.category).label}</span></span>
           <span className="font-extrabold" style={{ color: STATUS.warn }}>{it.qty} / seuil {it.minQty}</span>
         </div>))}
     </Modal>
 
-    <Modal open={!!hist} onClose={() => setHist(null)} title={hist ? `Mouvements — ${itemById(hist)?.name}` : ''} size="lg"
+    <Modal open={!!hist} onClose={() => setHist(null)} title={hist ? `Mouvements · ${itemById(hist)?.name}` : ''} size="lg"
       footer={<Btn variant="ghost" onClick={() => setHist(null)}>Fermer</Btn>}>
       {hist && (itemById(hist)?.moves || []).map((m, i) => (
         <div key={i} className="flex items-center gap-3 px-2 py-1.5 text-sm border-b border-line last:border-0">
           <History size={13} className="text-muted shrink-0" />
-          <span className="flex-1 min-w-0 truncate">{m.note || (m.delta > 0 ? 'Entrée' : 'Sortie')} <span className="text-muted">· {m.by}</span></span>
+          <span className="flex-1 min-w-0 truncate">{m.note || (m.delta > 0 ? 'Entrée' : 'Sortie')} <span className="text-muted"> {m.by}</span></span>
           <span className="font-bold tabular-nums" style={{ color: m.delta > 0 ? STATUS.ok : STATUS.warn }}>{m.delta > 0 ? '+' : ''}{m.delta}</span>
           <span className="text-[12px] text-muted shrink-0">{format(new Date(m.at), 'd MMM HH:mm', { locale: fr })}</span>
         </div>))}

@@ -57,7 +57,7 @@ export default function Students(){
       const a = att[s.id]
       const cls = classMap.get(s.classId)
       const unpaid = (d.payments[s.id] || []).filter(m => m.status === 'due' || m.status === 'overdue').length
-      return { ...s, _classe: cls?.name || '—', _cycle: cls?.cycle || '—',
+      return { ...s, _classe: cls?.name || '·', _cycle: cls?.cycle || '·',
         _parent: userMap.get(s.parentId)?.name || '', _tel: s.guardianPhone || s.phone || '',
         _presence: a ? Math.round(a.p / a.t * 100) : null, _impayes: unpaid,
         _allerg: s.allergies && s.allergies !== 'Aucune' ? s.allergies : '' }
@@ -74,11 +74,11 @@ export default function Students(){
           {r._allerg && <span title={`${t('Allergie :')} ${r._allerg}`} className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{background:STATUS.warnSoft,color:STATUS.warn}}>{t('ALLERGIE')}</span>}</span>) },
     { key: '_classe', label: t('Classe') },
     { key: '_cycle', label: t('Cycle') },
-    { key: '_parent', label: t('Parent'), render: r => r._parent || <span className="text-muted">{t('— non lié')}</span> },
+    { key: '_parent', label: t('Parent'), render: r => r._parent || <span className="text-muted">{t('non lié')}</span> },
     { key: '_tel', label: t('Téléphone'), hide: true },
     { key: 'gender', label: t('Genre'), hide: true },
     { key: 'dob', label: t('Naissance'), hide: true },
-    { key: '_presence', label: t('Présence 30 j'), value: r => r._presence ?? -1, render: r => r._presence == null ? <span className="text-muted">—</span> :
+    { key: '_presence', label: t('Présence 30 j'), value: r => r._presence ?? -1, render: r => r._presence == null ? <span className="text-muted"> </span> :
         <span className="font-bold" style={{color: r._presence >= 90 ? STATUS.ok : r._presence >= 75 ? STATUS.warn : STATUS.danger}}>{r._presence}%</span> },
     { key: '_impayes', label: t('Impayés'), value: r => r._impayes, render: r => r._impayes === 0 ? <span style={{color:STATUS.ok}}>✓</span> :
         <span className="font-bold" style={{color:STATUS.danger}}>{r._impayes} {t('mois')}</span> },
@@ -110,7 +110,7 @@ export default function Students(){
       bulkActions={canEdit ? [{ label: t('Prévenir les parents'), run: ids => {
         let sent = 0
         ids.forEach(sid => { const st = d.students.find(x => x.id === sid)
-          if (st?.parentId) { notify({ to: st.parentId, kind: 'info', actor: u.name, title: t('Message de l\'école'), body: t('La direction souhaite vous contacter — merci de passer ou d\'appeler l\'école.') }); sent++ } })
+          if (st?.parentId) { notify({ to: st.parentId, kind: 'info', actor: u.name, title: t('Message de l\'école'), body: t('La direction souhaite vous contacter : merci de passer ou d\'appeler l\'école.') }); sent++ } })
         toast.success(`${sent} ${t('parent(s) prévenu(s)')}`)
       } }] : []}
     />
@@ -136,7 +136,7 @@ export default function Students(){
         <Field label={t('Nom du père')}><Input value={f.fatherName} onChange={e=>setF({...f,fatherName:e.target.value})}/></Field>
         <Field label={t('Nom de la mère')}><Input value={f.motherName} onChange={e=>setF({...f,motherName:e.target.value})}/></Field>
         <Field label={t('Téléphone tuteur')}><Input value={f.guardianPhone} onChange={e=>setF({...f,guardianPhone:e.target.value})}/></Field>
-        <Field label={t('Lier à un compte parent')}><Select value={f.parentId} onChange={e=>setF({...f,parentId:e.target.value})}><option value="">{t('— aucun —')}</option>{parents.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</Select></Field>
+        <Field label={t('Lier à un compte parent')}><Select value={f.parentId} onChange={e=>setF({...f,parentId:e.target.value})}><option value="">{t(', aucun')}</option>{parents.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</Select></Field>
       </Section>
       <Section title={t('Contact & adresse')}>
         <Field label={t('Téléphone')}><Input value={f.phone} onChange={e=>setF({...f,phone:e.target.value})}/></Field>

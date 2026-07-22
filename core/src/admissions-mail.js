@@ -36,40 +36,40 @@ export function applicantEmail(app, stage, extra = {}) {
 
   const M = {
     nouvelle: {
-      subject: `Pré-inscription bien reçue — ${child}`,
+      subject: `Pré-inscription bien reçue · ${child}`,
       body: `Nous confirmons la réception de votre demande de pré-inscription pour ${child} (${level}). `
         + `Votre dossier est enregistré et sera examiné par notre équipe. `
         + `Vous serez informé(e) par email à chaque étape.`,
     },
     pieces: {
-      subject: `Pièces à fournir — pré-inscription de ${child}`,
+      subject: `Pièces à fournir : pré-inscription de ${child}`,
       body: `Pour poursuivre l'examen du dossier de ${child}, merci de nous fournir les pièces justificatives`
         + (extra.missing && extra.missing.length ? ` suivantes : ${extra.missing.join(', ')}.` : ' demandées.')
         + ` Dès leur réception, le dossier passera à l'étude.`,
     },
     examen: {
-      subject: `Votre dossier est à l'étude — ${child}`,
+      subject: `Votre dossier est à l'étude · ${child}`,
       body: `Le dossier de ${child} est complet et se trouve désormais à l'étude par notre commission d'admission. `
         + `Nous reviendrons vers vous dès qu'une décision sera prise.`,
     },
     accepte: {
-      subject: `Félicitations — ${child} est accepté(e)`,
+      subject: `Félicitations · ${child} est accepté(e)`,
       body: `Nous avons le plaisir de vous informer que la candidature de ${child} (${level}) a été ACCEPTÉE. `
         + `Nous vous contacterons pour finaliser l'inscription et l'attribution d'une classe.`,
     },
     attente: {
-      subject: `Liste d'attente — ${child}`,
+      subject: `Liste d'attente · ${child}`,
       body: `La candidature de ${child} a été acceptée, mais les places sont pour l'instant complètes. `
         + `${child} est placé(e) sur LISTE D'ATTENTE : dès qu'une place se libère, nous vous contacterons en priorité.`,
     },
     inscrit: {
-      subject: `${child} est inscrit(e) — bienvenue !`,
+      subject: `${child} est inscrit(e) · bienvenue !`,
       body: `C'est officiel : ${child} est désormais INSCRIT(E)`
         + (extra.className ? ` en classe ${extra.className}` : '')
         + `. Un compte parent vous sera ouvert pour suivre la scolarité (notes, présences, paiements). Bienvenue à ${school} !`,
     },
     refuse: {
-      subject: `Suite de votre demande — ${child}`,
+      subject: `Suite de votre demande · ${child}`,
       body: `Après examen attentif du dossier de ${child}, nous ne sommes malheureusement pas en mesure de donner `
         + `une suite favorable à votre demande pour cette période. Nous vous remercions de votre confiance.`,
     },

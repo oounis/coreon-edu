@@ -39,14 +39,14 @@ export default function Payments({ user, params, nav }) {
     const m = months[i]
     if (m.status === 'paid' || m.status === 'pending') return
     mutate(db => { db.payments[child.id][i].status = 'pending' })
-    tellAdmins(`${child.name} · ${m.month} — à confirmer`)
+    tellAdmins(`${child.name} · ${m.month} · à confirmer`)
     force()
   }
 
   const declareAll = () => {
     if (declarable.length === 0) return
     mutate(db => { db.payments[child.id].forEach(m => { if (m.status === 'due' || m.status === 'overdue') m.status = 'pending' }) })
-    tellAdmins(`${child.name} · ${declarable.length} mois signalés — à confirmer`)
+    tellAdmins(`${child.name} · ${declarable.length} mois signalés : à confirmer`)
     force()
   }
 

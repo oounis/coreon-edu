@@ -41,7 +41,7 @@ export async function pull() {
 
 export async function remoteLogin(email, pw) {
   const r = await call('/api/login', { email, pw })
-  if (r.status !== 200) return { error: r.json.error || 'Connexion impossible — vérifiez l\'adresse du serveur.' }
+  if (r.status !== 200) return { error: r.json.error || 'Connexion impossible : vérifiez l\'adresse du serveur.' }
   ls().setItem(TOKEN, r.json.token)
   ls().setItem(UID, r.json.user.id)
   ls().setItem(ROLE, r.json.user.role)

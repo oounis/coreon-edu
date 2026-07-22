@@ -40,7 +40,7 @@ export function closePost(id, by) {
 export function addCandidate({ postId, name, phone = '', email = '', note = '' }) {
   const p = posts().find(x => x.id === postId)
   if (!p) return { error: 'Poste introuvable.' }
-  if (p.status !== 'ouvert') return { error: 'Ce poste est fermé — rouvrez-le pour recevoir des candidatures.' }
+  if (p.status !== 'ouvert') return { error: 'Ce poste est fermé : rouvrez-le pour recevoir des candidatures.' }
   if (!String(name || '').trim()) return { error: 'Le nom est requis.' }
   const rec = {
     id: 'ca' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
@@ -60,7 +60,7 @@ export function advanceCandidate(id, stage, by, note = '') {
     return { error: `Passage impossible : ${R_STAGES[c.stage].label} → ${R_STAGES[stage]?.label || stage}. On n'embauche pas un CV sans entretien.` }
   }
   if (stage === 'refusee' && !String(note || '').trim()) {
-    return { error: 'Un refus se motive — c\'est ce qu\'on répondra à la personne.' }
+    return { error: 'Un refus se motive : c\'est ce qu\'on répondra à la personne.' }
   }
   mutate(d => {
     d.recruitCandidates = d.recruitCandidates.map(x => x.id !== id ? x

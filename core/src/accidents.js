@@ -94,7 +94,7 @@ function write(next) { const d = db(); d.accidents = next; save(d) }
 export function declare({ childId, zones, kind, severity, whatHappened, care, at, byId, byName }) {
   if (!childId) return { error: 'Quel enfant ?' }
   if (!zones?.length) return { error: 'Indiquez où l’enfant s’est fait mal, sur le schéma.' }
-  if (!whatHappened?.trim()) return { error: 'Racontez ce qui s’est passé — c’est ce que le parent lira.' }
+  if (!whatHappened?.trim()) return { error: 'Racontez ce qui s’est passé : c’est ce que le parent lira.' }
 
   const a = {
     id: 'ac' + Date.now().toString(36),

@@ -42,7 +42,7 @@ export default function Behavior({ user }) {
 
       {!isParent && (
         <Card style={{ marginBottom: 12 }}>
-          <Text style={{ color: C.muted, fontSize: 13 }}>Lecture seule sur mobile — la saisie des observations se fait sur le web.</Text>
+          <Text style={{ color: C.muted, fontSize: 13 }}>Lecture seule sur mobile : la saisie des observations se fait sur le web.</Text>
         </Card>
       )}
 

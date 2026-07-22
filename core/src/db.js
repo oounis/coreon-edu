@@ -147,7 +147,7 @@ function seed(){
   // L'école de démo fait crèche ET primaire : le cas exact que ni PowerSchool
   // ni Famly ne savent servir, et que Coreon EDU sert sous un seul toit.
   const classes=[
-    {id:"kg_ns", name:"Crèche — Les Coccinelles", grade:"Crèche",        level:"nursery", cycle:"Petite enfance"},
+    {id:"kg_ns", name:"Crèche · Les Coccinelles", grade:"Crèche",        level:"nursery", cycle:"Petite enfance"},
     {id:"kg_pk", name:"Pré-maternelle A",         grade:"Pré-maternelle", level:"prekg",  cycle:"Petite enfance"},
     {id:"kg_1",  name:"Maternelle 1 A",           grade:"Maternelle 1",  level:"kg1",     cycle:"Petite enfance"},
     {id:"c5a",name:"5ème A",grade:"5ème année",level:"g5",cycle:"Primaire"},
@@ -156,8 +156,8 @@ function seed(){
     {id:"l2s",name:"4ème A",grade:"4ème année",level:"g4",cycle:"Primaire"},
   ]
   const S=(id,first,last,cls,parent,extra={})=>({id,name:`${first} ${last}`,initials:first[0]+last[0],classId:cls,parentId:parent,
-    gender:extra.gender||"—",dob:extra.dob||"2015-05-10",bloodGroup:extra.bloodGroup||"O+",nationality:extra.nationality||"Tunisienne",
-    rollNo:extra.rollNo||id.replace(/\D/g,''),admissionDate:extra.admissionDate||"2024-09-15",prevSchool:extra.prevSchool||"—",
+    gender:extra.gender||"·",dob:extra.dob||"2015-05-10",bloodGroup:extra.bloodGroup||"O+",nationality:extra.nationality||"Tunisienne",
+    rollNo:extra.rollNo||id.replace(/\D/g,''),admissionDate:extra.admissionDate||"2024-09-15",prevSchool:extra.prevSchool||"·",
     address:extra.address||"Tunis",phone:extra.phone||"+216 20 000 000",email:extra.email||"",fatherName:extra.fatherName||"",motherName:extra.motherName||"",
     guardianPhone:extra.guardianPhone||"+216 20 111 111",medical:extra.medical||"Aucune",allergies:extra.allergies||"Aucune",emergencyName:extra.emergencyName||"Tuteur",emergencyPhone:extra.emergencyPhone||"+216 20 222 222"})
   const students=[
@@ -396,7 +396,7 @@ function seed(){
   const books=[{id:"b1",title:"Mathématiques 5ème",author:"R. Khaldi",copies:6,available:4,category:"Mathématiques"},{id:"b2",title:"Éveil scientifique 5",author:"M. Saïd",copies:5,available:5,category:"Sciences"},{id:"b3",title:"Lectures Françaises",author:"L. Bruni",copies:4,available:2,category:"Français"},{id:"b4",title:"القراءة العربية",author:"أحمد",copies:8,available:7,category:"Arabe"},{id:"b5",title:"Atlas Géographique",author:"Collectif",copies:3,available:3,category:"Géographie"}]
   const routes=[{id:"r1",name:"Circuit A · Nord",driver:"Sami",phone:"+21698123456",bus:"TUN-1023",stops:["La Marsa","Carthage","Sidi Bou Saïd"],students:6},{id:"r2",name:"Circuit B · Sud",driver:"Foued",phone:"+21698654321",bus:"TUN-2087",stops:["Radès","Ezzahra","Hammam Lif"],students:4}]
   const homework=[{id:"hw1",at:Date.now()-7200000,by:"t1",classId:"c5a",subject:"Mathématiques",title:"Exercices 3.1 à 3.4",due:"2026-06-28",details:"Résoudre tous les problèmes."},{id:"hw2",at:Date.now()-90000000,by:"t2",classId:"c5a",subject:"Éveil scientifique",title:"Schéma de la cellule",due:"2026-06-27",details:"Dessiner + légender."}]
-  const events=[{id:"e1",date:"2026-06-29",title:"Réunion parents–enseignants",type:"Réunion",desc:"Tous les niveaux, 09:00–12:00."},{id:"e2",date:"2026-07-02",title:"Fête de fin d'année",type:"Événement",desc:"Spectacle des élèves."},{id:"e3",date:"2026-07-05",title:"Début des examens",type:"Examen",desc:"Voir le calendrier."},{id:"e4",date:"2026-07-12",title:"Sortie pédagogique — Musée du Bardo",type:"Événement",desc:"6ème année."}]
+  const events=[{id:"e1",date:"2026-06-29",title:"Réunion parents–enseignants",type:"Réunion",desc:"Tous les niveaux, 09:00–12:00."},{id:"e2",date:"2026-07-02",title:"Fête de fin d'année",type:"Événement",desc:"Spectacle des élèves."},{id:"e3",date:"2026-07-05",title:"Début des examens",type:"Examen",desc:"Voir le calendrier."},{id:"e4",date:"2026-07-12",title:"Sortie pédagogique · Musée du Bardo",type:"Événement",desc:"6ème année."}]
   const exams=[{id:"x1",class:"5ème A",subject:"Mathématiques",date:"2026-07-05",total:100},{id:"x2",class:"5ème A",subject:"Éveil scientifique",date:"2026-07-07",total:100},{id:"x3",class:"6ème A",subject:"Mathématiques",date:"2026-07-06",total:100},{id:"x4",class:"3ème A",subject:"Français",date:"2026-07-08",total:100}]
   const messages=[{id:"m1",from:"u_sadmin",to:"p1",text:"Bienvenue sur Coreon Edu ! N'hésitez pas si vous avez besoin.",at:Date.now()-5400000,read:true},{id:"m2",from:"p1",to:"u_sadmin",text:"Merci ! Une question sur le calendrier des frais.",at:Date.now()-5000000,read:true}]
   // classId : restreint une notification de rôle à une classe (cf. notify.js)
@@ -407,7 +407,7 @@ function seed(){
     N(null,"parent","evaluation","Othman Ounis","a publié une évaluation","Mathématiques · 5ème A","/app",60,false,"c5a"),
     // un rappel d'impayé ne se diffuse pas à toutes les familles : il vise un parent
     N("p1",null,"payment","Administration","rappel de paiement","2 mois impayés","/app/payments",120),
-    N(null,"admin","info","Othman Ounis","a fait l'appel — 5ème A","9 présents · 1 absent","/app/attendance",30),
+    N(null,"admin","info","Othman Ounis","a fait l'appel · 5ème A","9 présents · 1 absent","/app/attendance",30),
     N(null,"parent","notice","Direction","nouvelle annonce","Réunion parents–enseignants le 29/06","/app/notices",200,true),
     N("u_sadmin",null,"message","Karim Ben Salah","vous a envoyé un message","Une question sur le calendrier des frais","/app/messages",240,true),
   ]
@@ -513,7 +513,7 @@ function seed(){
     {id:'l1',at:Date.now()-9*HR, agentName:'Mongi Zouaoui',kind:'prise',place:'Poste de garde',text:"Prise de service. Clés du portail et du bâtiment récupérées."},
     {id:'l2',at:Date.now()-8.5*HR,agentName:'Mongi Zouaoui',kind:'ronde',place:'Périmètre',text:'Ronde du matin effectuée, 6 points de passage.'},
     {id:'l3',at:Date.now()-8.4*HR,agentName:'Mongi Zouaoui',kind:'anomalie',place:'Local technique',text:"Extincteur du couloir : pression basse. Signalé à la Direction."},
-    {id:'l4',at:Date.now()-7*HR, agentName:'Mongi Zouaoui',kind:'visiteur',place:'Portail principal',text:'Livraison Papeterie El Amel — badge V-001, sorti à 08:31.'},
+    {id:'l4',at:Date.now()-7*HR, agentName:'Mongi Zouaoui',kind:'visiteur',place:'Portail principal',text:'Livraison Papeterie El Amel badge V-001, sorti à 08:31.'},
   ]
 
   return {classes,students,teachers,users,applications,journal:[],hrContracts,hrLeaves,hrPayrolls:[],feeSchedule,discounts,invoices:[],receipts:[],reports:[],promotions:[],facilities,bookings:[],memberships:[],accidents,health,pickups,departures:[],milestones:{},payments,evaluations,incidents,requests,behavior:seedBehavior(students),moments:seedMoments(students),canteen:seedCanteen(students),books,routes,homework,events,socialEvents,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,visitors,rounds,logbook,timetables:genTimetables(classes),settings,schools}
@@ -546,7 +546,7 @@ function seedMoments(students){
   const has=id=>students.some(s=>s.id===id)
   const out=[]
   // un moment « de classe » (crèche) + un moment identifié
-  if(has('s29')) out.push({id:'mo_seed1',classId:students.find(s=>s.id==='s29')?.classId||'kg_ns',childIds:[],caption:"Atelier peinture ce matin — tout le monde a adoré !",media:[img('#F9A8D4','#A78BFA'),img('#FDE68A','#FCA5A5')],consentOnly:false,by:'t_ee',byName:'Ines Belhadj',at:Date.now()-3*H,likes:['p1']})
+  if(has('s29')) out.push({id:'mo_seed1',classId:students.find(s=>s.id==='s29')?.classId||'kg_ns',childIds:[],caption:"Atelier peinture ce matin : tout le monde a adoré !",media:[img('#F9A8D4','#A78BFA'),img('#FDE68A','#FCA5A5')],consentOnly:false,by:'t_ee',byName:'Ines Belhadj',at:Date.now()-3*H,likes:['p1']})
   if(has('s1')) out.push({id:'mo_seed2',classId:students.find(s=>s.id==='s1')?.classId||'c5a',childIds:['s1'],caption:"Amira a lu son premier texte devant la classe. Bravo !",media:[img('#6EE7B7','#3B82F6')],consentOnly:false,by:'t1',byName:'Othman Ounis',at:Date.now()-26*H,likes:[]})
   return out
 }

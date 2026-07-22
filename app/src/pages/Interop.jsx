@@ -39,7 +39,7 @@ export default function Interop() {
 
   return (
     <>
-      <PageHead title="Interopérabilité" sub="OneRoster v1.2 — Coreon Edu parle la norme du secteur." />
+      <PageHead title="Interopérabilité" sub="OneRoster v1.2 : Coreon Edu parle la norme du secteur." />
 
       <Card className="p-5 mb-4" style={{ background: STATUS.infoSoft }}>
         <div className="flex items-start gap-3">
@@ -48,8 +48,7 @@ export default function Interop() {
             <b>« Est-ce que ça s’intègre ? » est une question d’achat, pas une question technique.</b>
             <div className="mt-1">
               Toute école internationale a déjà un LMS, un annuaire, parfois un système
-              ministériel. OneRoster est la norme qui les relie. Coreon Edu l’exporte —
-              donc la réponse est un fichier, pas une promesse.
+              ministériel. OneRoster est la norme qui les relie. Coreon Edu l’exporte : donc la réponse est un fichier, pas une promesse.
             </div>
           </div>
         </div>
@@ -81,7 +80,7 @@ export default function Interop() {
         <div className="text-sm font-bold mb-2">Ce que la norme nous a obligés à corriger</div>
         <ul className="text-[13px] text-muted grid gap-1.5">
           <li>
-            <b className="text-ink">Un cours n’est pas une classe.</b> « Mathématiques — 5ème année »
+            <b className="text-ink">Un cours n’est pas une classe.</b> « Mathématiques : 5ème année »
             est ce qui est <i>enseigné</i> ; « 5ème A » est le groupe qui l’<i>apprend</i>.
             Nous confondions les deux.
           </li>
@@ -93,7 +92,7 @@ export default function Interop() {
           <li>
             <b className="text-ink">On n’invente rien pour remplir la norme.</b> Une crèche n’a pas
             de cours de mathématiques, et un enfant de trois ans n’a pas de note. Ces lignes
-            ne sont pas exportées — un mensonge dans un standard reste un mensonge.
+            ne sont pas exportées : un mensonge dans un standard reste un mensonge.
           </li>
         </ul>
       </Card>

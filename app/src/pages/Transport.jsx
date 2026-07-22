@@ -103,7 +103,7 @@ export default function Transport(){
             <div key={r.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
               <Avatar name={r.driver} seed={r.id} size={32}/>
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold truncate">{r.name} <span className="text-muted font-normal">· bus {r.bus}</span></span>
+                <span className="block text-sm font-semibold truncate">{r.name} <span className="text-muted font-normal"> bus {r.bus}</span></span>
                 {tile==='stops'
                   ? <span className="flex flex-wrap gap-1 mt-0.5">{(r.stops||[]).map(s=><span key={s} className="text-[11px] font-semibold px-1.5 py-0.5 rounded-full bg-canvas text-muted">{s}</span>)}</span>
                   : <span className="block text-[12px] text-muted truncate">{r.driver} · {(r.stops||[]).length} arrêts · {r.students} élèves</span>}

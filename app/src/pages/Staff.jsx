@@ -33,7 +33,7 @@ export default function Staff(){
   const [,force]=useState(0); const refresh=()=>force(x=>x+1)
   const d=db(); const staff=staffList(d)
   return (<>
-    <PageHead title="Personnel" sub="Présence, congés et fiabilité de l'équipe — le quotidien RH de l'école."
+    <PageHead title="Personnel" sub="Présence, congés et fiabilité de l'équipe · le quotidien RH de l'école."
       action={<Tabs tabs={[{value:'jour',label:'Aujourd’hui'},{value:'mois',label:'Mois'},{value:'conges',label:'Congés',count:(d.staffLeaves||[]).filter(l=>l.status==='pending').length||undefined},{value:'analyse',label:'Analyse'}]} value={tab} onChange={setTab}/>}/>
     {tab==='jour'    && <DayTab d={d} staff={staff} refresh={refresh}/>}
     {tab==='mois'    && <MonthTab d={d} staff={staff}/>}
@@ -111,7 +111,7 @@ function ClockBoard({ d, staff }){
   const done=staff.filter(x=>clk[x.id]&&clk[x.id].out)
   const missing=staff.filter(x=>!clk[x.id])
   return (
-    <SectionCard icon={<Clock size={16}/>} tint="mint" title={`Badgeuse — en ce moment`}
+    <SectionCard icon={<Clock size={16}/>} tint="mint" title={`Badgeuse · en ce moment`}
       sub={`${inside.length} dans l'école · ${done.length} journée(s) terminée(s) · ${missing.length} non pointé(s)`} bodyClass="p-3">
       <div className="flex flex-wrap gap-2">
         {staff.map(x=>{ const c=clk[x.id]
@@ -142,7 +142,7 @@ function MonthTab({ d, staff }){
   const monthLabel=format(month,'MMMM yyyy',{locale:fr})
   const exportCSV=()=>{
     const head=['Employé','Fonction','Jours travaillés','Présents','Retards','Absents','Congés','Taux de présence']
-    const lines=rows.map(r=>[r.name,r.sub.replace(/;/g,','),r.cells.filter(Boolean).length,r.c.present,r.c.late,r.c.absent,r.c.conge,r.rate!=null?r.rate+'%':'—'])
+    const lines=rows.map(r=>[r.name,r.sub.replace(/;/g,','),r.cells.filter(Boolean).length,r.c.present,r.c.late,r.c.absent,r.c.conge,r.rate!=null?r.rate+'%':'·'])
     const csv=[head,...lines].map(l=>l.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';')).join('\n')
     const a=document.createElement('a')
     a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}))
@@ -151,7 +151,7 @@ function MonthTab({ d, staff }){
   }
   return (
     <SectionCard icon={<CalendarRange size={16}/>} tint="sky" title={`Présence mensuelle · ${monthLabel}`}
-      sub="Jours ouvrés écoulés — chaque case est un jour"
+      sub="Jours ouvrés écoulés : chaque case est un jour"
       action={<div className="flex items-center gap-2">
         <Btn variant="ghost" size="sm" onClick={()=>setMonth(m=>addMonths(m,-1))} aria-label="Mois précédent"><ChevronLeft size={15}/></Btn>
         <Btn variant="ghost" size="sm" onClick={()=>setMonth(m=>addMonths(m,1))} disabled={startOfMonth(addMonths(month,1))>new Date()} aria-label="Mois suivant"><ChevronRight size={15}/></Btn>
@@ -178,7 +178,7 @@ function MonthTab({ d, staff }){
               <td className="px-2 py-2.5 text-center font-bold" style={{color:STATUS.warn}}>{r.c.late}</td>
               <td className="px-2 py-2.5 text-center font-bold" style={{color:STATUS.danger}}>{r.c.absent}</td>
               <td className="px-2 py-2.5 text-center font-bold" style={{color:'#8B5CF6'}}>{r.c.conge}</td>
-              <td className="px-2 py-2.5 text-center font-extrabold">{r.rate!=null?`${r.rate}%`:'—'}</td>
+              <td className="px-2 py-2.5 text-center font-extrabold">{r.rate!=null?`${r.rate}%`:'·'}</td>
             </tr>))}
         </tbody>
       </table>
@@ -221,8 +221,8 @@ function LeavesTab({ d, staff, refresh }){
     mutate(db=>{ const x=(db.staffLeaves||[]).find(y=>y.id===lv.id); if(x&&x.status==='pending'){ x.status=status; x.by=me.name } })
     if(status==='approved'&&lv.type!=='permission') applyLeave(lv)   // une permission de quelques heures ne remplit pas la journée
     notify({to:lv.staffId,kind:'info',actor:'Direction',title:status==='approved'?'Congé approuvé':'Congé refusé',
-      body:`${LEAVE_TYPES[lv.type]} du ${lv.from} au ${lv.to} : ${status==='approved'?'accordé. Bon repos !':'refusé — voir la direction.'}`})
-    toast.success(status==='approved'?`Congé de ${nameOf(lv.staffId)} approuvé — présence remplie automatiquement`:'Demande refusée')
+      body:`${LEAVE_TYPES[lv.type]} du ${lv.from} au ${lv.to} : ${status==='approved'?'accordé. Bon repos !':'refusé · voir la direction.'}`})
+    toast.success(status==='approved'?`Congé de ${nameOf(lv.staffId)} approuvé : présence remplie automatiquement`:'Demande refusée')
     refresh()
   }
   const add=()=>{
@@ -235,7 +235,7 @@ function LeavesTab({ d, staff, refresh }){
     const lv={id:uid('lv'),staffId:f.staffId,type:f.type,from:f.from,to:f.to,days,reason:f.reason.trim(),status:'approved',at:Date.now(),by:me.name}
     mutate(db=>{ db.staffLeaves=db.staffLeaves||[]; db.staffLeaves.push(lv) })
     applyLeave(lv)
-    toast.success(`Congé enregistré (${days} j ouvrés) — présence remplie automatiquement`)
+    toast.success(`Congé enregistré (${days} j ouvrés) : présence remplie automatiquement`)
     setOpen(false); setF(BLANK_LV); refresh()
   }
   const stLv={approved:['Approuvé',STATUS.ok],pending:['En attente',STATUS.warn],rejected:['Refusé',STATUS.danger]}
@@ -255,7 +255,7 @@ function LeavesTab({ d, staff, refresh }){
                 ? <><Btn size="sm" onClick={()=>decide(lv,'approved')}><Check size={14}/> Approuver</Btn>
                     <Btn size="sm" variant="danger" onClick={()=>decide(lv,'rejected')}><X size={14}/></Btn></>
                 : <span className="text-[12px] font-semibold text-muted text-right shrink-0">
-                    {lv.staffId===myStaffId ? 'Votre demande —\nla Direction décide' : 'Décision réservée\nà la Direction'}
+                    {lv.staffId===myStaffId ? 'Votre demande · \nla Direction décide' : 'Décision réservée\nà la Direction'}
                   </span>}
             </div>))}
         </SectionCard>
@@ -291,7 +291,7 @@ function LeavesTab({ d, staff, refresh }){
     <Modal open={open} onClose={()=>setOpen(false)} title="Enregistrer un congé"
       footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={add}>Enregistrer & remplir la présence</Btn></>}>
       <div className="grid sm:grid-cols-2 gap-3">
-        <Field label="Employé *"><Select value={f.staffId} onChange={e=>setF({...f,staffId:e.target.value})}><option value="">— choisir —</option>{staff.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</Select></Field>
+        <Field label="Employé *"><Select value={f.staffId} onChange={e=>setF({...f,staffId:e.target.value})}><option value="">choisir</option>{staff.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</Select></Field>
         <Field label="Type"><Select value={f.type} onChange={e=>setF({...f,type:e.target.value})}>{Object.entries(LEAVE_TYPES).map(([k,v])=><option key={k} value={k}>{v}</option>)}</Select></Field>
         <Field label="Du *"><Input type="date" value={f.from} onChange={e=>setF({...f,from:e.target.value})}/></Field>
         <Field label="Au *"><Input type="date" value={f.to} onChange={e=>setF({...f,to:e.target.value})}/></Field>
@@ -344,7 +344,7 @@ function AnalyseTab({ d, staff }){
             <Avatar name={x.name} seed={x.id} size={30}/>
             <span className="w-40 text-sm font-semibold truncate shrink-0">{x.name}</span>
             <div className="flex-1 h-2.5 rounded-full bg-canvas overflow-hidden"><div className="h-full rounded-full" style={{width:`${x.rate??0}%`,background:col}}/></div>
-            <span className="w-12 text-right text-sm font-extrabold" style={{color:col}}>{x.rate!=null?`${x.rate}%`:'—'}</span>
+            <span className="w-12 text-right text-sm font-extrabold" style={{color:col}}>{x.rate!=null?`${x.rate}%`:'·'}</span>
             <span className="w-28 text-right text-[12px] text-muted">{x.absent} abs · {x.late} ret · {x.conge} congés</span>
           </div>)})}
       </div>

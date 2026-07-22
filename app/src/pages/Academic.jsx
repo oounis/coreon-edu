@@ -26,7 +26,7 @@ export default function Academic() {
   const refresh = () => force(n => n + 1)
   return (
     <>
-      <PageHead title="Bulletins & passage" sub="Les acquis, les moyennes — et le passage d’une année à l’autre." />
+      <PageHead title="Bulletins & passage" sub="Les acquis, les moyennes : et le passage d’une année à l’autre." />
       <Tabs value={tab} onChange={setTab} tabs={[
         { value: 'bulletins', label: 'Bulletins' },
         { value: 'passage',   label: 'Passage de classe' },
@@ -85,7 +85,7 @@ function Bulletins({ refresh }) {
                     </span>
                   : <span className="text-lg font-extrabold tabular-nums"
                       style={{ color: avg >= PASS_MARK ? STATUS.ok : STATUS.danger }}>
-                      {avg ?? '—'}<span className="text-xs text-muted">/{MARK_MAX}</span>
+                      {avg ?? '·'}<span className="text-xs text-muted">/{MARK_MAX}</span>
                     </span>
                 : <span className="text-xs font-bold" style={{ color: STATUS.warn }}>Pas de bulletin</span>}
               <Btn size="sm" variant="soft" onClick={() => setOpen({ s, cls, early, r })}>
@@ -111,12 +111,12 @@ function ReportModal({ open, term, me, onClose, onSaved }) {
 
   const save = () => {
     saveReport({ studentId: s.id, term, marks, comment, by: me.name })
-    toast.success(`Bulletin enregistré — ${s.name}.`)
+    toast.success(`Bulletin enregistré · ${s.name}.`)
     onSaved()
   }
 
   return (
-    <Modal open onClose={onClose} title={`Bulletin — ${s.name}`} size="xl"
+    <Modal open onClose={onClose} title={`Bulletin · ${s.name}`} size="xl"
       footer={<><Btn variant="ghost" onClick={onClose}>Annuler</Btn><Btn onClick={save}>Enregistrer</Btn></>}>
       {early ? (
         // ── PETITE ENFANCE : des acquis observés, jamais une note ──────────────
@@ -215,8 +215,7 @@ function Passage({ refresh }) {
             <Ic n="TriangleAlert" size={18} style={{ color: STATUS.danger }} />
             <div className="text-[13px]">
               <b>{p.summary.bloque} élève(s) n’ont pas de place dans le niveau supérieur.</b>
-              <div className="mt-1">Ouvrez une classe, ou confirmez pour les laisser où ils sont —
-                mais le produit ne les fera pas disparaître en silence.</div>
+              <div className="mt-1">Ouvrez une classe, ou confirmez pour les laisser où ils sont : mais le produit ne les fera pas disparaître en silence.</div>
             </div>
           </div>
         </Card>
@@ -253,10 +252,10 @@ function Passage({ refresh }) {
                     </td>
                     <td className="px-3 py-2.5"><Badge label={dc.label} tone={dc.tone} /></td>
                     <td className="px-3 py-2.5 text-muted">
-                      {r.toClass ? r.toClass.name : r.decision === 'diplome' ? 'Sort de l’école' : '—'}
+                      {r.toClass ? r.toClass.name : r.decision === 'diplome' ? 'Sort de l’école' : '·'}
                     </td>
                     <td className="px-5 py-2.5 text-right tabular-nums">
-                      {r.feeDelta === 0 ? <span className="text-muted">—</span>
+                      {r.feeDelta === 0 ? <span className="text-muted"> </span>
                         : <span style={{ color: r.feeDelta > 0 ? STATUS.warn : STATUS.ok }}>
                             {r.feeDelta > 0 ? '+' : ''}{money(r.feeDelta)}
                           </span>}
@@ -274,7 +273,7 @@ function Passage({ refresh }) {
           <div className="text-sm font-bold mb-2">Passages précédents</div>
           {past.map(x => (
             <div key={x.id} className="text-[13px] text-muted">
-              {new Date(x.at).toLocaleDateString('fr-FR')} — par {x.by} · {x.summary.passe} passés,
+              {new Date(x.at).toLocaleDateString('fr-FR')} · par {x.by} · {x.summary.passe} passés,
               {' '}{x.summary.redouble} redoublants, {x.summary.diplome} diplômés
             </div>
           ))}
@@ -304,7 +303,7 @@ function Passage({ refresh }) {
 function Archives() {
   const rows = archivedStudents()
   if (!rows.length) return <EmptyState icon="Archive" title="Aucun dossier archivé."
-    sub="Les élèves diplômés ou partis restent ici — un dossier scolaire ne se supprime jamais." />
+    sub="Les élèves diplômés ou partis restent ici : un dossier scolaire ne se supprime jamais." />
   return (
     <div className="grid gap-2">
       {rows.map(s => (

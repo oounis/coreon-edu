@@ -24,7 +24,7 @@ export default function Facilities() {
   const refresh = () => force(n => n + 1)
   return (
     <>
-      <PageHead title="Installations" sub="Piscine, terrain, gymnase, salles — occupés au lieu de rester vides." />
+      <PageHead title="Installations" sub="Piscine, terrain, gymnase, salles : occupés au lieu de rester vides." />
       <Tabs value={tab} onChange={setTab} tabs={[
         { value: 'planning', label: 'Planning' },
         { value: 'resas',    label: 'Réservations' },
@@ -48,7 +48,7 @@ function Planning({ refresh }) {
   const [open, setOpen] = useState(null)   // { from, to }
 
   if (!fs.length) return <EmptyState icon="Waves" title="Aucune installation."
-    sub="Ajoutez la piscine, le terrain, le gymnase — et commencez à les louer." />
+    sub="Ajoutez la piscine, le terrain, le gymnase : et commencez à les louer." />
 
   const f = facilityOf(fid)
   const slots = availability(fid, date)
@@ -92,7 +92,7 @@ function Planning({ refresh }) {
             className={`rounded-xl border p-3 text-left transition
               ${s.free ? 'bg-white border-line hover:border-ink/30' : 'border-transparent cursor-not-allowed'}`}
             style={s.free ? {} : { background: STATUS.neutralSoft }}>
-            <div className="font-bold text-sm tabular-nums">{s.from} — {s.to}</div>
+            <div className="font-bold text-sm tabular-nums">{s.from} · {s.to}</div>
             <div className="text-[11px] font-semibold mt-0.5"
               style={{ color: s.free ? STATUS.ok : STATUS.neutral }}>
               {s.free ? 'Libre' : (s.reason || 'Occupé')}
@@ -123,22 +123,22 @@ function BookModal({ facility, date, slot, me, onClose, onDone }) {
       const r = bookRecurring({ facilityId: facility.id, startDate: date, from: slot.from, to: slot.to,
         weeks: Number(weeks), audience, who, phone, by: me.name })
       toast.success(`${r.made.length} créneau(x) réservé(s).`)
-      if (r.skipped.length) toast(`${r.skipped.length} semaine(s) déjà prise(s) — ignorée(s).`, { icon: '' })
+      if (r.skipped.length) toast(`${r.skipped.length} semaine(s) déjà prise(s) : ignorée(s).`, { icon: '' })
       return onDone()
     }
     const r = book({ facilityId: facility.id, date, from: slot.from, to: slot.to,
       audience, who, phone, by: me.name })
     if (r.error) return toast.error(r.error)
-    toast.success(`Réservé — ${money(r.booking.price)}`)
+    toast.success(`Réservé · ${money(r.booking.price)}`)
     onDone()
   }
 
   return (
-    <Modal open onClose={onClose} title={`Réserver — ${facility.name}`}
+    <Modal open onClose={onClose} title={`Réserver · ${facility.name}`}
       footer={<><Btn variant="ghost" onClick={onClose}>Annuler</Btn><Btn onClick={go}>Réserver</Btn></>}>
       <div className="grid gap-4">
         <div className="text-sm">
-          <b>{day(date)}</b> · {slot.from} — {slot.to} ({hours} h)
+          <b>{day(date)}</b> {slot.from} · {slot.to} ({hours} h)
         </div>
 
         <div>
@@ -164,7 +164,7 @@ function BookModal({ facility, date, slot, me, onClose, onDone }) {
         </Field>
 
         <Field label="Répéter chaque semaine"
-          hint="Un club veut « tous les samedis pendant 8 semaines » — pas cliquer huit fois.">
+          hint="Un club veut « tous les samedis pendant 8 semaines » : pas cliquer huit fois.">
           <Select value={weeks} onChange={e => setWeeks(e.target.value)}>
             {[1, 4, 8, 12, 16].map(w => <option key={w} value={w}>{w === 1 ? 'Une seule fois' : `${w} semaines`}</option>)}
           </Select>
@@ -189,12 +189,12 @@ function Resas({ refresh }) {
   const all = bookings()
 
   if (!all.length) return <EmptyState icon="CalendarPlus" title="Aucune réservation."
-    sub="Le planning montre les créneaux libres — et les créneaux scolaires, qui ne se louent pas." />
+    sub="Le planning montre les créneaux libres : et les créneaux scolaires, qui ne se louent pas." />
 
   const doCancel = () => {
     const r = cancelBooking(cancel.id, reason)
     if (r.error) return toast.error(r.error)
-    toast.success('Réservation annulée — le créneau est de nouveau libre.')
+    toast.success('Réservation annulée : le créneau est de nouveau libre.')
     setCancel(null); setReason(''); refresh()
   }
 
@@ -213,7 +213,7 @@ function Resas({ refresh }) {
                 <div className="font-bold text-sm truncate">{b.who}</div>
                 <div className="text-xs text-muted font-semibold tabular-nums">
                   {f?.name} · {day(b.date)} · {b.from}–{b.to}
-                  {b.audience === 'externe' && <span className="accent-text"> · externe</span>}
+                  {b.audience === 'externe' && <span className="accent-text"> externe</span>}
                 </div>
               </div>
               <span className="flex-1" />
@@ -285,7 +285,7 @@ function Revenus() {
             <b>Une piscine vide ne coûte pas moins cher qu’une piscine pleine.</b>
             <div className="mt-1">
               L’école a loué <b>{r.hoursBooked} h</b> sur cette période, dont{' '}
-              <b>{money(r.external)}</b> auprès de clients externes — de l’argent qui ne
+              <b>{money(r.external)}</b> auprès de clients externes : de l’argent qui ne
               venait d’aucune famille.
             </div>
           </div>

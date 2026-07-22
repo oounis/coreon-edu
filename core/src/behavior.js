@@ -68,7 +68,7 @@ export function observe({ studentId, trait, note = '', byId, byName }) {
   if (s.parentId) {
     notify({
       to: s.parentId, kind: t.positive ? 'success' : 'info', actor: byName,
-      title: t.positive ? `👏 ${s.name.split(' ')[0]} — ${t.label}` : `${s.name.split(' ')[0]} — à la maison ?`,
+      title: t.positive ? `👏 ${s.name.split(' ')[0]} · ${t.label}` : `${s.name.split(' ')[0]} · à la maison ?`,
       body: note.trim() || t.label,
       link: '/app/behavior',
     })

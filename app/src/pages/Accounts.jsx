@@ -33,7 +33,7 @@ export default function Accounts(){
     if(f.cin && !validCIN(f.cin))return toast.error(t('CIN invalide (8 chiffres)'))
     const r=createAccount(f)
     if(r.error)return toast.error(r.error)
-    notify({to:r.user.id,email:true,kind:'info',actor:t('Direction'),title:t('compte créé'),body:`${t('Bienvenue — rôle')} ${ROLE[f.role].label}.`,link:'/app'})
+    notify({to:r.user.id,email:true,kind:'info',actor:t('Direction'),title:t('compte créé'),body:`${t('Bienvenue · rôle')} ${ROLE[f.role].label}.`,link:'/app'})
     toast.success(`${t('Compte')} ${ROLE[f.role].label} ${t('créé')}`); setOpen(false); setF(BLANK); refresh()
   }
   const saveEdit=()=>{
@@ -60,7 +60,7 @@ export default function Accounts(){
 
   const ChildPicker=({value=[],onToggle})=>(
     <div className="flex flex-wrap gap-2">{d.students.filter(s=>!s.archived).map(s=>{ const taken=s.parentId&&!value.includes(s.id)
-      return <button key={s.id} onClick={()=>onToggle(s.id)} title={taken?`${t('Déjà lié à')} ${d.users.find(x=>x.id===s.parentId)?.name||t('un autre parent')} ${t('— le relier ici le détachera')}`:undefined}
+      return <button key={s.id} onClick={()=>onToggle(s.id)} title={taken?`${t('Déjà lié à')} ${d.users.find(x=>x.id===s.parentId)?.name||t('un autre parent')} ${t('le relier ici le détachera')}`:undefined}
         className={`text-sm px-3 py-1.5 rounded-full border ${value.includes(s.id)?'accent-soft accent-text':taken?'border-line opacity-55':'border-line'}`}>{s.name}{taken&&' ·'}</button> })}</div>)
 
   return (<>
@@ -76,14 +76,14 @@ export default function Accounts(){
       {dir.rows.map(r=>(
         <a key={r.role} href={`#role-${r.role}`} className="text-[13px] font-semibold px-3 py-1.5 rounded-full border border-line hover:bg-canvas inline-flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full" style={{background:ROLE[r.role].color}}/>{ROLE[r.role].label} <b>{r.active}</b>
-          {r.disabled>0&&<span className="text-muted">· {r.disabled} {t('désactivé(s)')}</span>}
+          {r.disabled>0&&<span className="text-muted"> {r.disabled} {t('désactivé(s)')}</span>}
         </a>))}
     </div>
 
     <div className="space-y-6">
       {MANAGEABLE_ROLES.filter(r=>d.users.some(u=>u.role===r&&match(u))).map(r=>{const R=ROLE[r];const us=d.users.filter(u=>u.role===r&&match(u));return(
         <div key={r} id={`role-${r}`}>
-          <div className="flex items-center gap-2 mb-3"><span className="w-2.5 h-2.5 rounded-full" style={{background:R.color}}/><h2 className="font-bold">{R.label}</h2><span className="text-xs text-muted">· {us.length} {t('compte(s)')}</span></div>
+          <div className="flex items-center gap-2 mb-3"><span className="w-2.5 h-2.5 rounded-full" style={{background:R.color}}/><h2 className="font-bold">{R.label}</h2><span className="text-xs text-muted"> {us.length} {t('compte(s)')}</span></div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {us.map(u=>(
               <button key={u.id} onClick={()=>setView(u)} className={`card p-4 flex items-center gap-3 text-left hover:shadow-lg hover:-translate-y-0.5 transition w-full ${u.disabled?'opacity-60':''}`}>

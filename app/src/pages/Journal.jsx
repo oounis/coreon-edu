@@ -59,7 +59,7 @@ function TeacherJournal({ classes }) {
 
   return (
     <>
-      <PageHead title="Journal du jour" sub="Repas, sieste, change, humeur — en un geste. Envoyé aux parents en fin de journée." />
+      <PageHead title="Journal du jour" sub="Repas, sieste, change, humeur : en un geste. Envoyé aux parents en fin de journée." />
 
       <div className="flex flex-wrap gap-2 mb-4">
         {classes.map(c => (

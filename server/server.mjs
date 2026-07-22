@@ -138,12 +138,12 @@ const SUPPORT = process.env.COREON_SUPPORT || 'support@kogiagroup.com'
 
 async function sendResetMail(to, token) {
   const link = `${APP_URL}/#/reinitialiser?token=${token}`
-  const subject = 'Coreon EDU — réinitialiser votre mot de passe'
+  const subject = 'Coreon EDU · réinitialiser votre mot de passe'
   const text =
     `Vous avez demandé un nouveau mot de passe.\n\n${link}\n\n` +
     `Ce lien est valable 60 minutes et ne fonctionne qu'une seule fois.\n` +
     `Si vous n'avez rien demandé, ignorez ce message : votre mot de passe reste inchangé.\n\n` +
-    `Besoin d'aide : ${SUPPORT}\n— Coreon EDU, Kogia Group`
+    `Besoin d'aide : ${SUPPORT}\nCoreon EDU, Kogia Group`
   if (!MAIL_RELAY) { console.log(`[mot de passe oublié] ${to} → ${link}`); return { ok: false, via: 'no-relay' } }
   try {
     const r = await fetch(MAIL_RELAY, {
@@ -202,7 +202,7 @@ export const server = http.createServer(async (req, res) => {
     if (url.pathname === '/api/forgot' && req.method === 'POST') {
       const ip = req.socket.remoteAddress || '?'
       const neutral = { ok: true, message: 'Si un compte existe pour cette adresse, un lien vient d\'être envoyé.' }
-      if (!forgotAllowed(ip)) return send(res, 429, { error: 'Trop de demandes depuis cette adresse — réessayez plus tard.' }, origin)
+      if (!forgotAllowed(ip)) return send(res, 429, { error: 'Trop de demandes depuis cette adresse : réessayez plus tard.' }, origin)
       const { email } = await readBody(req)
       const addr = String(email || '').trim().toLowerCase()
       const cred = auth.users.find(u => u.email.toLowerCase() === addr)
@@ -233,14 +233,14 @@ export const server = http.createServer(async (req, res) => {
 
     if (url.pathname === '/api/apply' && req.method === 'POST') {
       const ip = req.socket.remoteAddress || '?'
-      if (!applyAllowed(ip)) return send(res, 429, { error: 'Trop de candidatures depuis cette adresse — réessayez plus tard.' }, origin)
+      if (!applyAllowed(ip)) return send(res, 429, { error: 'Trop de candidatures depuis cette adresse : réessayez plus tard.' }, origin)
       const r = applyAdmission(await readBody(req))
       return send(res, r.error ? 400 : 200, r, origin)
     }
 
     // ── tout le reste exige une session ──
     const user = sessionUser(req)
-    if (!user) return send(res, 401, { error: 'Session expirée — reconnectez-vous.' }, origin)
+    if (!user) return send(res, 401, { error: 'Session expirée : reconnectez-vous.' }, origin)
 
     if (url.pathname === '/api/rev') return send(res, 200, { rev: school.rev }, origin)
 
@@ -254,7 +254,7 @@ export const server = http.createServer(async (req, res) => {
       const { baseRev, blob } = await readBody(req)
       if (Number(baseRev) !== school.rev) {
         const fresh = blobForStaff(school.blob, user.role)
-        return send(res, 409, { rev: school.rev, blob: fresh, error: 'Quelqu\'un a écrit entre-temps — vos données ont été actualisées.' }, origin)
+        return send(res, 409, { rev: school.rev, blob: fresh, error: 'Quelqu\'un a écrit entre-temps : vos données ont été actualisées.' }, origin)
       }
       // Les mots de passe créés à l'écran Comptes vont au registre d'auth, jamais au blob.
       for (const u of (blob?.users || [])) {

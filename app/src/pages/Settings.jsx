@@ -84,10 +84,10 @@ export default function Settings() {
     setModuleOverrides(overrides)
     setSaved(true)
     if (levelsChanged || modsChanged) {
-      toast.success(t('Paramètres enregistrés — la navigation se recharge.'))
+      toast.success(t('Paramètres enregistrés : la navigation se recharge.'))
       setTimeout(() => location.reload(), 750)
     } else {
-      toast.success(t('Paramètres enregistrés — appliqués partout.'))
+      toast.success(t('Paramètres enregistrés : appliqués partout.'))
     }
   }
 
@@ -97,7 +97,7 @@ export default function Settings() {
   const money = n => `${n.toLocaleString('fr-FR')} ${f.currency || 'DT'}`
 
   return (<>
-    <PageHead title={t('Paramètres de l’école')} sub={t('Configurez votre établissement — appliqué partout dans l’application.')}
+    <PageHead title={t('Paramètres de l’école')} sub={t('Configurez votre établissement : appliqué partout dans l’application.')}
       action={<Btn onClick={save}>{saved ? <><Check size={16} /> {t('Enregistré')}</> : <><Save size={16} /> {t('Enregistrer')}</>}</Btn>} />
 
     <div className="flex gap-1 overflow-x-auto scroll-thin -mx-1 px-1 mb-5">
@@ -164,7 +164,7 @@ export default function Settings() {
           <>
             <Card className="p-6">
               <h3 className="font-bold flex items-center gap-2 mb-1"><Boxes size={18} className="accent-text" /> {t('Modules optionnels')}</h3>
-              <p className="text-sm text-muted mb-4">{t('Activez ce dont votre école a besoin. Ces modules existent, testés — vous les allumez d’un clic.')}</p>
+              <p className="text-sm text-muted mb-4">{t('Activez ce dont votre école a besoin. Ces modules existent, testés : vous les allumez d’un clic.')}</p>
               <div className="space-y-2">
                 {OPTIONAL_MODULES.map(m => (
                   <Toggle key={m} on={mods[m]} onClick={() => toggleMod(m)} label={t(MOD_META[m].label)} desc={t(MOD_META[m].desc)} />
@@ -172,7 +172,7 @@ export default function Settings() {
               </div>
             </Card>
             <Card className="p-6">
-              <div className="text-xs font-bold uppercase tracking-wide accent-text mb-2 flex items-center gap-2"><ShieldCheck size={14} /> {t('Le cœur — toujours actif')}</div>
+              <div className="text-xs font-bold uppercase tracking-wide accent-text mb-2 flex items-center gap-2"><ShieldCheck size={14} /> {t('Le cœur · toujours actif')}</div>
               <p className="text-sm text-muted mb-3">{t('Ce qui fait vivre l’école tous les jours ne se désactive pas.')}</p>
               <div className="flex flex-wrap gap-1.5">
                 {CORE_MODULES.map(c => <span key={c} className="text-xs font-semibold px-2.5 py-1 rounded-full accent-soft accent-text">{t(c)}</span>)}
@@ -187,7 +187,7 @@ export default function Settings() {
             <div className="grid sm:grid-cols-2 gap-3">
               <Field label={t('Devise')} hint={t('Utilisée pour tous les montants (frais, paie, budget).')}>
                 <Select value={f.currency || 'DT'} onChange={e => set('currency', e.target.value)}>
-                  {CURRENCIES.map(([code, name]) => <option key={code} value={code}>{code} — {t(name)}</option>)}
+                  {CURRENCIES.map(([code, name]) => <option key={code} value={code}>{code} · {t(name)}</option>)}
                 </Select>
               </Field>
               <Field label={t('Langue par défaut')} hint={t('La langue d’un nouvel appareil. Chacun peut la changer.')}>
@@ -198,7 +198,7 @@ export default function Settings() {
               </Field>
             </div>
             <div className="mt-4 p-3 rounded-xl bg-canvas text-sm text-muted">
-              {t('Exemple de montant')} : <b className="text-ink">{money(2400)}</b> · <b className="text-ink">{money(150)}</b>
+              {t('Exemple de montant')} : <b className="text-ink">{money(2400)}</b> <b className="text-ink">{money(150)}</b>
             </div>
           </Card>
         )}
@@ -222,7 +222,7 @@ export default function Settings() {
           <>
             <Card className="p-6">
               <h3 className="font-bold flex items-center gap-2 mb-1"><Database size={18} className="accent-text" /> {t('Vos données vous appartiennent')}</h3>
-              <p className="text-sm text-muted mb-4">{t('Exportez toute votre école au standard OneRoster v1.2 — un clic, aucun verrou. Vous pouvez partir quand vous voulez.')}</p>
+              <p className="text-sm text-muted mb-4">{t('Exportez toute votre école au standard OneRoster v1.2 : un clic, aucun verrou. Vous pouvez partir quand vous voulez.')}</p>
               <Link to="/app/interop"><Btn variant="soft"><Download size={16} /> {t('Exporter (OneRoster v1.2)')}</Btn></Link>
             </Card>
             {isDemo && (
@@ -242,11 +242,11 @@ export default function Settings() {
           <div className="rounded-2xl p-4 text-white" style={{ background: `linear-gradient(135deg,${f.brand},${N.ink})` }}>
             <div className="flex items-center gap-2">
               <span className="w-10 h-10 rounded-xl grid place-items-center font-extrabold bg-white/20">{f.logoText || '??'}</span>
-              <div><div className="font-bold leading-tight">{f.schoolName || '—'}</div><div className="text-xs opacity-80">{f.city} · {f.year}</div></div>
+              <div><div className="font-bold leading-tight">{f.schoolName || '·'}</div><div className="text-xs opacity-80">{f.city} · {f.year}</div></div>
             </div>
           </div>
           <div className="mt-4 space-y-1.5 text-sm">
-            <div className="flex justify-between"><span className="text-muted">{t('Directeur')}</span><span className="font-medium">{f.director || '—'}</span></div>
+            <div className="flex justify-between"><span className="text-muted">{t('Directeur')}</span><span className="font-medium">{f.director || '·'}</span></div>
             <div className="flex justify-between"><span className="text-muted">{t('Devise')}</span><span className="font-medium">{f.currency || 'DT'}</span></div>
             <div className="flex justify-between"><span className="text-muted">{t('Langue')}</span><span className="font-medium">{f.locale === 'ar' ? 'العربية' : 'Français'}</span></div>
             <div className="flex justify-between"><span className="text-muted">{t('Niveaux')}</span><span className="font-medium">{f.levels.length}</span></div>

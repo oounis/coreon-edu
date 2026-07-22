@@ -123,15 +123,15 @@ export default function Evaluate({ user, params, nav }) {
     const ev = { id: uid('ev'), at: Date.now(), classId: cls.cls.id, className: cls.cls.name, subject: cls.slot.subject, lesson: lesson.trim() || null, teacher, placements: cleanPlacements, badges: cleanBadges, note }
     mutate(db => { db.evaluations.unshift(ev) })
     students.forEach(s => { if (s.parentId) { const sum = studentSummary(ev, s.id); if (sum.score != null) notify({ to: s.parentId, kind: 'evaluation', title: `Nouvelle évaluation pour ${s.name.split(' ')[0]}`, body: `${cls.slot.subject} : ${sum.score}/100${sum.badge ? ` · ${sum.badge.label}` : ''}`, link: '/app' }) } })
-    notify({ role: 'admin', kind: 'evaluation', actor: teacher, title: `Évaluation enregistrée — ${cls.cls.name}`, body: `${cls.slot.subject} · ${graded.length} élèves notés`, link: '/app/students' })
-    notify({ role: 'schooladmin', kind: 'evaluation', actor: teacher, title: `Évaluation enregistrée — ${cls.cls.name}`, body: `${cls.slot.subject} · ${graded.length} élèves notés`, link: '/app/students' })
+    notify({ role: 'admin', kind: 'evaluation', actor: teacher, title: `Évaluation enregistrée · ${cls.cls.name}`, body: `${cls.slot.subject} · ${graded.length} élèves notés`, link: '/app/students' })
+    notify({ role: 'schooladmin', kind: 'evaluation', actor: teacher, title: `Évaluation enregistrée · ${cls.cls.name}`, body: `${cls.slot.subject} · ${graded.length} élèves notés`, link: '/app/students' })
     setSaved(graded.map(s => { const sum = studentSummary(ev, s.id); return { name: s.name, ...sum, mention: mentionFor(sum.score) } }))
     setStep(6); setSaving(false); force()
   }
 
   /* ── 0) Mode été : pas de séances à évaluer ─────────────────────────────── */
   if (schoolPhase() === 'vacances') return (
-    <Screen title="Évaluation rapide" sub="Le cœur de Coreon Edu — en pause estivale.">
+    <Screen title="Évaluation rapide" sub="Le cœur de Coreon Edu : en pause estivale.">
       <EmptyState icon="Sun" title="L'évaluation en classe est en pause"
         sub="Il n'y a pas de séances à évaluer pendant les vacances : votre emploi du temps redémarrera automatiquement avec la nouvelle année scolaire." />
     </Screen>
@@ -139,7 +139,7 @@ export default function Evaluate({ user, params, nav }) {
 
   /* ── 1) Choix de la séance ───────────────────────────────────────────────── */
   if (!slot) return (
-    <Screen title="Mon emploi du temps" sub="Choisissez la classe à évaluer — la séance en cours est mise en avant.">
+    <Screen title="Mon emploi du temps" sub="Choisissez la classe à évaluer : la séance en cours est mise en avant.">
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 14 }}>
         <Ic n="CalendarDays" size={15} color={ACCENT} />
         <Text style={{ color: C.muted, fontSize: 13, textTransform: 'capitalize' }}>{frDateLabel(now())}</Text>
@@ -154,7 +154,7 @@ export default function Evaluate({ user, params, nav }) {
               {s.isLive && <LivePill />}
             </View>
             <Text style={{ color: C.ink, fontWeight: '800', fontSize: 19, marginTop: 6 }}>
-              {s.cls.name} <Text style={{ color: C.muted, fontWeight: '500', fontSize: 15 }}>· {s.subject}</Text>
+              {s.cls.name} <Text style={{ color: C.muted, fontWeight: '500', fontSize: 15 }}> {s.subject}</Text>
             </Text>
             {!!s.cls.grade && <Text style={{ color: C.muted, fontSize: 13 }}>{s.cls.grade}</Text>}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 10 }}>
@@ -184,7 +184,7 @@ export default function Evaluate({ user, params, nav }) {
         </View>
         <Text style={{ color: C.ink, fontWeight: '800', fontSize: 23, marginTop: 14 }}>Enregistré & partagé</Text>
         <Text style={{ color: C.muted, fontSize: 14, marginTop: 4, textAlign: 'center' }}>
-          {cls.cls.name} · {cls.slot.subject} — {saved.length} élèves notés.{'\n'}Parents et direction notifiés.
+          {cls.cls.name} · {cls.slot.subject} · {saved.length} élèves notés.{'\n'}Parents et direction notifiés.
         </Text>
       </View>
       {saved.length > 0 && (
@@ -224,7 +224,7 @@ export default function Evaluate({ user, params, nav }) {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <View style={{ flex: 1 }}>
             <Text style={{ color: C.ink, fontWeight: '800', fontSize: 15 }}>
-              {cls.cls.name} · {cls.slot.subject} <Text style={{ color: C.muted, fontWeight: '400', fontSize: 13 }}>· {cls.cls.grade}</Text>
+              {cls.cls.name} · {cls.slot.subject} <Text style={{ color: C.muted, fontWeight: '400', fontSize: 13 }}> {cls.cls.grade}</Text>
             </Text>
             <Text style={{ color: C.muted, fontSize: 12, marginTop: 2 }}>{cls.slot.start}–{cls.slot.end} · {students.length} élèves</Text>
           </View>
@@ -303,7 +303,7 @@ export default function Evaluate({ user, params, nav }) {
       ) : (
         <>
           <Text style={{ color: C.ink, fontWeight: '800', fontSize: 18 }}>Badges & une note rapide</Text>
-          <Text style={{ color: C.muted, fontSize: 13, marginTop: 2, marginBottom: 12 }}>Facultatif — touchez un élève, puis un badge.</Text>
+          <Text style={{ color: C.muted, fontSize: 13, marginTop: 2, marginBottom: 12 }}>Facultatif : touchez un élève, puis un badge.</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
             {students.map(s => {
               const B = BADGES.find(b => b.key === badges[s.id])

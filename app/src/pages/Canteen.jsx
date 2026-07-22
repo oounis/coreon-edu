@@ -33,7 +33,7 @@ function StaffCanteen({ u }) {
   const sum = summary()
 
   return (<>
-    <PageHead title={t('Cantine')} sub="Le menu de la semaine — et qui, parmi les inscrits, ne peut pas le manger."
+    <PageHead title={t('Cantine')} sub="Le menu de la semaine : et qui, parmi les inscrits, ne peut pas le manger."
       action={<Btn variant="soft" onClick={() => setManageSubs(true)}><Ic n="Users" size={16} /> Inscrits ({sum.subscribers})</Btn>} />
 
     {/* La bannière sécurité : le total des alertes de la semaine */}
@@ -74,7 +74,7 @@ function StaffCanteen({ u }) {
                     <div key={r.student.id} className="flex items-center gap-2 text-[13px]">
                       <Avatar name={r.student.name} seed={r.student.id} size={22} />
                       <span className="font-semibold">{r.student.name.split(' ')[0]}</span>
-                      <span className="text-muted">— {r.allergens.map(a => a.label).join(', ')}</span>
+                      <span className="text-muted">· {r.allergens.map(a => a.label).join(', ')}</span>
                     </div>
                   ))}
                 </div>

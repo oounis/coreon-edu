@@ -116,7 +116,7 @@ export function apply(payload) {
   // La preuve, pas l'espoir : on relit le stockage.
   if (appById(a.id)) return announced({ app: a, filesDropped: false })
   if (files.length) {
-    const light = { ...a, files: [], history: [...a.history, { at: now(), stage: 'nouvelle', by: 'Système', note: 'Pièces non conservées (stockage plein) — à réclamer.' }] }
+    const light = { ...a, files: [], history: [...a.history, { at: now(), stage: 'nouvelle', by: 'Système', note: 'Pièces non conservées (stockage plein) : à réclamer.' }] }
     write([light, ...applications().filter(x => x.id !== a.id)])
     if (appById(a.id)) return announced({ app: light, filesDropped: true })
   }
@@ -212,14 +212,14 @@ export function enrol(id, classId, by = 'Administration') {
   const d = db()
   const sid = 's' + Date.now().toString(36)
   const [first, ...rest] = String(a.childName).trim().split(' ')
-  const last = rest.join(' ') || '—'
+  const last = rest.join(' ') || '·'
   d.students = [...(d.students || []), {
     id: sid,
     name: a.childName,
     initials: (first[0] || '?') + (last[0] || ''),
     classId,
     parentId: null,
-    gender: '—',
+    gender: '·',
     dob: a.dob || '',
     admissionDate: todayIso(),
     // Les données de la candidature deviennent celles de l'élève. Zéro ressaisie.
@@ -227,7 +227,7 @@ export function enrol(id, classId, by = 'Administration') {
     email: a.parentEmail || '',
     fatherName: a.parentName || '',
     allergies: 'Aucune', medical: 'Aucune',
-    bloodGroup: '—', nationality: '—', prevSchool: '—', address: '—', phone: a.parentPhone || '',
+    bloodGroup: '·', nationality: '·', prevSchool: '·', address: '·', phone: a.parentPhone || '',
     rollNo: sid.replace(/\D/g, ''), emergencyName: a.parentName || '', emergencyPhone: a.parentPhone || '',
   }]
   d.applications = (d.applications || []).map(x => x.id !== id ? x : {

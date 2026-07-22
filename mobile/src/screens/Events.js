@@ -86,7 +86,7 @@ export default function Events({ user, params, nav }) {
   const upcoming = events.filter(e => e.date >= today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 6)
 
   return (
-    <Screen title="Calendrier" sub="Réunions, examens, sorties et vacances — au même endroit."
+    <Screen title="Calendrier" sub="Réunions, examens, sorties et vacances : au même endroit."
       right={canAdd ? <Btn small icon="Plus" label="Ajouter" color={accent} onPress={() => { setF(emptyForm()); setErr(''); setOpen(true) }} /> : null}>
 
       {/* ── Le mois ── */}
@@ -193,7 +193,7 @@ export default function Events({ user, params, nav }) {
               <View style={{ flexDirection: 'row', alignItems: 'center', padding: 18, paddingBottom: 8 }}>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 18, fontWeight: '800', color: C.ink }}>Nouvel événement</Text>
-                  <Text style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{cap(fmtLong(sel))} — changez de jour depuis le calendrier.</Text>
+                  <Text style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{cap(fmtLong(sel))} · changez de jour depuis le calendrier.</Text>
                 </View>
                 <Pressable onPress={() => setOpen(false)} hitSlop={12}><Ic n="X" size={20} color={C.muted} /></Pressable>
               </View>

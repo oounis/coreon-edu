@@ -107,7 +107,7 @@ export default function Staff({ user, params, nav }) {
               </Card>
             )}
             <Text style={{ color: C.muted, fontSize: 12, marginTop: 8 }}>
-              L'appel du personnel se fait depuis le portail web — ici, la lecture du jour.
+              L'appel du personnel se fait depuis le portail web : ici, la lecture du jour.
             </Text>
           </Section>
         </>

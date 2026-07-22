@@ -67,7 +67,7 @@ export function decisionsFor(user) {
     add(aRelancer.length, {
       key: 'accident-relancer', icon: 'BellRing', tone: 'warn', to: '/app/accidents',
       label: n_(aRelancer.length, 'accusé de réception en retard', 'accusés de réception en retard'),
-      sub: 'Plus de 24 h sans signature du parent — relancer.',
+      sub: 'Plus de 24 h sans signature du parent : relancer.',
     })
 
     // ── Les familles qui attendent une réponse ─────────────────────────────
@@ -88,7 +88,7 @@ export function decisionsFor(user) {
     add(aTrancher.length, {
       key: 'adm-trancher', icon: 'Scale', tone: 'warn', to: '/app/admissions',
       label: n_(aTrancher.length, 'candidature à trancher', 'candidatures à trancher'),
-      sub: 'Accepter ou refuser — la famille attend.',
+      sub: 'Accepter ou refuser · la famille attend.',
     })
     const aInscrire = apps.filter(a => a.stage === 'accepte')
     add(aInscrire.length, {
@@ -100,7 +100,7 @@ export function decisionsFor(user) {
     const attentePlace = apps.filter(a => a.stage === 'attente' && openClasses(a.level).some(c => c.free > 0))
     add(attentePlace.length, {
       key: 'adm-attente', icon: 'Hourglass', tone: 'warn', to: '/app/admissions',
-      label: n_(attentePlace.length, 'famille en liste d’attente — une place s’est libérée', 'familles en liste d’attente — des places se sont libérées'),
+      label: n_(attentePlace.length, 'famille en liste d’attente : une place s’est libérée', 'familles en liste d’attente : des places se sont libérées'),
       sub: 'Premier arrivé, premier servi : la liste avance.',
     })
 
@@ -130,7 +130,7 @@ export function decisionsFor(user) {
     add(enRetard.length, {
       key: 'req-retard', icon: 'AlarmClock', tone: 'warn', to: '/app/requests',
       label: n_(enRetard.length, 'travail en retard sur son échéance', 'travaux en retard sur leur échéance'),
-      sub: 'L’échéance est passée — relancer, ou clôturer en le disant.',
+      sub: 'L’échéance est passée : relancer, ou clôturer en le disant.',
     })
 
     // ── L'argent, en dernier — mais jamais oublié ───────────────────────────
@@ -139,14 +139,14 @@ export function decisionsFor(user) {
       arr.forEach(p => { if (p.status === 'pending') versements++ }))
     add(versements, {
       key: 'fin-versements', icon: 'CreditCard', tone: 'info', to: '/app/finance',
-      label: n_(versements, 'versement signalé par un parent — à confirmer', 'versements signalés par les parents — à confirmer'),
+      label: n_(versements, 'versement signalé par un parent : à confirmer', 'versements signalés par les parents : à confirmer'),
       sub: 'Le parent ne se déclare jamais payé : vous confirmez après encaissement.',
     })
     payrolls().filter(p => p.stage !== 'paye').forEach(p => add(1, {
       key: 'hr-paie-' + p.month, icon: 'Banknote', tone: 'warn', to: '/app/hr',
       label: p.stage === 'brouillon'
         ? `${t('paie de')} ${monthLabel(p.month)} ${t('à valider')}`
-        : `${t('paie de')} ${monthLabel(p.month)} ${t('validée — à verser')}`,
+        : `${t('paie de')} ${monthLabel(p.month)} ${t('validée · à verser')}`,
       sub: p.stage === 'brouillon'
         ? 'Un brouillon se corrige ; une paie validée ne bouge plus.'
         : 'Le virement clôt le mois.',
@@ -168,7 +168,7 @@ export function decisionsFor(user) {
     add(retards, {
       key: 'parent-retards', icon: 'CreditCard', tone: 'warn', to: '/app/payments',
       label: n_(retards, 'mois de scolarité en retard', 'mois de scolarité en retard'),
-      sub: 'Signalez un versement — l’école confirmera.',
+      sub: 'Signalez un versement : l’école confirmera.',
     })
   }
 
@@ -181,7 +181,7 @@ export function decisionsFor(user) {
       count: confies.length, key: 'req-mes-travaux', icon: 'Hammer',
       tone: late ? 'warn' : 'info', to: '/app/requests',
       label: n_(confies.length, 'travail qui m’est confié', 'travaux qui me sont confiés'),
-      sub: late ? `${late} ${t('en retard sur l’échéance.')}` : 'Clôturez quand c’est fait — la trace s’écrit toute seule.',
+      sub: late ? `${late} ${t('en retard sur l’échéance.')}` : 'Clôturez quand c’est fait : la trace s’écrit toute seule.',
     })
   }
 

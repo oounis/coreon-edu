@@ -78,7 +78,7 @@ export default function Pointage({ user, params, nav }) {
             <Badge label="VACANCES D'ÉTÉ" color="#92400E" />
             <Text style={{ fontWeight: '800', color: C.ink, fontSize: 18, marginTop: 10 }}>Badgeuse en pause</Text>
             <Text style={{ color: C.muted, fontSize: 13, marginTop: 6, textAlign: 'center' }}>
-              Le pointage reprend le <Text style={{ fontWeight: '800' }}>{rentreeLabel()}</Text>. Vos heures et votre historique restent consultables ci-dessous — bel été !
+              Le pointage reprend le <Text style={{ fontWeight: '800' }}>{rentreeLabel()}</Text>. Vos heures et votre historique restent consultables ci-dessous : bel été !
             </Text>
           </>
         ) : !clock ? (
@@ -103,7 +103,7 @@ export default function Pointage({ user, params, nav }) {
           <>
             <Text style={{ fontWeight: '800', color: C.ink, fontSize: 18 }}>Journée terminée</Text>
             <Text style={{ color: C.muted, fontSize: 13, marginTop: 4 }}>{clock.in} → {clock.out} · {fmtH(elapsed)}</Text>
-            <Text style={{ color: C.muted, fontSize: 12, marginTop: 10 }}>Merci pour aujourd'hui — à demain !</Text>
+            <Text style={{ color: C.muted, fontSize: 12, marginTop: 10 }}>Merci pour aujourd'hui · à demain !</Text>
           </>
         )}
       </Card>
@@ -125,7 +125,7 @@ export default function Pointage({ user, params, nav }) {
               borderBottomWidth: idx < history.length - 1 ? 1 : 0, borderBottomColor: C.line,
             }}>
               <Text style={{ flex: 1, color: C.muted, fontSize: 13 }}>{cap(frDateLabel(new Date(h.iso)))}</Text>
-              <Text style={{ fontWeight: '700', color: C.ink, fontSize: 13 }}>{h.in} → {h.out || '—'}</Text>
+              <Text style={{ fontWeight: '700', color: C.ink, fontSize: 13 }}>{h.in} → {h.out || '·'}</Text>
               <Text style={{ fontWeight: '800', fontSize: 13, color: h.in > LATE ? WARN : OK, minWidth: 62, textAlign: 'right' }}>
                 {h.mins ? fmtH(h.mins) : 'en cours'}
               </Text>
@@ -139,7 +139,7 @@ export default function Pointage({ user, params, nav }) {
           {myLeaves.length === 0 ? (
             <EmptyState icon="Plane" title="Aucune demande" sub="Vos demandes de congé et permissions apparaîtront ici." />
           ) : myLeaves.map((lv, idx) => {
-            const [lbl, col] = stLv[lv.status] || ['—', C.muted]
+            const [lbl, col] = stLv[lv.status] || ['·', C.muted]
             return (
               <View key={lv.id} style={{
                 flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10,

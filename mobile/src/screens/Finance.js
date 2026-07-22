@@ -34,7 +34,7 @@ export default function Finance({ user, params, nav }) {
   const tellParent = (sid, month, status) => {
     const s = studentById(sid); if (!s?.parentId) return
     const msg = status === 'paid'
-      ? { title: 'Paiement confirmé', body: `${month} confirmé pour ${s.name.split(' ')[0]} — merci !` }
+      ? { title: 'Paiement confirmé', body: `${month} confirmé pour ${s.name.split(' ')[0]} · merci !` }
       : { title: 'Paiement annulé', body: `${month} est repassé en impayé pour ${s.name.split(' ')[0]}. Contactez l'administration.` }
     notify({ to: s.parentId, kind: 'payment', actor: 'Administration', ...msg, link: '/app/payments' })
   }
@@ -87,7 +87,7 @@ export default function Finance({ user, params, nav }) {
         </View>
         <Bar pct={rate} color={COL.paid} height={8} />
         <Text style={{ color: C.muted, fontSize: 11, marginTop: 6 }}>
-          Seuls les mois confirmés « Payé » comptent — les versements « À confirmer » ne sont pas encore encaissés.
+          Seuls les mois confirmés « Payé » comptent : les versements « À confirmer » ne sont pas encore encaissés.
         </Text>
       </Card>
 
@@ -99,11 +99,11 @@ export default function Finance({ user, params, nav }) {
       )}
 
       {toConfirm.length > 0 && (
-        <Section title={`Versements signalés — à confirmer (${toConfirm.length})`}
+        <Section title={`Versements signalés : à confirmer (${toConfirm.length})`}
           right={<Btn label="Tout confirmer" icon="Check" color={COL.paid} small onPress={confirmAll} />}>
           <Card>
             <Text style={{ color: C.muted, fontSize: 12, marginBottom: 8 }}>
-              Un parent a signalé avoir payé. Confirmez après encaissement — le mois passe en « Payé » et le parent est prévenu.
+              Un parent a signalé avoir payé. Confirmez après encaissement : le mois passe en « Payé » et le parent est prévenu.
             </Text>
             {toConfirm.map(({ s, p, mi }) => (
               <View key={s.id + p.month} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: C.line }}>
@@ -142,7 +142,7 @@ export default function Finance({ user, params, nav }) {
                     <Avatar name={s.name} color={accent} size={30} />
                     <View style={{ flex: 1, minWidth: 0 }}>
                       <Text numberOfLines={1} style={{ fontWeight: '700', color: C.ink, fontSize: 14 }}>{s.name}</Text>
-                      <Text style={{ color: C.muted, fontSize: 11 }}>{classById(s.classId)?.name || '—'}</Text>
+                      <Text style={{ color: C.muted, fontSize: 11 }}>{classById(s.classId)?.name || '·'}</Text>
                     </View>
                     <Pressable onPress={() => { tap(); remind(s.id); force() }} style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 4, opacity: pressed ? 0.6 : 1 })}>
                       <Ic n="BellRing" size={13} color={accent} />

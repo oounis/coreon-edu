@@ -25,7 +25,7 @@ export default function Finance(){
   const tellParent=(sid,month,status)=>{
     const s=studentById(sid); if(!s?.parentId) return
     const msg = status==='paid'
-      ? {title:'Paiement confirmé',body:`${month} confirmé pour ${s.name.split(' ')[0]} — merci !`}
+      ? {title:'Paiement confirmé',body:`${month} confirmé pour ${s.name.split(' ')[0]} · merci !`}
       : {title:'Paiement annulé',body:`${month} est repassé en impayé pour ${s.name.split(' ')[0]}. Contactez l'administration.`}
     notify({to:s.parentId,kind:'payment',actor:'Administration',...msg,link:'/app/payments'})
   }
@@ -95,10 +95,10 @@ export default function Finance(){
 
     {toConfirm.length>0 && <Card className="p-4 mb-5">
       <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-        <h3 className="font-bold flex items-center gap-1.5"><Hourglass size={16} style={{color:STATUS.warn}}/> Versements signalés — à confirmer <span className="text-xs text-muted font-normal">({toConfirm.length})</span></h3>
+        <h3 className="font-bold flex items-center gap-1.5"><Hourglass size={16} style={{color:STATUS.warn}}/> Versements signalés · à confirmer <span className="text-xs text-muted font-normal">({toConfirm.length})</span></h3>
         <Btn size="sm" onClick={confirmAll}><Check size={14}/> Tout confirmer</Btn>
       </div>
-      <p className="text-xs text-muted mb-3">Un parent a signalé avoir payé. Confirmez après encaissement — le mois passe en « Payé » et le parent est prévenu.</p>
+      <p className="text-xs text-muted mb-3">Un parent a signalé avoir payé. Confirmez après encaissement : le mois passe en « Payé » et le parent est prévenu.</p>
       <div className="space-y-1.5 max-h-64 overflow-y-auto scroll-thin">
         {toConfirm.map(({s,p,mi})=>(
           <div key={s.id+p.month} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">

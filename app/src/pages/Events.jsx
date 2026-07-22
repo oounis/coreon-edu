@@ -58,7 +58,7 @@ export default function Events(){
   const upcoming=events.filter(e=>e.date>=format(new Date(),'yyyy-MM-dd')).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5)
 
   return (<>
-    <PageHead title="Calendrier & événements" sub="Réunions, examens, sorties et vacances — au même endroit."
+    <PageHead title="Calendrier & événements" sub="Réunions, examens, sorties et vacances : au même endroit."
       action={canAdd&&<Btn onClick={()=>openCreate(sel)}><Plus size={16}/> Nouvel événement</Btn>}/>
 
     <div className="grid lg:grid-cols-[1fr_320px] gap-5">

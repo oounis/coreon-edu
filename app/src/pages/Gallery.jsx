@@ -55,7 +55,7 @@ function StaffGallery({ u }) {
       </div>} />
 
     {feed.length === 0
-      ? <Card><EmptyState icon="Camera" title="Aucun moment partagé" sub="Partagez une photo de la journée — les parents adorent." /></Card>
+      ? <Card><EmptyState icon="Camera" title="Aucun moment partagé" sub="Partagez une photo de la journée : les parents adorent." /></Card>
       : <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {feed.map(m => <MomentCard key={m.id} m={m} u={u} onChange={refresh} canDelete />)}
       </div>}
@@ -90,7 +90,7 @@ function Composer({ u, classId, onClose }) {
   const submit = () => {
     const r = share({ classId, childIds: kids, caption, media, byId: u.id, byName: u.name })
     if (r.error) return toast.error(r.error)
-    toast.success('Moment partagé — les parents sont prévenus 📸')
+    toast.success('Moment partagé : les parents sont prévenus 📸')
     onClose()
   }
 
@@ -110,9 +110,9 @@ function Composer({ u, classId, onClose }) {
             <input type="file" accept="image/*" multiple className="hidden" onChange={addFiles} />
           </label>
         </div>
-        <Field label="Un mot (facultatif)"><Textarea value={caption} onChange={e => setCaption(e.target.value)} className="h-16" placeholder="Atelier peinture ce matin — tout le monde a adoré !" /></Field>
+        <Field label="Un mot (facultatif)"><Textarea value={caption} onChange={e => setCaption(e.target.value)} className="h-16" placeholder="Atelier peinture ce matin : tout le monde a adoré !" /></Field>
         <div>
-          <div className="text-xs font-semibold text-muted mb-1.5">Enfants sur la photo (facultatif — sinon c'est un moment de toute la classe)</div>
+          <div className="text-xs font-semibold text-muted mb-1.5">Enfants sur la photo (facultatif : sinon c'est un moment de toute la classe)</div>
           <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto scroll-thin">
             {students.map(s => {
               const on = kids.includes(s.id)

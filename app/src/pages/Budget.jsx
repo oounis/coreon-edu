@@ -46,7 +46,7 @@ export default function Budget() {
     const reason = prompt('Motif de l\'annulation (obligatoire) :')
     if (reason == null) return
     const r = voidExpense(id, reason, u.name)
-    r.error ? toast.error(r.error) : toast.success('Dépense annulée — la trace reste')
+    r.error ? toast.error(r.error) : toast.success('Dépense annulée · la trace reste')
     refresh()
   }
   const exportCSV = () => {
@@ -64,7 +64,7 @@ export default function Budget() {
   }
 
   return (<>
-    <PageHead title="Budget & rapports" sub="Encaissé, versé, dépensé : le mois en trente secondes — que des chiffres réels."
+    <PageHead title="Budget & rapports" sub="Encaissé, versé, dépensé : le mois en trente secondes : que des chiffres réels."
       action={<div className="flex items-center gap-2">
         <input type="month" value={month} onChange={e => setMonth(e.target.value)} className="rounded-xl border border-line bg-white px-3 py-2 text-sm font-semibold" />
         <Btn variant="soft" onClick={exportCSV}><Download size={15} /> CSV</Btn>
@@ -136,7 +136,7 @@ export default function Budget() {
         <Field label="Libellé *"><Input value={f.label} onChange={e => setF({ ...f, label: e.target.value })} placeholder="Ramettes de papier, peinture atelier…" /></Field>
         <Field label={`Montant (${currency()}) *`}><Input type="number" min="0" value={f.amount} onChange={e => setF({ ...f, amount: e.target.value })} /></Field>
       </div>
-      <p className="text-[12px] text-muted mt-3">Une dépense inscrite ne s'efface pas : elle s'annule, motivée — la trace reste.</p>
+      <p className="text-[12px] text-muted mt-3">Une dépense inscrite ne s'efface pas : elle s'annule, motivée : la trace reste.</p>
     </Modal>
   </>)
 }

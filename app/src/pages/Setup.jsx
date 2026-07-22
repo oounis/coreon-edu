@@ -39,7 +39,7 @@ const SHAPES = [
   {
     key: 'both', label: 'Les deux', icon: 'Layers', best: true,
     sub: 'De la crèche à la 6ème année',
-    lead: 'Un seul outil, un seul compte parent — même pour une famille qui a un petit et un grand.',
+    lead: 'Un seul outil, un seul compte parent : même pour une famille qui a un petit et un grand.',
     levels: [...EARLY_YEARS, ...PRIMARY],
   },
 ]
@@ -132,7 +132,7 @@ export default function Setup() {
         </div>
 
         <p className="text-center text-xs text-muted mt-6">
-          Coreon Edu — par Kogia Group
+          Coreon Edu : par Kogia Group
         </p>
       </div>
     </div>

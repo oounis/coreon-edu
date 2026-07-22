@@ -128,7 +128,7 @@ export default function DataTable({
                     {hasBulk && <td className="px-3 py-2" onClick={e => e.stopPropagation()}>
                       <input type="checkbox" aria-label="Sélectionner la ligne" checked={selected.has(id)} onChange={() => toggle(id)} /></td>}
                     {visible.map(c => (
-                      <td key={c.key} className="px-3 py-2 whitespace-nowrap">{c.render ? c.render(r) : String(valOf(c, r) ?? '—')}</td>))}
+                      <td key={c.key} className="px-3 py-2 whitespace-nowrap">{c.render ? c.render(r) : String(valOf(c, r) ?? '·')}</td>))}
                   </tr>)
               })}
             </tbody>

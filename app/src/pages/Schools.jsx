@@ -28,7 +28,7 @@ export default function Schools(){
     if(!f.name.trim()||!f.director.trim()||!f.email.trim()) return toast.error('Nom, directeur et e-mail requis')
     mutate(db=>{ db.schools.push({id:uid('sc'),name:f.name.trim(),city:f.city,plan:f.plan,price:f.plan==='Pro'?149:79,
       status:'trial',since:todayIso(),studentCount:0,director:f.director.trim(),email:f.email.trim()}) })
-    toast.success(`${f.name} ajoutée — compte Direction créé et identifiants envoyés à ${f.email}`)
+    toast.success(`${f.name} ajoutée : compte Direction créé et identifiants envoyés à ${f.email}`)
     setOpen(false); setF(BLANK); force(x=>x+1)
   }
   // Suspendre une école gèle l'accès de tout un établissement : on confirme d'abord.
@@ -39,11 +39,11 @@ export default function Schools(){
   }
   const doSuspend=(sc)=>{
     mutate(db=>{ const x=db.schools.find(y=>y.id===sc.id); if(x) x.status='suspended' })
-    toast.success(`${sc.name} suspendue — accès gelé`); setConfirmSuspend(null); force(x=>x+1)
+    toast.success(`${sc.name} suspendue · accès gelé`); setConfirmSuspend(null); force(x=>x+1)
   }
 
   return (<>
-    <PageHead title="Écoles clientes" sub="Les établissements abonnés à Coreon Edu — vous créez l'école et son compte Direction, l'école gère le reste."
+    <PageHead title="Écoles clientes" sub="Les établissements abonnés à Coreon Edu · vous créez l'école et son compte Direction, l'école gère le reste."
       action={<Btn onClick={()=>{setF(BLANK);setOpen(true)}}><Plus size={16}/> Ajouter une école</Btn>}/>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
       <StatCard label="Écoles clientes" value={schools.filter(s=>s.status!=='suspended').length} tint="brand" icon={<Building2/>} onClick={()=>setTile('schools')}/>
@@ -102,7 +102,7 @@ export default function Schools(){
             <div className="flex items-center gap-3">
               <Avatar name={sc.director} seed={sc.id} size={34}/>
               <div className="text-sm min-w-0"><b>{sc.director}</b>
-                <div className="text-muted truncate">{sc.email}{sc.live&&sadmin?<> · mot de passe : <code>{sadmin.pw}</code></>:null}</div></div>
+                <div className="text-muted truncate">{sc.email}{sc.live&&sadmin?<> mot de passe : <code>{sadmin.pw}</code></>:null}</div></div>
             </div>
           </div>
         </SectionCard>) })}

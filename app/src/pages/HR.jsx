@@ -40,7 +40,7 @@ export default function HR() {
 
   return (
     <>
-      <PageHead title="Ressources humaines" sub="Contrats, congés, paie — sans surprise." />
+      <PageHead title="Ressources humaines" sub="Contrats, congés, paie · sans surprise." />
       <Tabs value={tab} onChange={setTab} tabs={[
         { value: 'equipe', label: 'Équipe' },
         { value: 'conges', label: 'Congés' },
@@ -66,7 +66,7 @@ function Team({ staff, refresh }) {
     setEdit(s)
   }
   const saveIt = () => {
-    if (!f.salary) return toast.error('Le salaire est requis — sans contrat, pas de paie.')
+    if (!f.salary) return toast.error('Le salaire est requis : sans contrat, pas de paie.')
     setContract({ staffId: edit.id, kind: f.kind, salary: f.salary, start: f.start || undefined })
     toast.success(`Contrat enregistré pour ${edit.name}.`)
     setEdit(null); refresh()
@@ -101,7 +101,7 @@ function Team({ staff, refresh }) {
         })}
       </div>
 
-      <Modal open={!!edit} onClose={() => setEdit(null)} title={edit ? `Contrat — ${edit.name}` : ''}
+      <Modal open={!!edit} onClose={() => setEdit(null)} title={edit ? `Contrat · ${edit.name}` : ''}
         footer={<><Btn variant="ghost" onClick={() => setEdit(null)}>Annuler</Btn><Btn onClick={saveIt}>Enregistrer</Btn></>}>
         <div className="grid gap-4">
           <Field label="Type de contrat">
@@ -150,7 +150,7 @@ function Leaves({ staff, me, refresh }) {
                 <div className="font-bold text-sm">{nameOf(l.staffId)}</div>
                 <div className="text-xs text-muted font-semibold">
                   {k?.label} · {day(l.from)} → {day(l.to)} · <b>{l.days} j</b>
-                  {!k?.paid && <span style={{ color: STATUS.warn }}> · sans solde</span>}
+                  {!k?.paid && <span style={{ color: STATUS.warn }}> sans solde</span>}
                 </div>
               </div>
               <span className="flex-1" />
@@ -160,7 +160,7 @@ function Leaves({ staff, me, refresh }) {
                   // RÈGLE : personne ne valide sa propre demande. Le cœur le refuse
                   // aussi — une règle qui ne vit que dans l'écran n'est pas une règle.
                   ? <span className="text-xs text-muted font-semibold flex items-center gap-1">
-                      <Ic n="Lock" size={12} /> Votre demande — un autre responsable doit décider
+                      <Ic n="Lock" size={12} /> Votre demande : un autre responsable doit décider
                     </span>
                   : <>
                       <Btn size="sm" variant="ghost" onClick={() => decide(l, 'refuse')}>Refuser</Btn>
@@ -223,7 +223,7 @@ function Payroll({ staff, me, refresh }) {
       </Card>
 
       {!p && <EmptyState icon="Calculator" title={`Aucune paie pour ${monthLabel(month)}.`}
-        sub="La paie se calcule à partir des contrats et des absences sans solde — pas d’une saisie libre." />}
+        sub="La paie se calcule à partir des contrats et des absences sans solde : pas d’une saisie libre." />}
 
       {p && (
         <Card className="p-0 overflow-hidden">
@@ -231,7 +231,7 @@ function Payroll({ staff, me, refresh }) {
             <div className="px-5 py-3 flex items-center gap-2 text-[13px] font-semibold"
               style={{ background: STATUS.infoSoft, color: STATUS.info }}>
               <Ic n="Lock" size={14} />
-              Paie validée par {p.validatedBy} — elle ne peut plus être modifiée.
+              Paie validée par {p.validatedBy} · elle ne peut plus être modifiée.
               Une correction se fait par un ajustement daté, jamais en réécrivant l’histoire.
             </div>
           )}
@@ -261,14 +261,14 @@ function Payroll({ staff, me, refresh }) {
                         : <span className="text-xs font-bold" style={{ color: STATUS.warn }}>Aucun</span>}
                     </td>
                     <td className="px-3 py-3 text-right tabular-nums">{money(l.base)}</td>
-                    <td className="px-3 py-3 text-right tabular-nums">{l.unpaidDays || '—'}</td>
+                    <td className="px-3 py-3 text-right tabular-nums">{l.unpaidDays || '·'}</td>
                     <td className="px-3 py-3 text-right tabular-nums"
                       style={{ color: l.deduction ? STATUS.danger : undefined }}>
-                      {l.deduction ? `− ${money(l.deduction)}` : '—'}
+                      {l.deduction ? `− ${money(l.deduction)}` : '·'}
                     </td>
                     <td className="px-3 py-3 text-right">
                       {locked
-                        ? <span className="tabular-nums">{l.bonus ? money(l.bonus) : '—'}</span>
+                        ? <span className="tabular-nums">{l.bonus ? money(l.bonus) : '·'}</span>
                         : <input type="number" defaultValue={l.bonus || ''} placeholder="0"
                             onBlur={e => { setBonus(month, l.staffId, e.target.value); refresh() }}
                             className="w-24 text-right rounded-lg border border-line px-2 py-1 text-sm accent-ring tabular-nums" />}

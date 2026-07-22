@@ -41,7 +41,7 @@ export function StatCard({ label, value, sub, tint='brand', icon, to, onClick })
       <span className="absolute inset-0" style={{background:`radial-gradient(130% 130% at 25% 15%, ${fg}26, transparent 62%)`}} aria-hidden="true"/>
       <span className="relative">{icon}</span>
     </span>
-    <div className="min-w-0 flex-1"><div className="text-[1.7rem] font-extrabold leading-none tabular-nums">{value}</div><div className="text-xs text-muted mt-1.5 truncate">{label}{sub&&<span className="ml-1">· {sub}</span>}</div></div></>
+    <div className="min-w-0 flex-1"><div className="text-[1.7rem] font-extrabold leading-none tabular-nums">{value}</div><div className="text-xs text-muted mt-1.5 truncate">{label}{sub&&<span className="ml-1"> {sub}</span>}</div></div></>
   const base="group card p-4 flex items-center gap-3.5 relative overflow-hidden"
   if(to) return <Link to={to} className={`${base} k-lift`}>{inner}</Link>
   if(onClick) return <button onClick={onClick} className={`${base} k-lift k-press text-left w-full`}>{inner}</button>

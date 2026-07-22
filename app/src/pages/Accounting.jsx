@@ -25,7 +25,7 @@ export default function Accounting() {
   const refresh = () => force(n => n + 1)
   return (
     <>
-      <PageHead title="Comptabilité" sub="Barème, remises, factures, reçus — et ce que l’école a réellement encaissé." />
+      <PageHead title="Comptabilité" sub="Barème, remises, factures, reçus : et ce que l’école a réellement encaissé." />
       <Tabs value={tab} onChange={setTab} tabs={[
         { value: 'etat',     label: 'État financier' },
         { value: 'factures', label: 'Factures' },
@@ -133,7 +133,7 @@ function Factures({ refresh }) {
   const doCollect = () => {
     const r = collect(pay.id, amt, method, me.name)
     if (r.error) return toast.error(r.error)
-    toast.success(`Reçu ${r.receipt.number} — ${money(r.receipt.amount)}`)
+    toast.success(`Reçu ${r.receipt.number} : ${money(r.receipt.amount)}`)
     setPay(null); setAmt(''); refresh()
   }
 
@@ -144,7 +144,7 @@ function Factures({ refresh }) {
       </div>
 
       {!all.length && <EmptyState icon="FileText" title="Aucune facture."
-        sub="Le montant se calcule à partir du barème et des remises — il ne se saisit pas." />}
+        sub="Le montant se calcule à partir du barème et des remises : il ne se saisit pas." />}
 
       <div className="grid gap-2">
         {all.map(i => {
@@ -158,7 +158,7 @@ function Factures({ refresh }) {
                   <div className="font-bold text-sm">{nameOf(i.studentId)}</div>
                   <div className="text-xs text-muted font-semibold tabular-nums">
                     {i.number} · émise le {day(i.issuedAt)}
-                    {i.creditNote && <span style={{ color: STATUS.danger }}> · avoir {i.creditNote}</span>}
+                    {i.creditNote && <span style={{ color: STATUS.danger }}> avoir {i.creditNote}</span>}
                   </div>
                 </div>
                 <span className="flex-1" />
@@ -173,7 +173,7 @@ function Factures({ refresh }) {
               </div>
               {i.stage === 'annulee' && (
                 <p className="text-[12px] mt-2" style={{ color: STATUS.danger }}>
-                  Annulée par {i.cancelledBy} le {day(i.cancelledAt)} — {i.cancelReason}
+                  Annulée par {i.cancelledBy} le {day(i.cancelledAt)} · {i.cancelReason}
                 </p>
               )}
             </Card>
@@ -182,7 +182,7 @@ function Factures({ refresh }) {
       </div>
 
       {/* Encaisser → un reçu numéroté. Pas d'encaissement sans reçu. */}
-      <Modal open={!!pay} onClose={() => setPay(null)} title={pay ? `Encaisser — ${pay.number}` : ''}
+      <Modal open={!!pay} onClose={() => setPay(null)} title={pay ? `Encaisser · ${pay.number}` : ''}
         footer={<><Btn variant="ghost" onClick={() => setPay(null)}>Annuler</Btn><Btn onClick={doCollect}>Encaisser & éditer le reçu</Btn></>}>
         {pay && (
           <div className="grid gap-4">
@@ -194,7 +194,7 @@ function Factures({ refresh }) {
                 {Object.entries(METHODS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </Select>
             </Field>
-            <p className="text-xs text-muted">Un reçu numéroté sera édité — c’est la seule preuve pour la famille.</p>
+            <p className="text-xs text-muted">Un reçu numéroté sera édité : c’est la seule preuve pour la famille.</p>
           </div>
         )}
       </Modal>
@@ -225,7 +225,7 @@ function Eleves({ refresh }) {
 
   const grant = () => {
     if (kind === 'bourse' && !(Number(amount) > 0)) return toast.error('Le montant de la bourse est requis.')
-    if (!reason.trim()) return toast.error('Un motif est obligatoire — une remise sans motif est un trou.')
+    if (!reason.trim()) return toast.error('Un motif est obligatoire : une remise sans motif est un trou.')
     grantDiscount({ studentId: open.id, kind, amount, reason, by: me.name })
     toast.success('Remise accordée.')
     setOpen(null); setReason(''); setAmount(''); refresh()
@@ -249,7 +249,7 @@ function Eleves({ refresh }) {
               <span className="flex-1" />
               {gs.map(g => (
                 <button key={g.id} onClick={() => { revokeDiscount(g.id); refresh() }}
-                  title={`${g.reason} — accordée par ${g.by}. Cliquer pour retirer.`}
+                  title={`${g.reason} : accordée par ${g.by}. Cliquer pour retirer.`}
                   className="text-[11px] font-bold px-2 py-1 rounded-full"
                   style={{ background: STATUS.okSoft, color: STATUS.ok }}>
                   {DISCOUNT_KINDS[g.kind]?.label} {g.pct ? `−${g.pct}%` : `−${money(g.amount)}`}
@@ -264,7 +264,7 @@ function Eleves({ refresh }) {
         })}
       </div>
 
-      <Modal open={!!open} onClose={() => setOpen(null)} title={open ? `Remise — ${open.name}` : ''}
+      <Modal open={!!open} onClose={() => setOpen(null)} title={open ? `Remise · ${open.name}` : ''}
         footer={<><Btn variant="ghost" onClick={() => setOpen(null)}>Annuler</Btn><Btn onClick={grant}>Accorder</Btn></>}>
         <div className="grid gap-4">
           <Field label="Type">
@@ -279,7 +279,7 @@ function Eleves({ refresh }) {
               <Input type="number" value={amount} onChange={e => setAmount(e.target.value)} />
             </Field>
           )}
-          <Field label="Motif *" hint="Qui, quand, pourquoi — sinon ce n’est pas une remise, c’est un trou.">
+          <Field label="Motif *" hint="Qui, quand, pourquoi : sinon ce n’est pas une remise, c’est un trou.">
             <Input value={reason} onChange={e => setReason(e.target.value)} placeholder="Deuxième enfant inscrit." />
           </Field>
         </div>
@@ -294,7 +294,7 @@ function Bareme({ refresh }) {
   return (
     <div className="grid gap-3">
       <p className="text-sm text-muted">
-        Ce que coûte une année, par niveau. <b>Sans barème, on ne facture pas</b> — et le produit le dit
+        Ce que coûte une année, par niveau. <b>Sans barème, on ne facture pas</b>et le produit le dit
         au lieu de facturer zéro en silence.
       </p>
       {LEVELS.filter(l => levels.includes(l.key)).map(l => {

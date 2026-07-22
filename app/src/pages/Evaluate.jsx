@@ -72,8 +72,8 @@ export default function Evaluate(){
     const ev={ id:uid('ev'), at:Date.now(), classId:cls.cls.id, className:cls.cls.name, subject:cls.slot.subject, lesson:lesson.trim()||null, teacher, placements:cleanPlacements, badges:cleanBadges, note }
     mutate(db=>{ db.evaluations.unshift(ev) })
     students.forEach(s=>{ if(s.parentId){ const sum=studentSummary(ev,s.id); if(sum.score!=null) notify({to:s.parentId,studentId:s.id,email:true,kind:'evaluation',title:`Nouvelle évaluation pour ${s.name.split(' ')[0]}`,body:`${cls.slot.subject} : ${sum.score}/100${sum.badge?` · ${sum.badge.label}`:''}`,link:'/app'}) } })
-    notify({role:'admin',kind:'evaluation',actor:teacher,title:`Évaluation enregistrée — ${cls.cls.name}`,body:`${cls.slot.subject} · ${graded.length} élèves notés`,link:'/app/students'})
-    notify({role:'schooladmin',kind:'evaluation',actor:teacher,title:`Évaluation enregistrée — ${cls.cls.name}`,body:`${cls.slot.subject} · ${graded.length} élèves notés`,link:'/app/students'})
+    notify({role:'admin',kind:'evaluation',actor:teacher,title:`Évaluation enregistrée · ${cls.cls.name}`,body:`${cls.slot.subject} · ${graded.length} élèves notés`,link:'/app/students'})
+    notify({role:'schooladmin',kind:'evaluation',actor:teacher,title:`Évaluation enregistrée · ${cls.cls.name}`,body:`${cls.slot.subject} · ${graded.length} élèves notés`,link:'/app/students'})
     setSaved(graded.map(s=>{const sum=studentSummary(ev,s.id);return {name:s.name,...sum,mention:mentionFor(sum.score)}}))
     clearDraft()
     toast.success(`Évaluation enregistrée · ${graded.length} élèves notés · parents notifiés`); setStep(6); setSaving(false)
@@ -81,7 +81,7 @@ export default function Evaluate(){
 
   /* ---------- 0) MODE ÉTÉ : pas de classe, pas d'évaluation ---------- */
   if(isSummer()) return (<>
-    <PageHead title="Évaluation rapide" sub="Le cœur de Coreon Edu — en pause estivale."/>
+    <PageHead title="Évaluation rapide" sub="Le cœur de Coreon Edu : en pause estivale."/>
     <SummerFreeze feature="L'évaluation en classe" detail="Il n'y a pas de séances à évaluer pendant les vacances : votre emploi du temps redémarrera automatiquement avec la nouvelle année scolaire.">
       <Btn variant="soft" onClick={()=>{location.hash='#/app/students'}}>Revoir mes élèves</Btn>
     </SummerFreeze>
@@ -89,14 +89,14 @@ export default function Evaluate(){
 
   /* ---------- 1) SCHEDULE PICKER (entry screen) ---------- */
   if(!slot) return (<>
-    <PageHead title="Mon emploi du temps" sub="Choisissez la classe à évaluer — la séance en cours est mise en avant. Les élèves se chargent automatiquement."/>
+    <PageHead title="Mon emploi du temps" sub="Choisissez la classe à évaluer : la séance en cours est mise en avant. Les élèves se chargent automatiquement."/>
     <div className="flex items-center gap-2 text-sm text-muted mb-4"><CalendarDays size={16} className="accent-text"/> {format(now(),'EEEE d MMMM yyyy',{locale:fr})}</div>
     <div className="grid sm:grid-cols-2 gap-4">
       {sched.map((s,i)=>(
         <button key={i} onClick={()=>{reset();setSlot(s)}} className="card p-5 text-left hover:shadow-lg transition relative" style={s.isLive?{boxShadow:'0 0 0 2px var(--accent)'}:{}}>
           {s.isLive && <span className="absolute top-4 right-4 text-[12px] font-bold px-2 py-0.5 rounded-full text-white" style={{background:STATUS.ok}}>● EN COURS</span>}
           <div className="flex items-center gap-2 text-sm font-bold accent-text"><Clock size={15}/> {s.start} – {s.end}</div>
-          <div className="text-xl font-extrabold mt-2">{s.cls.name} <span className="text-muted text-base font-medium">· {s.subject}</span></div>
+          <div className="text-xl font-extrabold mt-2">{s.cls.name} <span className="text-muted text-base font-medium"> {s.subject}</span></div>
           <div className="text-sm text-muted">{s.cls.grade}</div>
           <div className="flex items-center gap-4 mt-3 text-sm text-muted">
             <span className="flex items-center gap-1"><Users size={14}/> {s.students.length} élèves</span>
@@ -117,7 +117,7 @@ export default function Evaluate(){
         <div className="w-14 h-14 rounded-2xl grid place-items-center mx-auto accent-soft accent-text" aria-hidden="true"><Ic n="ClipboardCheck" size={26}/></div>
         <div className="w-12 h-12 -mt-3 rounded-full grid place-items-center text-white mx-auto accent-bg pop relative"><Check size={24}/></div>
         <h1 className="text-2xl font-extrabold mt-3">Enregistré & partagé</h1>
-        <p className="text-muted mt-1">{cls.cls.name} · {cls.slot.subject} — {saved.length} élèves notés. Parents et direction notifiés.</p>
+        <p className="text-muted mt-1">{cls.cls.name} · {cls.slot.subject} · {saved.length} élèves notés. Parents et direction notifiés.</p>
       </div>
       {saved.length>0 && (
         <div className="card p-4 mt-6 text-left">
@@ -150,7 +150,7 @@ export default function Evaluate(){
     <PageHead title="Évaluation rapide" sub="Glissez chaque élève sur une réponse. Cinq questions, en quelques secondes."/>
     <div className="card p-4 mb-5 flex items-center justify-between flex-wrap gap-3">
       <div className="flex items-center gap-3"><span className="w-11 h-11 rounded-xl grid place-items-center accent-soft accent-text"><Clock size={20}/></span>
-        <div><div className="font-semibold">{cls.cls.name} · {cls.slot.subject} <span className="text-muted font-normal">· {cls.cls.grade}</span></div>
+        <div><div className="font-semibold">{cls.cls.name} · {cls.slot.subject} <span className="text-muted font-normal"> {cls.cls.grade}</span></div>
           <div className="text-sm text-muted">{cls.slot.start}–{cls.slot.end} · {students.length} élèves {cls.isLive&&<span className="ml-1 text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{background:STATUS.ok}}>● EN COURS</span>}</div></div></div>
       <div className="flex items-center gap-2">
         <input value={lesson} onChange={e=>setLesson(e.target.value)} maxLength={40}
@@ -174,7 +174,7 @@ export default function Evaluate(){
         </DropZone>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {BUCKETS.map(b=>{ const inB=students.filter(s=>place[s.id]===b.key); return (
-            <DropZone key={b.key} id={b.key} label={`${b.label} — ${inB.length} élève(s)`} className="card p-3 min-h-[150px]">
+            <DropZone key={b.key} id={b.key} label={`${b.label} · ${inB.length} élève(s)`} className="card p-3 min-h-[150px]">
               <div className="flex items-center justify-between mb-2"><span className="text-sm font-bold flex items-center gap-1.5" style={{color:b.color}}><Ic n={b.icon} size={15}/><span>{b.label}</span></span>
                 <span className="text-xs font-bold w-6 h-6 grid place-items-center rounded-full text-white" style={{background:b.color}}>{inB.length}</span></div>
               <div className="flex flex-wrap gap-2">{inB.map(s=><StudentChip key={s.id} student={s} bucketLabel={b.label}/>)}</div>
@@ -190,7 +190,7 @@ export default function Evaluate(){
     ) : (
       <div>
         <h2 className="text-xl font-bold mb-1">Badges & une note rapide</h2>
-        <p className="text-muted text-sm mb-4">Facultatif — touchez un élève, puis un badge.</p>
+        <p className="text-muted text-sm mb-4">Facultatif : touchez un élève, puis un badge.</p>
         <BadgePicker students={students} badges={badges} setBadges={setBadges}/>
         <Textarea value={note} onChange={e=>setNote(e.target.value)} placeholder="Note facultative pour les parents / l'administration…" className="mt-4 h-24"/>
         <div className="flex items-center justify-between mt-6"><Btn variant="ghost" onClick={()=>setStep(4)}><ChevronLeft size={16}/> Retour</Btn><Btn onClick={submit} disabled={saving}><Zap size={17}/> {saving?'Enregistrement…':'Enregistrer & partager'}</Btn></div>

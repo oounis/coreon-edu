@@ -121,7 +121,7 @@ export default function Live({ user }) {
 
   // ── vacances d'été : carte estivale à la place du parcours ──
   if (phase === 'vacances') return (
-    <Screen title="Suivi en direct" sub={`C'est les vacances d'été — ${first} profite d'un repos bien mérité.`}>
+    <Screen title="Suivi en direct" sub={`C'est les vacances d'été · ${first} profite d'un repos bien mérité.`}>
       {picker}
       <Card>{kidHead}</Card>
       <Card style={{ marginTop: 14, backgroundColor: '#FFF7E8', borderColor: '#F59E0B33' }}>
@@ -132,7 +132,7 @@ export default function Live({ user }) {
           <Text style={{ fontWeight: '800', color: '#B45309', fontSize: 18 }}>Vacances d'été</Text>
           <Text style={{ color: C.muted, fontSize: 13, textAlign: 'center', marginTop: 6, lineHeight: 19 }}>
             L'école reprend le <Text style={{ fontWeight: '800', color: C.ink }}>{rentreeLabel()}</Text>.{'\n'}
-            Le suivi en direct redémarrera automatiquement à la rentrée — bel été à {first} !
+            Le suivi en direct redémarrera automatiquement à la rentrée · bel été à {first} !
           </Text>
         </View>
       </Card>
@@ -174,9 +174,9 @@ export default function Live({ user }) {
   const showCur = liveNow || replay || simulated
 
   const sub = phase === 'live' ? `Le parcours de ${first}, en ce moment.`
-    : phase === 'after' ? `La journée de ${first} est terminée — voici son récapitulatif.`
-    : phase === 'before' ? `L'école n'a pas encore ouvert — aperçu de la journée de ${first}.`
-    : `Pas d'école aujourd'hui — aperçu d'une journée type de ${first}.`
+    : phase === 'after' ? `La journée de ${first} est terminée : voici son récapitulatif.`
+    : phase === 'before' ? `L'école n'a pas encore ouvert · aperçu de la journée de ${first}.`
+    : `Pas d'école aujourd'hui · aperçu d'une journée type de ${first}.`
 
   return (
     <Screen title="Suivi en direct" sub={sub}>
@@ -250,7 +250,7 @@ export default function Live({ user }) {
                 : evToday.map(e => { const m = mentionFor(e.score); return (
                     <View key={e.id} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 4 }}>
                       <Text numberOfLines={1} style={{ flex: 1, color: C.ink, fontSize: 13, fontWeight: '600' }}>
-                        {e.subject}{e.lesson ? <Text style={{ color: C.muted, fontWeight: '400' }}> · {e.lesson}</Text> : null}
+                        {e.subject}{e.lesson ? <Text style={{ color: C.muted, fontWeight: '400' }}> {e.lesson}</Text> : null}
                       </Text>
                       <Text style={{ color: m.color, fontWeight: '800', fontSize: 13 }}>{e.score}/100</Text>
                     </View>) })}

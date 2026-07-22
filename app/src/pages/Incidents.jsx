@@ -46,7 +46,7 @@ export default function Incidents(){
           <Field label="Type"><Select value={f.type} onChange={e=>setF({...f,type:e.target.value})}>{TYPES.map(t=><option key={t}>{t}</option>)}</Select></Field>
           <Field label="Gravité"><Select value={f.severity} onChange={e=>setF({...f,severity:e.target.value})}>{['low','medium','high'].map(s=><option key={s} value={s}>{SEV_FR[s]}</option>)}</Select></Field>
         </div>
-        <Field label="Élève (facultatif)"><Select value={f.studentId} onChange={e=>setF({...f,studentId:e.target.value})}><option value="">— aucun —</option>{d.students.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</Select></Field>
+        <Field label="Élève (facultatif)"><Select value={f.studentId} onChange={e=>setF({...f,studentId:e.target.value})}><option value="">, aucun</option>{d.students.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</Select></Field>
         <Field label="Titre"><Input value={f.title} onChange={e=>setF({...f,title:e.target.value})} placeholder="ex. Bagarre dans la cour / Élève malade"/></Field>
         <Field label="Détails"><Input value={f.body} onChange={e=>setF({...f,body:e.target.value})} placeholder="Ce qui s'est passé + mesure prise"/></Field>
       </div>

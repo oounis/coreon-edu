@@ -29,20 +29,20 @@ export default function Teachers({ user, params, nav }) {
     const cls = (t.classes || []).map(id => classById(id)?.name).filter(Boolean)
     const rows = [
       ['Matière', t.subject],
-      ['Classes', cls.length ? cls.join(', ') : '—'],
+      ['Classes', cls.length ? cls.join(', ') : '·'],
       ['Diplôme', t.qualification],
-      ['Expérience', t.experience != null ? `${t.experience} ans` : '—'],
+      ['Expérience', t.experience != null ? `${t.experience} ans` : '·'],
       ["Date d'embauche", t.joiningDate],
       ['Téléphone', t.phone],
       ['E-mail', t.email],
-      ['Salaire', t.salary ? `${t.salary} DT` : '—'],
+      ['Salaire', t.salary ? `${t.salary} DT` : '·'],
     ]
     return (
       <Card style={{ marginTop: 2, marginBottom: 10, borderWidth: 1, borderColor: accent + '33' }}>
         {rows.map(([k, v]) => (
           <View key={k} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: C.line }}>
             <Text style={{ color: C.muted, fontSize: 13 }}>{k}</Text>
-            <Text style={{ color: C.ink, fontSize: 13, fontWeight: '600', flexShrink: 1, textAlign: 'right', marginLeft: 12 }}>{v || '—'}</Text>
+            <Text style={{ color: C.ink, fontSize: 13, fontWeight: '600', flexShrink: 1, textAlign: 'right', marginLeft: 12 }}>{v || '·'}</Text>
           </View>
         ))}
       </Card>

@@ -46,7 +46,7 @@ function RankRow({ x, i, accent, onPress }) {
         <Text numberOfLines={1} style={{ fontWeight: '700', color: C.ink, fontSize: 14 }}>{x.s.name}</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 1 }}>
           <Text numberOfLines={1} style={{ color: C.muted, fontSize: 12 }}>
-            {classById(x.s.classId)?.name || '—'} · {x.count} évaluation{x.count > 1 ? 's' : ''}
+            {classById(x.s.classId)?.name || '·'} · {x.count} évaluation{x.count > 1 ? 's' : ''}
           </Text>
           <Trend t={x.trend} />
         </View>
@@ -116,7 +116,7 @@ export default function Results({ user, params, nav }) {
         <>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
             <Tile icon="ClipboardCheck" color={accent} label="Évaluations" value={String(evals.length)} />
-            <Tile icon="Gauge" color="#2BD9A8" label="Moyenne générale" value={overall != null ? `${overall}/100` : '—'} />
+            <Tile icon="Gauge" color="#2BD9A8" label="Moyenne générale" value={overall != null ? `${overall}/100` : '·'} />
             <Tile icon="Users" color="#22D3EE" label="Élèves évalués" value={String(ranked.length)} />
             <Tile icon="LifeBuoy" color="#FF6B81" label="En difficulté" sub="moy. < 40" value={String(struggling)} />
           </View>
@@ -130,7 +130,7 @@ export default function Results({ user, params, nav }) {
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text style={{ fontWeight: '800', color: C.ink, fontSize: 14 }}>Meilleure progression</Text>
                   <Text numberOfLines={1} style={{ color: C.muted, fontSize: 12, marginTop: 1 }}>
-                    {best.s.name} · {classById(best.s.classId)?.name || '—'}
+                    {best.s.name} · {classById(best.s.classId)?.name || '·'}
                   </Text>
                 </View>
                 <Text style={{ fontWeight: '800', fontSize: 16, color: T_OK }}>+{best.trend} pts</Text>
@@ -160,7 +160,7 @@ export default function Results({ user, params, nav }) {
                 {classAvgs.map(({ c, n, avg }) => (
                   <Pressable key={c.id} onPress={() => { tap(); setClassId(c.id) }} style={{ marginBottom: 10 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <Text style={{ color: C.ink, fontSize: 13, fontWeight: '700' }}>{c.name} <Text style={{ color: C.muted, fontWeight: '400', fontSize: 12 }}>· {n} élèves</Text></Text>
+                      <Text style={{ color: C.ink, fontSize: 13, fontWeight: '700' }}>{c.name} <Text style={{ color: C.muted, fontWeight: '400', fontSize: 12 }}> {n} élèves</Text></Text>
                       <Text style={{ color: accent, fontSize: 13, fontWeight: '800' }}>{avg}/100</Text>
                     </View>
                     <Bar pct={avg} color={accent} />

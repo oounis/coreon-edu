@@ -24,7 +24,7 @@ const Box = ({ label, value, color = C.ink }) => (
 const LessonLine = ({ l, color }) => (
   <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: color + '10', borderRadius: 12, paddingVertical: 8, paddingHorizontal: 11, marginBottom: 6 }}>
     <Text numberOfLines={1} style={{ flex: 1, color: C.ink, fontSize: 13, fontWeight: '600' }}>
-      {l.lesson} <Text style={{ color: C.muted, fontSize: 11, fontWeight: '400' }}>· {l.subject}</Text>
+      {l.lesson} <Text style={{ color: C.muted, fontSize: 11, fontWeight: '400' }}> {l.subject}</Text>
     </Text>
     <Text style={{ color, fontWeight: '800', fontSize: 13 }}>{l.avg}/100</Text>
   </View>
@@ -66,7 +66,7 @@ export default function Bulletin({ user, params }) {
           <View style={{ flex: 1 }}>
             <Text style={{ fontWeight: '800', color: C.ink, fontSize: 17 }}>{child.name}</Text>
             <Text style={{ color: C.muted, fontSize: 12, marginTop: 1 }}>
-              {cls?.name || 'Classe —'}{cls?.cycle ? ` · ${cls.cycle}` : ''}
+              {cls?.name || 'Classe'}{cls?.cycle ? ` · ${cls.cycle}` : ''}
             </Text>
           </View>
           <View style={{ backgroundColor: b.mention.color + '1A', borderRadius: 999, paddingVertical: 4, paddingHorizontal: 11 }}>
@@ -76,9 +76,9 @@ export default function Bulletin({ user, params }) {
 
         {/* ── synthèse ── */}
         <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
-          <Box label="Moyenne générale" value={b.overall != null ? `${b.overall}/100` : '—'} color={b.mention.color} />
+          <Box label="Moyenne générale" value={b.overall != null ? `${b.overall}/100` : '·'} color={b.mention.color} />
           <Box label="Mention" value={b.mention.label} color={b.mention.color} />
-          <Box label="Présence" value={b.attRate != null ? `${b.attRate}%` : '—'} />
+          <Box label="Présence" value={b.attRate != null ? `${b.attRate}%` : '·'} />
         </View>
       </Card>
 
@@ -104,15 +104,15 @@ export default function Bulletin({ user, params }) {
         <Section title={`Où en est ${first} ?`}>
           <Card>
             <Text style={{ color: C.muted, fontSize: 12, marginBottom: 10 }}>
-              Par leçon, d'après les évaluations des enseignants — pour l'aider là où ça compte.
+              Par leçon, d'après les évaluations des enseignants : pour l'aider là où ça compte.
             </Text>
             <Text style={{ color: OK, fontWeight: '800', fontSize: 11, letterSpacing: 0.5, marginBottom: 6 }}>POINTS FORTS</Text>
             {sw.strong.length === 0
-              ? <Text style={{ color: C.muted, fontSize: 12, marginBottom: 8 }}>Encore un peu tôt — les points forts apparaîtront ici.</Text>
+              ? <Text style={{ color: C.muted, fontSize: 12, marginBottom: 8 }}>Encore un peu tôt : les points forts apparaîtront ici.</Text>
               : sw.strong.map(l => <LessonLine key={l.subject + l.lesson} l={l} color={OK} />)}
             <Text style={{ color: WARN, fontWeight: '800', fontSize: 11, letterSpacing: 0.5, marginTop: 8, marginBottom: 6 }}>À RENFORCER</Text>
             {sw.weak.length === 0
-              ? <Text style={{ color: C.muted, fontSize: 12 }}>Rien à signaler — tout est au vert !</Text>
+              ? <Text style={{ color: C.muted, fontSize: 12 }}>Rien à signaler · tout est au vert !</Text>
               : sw.weak.map(l => <LessonLine key={l.subject + l.lesson} l={l} color={WARN} />)}
           </Card>
         </Section>
@@ -178,7 +178,7 @@ export default function Bulletin({ user, params }) {
       </Section>
 
       <Text style={{ color: C.muted, fontSize: 11, textAlign: 'center', marginTop: 18 }}>
-        Document généré par Coreon Edu — bulletin indicatif, sans valeur officielle dans cette démo.
+        Document généré par Coreon Edu : bulletin indicatif, sans valeur officielle dans cette démo.
       </Text>
     </Screen>
   )
