@@ -341,8 +341,14 @@ function Intelligence({ items }){
   if(!items.length) return null
   const TONE={ok:STATUS.ok,warn:STATUS.warn,info:STATUS.info,danger:STATUS.danger}
   return (<div className="mb-6">
-    <div className="flex items-baseline gap-2 mb-3">
-      <h2 className="text-lg font-extrabold flex items-center gap-1.5"><Ic n="Sparkles" size={18} className="accent-text"/> Coreon Intelligence</h2>
+    {/* L'icône est INLINE, pas un élément flex : la ligne de base d'un conteneur
+        flex est celle de son premier élément, et un SVG n'en a pas — le titre
+        retombait alors sur le BAS de l'icône et décrochait du sous-titre.
+        En inline, la ligne de base du h2 redevient celle de son texte. */}
+    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 mb-3">
+      <h2 className="text-lg font-extrabold">
+        <Ic n="Sparkles" size={18} className="accent-text inline-block align-[-3px] me-1.5"/>Coreon Intelligence
+      </h2>
       <span className="text-xs text-muted">{t('ce que vos données disent cette semaine')}</span>
     </div>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

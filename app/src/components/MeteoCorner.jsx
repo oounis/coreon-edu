@@ -21,14 +21,18 @@ export default function MeteoCorner(){
       .catch(()=>{ if(alive) setTimeout(load,120000) })   // hors-ligne → on réessaie dans 2 min
     load(); const t=setInterval(load,600000)
     return ()=>{alive=false;clearInterval(t)} },[city,cacheKey])
-  if(!w) return <div className="hidden md:flex items-center gap-2 text-xs text-muted px-3 py-2 rounded-2xl bg-canvas animate-pulse">{t('Météo…')}</div>
+  if(!w) return <div className="hidden md:flex items-center gap-1.5 text-[11px] text-muted px-2.5 py-1 rounded-xl bg-canvas animate-pulse">{t('Météo…')}</div>
   const [c1,c2]=GRAD[w.mode]||GRAD.cloudy; const ink=w.mode==='clear'?INK.clear:INK.default
   return (
     <Menu as="div" className="relative hidden md:block">
-      <Menu.Button className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-2xl hover:shadow transition" style={{background:`linear-gradient(135deg,${c1},${c2})`}} title={`${t('Météo')} · ${settings().city}`}>
-        <WeatherIcon mode={w.mode} size={30}/>
-        <div className="leading-none text-left" style={{color:ink}}><div className="text-sm font-extrabold">{w.temp}°</div><div className="text-[11px] font-semibold opacity-80">{t(w.label)}</div></div>
-        <ChevronDown size={13} style={{color:ink}}/>
+      {/* Chip DISCRET : la météo est un agrément, pas un outil de travail — elle ne
+          doit pas rivaliser avec le nom de l'école ni avec la cloche. Une seule
+          ligne (icône + température) ; le libellé et le détail vivent dans le
+          panneau qui s'ouvre. */}
+      <Menu.Button className="flex items-center gap-1 ps-1.5 pe-2 py-1 rounded-xl hover:shadow transition" style={{background:`linear-gradient(135deg,${c1},${c2})`}} title={`${t('Météo')} · ${t(w.label)} · ${settings().city}`}>
+        <WeatherIcon mode={w.mode} size={20}/>
+        <span className="text-[13px] font-extrabold leading-none" style={{color:ink}}>{w.temp}°</span>
+        <ChevronDown size={11} style={{color:ink}}/>
       </Menu.Button>
       <Menu.Items className="absolute right-0 mt-2 w-64 card p-0 shadow-2xl z-50 overflow-hidden focus:outline-none">
         <div className="p-5 text-center" style={{background:`linear-gradient(160deg,${c1},${c2})`}}>

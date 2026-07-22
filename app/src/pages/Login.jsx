@@ -98,7 +98,10 @@ export default function Login() {
       </div>
 
       {/* ── FORMULAIRE ── */}
-      <div className="relative flex items-center justify-center p-6 sm:p-10">
+      {/* overflow-hidden : le halo décoratif fait 440px de large et débordait de
+          25px sur téléphone (390px), créant une barre de défilement horizontale.
+          Il est décoratif — on le coupe, on ne rétrécit pas la page. */}
+      <div className="relative flex items-center justify-center p-6 sm:p-10 overflow-hidden">
         <div className="absolute pointer-events-none" style={{ width: 440, height: 440, borderRadius: '50%', background: BRAND.mark, filter: 'blur(100px)', opacity: .1 }} />
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5, ease: [.2, .8, .2, 1] }} className="relative w-full max-w-sm">
           <div className="lg:hidden flex items-center gap-2 mb-8">

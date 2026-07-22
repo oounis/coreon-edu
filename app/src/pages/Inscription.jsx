@@ -194,7 +194,7 @@ function Screen({ children }) {
   return (
     <div className="min-h-screen bg-canvas">
       <header className="border-b border-line bg-white">
-        <div className="max-w-2xl mx-auto px-6 py-4 flex items-center gap-2.5">
+        <div className="max-w-4xl mx-auto px-6 sm:px-8 py-4 flex items-center gap-2.5">
           <Link to="/" className="flex items-center gap-2.5">
             <span className="w-9 h-9 rounded-xl grid place-items-center accent-bg text-white">
               <Mark size={22} />
@@ -206,7 +206,7 @@ function Screen({ children }) {
           <span className="ms-auto flex items-center gap-3"><span className="text-sm text-muted">{settings()?.schoolName}</span><LangSwitch/></span>
         </div>
       </header>
-      <main className="max-w-2xl mx-auto px-6 py-10">{children}</main>
+      <main className="max-w-4xl mx-auto px-6 sm:px-8 py-10">{children}</main>
       <footer className="text-center text-xs text-muted pb-8">{t('par Kogia Group')}</footer>
     </div>
   )

@@ -19,7 +19,7 @@
 //  - Elle ne promet plus l'arabe au présent : il est EN PRÉPARATION, et on
 //    l'écrit comme ça.
 // ════════════════════════════════════════════════════════════════════════════
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Mark, STATUS } from '../components/ui.jsx'
@@ -78,20 +78,75 @@ const FAQ = [
   [t('Combien de temps pour démarrer ?'),t('Une journée : on importe vos classes et vos élèves, on crée les comptes, et l’école tourne le lendemain.')],
 ]
 
+// ── ANCRES ─────────────────────────────────────────────────────────────────
+// L'application tourne sur HashRouter : le hash EST la route. Un <a href="#modules">
+// classique posait donc la route « /modules », que le routeur ne connaît pas —
+// la route * renvoyait aussitôt vers « / » et annulait le hash AVANT que le
+// navigateur ait pu défiler. Résultat : les cinq entrées du menu ne faisaient
+// STRICTEMENT RIEN. On défile donc nous-mêmes, sans jamais toucher au hash.
+const SECTIONS = [
+  ['deux-mondes', 'Deux mondes'],
+  ['modules', 'Modules'],
+  ['donnees', 'Vos données'],
+  ['tarifs', 'Tarifs'],
+  ['faq', 'FAQ'],
+]
+const HEADER_H = 64   // hauteur de l'en-tête collant (h-16) — sinon le titre passe dessous
+
+function scrollToSection(id){
+  const el = document.getElementById(id)
+  if(!el) return
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const y = el.getBoundingClientRect().top + window.scrollY - HEADER_H
+  window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' })
+}
+
+/** Quelle section occupe l'écran ? Donne l'état actif que le menu n'avait pas. */
+function useActiveSection(){
+  const [active, setActive] = useState('')
+  useEffect(() => {
+    const ids = ['top', ...SECTIONS.map(s => s[0])]
+    const els = ids.map(id => document.getElementById(id)).filter(Boolean)
+    if(!els.length) return
+    const io = new IntersectionObserver(entries => {
+      const visible = entries.filter(e => e.isIntersecting)
+        .sort((a,b) => b.intersectionRatio - a.intersectionRatio)[0]
+      if(visible) setActive(visible.target.id)
+    }, { rootMargin: `-${HEADER_H + 8}px 0px -55% 0px`, threshold: [0, .25, .5, 1] })
+    els.forEach(el => io.observe(el))
+    return () => io.disconnect()
+  }, [])
+  return active
+}
+
+/** Une entrée de menu : défile vraiment, et se marque quand on y est.
+    Un <button> et non un <a> : la cible n'est pas une URL — sous HashRouter,
+    prétendre le contraire est justement ce qui cassait la navigation. */
+function SectionLink({ id, children, active, className='' }){
+  const on = active === id
+  return (
+    <button type="button" onClick={() => scrollToSection(id)}
+      aria-current={on ? 'true' : undefined}
+      className={`${className} transition-colors ${on ? 'font-semibold' : 'hover:text-ink'}`}
+      style={on ? { color: A } : undefined}>
+      {children}
+    </button>
+  )
+}
+
 export default function Landing(){
   const nav=useNavigate(); const [faq,setFaq]=useState(0)
+  const active=useActiveSection()
   return (
     <div className="bg-white text-ink">
       {/* NAV */}
       <header className="sticky top-0 z-40 backdrop-blur bg-white/85 border-b border-line">
         <div className="mx-auto max-w-[1120px] px-5 h-16 flex items-center justify-between">
-          <a href="#top" className="flex items-center gap-2"><Mark size={30}/><span className="font-extrabold lowercase tracking-tight">coreon <span className="text-sm font-normal" style={{color:A}}>edu</span></span></a>
+          <button type="button" onClick={()=>scrollToSection('top')} className="flex items-center gap-2"><Mark size={30}/><span className="font-extrabold lowercase tracking-tight">coreon <span className="text-sm font-normal" style={{color:A}}>edu</span></span></button>
           <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-muted">
-            <a href="#deux-mondes" className="hover:text-ink">{t('Deux mondes')}</a>
-            <a href="#modules" className="hover:text-ink">{t('Modules')}</a>
-            <a href="#donnees" className="hover:text-ink">{t('Vos données')}</a>
-            <a href="#tarifs" className="hover:text-ink">{t('Tarifs')}</a>
-            <a href="#faq" className="hover:text-ink">{t('FAQ')}</a>
+            {SECTIONS.map(([id,label])=>(
+              <SectionLink key={id} id={id} active={active}>{t(label)}</SectionLink>
+            ))}
           </nav>
           <div className="flex items-center gap-2">
             <button onClick={()=>nav('/inscription')} className={`${BTN_MD} text-muted hover:text-ink hover:bg-canvas`}>{t('Pré-inscription')}</button>
@@ -111,7 +166,7 @@ export default function Landing(){
             <p className="text-lg text-muted mt-5 max-w-[52ch]">{t('Les logiciels scolaires ignorent la petite enfance ; les applications de crèche ignorent l’école. Un parent d’un enfant de 3 ans et d’un enfant de 8 ans jongle avec deux applications.')} <b className="text-ink">{t('Coreon EDU fait les deux — avec un seul compte parent.')}</b></p>
             <div className="flex flex-wrap gap-3 mt-7">
               <button onClick={()=>nav('/login')} className={`${BTN_LG} text-white shadow-sm hover:opacity-90`} style={{background:A}}>{t('Essayer la démo')} <ArrowRight size={18}/></button>
-              <a href="#deux-mondes" className={`${BTN_LG} bg-white border border-line hover:bg-canvas`}>{t('Comment c’est possible')}</a>
+              <button type="button" onClick={()=>scrollToSection('deux-mondes')} className={`${BTN_LG} bg-white border border-line hover:bg-canvas`}>{t('Comment c’est possible')}</button>
             </div>
             <div className="flex items-center gap-5 mt-7 text-sm text-muted flex-wrap">
               <span className="flex items-center gap-1.5"><Check size={16} style={{color:STATUS.ok}}/> {t('Sans installation')}</span>
@@ -347,9 +402,9 @@ export default function Landing(){
         <div className="mx-auto max-w-[1120px] px-5 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted">
           <div className="flex items-center gap-2"><Mark size={26}/><span className="font-extrabold lowercase text-ink">coreon <span className="font-normal" style={{color:A}}>edu</span></span></div>
           <div className="flex items-center gap-5">
-            <a href="#modules" className="hover:text-ink">Modules</a>
-            <a href="#donnees" className="hover:text-ink">Vos données</a>
-            <a href="#tarifs" className="hover:text-ink">Tarifs</a>
+            <button type="button" onClick={()=>scrollToSection('modules')} className="hover:text-ink">{t('Modules')}</button>
+            <button type="button" onClick={()=>scrollToSection('donnees')} className="hover:text-ink">{t('Vos données')}</button>
+            <button type="button" onClick={()=>scrollToSection('tarifs')} className="hover:text-ink">{t('Tarifs')}</button>
             <a href="https://kogiagroup.com" className="hover:text-ink">Kogia Group</a>
           </div>
           <div>© 2026 Kogia Group</div>
