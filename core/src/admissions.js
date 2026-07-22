@@ -91,11 +91,17 @@ const missingDocs = a => docsFor(a.level).filter(d => d.required && !hasDoc(a, d
  * une ERREUR — pas un faux reçu.
  * Retourne { app, filesDropped } ou { error }.
  */
-export function apply({ childName, dob, level, parentName, parentPhone, parentEmail, note = '', files = [] }) {
+export function apply(payload) {
+  const { childName, dob, level, parentName, parentPhone, parentEmail, note = '', files = [], ...rest } = payload || {}
   const a = {
     id: 'a' + Date.now().toString(36),
     childName, dob, level,
     parentName, parentPhone, parentEmail, note,
+    // Le dossier détaillé (famille, santé, rythme, parcours, engagements)
+    // voyage avec la candidature — c'est justement ce qui évite à l'école de
+    // rappeler la famille pour décider (CR-008/009/010). Tout est facultatif :
+    // une candidature minimale reste valable, comme avant.
+    ...rest,
     stage: 'nouvelle',
     // LES PIÈCES SONT DES FICHIERS, pas des cases à cocher. Une pièce « fournie »
     // sans fichier derrière était un mensonge d'interface : l'administration

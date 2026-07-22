@@ -851,3 +851,89 @@ test('notify email:true → part aussi par email, au bon destinataire', async ()
 
   setMailTransport(null) // ne pas polluer les autres tests
 })
+
+// ── Pré-inscription par catégorie (CR-008 / CR-009 / CR-010) ─────────────────
+test('pré-inscription : chaque niveau tombe dans la bonne catégorie', async () => {
+  const { categoryOf } = await import('../src/enrolment.js')
+  assert.equal(categoryOf('nursery'), 'creche')
+  for (const k of ['prekg', 'kg1', 'kg2']) assert.equal(categoryOf(k), 'maternelle')
+  for (const k of ['g1', 'g3', 'g6']) assert.equal(categoryOf(k), 'primaire')
+  // un niveau inconnu ne casse pas la porte d'entrée
+  assert.ok(['maternelle', 'primaire'].includes(categoryOf('inexistant')))
+})
+
+test('pré-inscription : on ne pose QUE les questions de la catégorie', async () => {
+  const { stepsFor } = await import('../src/enrolment.js')
+  const noms = c => stepsFor(c).flatMap(s => s.fields.map(f => f.name))
+  const creche = noms('creche'), primaire = noms('primaire'), maternelle = noms('maternelle')
+
+  // le bébé : pas d'école précédente ; le CM2 : pas de sieste ni de couches
+  assert.ok(!creche.includes('prevSchool'), 'on ne demande pas son ancienne école à un bébé')
+  assert.ok(!primaire.includes('napHabits'), 'on ne demande pas la sieste en 6ème année')
+  assert.ok(!primaire.includes('diaper'), 'ni la propreté')
+  assert.ok(creche.includes('napHabits') && creche.includes('diaper'), 'mais on la demande en crèche')
+  assert.ok(primaire.includes('prevSchool') && primaire.includes('siblings'))
+  // le rythme concerne la petite enfance, pas le primaire
+  assert.ok(maternelle.includes('rythme') && !primaire.includes('rythme'))
+  // le socle est demandé à tout le monde
+  for (const c of ['creche', 'maternelle', 'primaire'])
+    for (const req of ['childFirstName', 'dob', 'level', 'emergencyPhone', 'parentName', 'terms'])
+      assert.ok(noms(c).includes(req), `${req} manque en ${c}`)
+})
+
+test('pré-inscription : les champs obligatoires bloquent, les pièces jamais', async () => {
+  const { stepsFor, validateStep, validateAll } = await import('../src/enrolment.js')
+  const vide = {}
+  const e = validateAll('primaire', vide)
+  assert.ok(e.childFirstName && e.dob && e.level && e.parentName && e.emergencyPhone, 'le socle est exigé')
+  // les pièces ne bloquent JAMAIS : une page qui exige un scan à 22h ne reçoit rien
+  const pieces = stepsFor('primaire').find(s => s.key === 'pieces')
+  assert.deepEqual(validateStep(pieces, {}), {}, 'aucune pièce n’est bloquante')
+})
+
+test('pré-inscription : le détail de santé n’est exigé QUE si on a répondu oui', async () => {
+  const { stepsFor, validateStep } = await import('../src/enrolment.js')
+  const sante = stepsFor('creche').find(s => s.key === 'sante')
+  const base = { emergencyName: 'Leïla', emergencyPhone: '+216 20 111 222' }
+  assert.ok(!validateStep(sante, { ...base, hasCondition: 'Non' }).conditionDetail, 'non → rien à décrire')
+  assert.ok(validateStep(sante, { ...base, hasCondition: 'Oui' }).conditionDetail, 'oui → il faut décrire')
+  assert.ok(!validateStep(sante, { ...base, hasCondition: 'Oui', conditionDetail: 'Arachide' }).conditionDetail)
+})
+
+test('pré-inscription : la famille exige UN moyen de contact, pas un parent précis', async () => {
+  const { stepsFor, validateStep } = await import('../src/enrolment.js')
+  const fam = stepsFor('primaire').find(s => s.key === 'famille')
+  assert.ok(validateStep(fam, {})._step, 'aucun contact : refus')
+  assert.ok(!validateStep(fam, { motherPhone: '+216 20 000 000' })._step, 'la mère suffit')
+  assert.ok(!validateStep(fam, { fatherEmail: 'p@ere.tn' })._step, 'le père seul suffit aussi')
+  // un téléphone incohérent est refusé
+  assert.ok(validateStep(fam, { motherPhone: 'abc' }).motherPhone)
+})
+
+test('pré-inscription : les conditions doivent TOUTES être acceptées', async () => {
+  const { stepsFor, validateStep, TERMS } = await import('../src/enrolment.js')
+  const eng = stepsFor('primaire').find(s => s.key === 'engagement')
+  const base = { parentName: 'Karim', parentPhone: '+216 20 000 000' }
+  assert.ok(validateStep(eng, base).terms, 'rien coché : refus')
+  const presque = Object.fromEntries(TERMS.slice(0, -1).map(t => [t.key, true]))
+  assert.ok(validateStep(eng, { ...base, terms: presque }).terms, 'une seule manquante : refus')
+  const toutes = Object.fromEntries(TERMS.map(t => [t.key, true]))
+  assert.ok(!validateStep(eng, { ...base, terms: toutes }).terms, 'toutes cochées : ça passe')
+  assert.ok(TERMS.length >= 5, 'les engagements couvrent frais, préavis, santé, changements, données')
+})
+
+test('pré-inscription : la date de naissance ne peut pas être dans le futur', async () => {
+  const { stepsFor, validateStep } = await import('../src/enrolment.js')
+  const enfant = stepsFor('primaire').find(s => s.key === 'enfant')
+  const demain = new Date(Date.now() + 86400000).toISOString().slice(0, 10)
+  assert.ok(validateStep(enfant, { childFirstName: 'A', childLastName: 'B', level: 'g1', dob: demain }).dob)
+})
+
+test('pré-inscription : le dossier envoyé garde le nom complet et les conditions datées', async () => {
+  const { toApplication, TERMS } = await import('../src/enrolment.js')
+  const a = toApplication({ childFirstName: 'Amira', childLastName: 'Ben Salah',
+    terms: Object.fromEntries(TERMS.map(t => [t.key, true])) })
+  assert.equal(a.childName, 'Amira Ben Salah', 'le nom complet est reconstruit pour l’école')
+  assert.equal(a.acceptedTerms.length, TERMS.length, 'les conditions acceptées sont conservées')
+  assert.ok(a.acceptedAt, 'avec leur date — un engagement sans date ne vaut rien')
+})
