@@ -1089,45 +1089,101 @@ test('fiche technique : l’école de démo expose sa révision, une cliente non
   assert.ok(/provisionner/.test(client.diagnostic.find(l => l.label === 'Mode').value), 'une cliente réelle : serveur à provisionner')
 })
 
-// ── Numérotation structurée (CR-017) ─────────────────────────────────────────
-test('références : format PRÉFIXE-ANNÉE-SÉQUENCE-CLÉ, sans trou, par type et par an', async () => {
-  const { nextRef, isValidRef, PREFIX } = await import('../src/refs.js')
+// ── Identification d'entreprise : référence ERP (CR-017/018) ────────────────
+const CTX = { country: 'TN', tenant: 'T001', school: 'SCH001', year: '2026' }
+
+test('référence ERP : format complet PRÉFIXE-PAYS-TENANT-ÉCOLE-ANNÉE-SÉQ8-CLÉ', async () => {
+  const { nextRef, isValidRef, parseRef } = await import('../src/refs.js')
   let refs = []
-  const r1 = nextRef('student', refs, '2026'); refs.push(r1)
-  const r2 = nextRef('student', refs, '2026'); refs.push(r2)
-  assert.match(r1, /^ELV-2026-0001-\d$/, 'première référence élève')
-  assert.match(r2, /^ELV-2026-0002-\d$/, 'la suivante incrémente sans trou')
-  // une autre entité a sa PROPRE série, indépendante
-  const f1 = nextRef('invoice', refs, '2026')
-  assert.match(f1, /^FAC-2026-0001-\d$/, 'la facture a sa propre série, repart à 1')
-  // l'année suivante repart à 1
-  const y1 = nextRef('student', refs, '2027')
-  assert.match(y1, /^ELV-2027-0001-\d$/, 'nouvelle année, nouvelle série')
-  assert.ok(isValidRef(r1) && isValidRef(f1) && isValidRef(y1))
+  const r1 = nextRef('student', refs, CTX); refs.push(r1)
+  const r2 = nextRef('student', refs, CTX); refs.push(r2)
+  assert.match(r1, /^STD-TN-T001-SCH001-2026-00000001-\d$/, 'première référence élève, séquence sur 8 chiffres')
+  assert.match(r2, /^STD-TN-T001-SCH001-2026-00000002-\d$/, 'la suivante incrémente sans trou')
+  const p = parseRef(r1)
+  assert.equal(p.prefix, 'STD'); assert.equal(p.country, 'TN'); assert.equal(p.tenant, 'T001')
+  assert.equal(p.school, 'SCH001'); assert.equal(p.seq, 1)
+  assert.ok(isValidRef(r1) && isValidRef(r2))
 })
 
-test('références : la clé de contrôle attrape une référence mal recopiée', async () => {
-  const { nextRef, isValidRef } = await import('../src/refs.js')
-  const ref = nextRef('invoice', [], '2026')         // ex. FAC-2026-0001-K
-  assert.ok(isValidRef(ref), 'la vraie référence est valide')
-  // on change un chiffre de la séquence : la clé ne colle plus
-  const broken = ref.replace('0001', '0002')
-  assert.ok(!isValidRef(broken), 'une séquence trafiquée est détectée')
-  // confondre deux séries (même numéro, mauvais préfixe) est détecté par la clé
-  const wrongPrefix = ref.replace('FAC', 'ELV')
-  assert.ok(!isValidRef(wrongPrefix), 'citer la mauvaise série se voit')
-})
-
-test('références : ne recule jamais, même si la liste est en désordre', async () => {
+test('référence ERP : chaque type a sa série, chaque école/année la sienne', async () => {
   const { nextRef } = await import('../src/refs.js')
-  const existing = ['ELV-2026-0003-0', 'ELV-2026-0001-0', 'ELV-2026-0002-0']
-  const next = nextRef('student', existing, '2026')
-  assert.match(next, /^ELV-2026-0004-\d$/, 'la séquence suit le PLUS HAUT, pas le compte')
+  const inv = nextRef('invoice', [], CTX)
+  assert.match(inv, /^INV-TN-T001-SCH001-2026-00000001-\d$/, 'la facture a sa propre série')
+  const otherSchool = nextRef('student', ['STD-TN-T001-SCH001-2026-00000005-0'], { ...CTX, school: 'SCH002' })
+  assert.match(otherSchool, /^STD-TN-T001-SCH002-2026-00000001-\d$/, 'une autre école repart à 1')
+  const nextYear = nextRef('student', ['STD-TN-T001-SCH001-2026-00000009-0'], { ...CTX, year: '2027' })
+  assert.match(nextYear, /^STD-TN-T001-SCH001-2027-00000001-\d$/, 'une nouvelle année repart à 1')
 })
 
-test('références : le type se retrouve depuis le préfixe', async () => {
-  const { nextRef, typeOfRef } = await import('../src/refs.js')
-  assert.equal(typeOfRef(nextRef('accident', [], '2026')), 'accident')
-  assert.equal(typeOfRef(nextRef('booking', [], '2026')), 'booking')
-  assert.equal(typeOfRef('XXX-2026-0001-0'), null, 'un préfixe inconnu ne ment pas')
+test('référence ERP : la clé de contrôle attrape toute altération', async () => {
+  const { nextRef, isValidRef } = await import('../src/refs.js')
+  const ref = nextRef('invoice', [], CTX)
+  assert.ok(isValidRef(ref))
+  assert.ok(!isValidRef(ref.replace('00000001', '00000002')), 'une séquence trafiquée est détectée')
+  assert.ok(!isValidRef(ref.replace('SCH001', 'SCH002')), 'une mauvaise école est détectée')
+  assert.ok(!isValidRef(ref.replace('INV', 'STD')), 'un mauvais type est détecté')
+  assert.ok(!isValidRef(ref.replace('TN', 'FR')), 'un mauvais pays est détecté')
+})
+
+test('référence ERP : la séquence suit le plus haut, jamais recul', async () => {
+  const { nextRef } = await import('../src/refs.js')
+  const existing = ['STD-TN-T001-SCH001-2026-00000003-0','STD-TN-T001-SCH001-2026-00000001-0','STD-TN-T001-SCH001-2026-00000002-0']
+  assert.match(nextRef('student', existing, CTX), /^STD-TN-T001-SCH001-2026-00000004-\d$/)
+})
+
+test('référence ERP : le contexte (pays/tenant/école) NE vient jamais du client', async () => {
+  const { resetDb, db } = await import('../src/db.js')
+  const { refContext } = await import('../src/db.js')
+  resetDb(); const d = db()
+  const ctx = refContext(d)
+  assert.ok(ctx.country && ctx.tenant && ctx.school && /^\d{4}$/.test(ctx.year),
+    'le contexte est résolu depuis les paramètres école, pas fourni par un formulaire')
+})
+
+test('trois identifiants : ref lisible + uuid stable + clé technique interne', async () => {
+  const { uuid, typeOfRef } = await import('../src/refs.js')
+  const u1 = uuid(), u2 = uuid()
+  assert.match(u1, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/, 'uuid v4 bien formé')
+  assert.notEqual(u1, u2, 'deux uuid diffèrent')
+  assert.equal(typeOfRef('STD-TN-T001-SCH001-2026-00000001-0'), 'student')
+})
+
+test('référence ERP : la migration re-stampe la démo au format complet + uuid', async () => {
+  const { resetDb, db } = await import('../src/db.js')
+  resetDb(); const d = db()
+  const s = d.students[0], t = d.teachers[0]
+  assert.match(s.ref, /^STD-TN-T001-SCH001-\d{4}-\d{8}-\d$/, 'élève au format complet')
+  assert.match(t.ref, /^TCH-TN-T001-SCH001-\d{4}-\d{8}-\d$/, 'enseignant au format complet')
+  assert.ok(s.uuid && t.uuid, 'chaque entité a aussi un uuid')
+  const parent = d.users.find(u => u.role === 'parent')
+  assert.match(parent.ref, /^PAR-/, 'un parent est référencé PAR-…')
+  const refs = d.students.map(x => x.ref)
+  assert.equal(new Set(refs).size, refs.length, 'toutes les références élèves sont uniques')
+})
+
+// ── Type de pièce d'identité choisi (CR-018) ─────────────────────────────────
+test('identité : le type de pièce est proposé selon le pays et le profil', async () => {
+  const { setLocalePack, idTypesFor } = await import('../src/locales.js')
+  setLocalePack('TN')
+  const staffTN = idTypesFor('staff').map(t => t.key)
+  assert.ok(staffTN.includes('cin') && staffTN.includes('passport'), 'en Tunisie : CIN + passeport pour un adulte')
+  assert.ok(idTypesFor('student').some(t => t.key === 'acte'), 'un élève : acte de naissance')
+  setLocalePack('FR')
+  const staffFR = idTypesFor('staff').map(t => t.key)
+  assert.ok(staffFR.includes('cni') && !staffFR.includes('cin'), 'en France : CNI, pas la CIN tunisienne')
+  setLocalePack('INTL')
+  assert.ok(idTypesFor('staff').some(t => t.key === 'passport'), 'à l’international : le passeport, dénominateur commun')
+  setLocalePack('TN')
+})
+
+test('identité : un compte conserve le type de pièce choisi', async () => {
+  const { resetDb, db } = await import('../src/db.js')
+  const { createAccount } = await import('../src/accounts.js')
+  resetDb(); db()
+  const r = createAccount({ role: 'admin', name: 'Test Passeport', email: 'tp@alnour.tn', pw: 'x',
+    cin: 'AB1234567', idType: 'passport', governorate: 'Tunis', position: 'Secrétaire' })
+  assert.ok(r.user, 'compte créé')
+  const u = db().users.find(x => x.email === 'tp@alnour.tn')
+  assert.equal(u.idType, 'passport', 'le type de pièce est conservé')
+  assert.equal(u.cin, 'AB1234567', 'et le numéro aussi')
 })

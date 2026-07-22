@@ -38,14 +38,14 @@ export function createAccount(f) {
   mutate(db => {
     const user = {
       id, role: f.role, name: f.name.trim(), email: f.email.trim(), pw: f.pw || '1234',
-      cin: f.cin || '', gender: f.gender || 'Homme', governorate: f.governorate || '',
+      cin: f.cin || '', idType: f.idType || '', gender: f.gender || 'Homme', governorate: f.governorate || '',
       phone: f.phone || '', address: f.address || '', attachments: f.attachments || [],
     }
     if (f.role === 'parent') { user.occupation = f.occupation || ''; user.childIds = [] }
     else user.position = f.position || ''
     if (f.role === 'teacher') {
       const tid = uid('t')
-      db.teachers.push({ id: tid, name: user.name, subject: f.subject || '·', designation: f.position || '', classes: [], experience: 0, phone: f.phone || '', email: user.email, cin: f.cin || '', governorate: f.governorate || '', position: f.position || '', attachments: f.attachments || [] })
+      db.teachers.push({ id: tid, name: user.name, subject: f.subject || '·', designation: f.position || '', classes: [], experience: 0, phone: f.phone || '', email: user.email, cin: f.cin || '', idType: f.idType || '', governorate: f.governorate || '', position: f.position || '', attachments: f.attachments || [] })
       user.teacherId = tid
     }
     db.users.push(user)
@@ -66,7 +66,7 @@ export function updateAccount(id, patch) {
     return { error: 'Impossible : c\'est le dernier compte Direction actif. Nommez d\'abord une autre Direction.' }
   mutate(db => {
     const x = db.users.find(y => y.id === id)
-    for (const k of ['name', 'email', 'role', 'phone', 'address', 'position', 'occupation', 'cin', 'governorate', 'gender'])
+    for (const k of ['name', 'email', 'role', 'phone', 'address', 'position', 'occupation', 'cin', 'idType', 'governorate', 'gender'])
       if (patch[k] !== undefined) x[k] = typeof patch[k] === 'string' ? patch[k].trim() : patch[k]
     if (patch.subject !== undefined && x.teacherId) { const t = db.teachers.find(y => y.id === x.teacherId); if (t) t.subject = patch.subject }
     if (patch.childIds !== undefined && x.role === 'parent') setParentChildren(db, id, patch.childIds)

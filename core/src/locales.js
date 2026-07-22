@@ -29,10 +29,15 @@ const GENERIC_LEGAL = {
 export const PACKS = {
   // ── Tunisie : le référentiel existant, intact ─────────────────────────────
   TN: {
-    key: 'TN', label: 'Tunisie', currency: 'DT', locale: 'fr-TN', dialCode: '+216',
+    key: 'TN', label: 'Tunisie', iso: 'TN', currency: 'DT', locale: 'fr-TN', dialCode: '+216',
     regionLabel: 'Gouvernorat',
     regions: ['Ariana','Béja','Ben Arous','Bizerte','Gabès','Gafsa','Jendouba','Kairouan','Kasserine','Kébili','Le Kef','Mahdia','Manouba','Médenine','Monastir','Nabeul','Sfax','Sidi Bouzid','Siliana','Sousse','Tataouine','Tozeur','Tunis','Zaghouan'],
     idLabel: role => (role === 'student' ? "N° acte de naissance" : "CIN (8 chiffres)"),
+    // CR-018 : le type de pièce est CHOISI, pas figé. Un humain peut se présenter
+    // avec sa CIN, un passeport, une carte de séjour — chacun avec sa propre règle.
+    idTypes: role => role === 'student'
+      ? [{ key: 'acte', label: 'Acte de naissance' }, { key: 'passport', label: 'Passeport' }]
+      : [{ key: 'cin', label: 'CIN', pattern: /^\d{8}$/ }, { key: 'passport', label: 'Passeport' }, { key: 'sejour', label: 'Carte de séjour' }],
     validId: v => /^\d{8}$/.test(String(v || '').trim()),
     legal: {
       law: 'Loi organique n° 2004-63 du 27 juillet 2004',
@@ -43,10 +48,13 @@ export const PACKS = {
 
   // ── France : GDPR, euros, départements laissés en champ libre ─────────────
   FR: {
-    key: 'FR', label: 'France', currency: 'EUR', locale: 'fr-FR', dialCode: '+33',
+    key: 'FR', label: 'France', iso: 'FR', currency: 'EUR', locale: 'fr-FR', dialCode: '+33',
     regionLabel: 'Département',
     regions: [],
     idLabel: role => (role === 'student' ? "N° acte de naissance" : "N° de pièce d'identité"),
+    idTypes: role => role === 'student'
+      ? [{ key: 'acte', label: 'Acte de naissance' }, { key: 'passport', label: 'Passeport' }]
+      : [{ key: 'cni', label: "Carte nationale d'identité" }, { key: 'passport', label: 'Passeport' }, { key: 'sejour', label: 'Titre de séjour' }],
     validId: v => String(v || '').trim().length >= 4,
     legal: {
       law: 'Règlement général sur la protection des données (RGPD)',
@@ -57,10 +65,13 @@ export const PACKS = {
 
   // ── International : neutre, aucun présupposé de pays ───────────────────────
   INTL: {
-    key: 'INTL', label: 'International', currency: 'EUR', locale: 'fr', dialCode: '',
+    key: 'INTL', label: 'International', iso: 'XX', currency: 'EUR', locale: 'fr', dialCode: '',
     regionLabel: 'Région',
     regions: [],
     idLabel: role => (role === 'student' ? "N° d'identité / acte de naissance" : "N° de pièce d'identité / passeport"),
+    idTypes: role => role === 'student'
+      ? [{ key: 'birth', label: 'Birth certificate / Acte de naissance' }, { key: 'passport', label: 'Passport' }]
+      : [{ key: 'id', label: 'National ID / Carte d\'identité' }, { key: 'passport', label: 'Passport' }, { key: 'residence', label: 'Residence permit' }],
     validId: v => String(v || '').trim().length >= 4,
     legal: GENERIC_LEGAL,
   },
@@ -82,6 +93,8 @@ export const pack = () => PACKS[ACTIVE] || PACKS[DEFAULT_PACK]
 export const regionLabel = () => pack().regionLabel
 export const regions = () => pack().regions
 export const idLabelFor = role => pack().idLabel(role)
+export const idTypesFor = role => (pack().idTypes ? pack().idTypes(role) : [])
 export const validId = v => pack().validId(v)
 export const legal = () => pack().legal
 export const packCurrency = () => pack().currency
+export const countryCode = () => pack().iso || 'XX'

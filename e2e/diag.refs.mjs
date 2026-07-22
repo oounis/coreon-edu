@@ -21,10 +21,10 @@ await page.keyboard.press('Enter'); await page.waitForTimeout(1600)
 // Élèves : la colonne Référence
 await page.goto(`${B}/#/app/students`); await page.waitForTimeout(1000)
 const refsText = await page.locator('body').innerText()
-ok(/ELV-20\d\d-\d{4}-\d/.test(refsText), 'les élèves affichent une référence ELV-AAAA-NNNN-K')
+ok(/STD-[A-Z]{2}-[A-Z0-9]+-[A-Z0-9]+-20\d\d-\d{8}-\d/.test(refsText), 'les élèves affichent une référence ELV-AAAA-NNNN-K')
 
 // la référence affichée est VALIDE (clé de contrôle cohérente) — vérifiée par le core
-const sample = (refsText.match(/ELV-20\d\d-\d{4}-\d/) || [])[0]
+const sample = (refsText.match(/STD-[A-Z]{2}-[A-Z0-9]+-[A-Z0-9]+-20\d\d-\d{8}-\d/) || [])[0]
 const valid = await page.evaluate(async (ref) => {
   const m = await import('/assets/' + [...document.scripts].map(s=>s.src).join(' ').match(/index-[^./]+\.js/)?.[0] || '')
     .catch(() => null)
@@ -34,20 +34,20 @@ ok(!!sample, `exemple de référence : ${sample}`)
 
 // Profil élève : la référence dans l'en-tête
 await page.locator('table tbody tr').first().click(); await page.waitForTimeout(900)
-ok(/ELV-20\d\d-\d{4}-\d/.test(await page.locator('body').innerText()), 'le profil élève montre sa référence')
+ok(/STD-[A-Z]{2}-[A-Z0-9]+-[A-Z0-9]+-20\d\d-\d{8}-\d/.test(await page.locator('body').innerText()), 'le profil élève montre sa référence')
 
 // Enseignants : référence ENS-...
 await page.goto(`${B}/#/app/teachers`); await page.waitForTimeout(900)
-ok(/ENS-20\d\d-\d{4}-\d/.test(await page.locator('body').innerText()), 'les enseignants affichent ENS-AAAA-NNNN-K')
+ok(/TCH-[A-Z]{2}-[A-Z0-9]+-[A-Z0-9]+-20\d\d-\d{8}-\d/.test(await page.locator('body').innerText()), 'les enseignants affichent ENS-AAAA-NNNN-K')
 
 // Admissions : référence ADM-... (l'école de démo a des candidatures)
 await page.goto(`${B}/#/app/admissions`); await page.waitForTimeout(900)
 const adm = await page.locator('body').innerText()
-ok(/ADM-20\d\d-\d{4}-\d/.test(adm) || /Aucune candidature/i.test(adm), 'les candidatures affichent ADM-... (ou il n’y en a pas)')
+ok(/ADM-[A-Z]{2}-[A-Z0-9]+-[A-Z0-9]+-20\d\d-\d{8}-\d/.test(adm) || /Aucune candidature/i.test(adm), 'les candidatures affichent ADM-... (ou il n’y en a pas)')
 
 // unicité : deux élèves n'ont pas la même référence
 await page.goto(`${B}/#/app/students`); await page.waitForTimeout(900)
-const all = (await page.locator('body').innerText()).match(/ELV-20\d\d-\d{4}-\d/g) || []
+const all = (await page.locator('body').innerText()).match(/STD-[A-Z]{2}-[A-Z0-9]+-[A-Z0-9]+-20\d\d-\d{8}-\d/g) || []
 const uniq = new Set(all)
 ok(all.length > 1 && uniq.size === all.length, `références uniques (${uniq.size}/${all.length} distinctes à l'écran)`)
 

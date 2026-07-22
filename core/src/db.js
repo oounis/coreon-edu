@@ -3,25 +3,41 @@
 import { getItem, setItem, removeItem } from './storage.js'
 import { subjectHue } from './subjects.js'
 import { BRAND } from './tokens.js'
-import { nextRef, PREFIX } from './refs.js'
+import { nextRef, uuid as newUuid } from './refs.js'
+import { countryCode } from './locales.js'
 const KEY="coreon_db"
-const SCHEMA=23
+const SCHEMA=24
 
-// ── Références structurées (CR-017) ───────────────────────────────────────────
+// ── Identification d'entreprise (CR-017 · CR-018) ─────────────────────────────
 // Où vivent les entités numérotées, et sous quelle clé de collection.
-const REF_COLLECTIONS={ student:'students', teacher:'teachers', application:'applications',
-  request:'requests', accident:'accidents', incident:'incidents', document:'documents',
-  booking:'bookings', expense:'expenses' }
+const REF_COLLECTIONS={ student:'students', teacher:'teachers', parent:'users',
+  staff:'users', application:'applications', request:'requests', accident:'accidents',
+  incident:'incidents', document:'documents', booking:'bookings', expense:'expenses' }
 
-/** Stampe une référence structurée sur `entity` si elle n'en a pas déjà une.
- *  Lit les références DÉJÀ émises du même type dans la base pour rester sans trou.
- *  Immuable : si `entity.ref` existe, on n'y touche jamais. */
+/** Le CONTEXTE de confiance d'où sortent pays / tenant / école / année.
+ *  En démo, les paramètres de l'école SONT ce contexte ; en mode serveur, ces
+ *  valeurs viendraient de la session (JWT) — jamais du client. */
+export function refContext(d){
+  const st=d.settings||{}
+  const year=String(st.year||'').slice(0,4)
+  return {
+    country: countryCode(),                       // du pack de pays actif (ISO)
+    tenant:  st.tenantCode || 'T001',             // l'organisation cliente
+    school:  st.schoolCode || 'SCH001',           // l'établissement
+    year:    /^\d{4}$/.test(year) ? year : '2026',
+  }
+}
+
+/** Stampe une RÉFÉRENCE ERP et un UUID sur `entity` si absents.
+ *  · ref  : lisible, citable, sans trou dans son contexte. Immuable une fois posée.
+ *  · uuid : identifiant stable pour API / sync mobile / hors-ligne, jamais montré.
+ *  L'identité HUMAINE (idType, cin) est distincte et n'est PAS touchée ici. */
 export function assignRef(d, type, entity){
+  if(!entity.uuid) entity.uuid=newUuid()
   if(entity.ref) return entity.ref
   const coll=REF_COLLECTIONS[type]
   const existing=(coll?(d[coll]||[]):[]).map(x=>x&&x.ref).filter(Boolean)
-  const year=(d.settings?.year||'').slice(0,4) || new Date().getFullYear().toString()
-  entity.ref=nextRef(type, existing, /^\d{4}$/.test(year)?year:'2026')
+  entity.ref=nextRef(type, existing, refContext(d))
   return entity.ref
 }
 const LEGACY_KEYS=Array.from({length:18},(_,i)=>`coreon_db_v${18-i}`)
@@ -615,15 +631,31 @@ function migrate(d){
   if(!Object.keys(d.timetables).length) d.timetables=genTimetables(d.classes)
   if(!d.settings) d.settings={...DEFAULT_SETTINGS}
 
-  // v23 — CR-017 : numérotation structurée. On stampe une référence sur chaque
-  // entité qui n'en a pas, dans un ordre stable, pour que les séries soient
-  // sans trou. Immuable ensuite : jamais recalculée.
-  if(from<23){
+  // v23→v24 — CR-017/018 : identification d'entreprise. Format complet
+  // PRÉFIXE-PAYS-TENANT-ÉCOLE-ANNÉE-SÉQUENCE8-CLÉ + un UUID par entité.
+  // Avant lancement : on RE-STAMPE les références à l'ancien format court (v23),
+  // dans un ordre stable, pour que les séries soient sans trou. Chaque entité
+  // reçoit aussi son UUID. (L'immuabilité vaut après lancement, pas pour une
+  // migration de format d'avant-vente.)
+  if(from<24){
     if(d.applications==null) d.applications=[]
     if(d.bookings==null) d.bookings=[]
-    const stamp=(coll,type)=>{ (d[coll]||[]).forEach(x=>{ if(x && !x.ref) assignRef(d,type,x) }) }
-    stamp('students','student'); stamp('teachers','teacher'); stamp('applications','application')
-    stamp('requests','request'); stamp('accidents','accident'); stamp('incidents','incident')
+    if(!d.settings) d.settings={...DEFAULT_SETTINGS}
+    if(!d.settings.tenantCode) d.settings.tenantCode='T001'
+    if(!d.settings.schoolCode) d.settings.schoolCode='SCH001'
+    // une référence est « ancienne » si elle n'a pas le format complet à 7 segments
+    const isNewFormat=r=>/^[A-Z]{2,4}-[A-Z0-9]{2,3}-[A-Z0-9]{2,8}-[A-Z0-9]{2,10}-\d{4}-\d{6,10}-\d$/.test(String(r||''))
+    const stamp=(coll,type,filter)=>{ (d[coll]||[]).filter(filter||(()=>true)).forEach(x=>{
+      if(x && !isNewFormat(x.ref)) x.ref=undefined         // efface l'ancien format court
+      if(x) assignRef(d,type,x)                            // pose le nouveau + uuid
+    }) }
+    stamp('students','student'); stamp('teachers','teacher')
+    // Parent → PAR ; personnel non-enseignant → EMP. Les enseignants sont déjà
+    // identifiés (TCH) par leur dossier ; le propriétaire est au niveau plateforme.
+    stamp('users','parent',u=>u.role==='parent')
+    stamp('users','staff',u=>['admin','schooladmin','supervisor','security'].includes(u.role))
+    stamp('applications','application'); stamp('requests','request')
+    stamp('accidents','accident'); stamp('incidents','incident')
     stamp('documents','document'); stamp('bookings','booking'); stamp('expenses','expense')
   }
 

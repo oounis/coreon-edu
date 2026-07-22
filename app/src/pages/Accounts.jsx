@@ -12,6 +12,7 @@ import { notify } from '@core/notify.js'
 import { t } from '@core/i18n.js'
 import { createAccount, updateAccount, setDisabled, resetPassword, directory, MANAGEABLE_ROLES } from '@core/accounts.js'
 import { STAFF_POSITIONS, regionsOf, regionLabel, docTypesFor, validCIN, idLabelFor } from '@core/tunisia.js'
+import { idTypesFor } from '@core/locales.js'
 import { PageHead, Avatar, Btn, Modal, Field, Input, Select, Section, SearchInput, STATUS } from '../components/ui.jsx'
 import Attach from '../components/Attach.jsx'
 import { UserPlus, KeyRound, Ban, Check, Paperclip, Pencil, Users } from 'lucide-react'
@@ -19,7 +20,7 @@ import toast from 'react-hot-toast'
 
 // Civilité ADULTE : « Homme »/« Femme » — les activités réservées aux mères ou aux
 // pères (social.js) comparent user.gender à ces valeurs.
-const BLANK={role:'teacher',name:'',email:'',pw:'',cin:'',gender:'Homme',governorate:'Tunis',position:'Instituteur',phone:'',address:'',occupation:'',subject:'',childIds:[],attachments:[]}
+const BLANK={role:'teacher',name:'',email:'',pw:'',cin:'',idType:'cin',gender:'Homme',governorate:'Tunis',position:'Instituteur',phone:'',address:'',occupation:'',subject:'',childIds:[],attachments:[]}
 
 export default function Accounts(){
   const [,force]=useState(0); const refresh=()=>force(x=>x+1)
@@ -106,6 +107,7 @@ export default function Accounts(){
         <Field label={t('Mot de passe temporaire')}><Input value={f.pw} onChange={e=>setF({...f,pw:e.target.value})} placeholder={t('défaut 1234')}/></Field>
       </Section>
       <Section title={t('Identité (Tunisie)')}>
+        <Field label={t('Type de pièce')}><Select value={f.idType||''} onChange={e=>setF({...f,idType:e.target.value})}>{idTypesFor('staff').map(o=><option key={o.key} value={o.key}>{t(o.label)}</option>)}</Select></Field>
         <Field label={idLabelFor('staff')}><Input value={f.cin} onChange={e=>setF({...f,cin:e.target.value})} placeholder="12345678"/></Field>
         <Field label={t('Civilité')}><Select value={f.gender} onChange={e=>setF({...f,gender:e.target.value})}><option value="Homme">{t('Homme')}</option><option value="Femme">{t('Femme')}</option></Select></Field>
         <Field label={t(regionLabel())}><Select value={f.governorate} onChange={e=>setF({...f,governorate:e.target.value})}>{regionsOf().length?regionsOf().map(g=><option key={g}>{g}</option>):<option value="">{t('(saisie libre)')}</option>}</Select></Field>
