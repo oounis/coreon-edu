@@ -5,10 +5,11 @@ import { useState } from 'react'
 import { current } from '@core/auth.js'
 import { db } from '@core/db.js'
 import {
-  TERMS, ACQUIS, DOMAINS, MARK_MAX, PASS_MARK, DECISIONS,
+  TERMS, ACQUIS, DOMAINS, MARK_MAX, PASS_MARK, DECISIONS, SUBJECTS,
   reportOf, saveReport, average, yearAverage,
   previewPromotion, runPromotion, promotions,
   archivedStudents, labelOf, isEarly,
+  classGrid, saveClassReports, rowAverage, columnAverage,
 } from '@core/academic.js'
 import { money } from '@core/accounting.js'
 import { subjectMeta } from '../subjects.jsx'
@@ -18,7 +19,6 @@ import {
 import { Ic } from '../icons.jsx'
 import toast from 'react-hot-toast'
 
-const SUBJECTS = ['Mathématiques', 'Français', 'Arabe', 'Éveil scientifique', 'Anglais']
 
 export default function Academic() {
   const [tab, setTab] = useState('bulletins')
@@ -48,10 +48,19 @@ function Bulletins({ refresh }) {
   const [term, setTerm] = useState('t1')
   const [q, setQ] = useState('')
   const [open, setOpen] = useState(null)
+  const [grid, setGrid] = useState(null)          // { classId } : saisie par classe
 
   const students = (d.students || [])
     .filter(s => !s.archived)
     .filter(s => s.name.toLowerCase().includes(q.toLowerCase()))
+
+  const classes = (d.classes || [])
+    .filter(c => (d.students || []).some(s => s.classId === c.id && !s.archived))
+
+  if (grid) return (
+    <ClassGrid classId={grid.classId} term={term} me={me}
+      onClose={() => { setGrid(null); refresh() }} />
+  )
 
   return (
     <>
@@ -60,6 +69,22 @@ function Bulletins({ refresh }) {
         <span className="flex-1" />
         <SearchInput value={q} onChange={setQ} placeholder="Chercher un élève…" />
       </div>
+
+      {/* CR-022 : noter la classe entière d'un coup. Saisir élève par élève est
+          la tâche la plus répétitive du métier ; c'est là que le produit fait
+          gagner du temps, ou en fait perdre. */}
+      <Card className="p-4 mb-4">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-sm font-bold">Noter toute une classe</span>
+          <span className="text-xs text-muted">une grille, au clavier, sans ouvrir chaque élève</span>
+          <span className="flex-1" />
+          {classes.map(c => (
+            <Btn key={c.id} size="sm" variant="soft" onClick={() => setGrid({ classId: c.id })}>
+              {c.name}
+            </Btn>
+          ))}
+        </div>
+      </Card>
 
       <div className="grid gap-2">
         {students.map(s => {
@@ -100,6 +125,141 @@ function Bulletins({ refresh }) {
         <ReportModal open={open} term={term} me={me}
           onClose={() => setOpen(null)} onSaved={() => { setOpen(null); refresh() }} />
       )}
+    </>
+  )
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// LA GRILLE DE CLASSE (CR-022)
+//
+// Élèves en lignes, matières en colonnes. Entrée et ↓ descendent la colonne :
+// on note une matière pour toute la classe sans jamais lâcher le clavier, ce
+// qui est la façon dont on note réellement — matière par matière, pas élève
+// par élève.
+//
+// La saisie PARTIELLE est normale : un enseignant est interrompu. On enregistre
+// ce qui est saisi, et une case laissée vide n'efface jamais une note déjà là.
+// ════════════════════════════════════════════════════════════════════════════
+function ClassGrid({ classId, term, me, onClose }) {
+  const g = classGrid(classId, term)
+  const [rows, setRows] = useState(g.rows)
+  const [dirty, setDirty] = useState(false)
+  const cls = (db().classes || []).find(c => c.id === classId)
+
+  const set = (sid, key, v) => { setRows(r => ({ ...r, [sid]: { ...r[sid], [key]: v } })); setDirty(true) }
+
+  // Entrée / ↓ / ↑ : on descend ou remonte la MÊME colonne.
+  const onKey = (e, si, ci) => {
+    const move = e.key === 'Enter' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : 0
+    if (!move) return
+    e.preventDefault()
+    const next = document.querySelector(`[data-cell="${si + move}-${ci}"]`)
+    if (next) { next.focus(); next.select?.() }
+  }
+
+  const save = () => {
+    const r = saveClassReports({ classId, term, rows, by: me.name })
+    if (r.invalid) toast.error(`${r.invalid} note(s) hors barème : non enregistrée(s).`)
+    if (r.saved) toast.success(`${r.saved} bulletin(s) enregistré(s) · ${cls?.name}.`)
+    else if (!r.invalid) toast(`Rien de nouveau à enregistrer.`)
+    setDirty(false)
+    if (r.saved) onClose()
+  }
+
+  return (
+    <>
+      <div className="flex items-center gap-3 flex-wrap mb-4">
+        <Btn variant="ghost" size="sm" onClick={onClose}>
+          <Ic n="ArrowLeft" size={15} className="rtl:-scale-x-100" /> Tous les élèves
+        </Btn>
+        <div>
+          <div className="font-extrabold">{cls?.name}</div>
+          <div className="text-xs text-muted">
+            {TERMS.find(t => t.key === term)?.label} · {g.students.length} élèves
+          </div>
+        </div>
+        <span className="flex-1" />
+        <Btn onClick={save} disabled={!dirty}>Enregistrer la classe</Btn>
+      </div>
+
+      <Card className="p-0 overflow-x-auto">
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="bg-canvas">
+              <th className="text-start p-3 font-bold sticky start-0 bg-canvas z-10 min-w-[180px]">Élève</th>
+              {g.columns.map(c => (
+                <th key={c.key} className="p-3 font-bold text-center whitespace-nowrap">
+                  {c.label}
+                  {!g.early && <div className="text-[10px] font-normal text-muted">/{MARK_MAX}</div>}
+                </th>
+              ))}
+              {!g.early && <th className="p-3 font-bold text-center">Moyenne</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {g.students.map((s, si) => {
+              const avg = rowAverage(rows[s.id])
+              return (
+                <tr key={s.id} className="border-t border-line">
+                  <td className="p-2 sticky start-0 bg-white z-10">
+                    <div className="flex items-center gap-2">
+                      <Avatar name={s.name} seed={s.id} size={26} />
+                      <span className="font-semibold text-[13px] truncate">{s.name}</span>
+                    </div>
+                  </td>
+                  {g.columns.map((c, ci) => (
+                    <td key={c.key} className="p-2 text-center">
+                      {g.early ? (
+                        <select data-cell={`${si}-${ci}`} value={rows[s.id]?.[c.key] || ''}
+                          onChange={e => set(s.id, c.key, e.target.value)}
+                          onKeyDown={e => onKey(e, si, ci)}
+                          className="rounded-lg border border-line px-2 py-1.5 text-[13px] accent-ring">
+                          <option value=""></option>
+                          {ACQUIS.map(a => <option key={a.key} value={a.key}>{a.label}</option>)}
+                        </select>
+                      ) : (
+                        <input data-cell={`${si}-${ci}`} type="number" min={0} max={MARK_MAX} step={0.25}
+                          value={rows[s.id]?.[c.key] ?? ''}
+                          onChange={e => set(s.id, c.key, e.target.value)}
+                          onKeyDown={e => onKey(e, si, ci)}
+                          className="w-20 text-center rounded-lg border border-line px-2 py-1.5 text-[13px] accent-ring tabular-nums" />
+                      )}
+                    </td>
+                  ))}
+                  {!g.early && (
+                    <td className="p-2 text-center font-extrabold tabular-nums"
+                      style={{ color: avg == null ? 'var(--color-muted)' : avg >= PASS_MARK ? STATUS.ok : STATUS.danger }}>
+                      {avg ?? '·'}
+                    </td>
+                  )}
+                </tr>
+              )
+            })}
+          </tbody>
+          {!g.early && (
+            <tfoot>
+              <tr className="border-t-2 border-line bg-canvas">
+                <td className="p-3 font-bold sticky start-0 bg-canvas">Moyenne de la classe</td>
+                {g.columns.map(c => {
+                  const a = columnAverage(rows, c.key)
+                  return (
+                    <td key={c.key} className="p-3 text-center font-extrabold tabular-nums"
+                      style={{ color: a == null ? 'var(--color-muted)' : a >= PASS_MARK ? STATUS.ok : STATUS.danger }}>
+                      {a ?? '·'}
+                    </td>
+                  )
+                })}
+                <td />
+              </tr>
+            </tfoot>
+          )}
+        </table>
+      </Card>
+
+      <p className="text-xs text-muted mt-3">
+        Entrée ou ↓ descend la colonne : on note une matière pour toute la classe sans lâcher le clavier.
+        Une case laissée vide n’efface jamais une note déjà enregistrée.
+      </p>
     </>
   )
 }

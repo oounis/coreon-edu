@@ -48,6 +48,19 @@ export const DOMAINS = [
   { key: 'creation',  label: 'Explorer & créer' },
 ]
 
+/** Primaire : les matières notées. Elles vivaient dans l'écran ; elles vivent
+ *  ici pour que la saisie par classe, le mobile et les tests parlent de la
+ *  MÊME liste. */
+export const SUBJECTS = ['Mathématiques', 'Français', 'Arabe', 'Éveil scientifique', 'Anglais']
+
+/** Ce qu'on remplit pour un niveau donné : des matières, ou des domaines.
+ *  Rend toujours [{key,label}] — l'écran n'a pas à savoir lequel des deux. */
+export function columnsFor(level) {
+  return isEarly(level)
+    ? DOMAINS.map(d => ({ ...d, kind: 'acquis' }))
+    : SUBJECTS.map(s => ({ key: s, label: s, kind: 'note' }))
+}
+
 // ── Trimestres ──────────────────────────────────────────────────────────────
 export const TERMS = [
   { key: 't1', label: '1er trimestre' },
@@ -79,6 +92,85 @@ export function saveReport({ studentId, term, marks, comment, by }) {
   d.reports = [...(d.reports || []).filter(x => !(x.studentId === studentId && x.term === term)), r]
   save(d)
   return r
+}
+
+/**
+ * SAISIE PAR CLASSE (CR-022) — noter toute la classe d'un coup.
+ *
+ * Saisir élève par élève est la tâche la plus répétitive du métier : c'est là
+ * que le produit fait gagner du temps ou en fait perdre. On enregistre donc un
+ * lot, et on l'enregistre comme la saisie unitaire : même fonction, mêmes
+ * règles, aucun chemin parallèle qui pourrait diverger.
+ *
+ * PARTIEL AUTORISÉ : un enseignant interrompu enregistre ce qu'il a saisi et
+ * reprend plus tard. Une case vide n'écrase donc jamais une note déjà là ;
+ * un bulletin sans AUCUNE note n'est pas créé (on ne fabrique pas des
+ * bulletins vides pour des élèves qu'on n'a pas encore notés).
+ *
+ * Rend { saved, skipped, invalid } — l'appelant peut le dire à l'écran.
+ */
+export function saveClassReports({ classId, term, rows, comments = {}, by }) {
+  const d = db()
+  const students = (d.students || []).filter(s => s.classId === classId && !s.archived)
+  const cls = (d.classes || []).find(c => c.id === classId)
+  const early = isEarly(cls?.level)
+  const cols = columnsFor(cls?.level)
+  const valid = new Set(cols.map(c => c.key))
+  const acquis = new Set(ACQUIS.map(a => a.key))
+
+  let saved = 0, skipped = 0, invalid = 0
+  for (const s of students) {
+    const incoming = rows[s.id] || {}
+    const prev = reportOf(s.id, term)
+    const marks = { ...(prev?.marks || {}) }
+    let touched = false
+    for (const [k, v] of Object.entries(incoming)) {
+      if (!valid.has(k)) { invalid++; continue }
+      if (v === '' || v === undefined || v === null) continue      // vide ≠ effacer
+      if (early) {
+        if (!acquis.has(v)) { invalid++; continue }
+      } else {
+        const n = Number(v)
+        if (!Number.isFinite(n) || n < 0 || n > MARK_MAX) { invalid++; continue }
+        marks[k] = n; touched = true; continue
+      }
+      marks[k] = v; touched = true
+    }
+    const comment = comments[s.id] !== undefined ? comments[s.id] : (prev?.comment || '')
+    if (!touched && comment === (prev?.comment || '')) { skipped++; continue }
+    if (!Object.keys(marks).length) { skipped++; continue }        // pas de bulletin vide
+    saveReport({ studentId: s.id, term, marks, comment, by })
+    saved++
+  }
+  return { saved, skipped, invalid }
+}
+
+/** Ce qui est déjà saisi pour une classe : de quoi reprendre où l'on s'est arrêté. */
+export function classGrid(classId, term) {
+  const d = db()
+  const cls = (d.classes || []).find(c => c.id === classId)
+  const students = (d.students || []).filter(s => s.classId === classId && !s.archived)
+  const rows = {}, comments = {}
+  for (const s of students) {
+    const r = reportOf(s.id, term)
+    rows[s.id] = { ...(r?.marks || {}) }
+    comments[s.id] = r?.comment || ''
+  }
+  return { level: cls?.level, early: isEarly(cls?.level), columns: columnsFor(cls?.level), students, rows, comments }
+}
+
+/** La moyenne d'une COLONNE : la classe a-t-elle décroché sur cette matière ? */
+export function columnAverage(rows, key) {
+  const v = Object.values(rows).map(r => Number(r?.[key])).filter(n => Number.isFinite(n))
+  if (!v.length) return null
+  return Math.round(v.reduce((s, n) => s + n, 0) / v.length * 100) / 100
+}
+
+/** La moyenne d'une LIGNE, calculée en direct pendant la saisie. */
+export function rowAverage(row) {
+  const v = Object.values(row || {}).map(Number).filter(n => Number.isFinite(n))
+  if (!v.length) return null
+  return Math.round(v.reduce((s, n) => s + n, 0) / v.length * 100) / 100
 }
 
 /** La moyenne — primaire uniquement. En petite enfance, elle n'a AUCUN sens. */

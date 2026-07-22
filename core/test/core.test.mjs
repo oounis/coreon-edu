@@ -937,3 +937,91 @@ test('pré-inscription : le dossier envoyé garde le nom complet et les conditio
   assert.equal(a.acceptedTerms.length, TERMS.length, 'les conditions acceptées sont conservées')
   assert.ok(a.acceptedAt, 'avec leur date — un engagement sans date ne vaut rien')
 })
+
+// ── Saisie des bulletins par classe (CR-022) ────────────────────────────────
+test('saisie par classe : une note par élève, enregistrée en un geste', async () => {
+  const { resetDb, db } = await import('../src/db.js')
+  const { saveClassReports, classGrid, reportOf, rowAverage, columnAverage, MARK_MAX } = await import('../src/academic.js')
+  resetDb(); db()   // une école de démo neuve
+  const cls = (db().classes || []).find(c => (db().students || []).filter(s => s.classId === c.id).length >= 3)
+  const g = classGrid(cls.id, 't1')
+  assert.ok(g.students.length >= 3, 'une classe avec des élèves')
+  assert.ok(g.columns.length >= 3, 'des colonnes à remplir')
+
+  const [a, b] = g.students
+  const k = g.columns[0].key, k2 = g.columns[1].key
+  const rows = g.early
+    ? { [a.id]: { [k]: 'acquis' }, [b.id]: { [k]: 'encours' } }
+    : { [a.id]: { [k]: 14, [k2]: 16 }, [b.id]: { [k]: 8 } }
+  const r = saveClassReports({ classId: cls.id, term: 't1', rows, by: 'Test' })
+  assert.equal(r.saved, 2, 'deux bulletins enregistrés en un seul appel')
+  assert.equal(r.invalid, 0)
+  assert.ok(reportOf(a.id, 't1'), 'le bulletin existe vraiment')
+  if (!g.early) assert.equal(reportOf(a.id, 't1').marks[k], 14)
+})
+
+test('saisie par classe : une case vide n’efface jamais une note déjà saisie', async () => {
+  const { resetDb, db } = await import('../src/db.js')
+  const { saveClassReports, classGrid, reportOf } = await import('../src/academic.js')
+  resetDb(); db()   // une école de démo neuve
+  const cls = (db().classes || []).find(c => (db().students || []).filter(s => s.classId === c.id).length >= 2)
+  const g = classGrid(cls.id, 't2')
+  if (g.early) return                                   // les acquis se testent ailleurs
+  const a = g.students[0]
+  const [k1, k2] = g.columns.map(c => c.key)
+  saveClassReports({ classId: cls.id, term: 't2', rows: { [a.id]: { [k1]: 12 } }, by: 'T' })
+  // deuxième passage : on remplit une AUTRE matière, la première ne bouge pas
+  saveClassReports({ classId: cls.id, term: 't2', rows: { [a.id]: { [k1]: '', [k2]: 15 } }, by: 'T' })
+  const rep = reportOf(a.id, 't2')
+  assert.equal(rep.marks[k1], 12, 'la note d’avant a survécu à une case laissée vide')
+  assert.equal(rep.marks[k2], 15, 'la nouvelle est là')
+})
+
+test('saisie par classe : une note hors barème est refusée, pas arrondie en douce', async () => {
+  const { resetDb, db } = await import('../src/db.js')
+  const { saveClassReports, classGrid, reportOf, MARK_MAX } = await import('../src/academic.js')
+  resetDb(); db()   // une école de démo neuve
+  const cls = (db().classes || []).find(c => (db().students || []).filter(s => s.classId === c.id).length >= 2)
+  const g = classGrid(cls.id, 't3')
+  if (g.early) return
+  const a = g.students[0], k = g.columns[0].key
+  const r = saveClassReports({ classId: cls.id, term: 't3', rows: { [a.id]: { [k]: MARK_MAX + 5 } }, by: 'T' })
+  assert.equal(r.invalid, 1, 'la note hors barème est comptée comme invalide')
+  assert.equal(reportOf(a.id, 't3'), null, 'et rien n’est enregistré pour cet élève')
+  // une colonne inconnue est refusée elle aussi
+  const r2 = saveClassReports({ classId: cls.id, term: 't3', rows: { [a.id]: { 'Astrologie': 12 } }, by: 'T' })
+  assert.equal(r2.invalid, 1, 'une matière qui n’existe pas est refusée')
+})
+
+test('saisie par classe : aucun bulletin vide n’est fabriqué', async () => {
+  const { resetDb, db } = await import('../src/db.js')
+  const { saveClassReports, classGrid, reports } = await import('../src/academic.js')
+  resetDb(); db()   // une école de démo neuve
+  const cls = (db().classes || []).find(c => (db().students || []).filter(s => s.classId === c.id).length >= 2)
+  const avant = reports().length
+  const r = saveClassReports({ classId: cls.id, term: 't1', rows: {}, by: 'T' })
+  assert.equal(r.saved, 0, 'rien à enregistrer')
+  assert.ok(r.skipped >= 2, 'les élèves non notés sont ignorés, pas créés')
+  assert.equal(reports().length, avant, 'aucun bulletin fantôme')
+})
+
+test('saisie par classe : on peut reprendre où l’on s’est arrêté', async () => {
+  const { resetDb, db } = await import('../src/db.js')
+  const { saveClassReports, classGrid } = await import('../src/academic.js')
+  resetDb(); db()   // une école de démo neuve
+  const cls = (db().classes || []).find(c => (db().students || []).filter(s => s.classId === c.id).length >= 2)
+  let g = classGrid(cls.id, 't1')
+  if (g.early) return
+  const a = g.students[0], k = g.columns[0].key
+  saveClassReports({ classId: cls.id, term: 't1', rows: { [a.id]: { [k]: 11 } }, by: 'T' })
+  g = classGrid(cls.id, 't1')
+  assert.equal(g.rows[a.id][k], 11, 'la grille se rouvre déjà remplie')
+})
+
+test('saisie par classe : les moyennes ligne et colonne se calculent', async () => {
+  const { rowAverage, columnAverage } = await import('../src/academic.js')
+  assert.equal(rowAverage({ a: 10, b: 20 }), 15)
+  assert.equal(rowAverage({}), null, 'aucune note : aucune moyenne inventée')
+  assert.equal(columnAverage({ s1: { m: 10 }, s2: { m: 14 }, s3: {} }, 'm'), 12, 'les cases vides ne comptent pas')
+  assert.equal(columnAverage({ s1: {} }, 'm'), null)
+})

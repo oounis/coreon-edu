@@ -83,7 +83,12 @@ export default function App(){
     <HashRouter>
       <ScrollToTop/>
       <Toaster position="top-right" toastOptions={{ style:{ borderRadius:'12px', fontSize:'14px' } }}/>
-      <Suspense fallback={<div className="min-h-screen grid place-items-center"><div className="skeleton w-40 h-10" aria-label="Chargement…"/></div>}>
+      {/* role="status" : un <div> nu ne peut PAS porter aria-label (axe :
+          aria-prohibited-attr). Le défaut ne se voyait qu'au hasard du temps de
+          chargement — la page était scannée pendant que ce squelette était
+          encore à l'écran. Avec un rôle, le lecteur d'écran annonce enfin
+          l'attente, et le contrôle d'accessibilité cesse d'être capricieux. */}
+      <Suspense fallback={<div className="min-h-screen grid place-items-center"><div role="status" aria-live="polite" className="skeleton w-40 h-10" aria-label="Chargement…"/></div>}>
       <Routes>
         <Route path="/" element={<Landing/>}/>
         <Route path="/login" element={<Login/>}/>
