@@ -5,8 +5,14 @@ import toast from 'react-hot-toast'
 import { current } from '@core/auth.js'
 import AppShell from './components/AppShell.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
-import Landing from './pages/Landing.jsx'
+import SiteChrome from './pages/site/Chrome.jsx'
+import Home from './pages/site/Home.jsx'
 import Login from './pages/Login.jsx'
+// Les pages secondaires de la vitrine se chargent à la demande (CR-006).
+const ModulesPage = lazy(() => import('./pages/site/ModulesPage.jsx'))
+const DataPage = lazy(() => import('./pages/site/DataPage.jsx'))
+const PricingPage = lazy(() => import('./pages/site/PricingPage.jsx'))
+const FaqPage = lazy(() => import('./pages/site/FaqPage.jsx'))
 // ── Le reste se charge À LA DEMANDE : le premier écran n'embarque plus les 40 pages,
 //    ni jsPDF, ni les graphiques. Chaque page devient son propre fichier (code-splitting).
 const Dashboard = lazy(() => import('./pages/Dashboard.jsx'))
@@ -90,7 +96,16 @@ export default function App(){
           l'attente, et le contrôle d'accessibilité cesse d'être capricieux. */}
       <Suspense fallback={<div className="min-h-screen grid place-items-center"><div role="status" aria-live="polite" className="skeleton w-40 h-10" aria-label="Chargement…"/></div>}>
       <Routes>
-        <Route path="/" element={<Landing/>}/>
+        {/* La vitrine publique : une coquille partagée (en-tête + pied) et une
+            VRAIE route par entrée de menu (CR-006). URL propre, favori possible,
+            bouton « précédent » respecté, entrée active marquée. */}
+        <Route element={<SiteChrome/>}>
+          <Route path="/" element={<Home/>}/>
+          <Route path="/modules" element={<ModulesPage/>}/>
+          <Route path="/donnees" element={<DataPage/>}/>
+          <Route path="/tarifs" element={<PricingPage/>}/>
+          <Route path="/faq" element={<FaqPage/>}/>
+        </Route>
         <Route path="/login" element={<Login/>}/>
         {/* Le premier écran d'une école : pas de menu, pas de coquille — une seule question. */}
         <Route path="/setup" element={<Setup/>}/>
