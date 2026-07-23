@@ -161,6 +161,64 @@ export default function Dashboard(){
       <Link to="/app/incidents" className={`${BTN_PRIMARY} mt-4`}><ShieldAlert size={17}/> {t('Signaler un incident')}</Link></>)
   }
 
+  // CR-019 : LA RH — son propre tableau, centré sur le personnel et la paie.
+  if(u.role==='hr'){
+    const staff=[...(d.teachers||[]), ...(d.users||[]).filter(x=>['admin','supervisor','security','hr','accountant'].includes(x.role))]
+    const leaves=(d.staffLeaves||[]).filter(l=>l.status==='pending'||l.status==='en_attente')
+    const posts=(d.recruitPosts||[]).filter(p=>p.status==='open'||p.status==='ouvert')
+    const reqs=(d.requests||[]).filter(r=>r.status!=='closed'&&r.status!=='clos')
+    return (<><PageHead title={greet} sub={t('Ressources humaines et paie.')}/>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+        <StatCard label={t('Personnel')} value={staff.length} tint="sky" icon={<Users/>} to="/app/staff"/>
+        <StatCard label={t('Congés en attente')} value={leaves.length} tint="butter" icon={<CalendarDays/>} to="/app/hr"/>
+        <StatCard label={t('Postes ouverts')} value={posts.length} tint="mint" icon={<Users/>} to="/app/recruit"/>
+        <StatCard label={t('Demandes à traiter')} value={reqs.length} tint="brand" icon={<FileText/>} to="/app/requests"/>
+      </div>
+      <div className="grid lg:grid-cols-2 gap-4">
+        <Card className="p-5"><h3 className="font-bold mb-3">{t('RH & Paie')}</h3>
+          <div className="space-y-2">
+            <DashLink to="/app/hr" icon="Wallet2" label={t('Contrats, congés, paie')}/>
+            <DashLink to="/app/staff" icon="BriefcaseBusiness" label={t('Personnel & présence')}/>
+            <DashLink to="/app/recruit" icon="UserPlus" label={t('Recrutement')}/>
+            <DashLink to="/app/requests" icon="FileText" label={t('Demandes du personnel')}/>
+          </div>
+        </Card>
+        <Card className="p-5"><h3 className="font-bold mb-3">{t('Congés en attente')}</h3>
+          <div className="space-y-2">
+            {leaves.slice(0,5).map((l,i)=>(<Link to="/app/hr" key={i} className="flex items-center gap-2 text-sm border-b border-line pb-2 last:border-0 hover:bg-canvas rounded-lg px-1 transition"><CalendarDays size={15} className="text-muted"/><span className="font-medium truncate flex-1">{l.name||l.who||t('Personnel')}</span><Badge status="pending"/></Link>))}
+            {leaves.length===0 && <EmptyState icon={<CalendarDays size={22}/>} title={t('Aucun congé en attente')} sub={t('Tout est à jour.')}/>}
+          </div>
+        </Card>
+      </div></>)
+  }
+
+  // CR-019 : LA COMPTABILITÉ — son propre tableau, centré sur l'argent.
+  if(u.role==='accountant'){
+    const fc={paid:0,pending:0,overdue:0,due:0}; Object.values(d.payments||{}).forEach(arr=>arr.forEach(p=>fc[p.status]++))
+    const total=Object.values(fc).reduce((a,b)=>a+b,0); const rate=total?Math.round(fc.paid/total*100):0
+    const fpie=[[t('Payés'),STATUS.ok],[t('À confirmer'),STATUS.warn],[t('En retard'),STATUS.danger],[t('Impayés'),STATUS.neutral]].map(([n,c],i)=>({name:n,value:Object.values(fc)[i],color:c}))
+    const expenses=(d.expenses||[]).length
+    return (<><PageHead title={greet} sub={t('Comptabilité et finances.')}/>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+        <StatCard label={t('Recouvrement')} value={rate+'%'} tint="mint" icon={<TrendingUp/>} to="/app/finance"/>
+        <StatCard label={t('En retard')} value={fc.overdue} tint="coral" icon={<CreditCard/>} to="/app/finance"/>
+        <StatCard label={t('À confirmer')} value={fc.pending} tint="butter" icon={<Wallet/>} to="/app/finance"/>
+        <StatCard label={t('Dépenses')} value={expenses} tint="slate" icon={<FileText/>} to="/app/budget"/>
+      </div>
+      <div className="grid lg:grid-cols-2 gap-4">
+        <Card className="p-5"><h3 className="font-bold mb-3">{t('Recouvrement des frais')}</h3>
+          <SoftBars data={fpie} height={176} showValues/>
+        </Card>
+        <Card className="p-5"><h3 className="font-bold mb-3">{t('Comptabilité')}</h3>
+          <div className="space-y-2">
+            <DashLink to="/app/accounting" icon="Receipt" label={t('Factures, reçus, avoirs')}/>
+            <DashLink to="/app/finance" icon="Wallet" label={t('Frais & finances')}/>
+            <DashLink to="/app/budget" icon="Scale" label={t('Budget & rapports')}/>
+          </div>
+        </Card>
+      </div></>)
+  }
+
   // schooladmin / admin — L'ATELIER, PAS LA VITRINE (recherche vérifiée 3-0 :
   // l'accueil administrateur de PowerSchool est un champ de recherche ; les KPI
   // vivent sous Reports). L'ordre de l'écran est l'ordre du travail :
@@ -397,6 +455,12 @@ function Workbench({ items, className='' }){
 function TodayRow({ to, icon, color, label }){
   return <Link to={to} className="flex items-center gap-2.5 text-sm font-semibold rounded-xl px-2.5 py-2 -mx-1 hover:bg-canvas transition"
     style={{color}}>{icon}<span className="flex-1 min-w-0 truncate">{label}</span><ChevronRight size={13} className="opacity-60"/></Link>
+}
+
+// CR-019 : une ligne cliquable de tableau de bord département (RH, Comptabilité).
+function DashLink({ to, icon, label }){
+  return <Link to={to} className="flex items-center gap-2.5 text-sm font-semibold rounded-xl px-2.5 py-2 -mx-1 hover:bg-canvas transition">
+    <Ic n={icon} size={16} className="accent-text"/><span className="flex-1 min-w-0 truncate">{label}</span><ChevronRight size={13} className="opacity-60 text-muted"/></Link>
 }
 
 function ParentDashboard({u,d,greet}){

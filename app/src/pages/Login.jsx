@@ -25,7 +25,7 @@ export default function Login() {
     else setErr(u && u.disabled ? t('Ce compte a été désactivé. Contactez la direction.') : t('E-mail ou mot de passe incorrect.'))
   }
   const quick = db().users
-    .filter(u => ['schooladmin', 'admin', 'teacher', 'supervisor', 'security', 'parent'].includes(u.role))
+    .filter(u => ['schooladmin', 'admin', 'hr', 'accountant', 'teacher', 'supervisor', 'security', 'parent'].includes(u.role))
     .filter((u, i, a) => a.findIndex(x => x.role === u.role) === i)
   const stats = [['121', 'Élèves'], ['96%', 'Présence'], ['8', 'À décider']]
 

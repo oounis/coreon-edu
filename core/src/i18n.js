@@ -699,4 +699,21 @@ Object.assign(AR, {
   'Tunisie': 'تونس',
   'Oui. Toute l’interface bascule en arabe, de droite à gauche, d’un seul geste : la connexion, la pré-inscription, les tableaux de bord. Le français reste disponible pour chaque utilisateur.': 'نعم. تتحوّل الواجهة بأكملها إلى العربية، من اليمين إلى اليسار، بحركة واحدة: تسجيل الدخول، والترسيم الأولي، ولوحات المتابعة. ويبقى الفرنسي متاحًا لكل مستخدم.',
   'Crèche & primaire': 'الحضانة والابتدائي',
+
+  // ── Départements RH / Comptabilité (CR-019) ─────────────────────────────
+  'Ressources humaines et paie.': 'الموارد البشرية والأجور.',
+  'Comptabilité et finances.': 'المحاسبة والمالية.',
+  'Congés en attente': 'عطل في الانتظار',
+  'Postes ouverts': 'مناصب مفتوحة',
+  'Demandes à traiter': 'مطالب للمعالجة',
+  'Contrats, congés, paie': 'العقود والعطل والأجور',
+  'Personnel & présence': 'الأعوان والحضور',
+  'Demandes du personnel': 'مطالب الأعوان',
+  'Aucun congé en attente': 'لا عطل في الانتظار',
+  'Tout est à jour.': 'كل شيء محيَّن.',
+  'Recouvrement': 'الاستخلاص',
+  'Dépenses': 'المصاريف',
+  'Recouvrement des frais': 'استخلاص المعاليم',
+  'Factures, reçus, avoirs': 'الفواتير والوصولات والإشعارات',
+  'Frais & finances': 'المعاليم والمالية',
 })

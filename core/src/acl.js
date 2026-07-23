@@ -28,6 +28,11 @@ export const WRITE_ACL = {
     'staffLeaves', 'requests', 'departures', 'socialEvents'],
   security: ['visitors', 'rounds', 'logbook', 'incidents', 'messages', 'notifications',
     'staffClock', 'staffLeaves', 'socialEvents'],
+  // CR-019 : les départements réels, chacun n'écrit que SON périmètre.
+  hr: ['hrPayrolls', 'hrContracts', 'staffLeaves', 'staffAttendance', 'staffClock',
+    'recruitPosts', 'recruitCandidates', 'requests', 'messages', 'notifications'],
+  accountant: ['invoices', 'receipts', 'payments', 'feeSchedule', 'discounts',
+    'expenses', 'budget', 'messages', 'notifications'],
   parent: [],   // les actions parent = opérations nommées (/api/op), jamais un bloc
 }
 export const writableCollections = role => WRITE_ACL[role] || []
@@ -42,6 +47,12 @@ const STAFF_STRIP_BASE = ['hrPayrolls', 'hrContracts', 'invoices', 'receipts', '
 export const READ_STRIP = {
   owner: [], schooladmin: [], admin: [],
   teacher: [...STAFF_STRIP_BASE, 'visitors', 'rounds', 'logbook'],
+  // RH : voit paie/contrats/personnel, PAS le pédagogique ni la santé des élèves.
+  hr: ['evaluations', 'reports', 'behavior', 'moments', 'journal', 'milestones',
+    'health', 'homework', 'exams', 'invoices', 'receipts', 'visitors', 'rounds', 'logbook'],
+  // Comptable : voit l'argent, PAS le pédagogique, la santé ni les dossiers RH.
+  accountant: ['evaluations', 'reports', 'behavior', 'moments', 'journal', 'milestones',
+    'health', 'homework', 'exams', 'hrPayrolls', 'hrContracts', 'visitors', 'rounds', 'logbook'],
   supervisor: [...STAFF_STRIP_BASE, 'visitors', 'rounds', 'logbook'],
   security: [...STAFF_STRIP_BASE, 'health', 'evaluations', 'reports', 'behavior',
     'moments', 'journal', 'milestones', 'homework', 'exams'],

@@ -1,7 +1,7 @@
 // Single source of truth for per-route role permissions.
 // Used by App.jsx (route guards) AND the notification system (so a notification
 // never links a user to a page their role can't open).
-export const ALL=['owner','schooladmin','admin','teacher','supervisor','security','parent']
+export const ALL=['owner','schooladmin','admin','hr','accountant','teacher','supervisor','security','parent']
 export const ROUTE_ROLES={
   '/app': ALL,
   '/app/schools': ['owner'],
@@ -11,7 +11,7 @@ export const ROUTE_ROLES={
   // La fiche élève 360° : le personnel — le parent a ses propres vues.
   '/app/eleve': ['schooladmin','admin','supervisor','teacher'],
   '/app/teachers': ['schooladmin','admin'],
-  '/app/staff': ['schooladmin','admin'],
+  '/app/staff': ['schooladmin','admin','hr'],
   '/app/pointage': ['teacher','supervisor','security','admin'],
   '/app/evaluate': ['teacher'],
   '/app/results': ['schooladmin','admin'],
@@ -19,7 +19,7 @@ export const ROUTE_ROLES={
   '/app/attendance': ['schooladmin','teacher','admin','supervisor'],
   '/app/homework': ['teacher','admin','parent'],
   '/app/exams': ['schooladmin','admin','teacher','parent'],
-  '/app/finance': ['schooladmin','admin'],
+  '/app/finance': ['schooladmin','admin','accountant'],
   '/app/payments': ['parent'],
   '/app/live': ['parent'],
   '/app/library': ['schooladmin','admin','teacher'],
@@ -33,21 +33,21 @@ export const ROUTE_ROLES={
   '/app/canteen': ['teacher','admin','schooladmin','parent'],
   // Le guichet des documents officiels : administration et direction seulement.
   '/app/documents': ['admin','schooladmin'],
-  '/app/budget': ['schooladmin','admin'],
+  '/app/budget': ['schooladmin','admin','accountant'],
   '/app/inventory': ['schooladmin','admin'],
-  '/app/recruit': ['schooladmin','admin'],
+  '/app/recruit': ['schooladmin','admin','hr'],
   // Le journal du jour : l'éducatrice le remplit, le parent le lit.
   '/app/journal': ['teacher','admin','schooladmin','parent'],
   '/app/admissions': ['schooladmin','admin'],
-  '/app/hr': ['schooladmin','admin'],
-  '/app/accounting': ['schooladmin','admin'],
+  '/app/hr': ['schooladmin','admin','hr'],
+  '/app/accounting': ['schooladmin','admin','accountant'],
   '/app/academic': ['schooladmin','admin','teacher'],
   '/app/facilities': ['schooladmin','admin'],
   '/app/accidents': ['teacher','supervisor','admin','schooladmin','parent'],
   '/app/child': ['teacher','admin','schooladmin'],
   '/app/interop': ['schooladmin','admin'],
   '/setup': ['schooladmin'],
-  '/app/requests': ['teacher','admin','schooladmin'],
+  '/app/requests': ['teacher','admin','schooladmin','hr'],
   '/app/messages': ALL,
   '/app/notices': ALL,
   '/app/notifications': ALL,

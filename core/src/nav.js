@@ -47,12 +47,12 @@ const ALL_NAV=[
     roles:['schooladmin','admin'] },
   { to:'/app/students', section:'eleves', label:'Élèves', icon:'Users', roles:['schooladmin','admin','supervisor','teacher'] },
   { to:'/app/teachers', section:'equipe', label:'Enseignants', icon:'GraduationCap', roles:['schooladmin','admin'] },
-  { to:'/app/staff', section:'equipe', label:'Personnel', icon:'BriefcaseBusiness', roles:['schooladmin','admin'] },
+  { to:'/app/staff', section:'equipe', label:'Personnel', icon:'BriefcaseBusiness', roles:['schooladmin','admin','hr'] },
   // RH & paie : aucune école n'achète un ERP sans ça. Ennuyeux, donc parfait.
-  { to:'/app/hr', section:'equipe', label:'RH & Paie', icon:'Wallet2', module:'hr', roles:['schooladmin','admin'] },
+  { to:'/app/hr', section:'equipe', label:'RH & Paie', icon:'Wallet2', module:'hr', pinned:['hr'], roles:['schooladmin','admin','hr'] },
   // Comptabilité : barème, remises, factures, reçus. Une facture émise ne se
   // modifie pas — elle s'annule par un avoir. C'est ça, une compta défendable.
-  { to:'/app/accounting', section:'argent', label:'Comptabilité', icon:'Receipt', module:'accounting', roles:['schooladmin','admin'] },
+  { to:'/app/accounting', section:'argent', label:'Comptabilité', icon:'Receipt', module:'accounting', pinned:['accountant'], roles:['schooladmin','admin','accountant'] },
   // Bulletins & passage. Le passage d'année est IRRÉVERSIBLE et touche à l'argent :
   // on le montre avant de l'exécuter (recherche 3-0).
   { to:'/app/academic', section:'pedagogie', label:'Bulletins & passage', icon:'FileBadge', module:'academic', roles:['schooladmin','admin','teacher'] },
@@ -74,7 +74,7 @@ const ALL_NAV=[
   { to:'/app/attendance', section:'quotidien', pinned:['teacher','supervisor'], label:'Présence', icon:'CalendarCheck', roles:['schooladmin','teacher','admin','supervisor'] },
   { to:'/app/homework', section:'pedagogie', label:'Devoirs', icon:'BookOpen', roles:['teacher','admin','parent'] },
   { to:'/app/exams', section:'pedagogie', label:'Examens', icon:'Award', roles:['schooladmin','admin','teacher','parent'] },
-  { to:'/app/finance', section:'argent', label:'Frais & Finances', icon:'Wallet', roles:['schooladmin','admin'] },
+  { to:'/app/finance', section:'argent', label:'Frais & Finances', icon:'Wallet', roles:['schooladmin','admin','accountant'] },
   { to:'/app/payments', section:'argent', pinned:['parent'], label:'Mes paiements', icon:'CreditCard', roles:['parent'] },
   { to:'/app/library', section:'pedagogie', label:'Bibliothèque', icon:'BookMarked', roles:['schooladmin','admin','teacher'] },
   { to:'/app/transport', section:'vie', label:'Transport', icon:'Bus', roles:['schooladmin','admin','parent'] },
@@ -107,12 +107,12 @@ const ALL_NAV=[
   { to:'/app/documents', section:'eleves', label:'Documents', icon:'ScrollText', module:'documents',
     roles:['admin','schooladmin'] },
   { to:'/app/budget', section:'argent', label:'Budget & rapports', icon:'Scale', module:'budget',
-    roles:['schooladmin','admin'] },
+    roles:['schooladmin','admin','accountant'] },
   { to:'/app/inventory', section:'vie', label:'Inventaire', icon:'Boxes', module:'inventory',
     roles:['schooladmin','admin'] },
   { to:'/app/recruit', section:'equipe', label:'Recrutement', icon:'UserPlus', module:'recruit',
-    roles:['schooladmin','admin'] },
-  { to:'/app/requests', section:'equipe', label:'Demandes', icon:'FileText', roles:['teacher','admin','schooladmin'] },
+    roles:['schooladmin','admin','hr'] },
+  { to:'/app/requests', section:'equipe', label:'Demandes', icon:'FileText', roles:['teacher','admin','schooladmin','hr'] },
   { to:'/app/messages', section:'quotidien', label:'Messages', icon:'MessageSquare', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent'] },
   { to:'/app/notices', section:'quotidien', label:'Annonces', icon:'Megaphone', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent'] },
   // « Est-ce que ça s'intègre ? » est une QUESTION D'ACHAT dans toute école

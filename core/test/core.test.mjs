@@ -1261,3 +1261,34 @@ test('curriculum : la mention (grade) suit l’échelle du pays', async () => {
   assert.equal(gradeOf(null), null, 'aucun score : aucune mention inventée')
   setLocalePack('TN')
 })
+
+// ── Départements réels : RH & Comptabilité (CR-019) ──────────────────────────
+test('départements : RH et Comptabilité existent comme rôles composables', async () => {
+  const { ALL, ROUTE_ROLES } = await import('../src/access.js')
+  assert.ok(ALL.includes('hr') && ALL.includes('accountant'), 'hr et accountant sont des rôles')
+  // la RH accède à SON périmètre
+  assert.ok(ROUTE_ROLES['/app/hr'].includes('hr') && ROUTE_ROLES['/app/staff'].includes('hr') && ROUTE_ROLES['/app/recruit'].includes('hr'))
+  // …mais PAS à la comptabilité
+  assert.ok(!ROUTE_ROLES['/app/accounting'].includes('hr'), 'la RH ne voit pas la comptabilité')
+  // la comptabilité accède à SON périmètre
+  assert.ok(ROUTE_ROLES['/app/accounting'].includes('accountant') && ROUTE_ROLES['/app/finance'].includes('accountant') && ROUTE_ROLES['/app/budget'].includes('accountant'))
+  // …mais PAS à la RH ni aux élèves
+  assert.ok(!ROUTE_ROLES['/app/hr'].includes('accountant'), 'le comptable ne voit pas la RH')
+  assert.ok(!(ROUTE_ROLES['/app/students']||[]).includes('accountant'), 'le comptable ne voit pas les élèves')
+})
+
+test('départements : séparation des données en mode serveur (ACL)', async () => {
+  const { writableCollections } = await import('../src/acl.js')
+  const hr = writableCollections('hr'); const acc = writableCollections('accountant')
+  // RH écrit la paie/contrats, PAS les factures
+  assert.ok(hr.includes('hrPayrolls') && hr.includes('hrContracts') && !hr.includes('invoices'))
+  // Comptable écrit les factures/paiements, PAS la paie du personnel
+  assert.ok(acc.includes('invoices') && acc.includes('payments') && !acc.includes('hrPayrolls'))
+})
+
+test('départements : les comptes de démo RH et Comptable existent', async () => {
+  const { resetDb, db } = await import('../src/db.js')
+  resetDb(); const d = db()
+  assert.ok(d.users.find(u => u.role === 'hr' && u.email === 'rh@alnour.tn'), 'compte RH de démo')
+  assert.ok(d.users.find(u => u.role === 'accountant' && u.email === 'comptable@alnour.tn'), 'compte Comptable de démo')
+})

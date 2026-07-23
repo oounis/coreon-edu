@@ -31,6 +31,10 @@ export const ROLE = {
   schooladmin: role('Direction',      BRAND.indigo),// #7539E4
   // L'Administration : l'ardoise. Sobre, clérical — c'est un métier de registre.
   admin:       role('Administration', N.slate),     // #485868
+  // CR-019 : les départements réels. La RH — le bleu du personnel.
+  hr:          role('RH & Paie',      '#0E7FB8'),
+  // La Comptabilité — le vert défendable de l'argent tracé.
+  accountant:  role('Comptabilité',   '#12946F'),
   // L'Enseignant : le vert de la série 6. La classe.
   teacher:     role('Enseignant',     SERIES[5]),   // #2F8050
   // Le Surveillant : la terre profonde. La cour, le terrain.

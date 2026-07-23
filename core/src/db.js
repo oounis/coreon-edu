@@ -77,6 +77,8 @@ export function demoUsers(){
     {id:"u_owner",role:"owner",name:"Kogia Group",email:"owner@kogia.tn",pw:"owner"},
     {id:"u_sadmin",role:"schooladmin",name:"Lina Aderra",email:"direction@alnour.tn",pw:"admin",phone:"+216 20 555 555"},
     {id:"u_admin",role:"admin",name:"Karim Jelassi",email:"admin@alnour.tn",pw:"office",phone:"+216 20 666 666"},
+    {id:"u_hr",role:"hr",name:"Faten Mabrouk",email:"rh@alnour.tn",pw:"rh",gender:"Femme",phone:"+216 20 666 777",position:"Responsable RH"},
+    {id:"u_acct",role:"accountant",name:"Nabil Ayari",email:"comptable@alnour.tn",pw:"compta",gender:"Homme",phone:"+216 20 666 888",position:"Comptable"},
     {id:"t1",role:"teacher",name:"Othman Ounis",email:"enseignant@alnour.tn",pw:"teacher",teacherId:"t1"},
     // L'éducatrice de la crèche et de la maternelle. Elle avait une fiche dans
     // `teachers` mais AUCUN compte : elle ne pouvait pas se connecter.
