@@ -60,7 +60,7 @@ export function techProfile(school, db) {
     ],
     // ── Diagnostic : ce qu'on peut RÉELLEMENT vérifier aujourd'hui ──
     diagnostic: [
-      line('Mode', school?.live ? 'Démonstration (données locales)' : 'Client (serveur dédié — à provisionner)'),
+      line('Mode', school?.live ? 'Démonstration (données locales)' : 'Client (serveur dédié · à provisionner)'),
       line('Révision des données', rev),
       line('Joignable', school?.status === 'suspended' ? 'Suspendue' : 'Oui'),
     ],

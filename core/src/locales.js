@@ -39,7 +39,7 @@ export const PACKS = {
     },
     legal: {
       law: 'Personal Data Protection Law No. 30 of 2018 (PDPL)',
-      authority: 'Personal Data Protection Authority — Bahrain',
+      authority: 'Personal Data Protection Authority, Bahrain',
       consent: "I authorize the school to process these personal data for my child's education, in accordance with Bahrain's PDPL (Law No. 30 of 2018). I may request access, correction or deletion at any time.",
     },
   },
@@ -63,7 +63,7 @@ export const PACKS = {
     },
     legal: {
       law: 'Law No. 13 of 2016 on Personal Data Privacy Protection',
-      authority: 'National Cyber Security Agency — Qatar',
+      authority: 'National Cyber Security Agency, Qatar',
       consent: "I authorize the school to process these personal data for my child's education, in accordance with Qatar's Law No. 13 of 2016 on Personal Data Privacy Protection. I may request access, correction or deletion at any time.",
     },
   },
