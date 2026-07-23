@@ -7,6 +7,7 @@
 >
 > Produit : **Coreon EDU** · Éditeur : **KogiaGroup** · Établi 2026-07-23, tenu à jour.
 > Documents liés : [role-model.md](role-model.md) (rôles & permissions),
+> [gap-analysis.md](gap-analysis.md) (manques vs ERP pro + priorités Golfe),
 > [Coreon-EDU_QA-Test-Workbook.xlsx](Coreon-EDU_QA-Test-Workbook.xlsx) (défauts & demandes).
 
 ---
