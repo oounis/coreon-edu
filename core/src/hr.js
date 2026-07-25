@@ -52,10 +52,34 @@ export const contracts = () => db().hrContracts || []
 /** Le contrat d'un employé. Sans contrat, pas de paie — et c'est volontaire. */
 export const contractOf = staffId => contracts().find(c => c.staffId === staffId) || null
 
-export function setContract({ staffId, kind = 'cdi', salary = 0, start = todayIso(), end = null }) {
+// ── Structure de salaire MULTI-COMPOSANTS (CR-028) ───────────────────────────
+// Un salaire n'est pas un nombre : c'est une base + des indemnités. Le Golfe
+// raisonne ainsi (la BASE sert de référence à la gratuité et aux cotisations),
+// et un bulletin de paie doit détailler chaque ligne. Rétro-compatible : un
+// ancien contrat qui n'a qu'un champ `salary` est lu comme une base seule.
+export const EARNINGS = {
+  base:      { key: 'base',      label: 'Salaire de base' },
+  housing:   { key: 'housing',   label: 'Indemnité de logement' },
+  transport: { key: 'transport', label: 'Indemnité de transport' },
+}
+
+/** Les composants d'un contrat, normalisés (et rétro-compatibles). */
+export function contractEarnings(c) {
+  if (!c) return { base: 0, housing: 0, transport: 0 }
+  if (c.base == null && c.salary != null) return { base: Number(c.salary) || 0, housing: 0, transport: 0 }
+  return { base: Number(c.base) || 0, housing: Number(c.housing) || 0, transport: Number(c.transport) || 0 }
+}
+/** Le brut FIXE (hors prime) = somme des composants. */
+export const contractGross = c => { const e = contractEarnings(c); return e.base + e.housing + e.transport }
+/** La BASE seule — la référence de la gratuité et des cotisations (Golfe). */
+export const contractBase = c => contractEarnings(c).base
+
+export function setContract({ staffId, kind = 'cdi', base = 0, housing = 0, transport = 0, salary, start = todayIso(), end = null }) {
   const d = db()
+  // Rétro-compat : un appelant qui passe encore `salary` le voit devenir la base.
+  const b = Number(base || salary || 0) || 0
   d.hrContracts = [...(d.hrContracts || []).filter(c => c.staffId !== staffId),
-    { staffId, kind, salary: Number(salary) || 0, start, end }]
+    { staffId, kind, base: b, housing: Number(housing) || 0, transport: Number(transport) || 0, start, end }]
   save(d)
 }
 
@@ -122,34 +146,44 @@ export function unpaidDays(staffId, month) {
   ).reduce((s, l) => s + l.days, 0)
 }
 
+/** Le net d'une ligne : brut fixe + prime − retenue. Jamais négatif. */
+const lineNet = l => Math.max(0, (l.gross || 0) + (l.bonus || 0) - (l.deduction || 0))
+
 /**
  * Préparer la paie d'un mois (`YYYY-MM`).
- * Elle se CALCULE à partir des faits — salaire du contrat, jours sans solde —
+ * Elle se CALCULE à partir des faits — composants du contrat, jours sans solde —
  * et non d'une saisie libre. Un bulletin est une conséquence, pas une opinion.
+ * `by` (l'auteur) est mémorisé : c'est le PRÉPARATEUR, qui ne pourra pas valider
+ * sa propre paie (maker-checker, CR-027).
  */
-export function preparePayroll(month, staff) {
+export function preparePayroll(month, staff, by = null) {
   const existing = payrollOf(month)
   if (existing && existing.stage !== 'brouillon') {
     return { error: `La paie de ${month} est déjà ${PAYROLL_STAGES[existing.stage].label.toLowerCase()}.` }
   }
   const lines = staff.map(s => {
     const c = contractOf(s.id)
-    const base = c?.salary || 0
+    const earnings = contractEarnings(c)
+    const gross = earnings.base + earnings.housing + earnings.transport
     const off = unpaidDays(s.id, month)
-    const daily = base / 30
-    const deduction = Math.round(daily * off)
+    // La retenue « sans solde » se prorate sur le brut FIXE (30 j de référence),
+    // pas sur la prime : une prime ne se retient pas pour une absence.
+    const deduction = Math.round((gross / 30) * off)
+    const bonus = 0
     return {
       staffId: s.id, name: s.name, role: s.role || s.designation || '·',
       contract: c?.kind || null,
-      base, unpaidDays: off, deduction, bonus: 0,
-      net: Math.max(0, base - deduction),
+      earnings, gross, unpaidDays: off, deduction, bonus,
+      net: Math.max(0, gross - deduction),
     }
   })
   const d = db()
   const p = {
     month, stage: 'brouillon', lines,
     total: lines.reduce((s, l) => s + l.net, 0),
-    createdAt: now(), validatedBy: null, paidAt: null,
+    createdAt: now(),
+    preparedBy: by?.name || null, preparedById: by?.id || null,
+    validatedBy: null, validatedById: null, validatedAt: null, paidAt: null,
   }
   d.hrPayrolls = [...(d.hrPayrolls || []).filter(x => x.month !== month), p]
   save(d)
@@ -165,7 +199,7 @@ export function setBonus(month, staffId, bonus) {
   d.hrPayrolls = d.hrPayrolls.map(x => x.month !== month ? x : {
     ...x,
     lines: x.lines.map(l => l.staffId !== staffId ? l
-      : { ...l, bonus: Number(bonus) || 0, net: Math.max(0, l.base - l.deduction + (Number(bonus) || 0)) }),
+      : { ...l, bonus: Number(bonus) || 0, net: lineNet({ ...l, bonus: Number(bonus) || 0 }) }),
   })
   const np = payrollOf(month)
   d.hrPayrolls = d.hrPayrolls.map(x => x.month !== month ? x
@@ -174,14 +208,21 @@ export function setBonus(month, staffId, bonus) {
   return { ok: true }
 }
 
-/** RÈGLE 2 — valider verrouille. On ne réécrit pas l'histoire de la paie. */
-export function validatePayroll(month, byName) {
+/**
+ * RÈGLE 2 — valider verrouille. On ne réécrit pas l'histoire de la paie.
+ * MAKER-CHECKER (CR-027) — celui qui a PRÉPARÉ la paie ne peut pas la VALIDER :
+ * séparation des tâches. Dans une école, la RH prépare, la Direction approuve.
+ * Le contrôle vit dans le cœur, pas seulement à l'écran.
+ */
+export function validatePayroll(month, byId, byName) {
   const p = payrollOf(month)
   if (!p) return { error: 'Aucune paie pour ce mois.' }
   if (p.stage !== 'brouillon') return { error: 'Déjà validée.' }
+  if (p.preparedById && byId && p.preparedById === byId)
+    return { error: 'Vous avez préparé cette paie : sa validation revient à une autre personne.' }
   const d = db()
   d.hrPayrolls = d.hrPayrolls.map(x => x.month !== month ? x
-    : { ...x, stage: 'valide', validatedBy: byName, validatedAt: now() })
+    : { ...x, stage: 'valide', validatedBy: byName, validatedById: byId || null, validatedAt: now() })
   save(d)
   return { ok: true }
 }

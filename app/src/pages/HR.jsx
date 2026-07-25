@@ -5,14 +5,15 @@ import { current } from '@core/auth.js'
 import { db } from '@core/db.js'
 import { currency } from '@core/currency.js'
 import {
-  CONTRACTS, LEAVE_KINDS, LEAVE_STAGES, PAYROLL_STAGES,
-  contractOf, setContract, leaves, decideLeave, leaveBalance,
+  CONTRACTS, LEAVE_KINDS, LEAVE_STAGES, PAYROLL_STAGES, EARNINGS,
+  contractOf, setContract, contractEarnings, contractGross, leaves, decideLeave, leaveBalance,
   payrollOf, preparePayroll, setBonus, validatePayroll, markPaid,
   thisMonth, monthLabel,
 } from '@core/hr.js'
 import {
   PageHead, Card, Btn, Badge, Modal, Field, Input, Select, Tabs, EmptyState, Avatar, STATUS,
 } from '../components/ui.jsx'
+import Payslip from '../components/Payslip.jsx'
 import { Ic } from '../icons.jsx'
 import toast from 'react-hot-toast'
 
@@ -24,9 +25,10 @@ function useStaff() {
   const d = db()
   return useMemo(() => {
     const t = (d.teachers || []).map(x => ({ id: x.id, name: x.name, role: x.designation || 'Enseignant', salary: x.salary }))
+    const LABELS = { admin: 'Administration', supervisor: 'Surveillant', security: 'Sécurité', schooladmin: 'Direction', hr: 'Ressources humaines', accountant: 'Comptabilité' }
     const u = (d.users || [])
-      .filter(x => ['admin', 'supervisor', 'security', 'schooladmin'].includes(x.role))
-      .map(x => ({ id: x.id, name: x.name, role: { admin: 'Administration', supervisor: 'Surveillant', security: 'Sécurité', schooladmin: 'Direction' }[x.role] }))
+      .filter(x => ['admin', 'supervisor', 'security', 'schooladmin', 'hr', 'accountant'].includes(x.role))
+      .map(x => ({ id: x.id, name: x.name, role: x.position || LABELS[x.role] }))
     return [...t, ...u]
   }, [d])
 }
@@ -58,16 +60,22 @@ export default function HR() {
 // ── ÉQUIPE & CONTRATS ───────────────────────────────────────────────────────
 function Team({ staff, refresh }) {
   const [edit, setEdit] = useState(null)
-  const [f, setF] = useState({ kind: 'cdi', salary: '', start: '' })
+  const [f, setF] = useState({ kind: 'cdi', base: '', housing: '', transport: '', start: '' })
+  const fGross = (Number(f.base) || 0) + (Number(f.housing) || 0) + (Number(f.transport) || 0)
 
   const open = s => {
     const c = contractOf(s.id)
-    setF({ kind: c?.kind || 'cdi', salary: c?.salary || s.salary || '', start: c?.start || '' })
+    const e = contractEarnings(c)
+    setF({
+      kind: c?.kind || 'cdi',
+      base: (c ? e.base : s.salary) || '', housing: e.housing || '', transport: e.transport || '',
+      start: c?.start || '',
+    })
     setEdit(s)
   }
   const saveIt = () => {
-    if (!f.salary) return toast.error('Le salaire est requis : sans contrat, pas de paie.')
-    setContract({ staffId: edit.id, kind: f.kind, salary: f.salary, start: f.start || undefined })
+    if (!Number(f.base)) return toast.error('Le salaire de base est requis : sans contrat, pas de paie.')
+    setContract({ staffId: edit.id, kind: f.kind, base: f.base, housing: f.housing, transport: f.transport, start: f.start || undefined })
     toast.success(`Contrat enregistré pour ${edit.name}.`)
     setEdit(null); refresh()
   }
@@ -89,7 +97,7 @@ function Team({ staff, refresh }) {
               {c
                 ? <>
                     <Badge label={CONTRACTS[c.kind]?.label} tone="info" />
-                    <span className="text-sm font-extrabold tabular-nums">{money(c.salary)}</span>
+                    <span className="text-sm font-extrabold tabular-nums">{money(contractGross(c))}</span>
                     {bal && <span className="text-xs text-muted font-semibold tabular-nums">{bal.left}/{bal.quota} j de congé</span>}
                   </>
                 : <span className="text-xs font-bold" style={{ color: STATUS.warn }}>
@@ -109,9 +117,21 @@ function Team({ staff, refresh }) {
               {Object.values(CONTRACTS).map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
             </Select>
           </Field>
-          <Field label={`Salaire mensuel brut (${currency()}) *`} hint="La paie se calcule à partir de ce montant.">
-            <Input type="number" value={f.salary} onChange={e => setF({ ...f, salary: e.target.value })} />
-          </Field>
+          <div className="grid sm:grid-cols-3 gap-3">
+            <Field label={`${EARNINGS.base.label} (${currency()}) *`} hint="Référence de la gratuité.">
+              <Input type="number" value={f.base} onChange={e => setF({ ...f, base: e.target.value })} />
+            </Field>
+            <Field label={`${EARNINGS.housing.label}`}>
+              <Input type="number" value={f.housing} onChange={e => setF({ ...f, housing: e.target.value })} />
+            </Field>
+            <Field label={`${EARNINGS.transport.label}`}>
+              <Input type="number" value={f.transport} onChange={e => setF({ ...f, transport: e.target.value })} />
+            </Field>
+          </div>
+          <div className="flex items-center justify-between rounded-xl px-4 py-2.5 text-sm font-semibold" style={{ background: STATUS.infoSoft, color: STATUS.info }}>
+            <span>Salaire mensuel brut</span>
+            <span className="tabular-nums font-extrabold">{money(fGross)}</span>
+          </div>
           <Field label="Date d’entrée">
             <Input type="date" value={f.start} onChange={e => setF({ ...f, start: e.target.value })} />
           </Field>
@@ -184,18 +204,20 @@ function Leaves({ staff, me, refresh }) {
 // ── PAIE ────────────────────────────────────────────────────────────────────
 function Payroll({ staff, me, refresh }) {
   const [month, setMonth] = useState(thisMonth())
+  const [slip, setSlip] = useState(null)
   const p = payrollOf(month)
   const st = p && PAYROLL_STAGES[p.stage]
   const locked = p && p.stage !== 'brouillon'
+  const iPrepared = p && p.preparedById && p.preparedById === me.id
 
   const prepare = () => {
-    const r = preparePayroll(month, staff)
+    const r = preparePayroll(month, staff, { id: me.id, name: me.name })
     if (r.error) return toast.error(r.error)
     toast.success(`Paie de ${monthLabel(month)} préparée.`)
     refresh()
   }
   const validate = () => {
-    const r = validatePayroll(month, me.name)
+    const r = validatePayroll(month, me.id, me.name)
     if (r.error) return toast.error(r.error)
     toast.success('Paie validée. Elle est désormais verrouillée.')
     refresh()
@@ -217,7 +239,12 @@ function Payroll({ staff, me, refresh }) {
         {!p && <Btn onClick={prepare}><Ic n="Calculator" size={15} /> Préparer la paie</Btn>}
         {p?.stage === 'brouillon' && <>
           <Btn variant="soft" onClick={prepare}>Recalculer</Btn>
-          <Btn onClick={validate}><Ic n="Lock" size={15} /> Valider</Btn>
+          {iPrepared
+            // MAKER-CHECKER : le préparateur ne valide pas sa propre paie.
+            ? <span className="text-xs text-muted font-semibold flex items-center gap-1">
+                <Ic n="Lock" size={12} /> Vous avez préparé : une autre personne valide
+              </span>
+            : <Btn onClick={validate}><Ic n="Lock" size={15} /> Valider</Btn>}
         </>}
         {p?.stage === 'valide' && <Btn onClick={pay}><Ic n="Check" size={15} /> Marquer payée</Btn>}
       </Card>
@@ -227,11 +254,18 @@ function Payroll({ staff, me, refresh }) {
 
       {p && (
         <Card className="p-0 overflow-hidden">
+          {p.preparedBy && !locked && (
+            <div className="px-5 py-3 flex items-center gap-2 text-[13px] font-semibold"
+              style={{ background: STATUS.warnSoft, color: STATUS.warn }}>
+              <Ic n="PencilLine" size={14} />
+              Brouillon préparé par {p.preparedBy} · la validation revient à une autre personne (séparation des tâches).
+            </div>
+          )}
           {locked && (
             <div className="px-5 py-3 flex items-center gap-2 text-[13px] font-semibold"
               style={{ background: STATUS.infoSoft, color: STATUS.info }}>
               <Ic n="Lock" size={14} />
-              Paie validée par {p.validatedBy} · elle ne peut plus être modifiée.
+              Paie {p.preparedBy && `préparée par ${p.preparedBy}, `}validée par {p.validatedBy} · elle ne peut plus être modifiée.
               Une correction se fait par un ajustement daté, jamais en réécrivant l’histoire.
             </div>
           )}
@@ -245,7 +279,8 @@ function Payroll({ staff, me, refresh }) {
                   <th className="px-3 py-3 text-right">Sans solde</th>
                   <th className="px-3 py-3 text-right">Retenue</th>
                   <th className="px-3 py-3 text-right">Prime</th>
-                  <th className="px-5 py-3 text-right">Net</th>
+                  <th className="px-3 py-3 text-right">Net</th>
+                  <th className="px-5 py-3 text-right">Bulletin</th>
                 </tr>
               </thead>
               <tbody>
@@ -260,7 +295,7 @@ function Payroll({ staff, me, refresh }) {
                         ? <Badge label={CONTRACTS[l.contract]?.label} tone="neutral" />
                         : <span className="text-xs font-bold" style={{ color: STATUS.warn }}>Aucun</span>}
                     </td>
-                    <td className="px-3 py-3 text-right tabular-nums">{money(l.base)}</td>
+                    <td className="px-3 py-3 text-right tabular-nums">{money(l.gross)}</td>
                     <td className="px-3 py-3 text-right tabular-nums">{l.unpaidDays || '·'}</td>
                     <td className="px-3 py-3 text-right tabular-nums"
                       style={{ color: l.deduction ? STATUS.danger : undefined }}>
@@ -273,20 +308,28 @@ function Payroll({ staff, me, refresh }) {
                             onBlur={e => { setBonus(month, l.staffId, e.target.value); refresh() }}
                             className="w-24 text-right rounded-lg border border-line px-2 py-1 text-sm accent-ring tabular-nums" />}
                     </td>
-                    <td className="px-5 py-3 text-right font-extrabold tabular-nums">{money(l.net)}</td>
+                    <td className="px-3 py-3 text-right font-extrabold tabular-nums">{money(l.net)}</td>
+                    <td className="px-5 py-3 text-right">
+                      <Btn size="sm" variant="ghost" onClick={() => setSlip(l)} title="Ouvrir le bulletin de paie">
+                        <Ic n="FileText" size={14} /> Bulletin
+                      </Btn>
+                    </td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
                 <tr className="bg-canvas font-extrabold">
                   <td className="px-5 py-3" colSpan={6}>Total</td>
-                  <td className="px-5 py-3 text-right tabular-nums">{money(p.total)}</td>
+                  <td className="px-3 py-3 text-right tabular-nums">{money(p.total)}</td>
+                  <td className="px-5 py-3" />
                 </tr>
               </tfoot>
             </table>
           </div>
         </Card>
       )}
+
+      {slip && <Payslip line={slip} month={month} stage={p?.stage} validatedBy={p?.validatedBy} onClose={() => setSlip(null)} />}
     </>
   )
 }

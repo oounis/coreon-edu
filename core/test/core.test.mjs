@@ -118,6 +118,49 @@ test('bureau : personne ne décide de sa propre demande de congé', () => {
   assert.equal(cnt(admin), a0, 'l’admin ne voit pas sa propre demande')
 })
 
+test('paie : salaire MULTI-COMPOSANTS (base + logement + transport)', async () => {
+  const { resetDb } = await import('../src/db.js')
+  const { setContract, contractOf, contractEarnings, contractGross, contractBase } = await import('../src/hr.js')
+  resetDb()
+  setContract({ staffId: 't1', kind: 'cdi', base: 1300, housing: 350, transport: 150 })
+  const c = contractOf('t1')
+  assert.equal(contractGross(c), 1800, 'brut = somme des composants')
+  assert.equal(contractBase(c), 1300, 'la base est la référence gratuité/cotisations')
+  // rétro-compat : un ancien contrat n'a que `salary` → c'est la base
+  assert.equal(contractGross({ salary: 1400 }), 1400)
+  assert.equal(contractEarnings({ salary: 1400 }).base, 1400)
+})
+
+test('paie : le net se calcule des composants et des jours sans solde', async () => {
+  const { resetDb } = await import('../src/db.js')
+  const { setContract, requestLeave, decideLeave, preparePayroll } = await import('../src/hr.js')
+  resetDb()
+  setContract({ staffId: 't1', kind: 'cdi', base: 1200, housing: 300, transport: 0 })  // brut 1500
+  const l = requestLeave({ staffId: 't1', kind: 'sansSolde', from: '2026-08-10', to: '2026-08-12' })
+  decideLeave(l.id, 'accorde', 'boss', 'Boss')
+  const { payroll } = preparePayroll('2026-08', [{ id: 't1', name: 'T', role: 'Ens.' }], { id: 'rh', name: 'RH' })
+  const line = payroll.lines[0]
+  assert.equal(line.gross, 1500)
+  assert.equal(line.unpaidDays, 3)
+  assert.equal(line.deduction, Math.round((1500 / 30) * 3), 'retenue prorata sur le brut fixe')
+  assert.equal(line.net, 1500 - line.deduction)
+  assert.deepEqual(line.earnings, { base: 1200, housing: 300, transport: 0 }, 'le bulletin détaille chaque composant')
+})
+
+test('paie : MAKER-CHECKER — le préparateur ne valide pas sa propre paie', async () => {
+  const { resetDb } = await import('../src/db.js')
+  const { setContract, preparePayroll, validatePayroll, payrollOf } = await import('../src/hr.js')
+  resetDb()
+  setContract({ staffId: 't1', kind: 'cdi', base: 1000 })
+  preparePayroll('2026-09', [{ id: 't1', name: 'T', role: 'Ens.' }], { id: 'u_hr', name: 'Faten' })
+  const self = validatePayroll('2026-09', 'u_hr', 'Faten')       // le préparateur
+  assert.ok(self.error && /préparé/.test(self.error), 'auto-validation refusée (séparation des tâches)')
+  assert.equal(payrollOf('2026-09').stage, 'brouillon', 'toujours en brouillon')
+  const other = validatePayroll('2026-09', 'u_sadmin', 'Lina')   // une autre personne (Direction)
+  assert.ok(!other.error, 'un autre responsable peut valider')
+  assert.equal(payrollOf('2026-09').stage, 'valide')
+})
+
 test('bureau : une demande du personnel n’apparaît qu’à l’étape de SON circuit', () => {
   const d = db()
   const admin = d.users.find(u => u.id === 'u_admin')

@@ -264,10 +264,13 @@ function seed(){
               {at:Date.now()-10*DAY,stage:"attente",by:"Administration",note:"5ème A pleine (10/24)."}]},
   ]
   // ── RH : contrats et congés ────────────────────────────────────────────────
+  // Salaire multi-composants (CR-028) : base + logement + transport. La base sert
+  // de référence à la gratuité et aux cotisations. Les totaux valent les anciens
+  // montants (1800/1500/1400), mais désormais détaillés — comme un vrai bulletin.
   const hrContracts=[
-    {staffId:"t1",   kind:"cdi", salary:1800, start:"2022-09-01", end:null},
-    {staffId:"t_ee", kind:"cdi", salary:1500, start:"2023-09-01", end:null},
-    {staffId:"u_admin", kind:"cdi", salary:1400, start:"2021-09-01", end:null},
+    {staffId:"t1",   kind:"cdi", base:1300, housing:350, transport:150, start:"2022-09-01", end:null},
+    {staffId:"t_ee", kind:"cdi", base:1100, housing:300, transport:100, start:"2023-09-01", end:null},
+    {staffId:"u_admin", kind:"cdi", base:1000, housing:300, transport:100, start:"2021-09-01", end:null},
   ]
   const hrLeaves=[
     {id:"l1",staffId:"t1",kind:"annuel",from:"2026-08-03",to:"2026-08-14",reason:"Vacances d'été.",
