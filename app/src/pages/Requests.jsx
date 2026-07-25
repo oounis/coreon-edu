@@ -252,7 +252,7 @@ function OfficialDoc({ r }){ const m=docModel(r); return (
     <p className="leading-7">{m.body}</p>
     <div className="mt-6 grid grid-cols-2 gap-4"><div className="text-xs text-muted"><b>Circuit de validation :</b>{m.r.approvals.map((a,i)=><div key={i} className="flex items-center gap-1"><Check size={10} className="shrink-0"/> {ROLE[a.role]?.label} · {a.by} ({format(a.at,'dd/MM/yyyy')})</div>)}</div>
       <div className="text-center"><div className="h-12"></div><div className="border-t border-ink/30 pt-1 text-xs">Cachet & signature de la Direction</div></div></div>
-    <div className="text-[11px] text-muted mt-6 pt-2 border-t border-line">Document généré par Coreon Edu · conforme à la {LEGAL.law} (INPDP).</div>
+    <div className="text-[11px] text-muted mt-6 pt-2 border-t border-line">Document généré par Coreon Edu · conforme à la {LEGAL.law}{LEGAL.authority ? ` (${LEGAL.authority})` : ''}.</div>
   </div>) }
 function downloadPDF(r){
   const m=docModel(r); const doc=new jsPDF({unit:'mm',format:'a4'}); const W=210; let y=20
@@ -268,7 +268,7 @@ function downloadPDF(r){
   doc.setFontSize(9); doc.setTextColor(110); doc.text('Circuit de validation :',20,y); y+=5
   m.r.approvals.forEach(a=>{ doc.text(`  • ${ROLE[a.role]?.label} · ${a.by} (${format(a.at,'dd/MM/yyyy')})`,20,y); y+=5 })
   doc.text('Cachet & signature de la Direction',W-20,y+6,{align:'right'})
-  doc.setFontSize(7.5); doc.text(`Document généré par Coreon Edu : conforme à la ${LEGAL.law} (INPDP).`,20,285)
+  doc.setFontSize(7.5); doc.text(`Document généré par Coreon Edu : conforme à la ${LEGAL.law}${LEGAL.authority ? ` (${LEGAL.authority})` : ''}.`,20,285)
   doc.save(`${m.title.replace(/ /g,'_')}_${m.r.byName.replace(/ /g,'_')}.pdf`)
   toast.success('PDF téléchargé')
 }

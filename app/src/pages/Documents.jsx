@@ -59,7 +59,7 @@ function PaperDoc({ rec }) {
         <div className="text-xs text-muted"><b>Délivré par :</b><div className="flex items-center gap-1 mt-1"><Check size={10} className="shrink-0" /> {m.by} · {m.today}</div></div>
         <div className="text-center"><div className="h-12" /><div className="border-t border-ink/30 pt-1 text-xs">Cachet & signature de la Direction</div></div>
       </div>
-      <div className="text-[11px] text-muted mt-6 pt-2 border-t border-line">Document n° {m.ref}, inscrit au registre · généré par Coreon Edu, conforme à la {LEGAL.law} (INPDP).</div>
+      <div className="text-[11px] text-muted mt-6 pt-2 border-t border-line">Document n° {m.ref}, inscrit au registre · généré par Coreon Edu, conforme à la {LEGAL.law}{LEGAL.authority ? ` (${LEGAL.authority})` : ''}.</div>
     </div>)
 }
 
@@ -76,7 +76,7 @@ function downloadPDF(rec) {
   y += 4; doc.setFont('helvetica', 'normal'); doc.text(doc.splitTextToSize(m.body, W - 40), 20, y); y += 26
   doc.setFontSize(9); doc.setTextColor(110); doc.text(`Délivré par : ${m.by} · ${m.today}`, 20, y)
   doc.text('Cachet & signature de la Direction', W - 20, y + 6, { align: 'right' })
-  doc.setFontSize(7.5); doc.text(`Document n° ${m.ref}, inscrit au registre : généré par Coreon Edu, conforme à la ${LEGAL.law} (INPDP).`, 20, 285)
+  doc.setFontSize(7.5); doc.text(`Document n° ${m.ref}, inscrit au registre : généré par Coreon Edu, conforme à la ${LEGAL.law}${LEGAL.authority ? ` (${LEGAL.authority})` : ''}.`, 20, 285)
   doc.save(`${m.ref}_${rec.studentName.replace(/ /g, '_')}.pdf`)
   toast.success('PDF téléchargé')
 }

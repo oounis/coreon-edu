@@ -9,13 +9,14 @@
 // système ne ment jamais sur une place qu'il n'a pas.
 import { useState } from 'react'
 import { t } from '@core/i18n.js'
+import { current } from '@core/auth.js'
 import {
   applications, appById, STAGES, docsFor, docsComplete, hasDoc, setFiles, advance,
   openClasses, enrol, summary, stageLabel,
 } from '@core/admissions.js'
 import Attach from '../components/Attach.jsx'
 import { labelOf } from '@core/levels.js'
-import { PageHead, Card, Btn, Badge, EmptyState, Avatar, Modal, STATUS } from '../components/ui.jsx'
+import { PageHead, Card, Btn, Badge, EmptyState, Avatar, Modal, STATUS, Textarea, Field } from '../components/ui.jsx'
 import { Ic } from '../icons.jsx'
 import toast from 'react-hot-toast'
 
@@ -34,6 +35,7 @@ const Info = ({ label, value }) => (
 )
 
 export default function Admissions() {
+  const me = current()
   const [, force] = useState(0)
   const refresh = () => force(n => n + 1)
   const [filter, setFilter] = useState('actives')
@@ -46,10 +48,13 @@ export default function Admissions() {
     : filter === 'actives' ? !STAGES[a.stage]?.terminal
     : a.stage === filter)
 
-  const go = (id, stage) => {
-    const r = advance(id, stage)
+  const [refusing, setRefusing] = useState(null)   // QA : un refus se confirme ET se motive
+  const [refuseNote, setRefuseNote] = useState('')
+  const go = (id, stage, note) => {
+    if (stage === 'refuse' && !note) { setRefusing(id); setRefuseNote(''); return }
+    const r = advance(id, stage, me?.name || 'Administration', note || '')
     if (r.error) return toast.error(r.error)
-    toast.success(`Candidature : ${stageLabel(stage)}`)
+    toast.success(`${t('Candidature')} : ${stageLabel(stage)}`)
     refresh()
   }
 
@@ -252,6 +257,16 @@ export default function Admissions() {
             </div>
           </div>
         )}
+      </Modal>
+      <Modal open={!!refusing} onClose={() => setRefusing(null)} title={t('Refuser cette candidature ?')} size="sm"
+        footer={<><Btn variant="ghost" onClick={() => setRefusing(null)}>{t('Annuler')}</Btn>
+          <Btn variant="danger" disabled={!refuseNote.trim()}
+            onClick={() => { const id = refusing; const n = refuseNote.trim(); setRefusing(null); go(id, 'refuse', n) }}>
+            {t('Refuser')}</Btn></>}>
+        <p className="text-sm text-muted mb-3">{t('La famille sera informée. Un refus se motive : c’est ce qu’on lui répondra.')}</p>
+        <Field label={t('Motif (obligatoire)')}>
+          <Textarea rows={3} value={refuseNote} onChange={e => setRefuseNote(e.target.value)} />
+        </Field>
       </Modal>
     </>
   )

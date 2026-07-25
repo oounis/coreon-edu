@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { current } from '@core/auth.js'
-import { db, mutate, uid, classById, userById, CYCLES, studentsOfClass, setStudentParent, assignRef } from '@core/db.js'
+import { db, mutate, uid, classById, userById, CYCLES, studentsOfClass, setStudentParent, assignRef, settings } from '@core/db.js'
 import { PageHead, Avatar, Btn, Modal, Field, Input, Select, Section, SearchInput, EmptyState, Card } from '../components/ui.jsx'
 import { regionsOf, regionLabel, DOC_TYPES, LEGAL } from '@core/tunisia.js'
+import { schoolLevels, labelOf } from '@core/levels.js'
 import Attach from '../components/Attach.jsx'
 import DataTable from '../components/DataTable.jsx'
 import { UserPlus, ShieldCheck } from 'lucide-react'
@@ -12,7 +13,7 @@ import { Badge, STATUS } from '../components/ui.jsx'
 import toast from 'react-hot-toast'
 import { notify } from '@core/notify.js'
 import { t } from '@core/i18n.js'
-const BLANK={name:'',gender:'Garçon',dob:'',bloodGroup:'O+',nationality:'Tunisienne',grade:'5ème année',section:'A',rollNo:'',admissionDate:'',prevSchool:'',fatherName:'',motherName:'',guardianPhone:'',parentId:'',address:'',phone:'',email:'',medical:'Aucune',allergies:'Aucune',emergencyName:'',emergencyPhone:'',cin:'',governorate:'Tunis',attachments:[],consent:false}
+const BLANK={name:'',gender:'Garçon',dob:'',bloodGroup:'',nationality:'',grade:'',section:'A',rollNo:'',admissionDate:'',prevSchool:'',fatherName:'',motherName:'',guardianPhone:'',parentId:'',address:'',phone:'',email:'',medical:'Aucune',allergies:'Aucune',emergencyName:'',emergencyPhone:'',cin:'',governorate:'',attachments:[],consent:false}
 const cycleOf=g=>CYCLES.find(c=>c.grades.includes(g))?.cycle||'Primaire'
 import { BRAND } from '@core/tokens.js'
 const CYCLE_COLOR={Primaire:BRAND.indigo}
@@ -27,7 +28,17 @@ export default function Students(){
   const loc=useLocation()
   useEffect(()=>{ const id=loc.state?.openStudent; if(id) navigate(`/app/eleve/${id}`,{replace:true}) },[loc.state])
 
-  const add=()=>{ if(!f.name.trim())return toast.error(t('Le nom est requis')); if(!f.consent)return toast.error(t('Veuillez accepter le consentement (loi 2004-63)'))
+  const add=()=>{ if(!f.name.trim())return toast.error(t('Le nom est requis'))
+    // QA FAT 2026-07-26 : un nom de 500 caractères, une naissance en 1900 et un
+    // téléphone « abc### » étaient acceptés sans un mot.
+    if(f.name.trim().length>80) return toast.error(t('Nom trop long (80 caractères maximum).'))
+    if(!f.grade) return toast.error(t('Choisissez un niveau.'))
+    if(f.dob){ const y=Number(String(f.dob).slice(0,4)); const now=new Date().getFullYear()
+      if(!(y>now-25&&y<=now)) return toast.error(t('Date de naissance invalide.')) }
+    for(const [lbl,v] of [[t('Téléphone'),f.phone],[t('Téléphone du tuteur'),f.guardianPhone],[t('Téléphone d’urgence'),f.emergencyPhone]])
+      if(v&&!/^[\d\s+().-]{6,}$/.test(v)) return toast.error(`${lbl} : ${t('numéro invalide.')}`)
+    if(f.email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email)) return toast.error(t('E-mail invalide.'))
+    ; if(!f.consent)return toast.error(`${t('Veuillez accepter le consentement')} (${LEGAL.law})`)
     let cid; mutate(db=>{ let cls=db.classes.find(c=>c.grade===f.grade && c.name.endsWith(' '+f.section))
       if(!cls){ cls={id:uid('c'),name:`${f.grade} ${f.section}`,grade:f.grade,cycle:cycleOf(f.grade)}; db.classes.push(cls) }
       cid=cls.id; const sid=uid('s')
@@ -124,11 +135,14 @@ export default function Students(){
         <Field label={t('Nom complet *')}><Input value={f.name} onChange={e=>setF({...f,name:e.target.value})} placeholder="Amira Ben Salah"/></Field>
         <Field label={t('Genre')}><Select value={f.gender} onChange={e=>setF({...f,gender:e.target.value})}><option>{t('Garçon')}</option><option>{t('Fille')}</option></Select></Field>
         <Field label={t('Date de naissance')}><Input type="date" value={f.dob} onChange={e=>setF({...f,dob:e.target.value})}/></Field>
-        <Field label={t('Groupe sanguin')}><Select value={f.bloodGroup} onChange={e=>setF({...f,bloodGroup:e.target.value})}>{['O+','O-','A+','A-','B+','B-','AB+','AB-'].map(b=><option key={b}>{b}</option>)}</Select></Field>
+        <Field label={t('Groupe sanguin')}><Select value={f.bloodGroup} onChange={e=>setF({...f,bloodGroup:e.target.value})}><option value="">{t('Non renseigné')}</option>{['O+','O-','A+','A-','B+','B-','AB+','AB-'].map(b=><option key={b}>{b}</option>)}</Select></Field>
         <Field label={t('Nationalité')}><Input value={f.nationality} onChange={e=>setF({...f,nationality:e.target.value})}/></Field>
       </Section>
       <Section title={t('Scolarité')}>
-        <Field label={t('Niveau')}><Select value={f.grade} onChange={e=>setF({...f,grade:e.target.value})}>{CYCLES.map(c=><optgroup key={c.cycle} label={c.cycle}>{c.grades.map(g=><option key={g} value={g}>{g}</option>)}</optgroup>)}</Select></Field>
+        <Field label={t('Niveau')}><Select value={f.grade} onChange={e=>setF({...f,grade:e.target.value})}>
+          <option value="">{t('Choisir…')}</option>
+          {schoolLevels(settings()).map(k=><option key={k} value={labelOf(k)}>{t(labelOf(k))}</option>)}
+        </Select></Field>
         <Field label={t('Section')}><Select value={f.section} onChange={e=>setF({...f,section:e.target.value})}>{['A','B','C','D'].map(s=><option key={s}>{s}</option>)}</Select></Field>
         <Field label={t('N° d\'inscription')}><Input value={f.rollNo} onChange={e=>setF({...f,rollNo:e.target.value})}/></Field>
         <Field label={t('Date d\'inscription')}><Input type="date" value={f.admissionDate} onChange={e=>setF({...f,admissionDate:e.target.value})}/></Field>
