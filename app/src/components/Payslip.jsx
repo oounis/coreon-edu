@@ -4,7 +4,7 @@
 // dans la plupart des pays (le Golfe l'impose). Même patron d'impression que le
 // bulletin scolaire (Bulletin.jsx).
 import { settings } from '@core/db.js'
-import { currency } from '@core/currency.js'
+import { currency, money } from '@core/currency.js'
 import { EARNINGS, CONTRACTS, monthLabel } from '@core/hr.js'
 import { Btn, Avatar, STATUS } from './ui.jsx'
 import { Dialog } from '@headlessui/react'
@@ -12,7 +12,7 @@ import { X, Printer, Lock } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
-const money = n => `${(n || 0).toLocaleString('fr-FR')} ${currency()}`
+// audit FAT 2026-07-26 : money() du cœur — les millièmes du BHD comptent
 
 export default function Payslip({ line, month, stage, validatedBy, onClose }) {
   if (!line) return null

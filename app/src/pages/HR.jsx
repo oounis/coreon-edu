@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { current } from '@core/auth.js'
 import { db } from '@core/db.js'
-import { currency } from '@core/currency.js'
+import { currency, money } from '@core/currency.js'
 import {
   CONTRACTS, LEAVE_KINDS, LEAVE_STAGES, PAYROLL_STAGES, EARNINGS,
   contractOf, setContract, contractEarnings, contractGross, leaves, decideLeave, leaveBalance,
@@ -17,7 +17,7 @@ import Payslip from '../components/Payslip.jsx'
 import { Ic } from '../icons.jsx'
 import toast from 'react-hot-toast'
 
-const money = n => `${(n || 0).toLocaleString('fr-FR')} ${currency()}`
+// audit FAT 2026-07-26 : money() du cœur — les millièmes du BHD comptent
 const day = d => new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
 
 /** Le personnel de l'école : enseignants + administration. Une seule liste. */

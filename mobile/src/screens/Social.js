@@ -28,7 +28,7 @@ import { Screen, Card, Section, Chip, Badge, Avatar, Tile, Row, Btn, Input, Empt
 const OK = '#12946F', WARN = '#C97C1E', DANGER = '#DC4B54', INFO = '#0E7FB8'
 const SPACE_TINT = { parent: ROLE.parent.color, teacher: ROLE.teacher.color, staff: ROLE.admin.color }
 
-const money = n => `${n} DT`
+import { money } from '@core/currency.js'
 const plural = (n, one, many) => `${n} ${n > 1 ? many : one}`
 const catOf = k => CATEGORIES.find(c => c.k === k) || CATEGORIES[0]
 
@@ -308,7 +308,7 @@ function ProposeSheet({ f, setF, space, minDate, err, onSubmit, onClose, accent 
           </View>
         </View>
         <Lbl>Prix par personne (0 = gratuit)</Lbl>
-        <Stepper value={f.pricePerPerson} min={0} max={60} suffix=" DT" onChange={v => setF({ ...f, pricePerPerson: v })} />
+        <Stepper value={f.pricePerPerson} min={0} max={60} suffix="" onChange={v => setF({ ...f, pricePerPerson: v })} />
         {f.pricePerPerson > 0 && <>
           <Lbl>Le prix couvre… *</Lbl>
           <Input value={f.priceCovers} onChangeText={t => setF({ ...f, priceCovers: t })} placeholder="ex. la location du terrain et l'arbitre" />

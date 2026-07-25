@@ -130,7 +130,7 @@ function Departs({ child, refresh }) {
             <div className="min-w-0">
               <div className="font-bold text-sm">{p.name}</div>
               <div className="text-xs text-muted font-semibold">
-                {p.relation} · CIN {p.cin}{p.phone && ` · ${p.phone}`}
+                {p.relation} · {idLabelFor('parent')} {p.cin}{p.phone && ` · ${p.phone}`}
               </div>
             </div>
             <span className="flex-1" />

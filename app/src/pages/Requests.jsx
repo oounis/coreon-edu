@@ -2,6 +2,7 @@ import { useState } from 'react'
 import jsPDF from 'jspdf'
 import { current } from '@core/auth.js'
 import { pack } from '@core/locales.js'
+import { money } from '@core/currency.js'
 import { db, mutate, uid, userById, studentById, classById, settings } from '@core/db.js'
 import { ROLE } from '@core/theme.js'
 import { notify } from '@core/notify.js'
@@ -237,7 +238,7 @@ function docModel(r){
   }
   const user=userById(r.by); const t=db().teachers.find(x=>x.id===user?.teacherId); const isSalary=r.type.includes('salaire')
   return { title:r.type, ref:r.id.toUpperCase(), today, sc, intro:`Nous soussignés, la Direction de l'établissement ${sc.schoolName}, attestons que :`,
-    rows:[['Nom & prénom',r.byName],['Fonction',t?.designation||user?.position||'Enseignant'],['CIN',user?.cin||t?.cin||'·'],['Date d\'embauche',t?.joiningDate||'·'],...(isSalary?[['Salaire mensuel brut',t?.salary?t.salary+' DT':'·']]:[])],
+    rows:[['Nom & prénom',r.byName],['Fonction',t?.designation||user?.position||'Enseignant'],['CIN',user?.cin||t?.cin||'·'],['Date d\'embauche',t?.joiningDate||'·'],...(isSalary?[['Salaire mensuel brut',t?.salary?money(t.salary):'·']]:[])],
     body:`est employé(e) au sein de notre établissement. La présente attestation est délivrée à l'intéressé(e)${f.addressedTo?`, à l'attention de ${f.addressedTo},`:''} pour servir et valoir ce que de droit${f.purpose?` (${f.purpose})`:''}.`, r }
 }
 function OfficialDoc({ r }){ const m=docModel(r); return (

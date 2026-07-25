@@ -56,14 +56,14 @@ export default function Schools(){
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
       <StatCard label="Écoles clientes" value={schools.filter(s=>s.status!=='suspended').length} tint="brand" icon={<Building2/>} onClick={()=>setTile('schools')}/>
       <StatCard label="Élèves gérés" value={totalStudents} tint="sky" icon={<Users/>} onClick={()=>setTile('students')}/>
-      <StatCard label="Revenu mensuel" value={`${mrr} DT`} sub="abonnements actifs" tint="mint" icon={<Wallet/>} onClick={()=>setTile('mrr')}/>
+      <StatCard label="Revenu mensuel" value={`${mrr} €`} sub="abonnements actifs" tint="mint" icon={<Wallet/>} onClick={()=>setTile('mrr')}/>
       <StatCard label="En essai" value={trials} tint="butter" icon={<Hourglass/>} onClick={()=>setTile('trials')}/>
     </div>
 
     {tile && (()=>{
       const list={schools:schools.filter(s=>s.status!=='suspended'),students:schools.filter(s=>s.status!=='suspended'),
         mrr:schools.filter(s=>s.status==='active'),trials:schools.filter(s=>s.status==='trial')}[tile]
-      const TITLE={schools:'Écoles clientes',students:`Élèves gérés · ${totalStudents}`,mrr:`Revenu mensuel · ${mrr} DT`,trials:"En période d'essai"}
+      const TITLE={schools:'Écoles clientes',students:`Élèves gérés · ${totalStudents}`,mrr:`Revenu mensuel · ${mrr} €`,trials:"En période d'essai"}
       return (
       <Modal open onClose={()=>setTile(null)} title={TITLE[tile]} size="xl"
         footer={<Btn variant="ghost" onClick={()=>setTile(null)}>Fermer</Btn>}>
@@ -77,7 +77,7 @@ export default function Schools(){
                 <span className="block text-sm font-semibold truncate">{sc.name}</span>
                 <span className="block text-[12px] text-muted truncate">{sc.city} · plan {sc.plan} · cliente depuis {sc.since}</span></span>
               {tile==='students'&&<span className="text-sm font-extrabold accent-text">{count(sc)} élèves</span>}
-              {tile==='mrr'&&<span className="text-sm font-extrabold" style={{color:STATUS.ok}}>{sc.price} DT/mois</span>}
+              {tile==='mrr'&&<span className="text-sm font-extrabold" style={{color:STATUS.ok}}>{sc.price} €/mois</span>}
               {['schools','trials'].includes(tile)&&<span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:st.bg,color:st.fg}}>{st.label}</span>}
             </div>) })}
         </div>}
@@ -97,7 +97,7 @@ export default function Schools(){
               </div>
               <div className="text-sm text-muted flex items-center gap-1.5"><MapPin size={13}/>{sc.city} · cliente depuis {sc.since}</div>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
-                <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:pbg,color:pfg}}>Plan {sc.plan} · {sc.price} DT/mois</span>
+                <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:pbg,color:pfg}}>Plan {sc.plan} · {sc.price} €/mois</span>
                 <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:st.bg,color:st.fg}}>{st.label}</span>
                 <span className="text-xs text-muted">{count(sc)} élèves</span>
               </div>

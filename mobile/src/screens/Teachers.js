@@ -7,6 +7,7 @@ import { db, classById, TT_SUBJECTS } from '@core/db.js'
 import { ROLE } from '@core/theme.js'
 import { Ic } from '../icons.js'
 import { Screen, Card, Avatar, Row, Input, EmptyState, C, tap } from '../components.js'
+import { money } from '@core/currency.js'
 
 // Couleur de matière : même palette que l'emploi du temps (core).
 const subjColor = s => (TT_SUBJECTS.find(([n]) => n === s) || [null, '#7539E4'])[1]
@@ -35,7 +36,7 @@ export default function Teachers({ user, params, nav }) {
       ["Date d'embauche", t.joiningDate],
       ['Téléphone', t.phone],
       ['E-mail', t.email],
-      ['Salaire', t.salary ? `${t.salary} DT` : '·'],
+      ['Salaire', t.salary ? money(t.salary) : '·'],
     ]
     return (
       <Card style={{ marginTop: 2, marginBottom: 10, borderWidth: 1, borderColor: accent + '33' }}>

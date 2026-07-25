@@ -24,7 +24,7 @@ import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'
 
 const catOf = k => CATEGORIES.find(c => c.k === k) || CATEGORIES[0]
-const money = n => `${n} DT`
+import { money, currency } from '@core/currency.js'
 // « 1 enfants » : le pluriel français ne s'accorde pas avec 1.
 const plural = (n, one, many) => `${n} ${n > 1 ? many : one}`
 
@@ -494,7 +494,7 @@ function ProposeModal({ open, onClose, f, setF, minDate, onSubmit, useIdea, spac
         <Field label="Participants minimum" hint="En dessous, l'activité s'annule toute seule."><Input type="number" min={2} value={f.minParticipants} onChange={e => setF({ ...f, minParticipants: e.target.value })} /></Field>
         <Field label="Capacité maximum (optionnel)" hint="Au-delà : liste d'attente."><Input type="number" min={1} value={f.maxParticipants} onChange={e => setF({ ...f, maxParticipants: e.target.value })} placeholder="illimité" /></Field>
 
-        <Field label="Prix par personne (DT)" hint="0 = gratuit."><Input type="number" min={0} value={f.pricePerPerson} onChange={e => setF({ ...f, pricePerPerson: e.target.value })} /></Field>
+        <Field label={`Prix par personne (${currency()})`} hint="0 = gratuit."><Input type="number" min={0} value={f.pricePerPerson} onChange={e => setF({ ...f, pricePerPerson: e.target.value })} /></Field>
         {Number(f.pricePerPerson) > 0 && <Field label="Le prix couvre… *"><Input value={f.priceCovers} onChange={e => setF({ ...f, priceCovers: e.target.value })} placeholder="ex. la location du terrain et l'arbitre" /></Field>}
 
         <div className="sm:col-span-2"><Field label="Description"><Textarea rows={3} value={f.desc} onChange={e => setF({ ...f, desc: e.target.value })} placeholder="Ce qui est prévu, ce qu'il faut apporter…" /></Field></div>
