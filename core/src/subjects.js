@@ -14,18 +14,21 @@
 import { SERIES, BRAND, N, TERRA } from './tokens.js'
 
 // [regex, clé d'icône, teinte canonique]
+// B-4 (audit 2026-07-25) : les programmes du Golfe sont nommés en ANGLAIS
+// (English, Islamic Studies, Qatar History…) voire en arabe — les règles ne
+// parlaient que français et la moitié du programme tombait en gris générique.
 const RULES = [
-  [/math/,                'Calculator',   SERIES[0]], // #4361D0 bleu
-  [/fran/,                'BookOpen',     SERIES[1]], // #0FA396 sarcelle
-  [/scien|éveil|eveil/,   'FlaskConical', SERIES[5]], // #2F8050 vert
-  [/arabe/,               'BookText',     SERIES[4]], // #B07414 ocre
-  [/angl/,                'Languages',    SERIES[3]], // #9061F0 violet
-  [/musi/,                'Music',        BRAND.violet],  // #8B5CF6
-  [/art|dessin/,          'Palette',      SERIES[2]], // #D2603A terre
-  [/info|techno/,         'Monitor',      N.slate],   // #485868 ardoise
-  [/sport|physique|gym/,  'Dumbbell',     TERRA.deep],// #C2410C terre profonde
-  [/islam|coran/,         'MoonStar',     BRAND.indigo], // #7539E4
-  [/civi/,                'Landmark',     N.ink],     // #0E2135 encre
+  [/math|رياض/,                          'Calculator',   SERIES[0]], // #4361D0 bleu
+  [/fran|french/,                        'BookOpen',     SERIES[1]], // #0FA396 sarcelle
+  [/scien|éveil|eveil|علوم/,             'FlaskConical', SERIES[5]], // #2F8050 vert
+  [/arab|عرب/,                           'BookText',     SERIES[4]], // #B07414 ocre (arabe + arabic)
+  [/angl|english|إنجليز|انجليز/,         'Languages',    SERIES[3]], // #9061F0 violet
+  [/musi|موسيق/,                         'Music',        BRAND.violet],  // #8B5CF6
+  [/art|dessin|رسم|فن/,                  'Palette',      SERIES[2]], // #D2603A terre
+  [/info|techno|comput|ict|حاسوب/,       'Monitor',      N.slate],   // #485868 ardoise
+  [/sport|physical education|\bpe\b|gym|رياضة/, 'Dumbbell', TERRA.deep],// #C2410C
+  [/islam|coran|quran|إسلام|قرآن/,       'MoonStar',     BRAND.indigo], // #7539E4
+  [/civi|social|history|citizen|تاريخ|اجتماع|وطني/, 'Landmark', N.ink], // #0E2135
 ]
 
 const FALLBACK = { icon: 'NotebookPen', color: N.slate }

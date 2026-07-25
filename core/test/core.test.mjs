@@ -1547,3 +1547,14 @@ test("école réelle : purgeDemoData vide l'exemple, garde réglages/barème/dir
   assert.ok(d1.settings, 'les réglages survivent')
   resetDb(); db()                                  // re-semer pour la suite des tests
 })
+
+// ── CAN-1 : l'alerte allergie parle FR, EN et AR (sécurité enfant) ───────────
+test("cantine : « Peanut allergy » et l'arabe déclenchent l'alerte — « Peau sensible » n'attrape plus le gluten", async () => {
+  const { studentReactsTo } = await import('../src/canteen.js')
+  assert.equal(studentReactsTo({ allergies: 'Peanut allergy' }, 'arachide'), true, 'anglais reconnu')
+  assert.equal(studentReactsTo({ allergies: 'حساسية الفول السوداني' }, 'arachide'), true, 'arabe reconnu')
+  assert.equal(studentReactsTo({ allergies: 'Milk / dairy intolerance' }, 'lait'), true)
+  assert.equal(studentReactsTo({ allergies: 'Peau sensible' }, 'gluten'), false, 'plus de faux positif par sous-chaîne')
+  assert.equal(studentReactsTo({ allergies: 'None' }, 'arachide'), false, '« None » = aucune allergie')
+  assert.equal(studentReactsTo({ allergies: 'Arachides' }, 'arachide'), true, 'le français marche toujours')
+})

@@ -33,15 +33,20 @@ export const DAYS = new Proxy([], { get: (_, k) => { const a = canteenDays(); co
 
 // Les allergènes majeurs. `match` = les mots qui, dans le texte « allergies »
 // d'un enfant, déclenchent l'alerte. On ratisse LARGE : mieux vaut vérifier.
+// ⚠️ AUDIT 2026-07-25 (CAN-1, sécurité enfant) : la table ne connaissait que le
+// FRANÇAIS — un dossier « Peanut allergy » ou « حساسية الفول السوداني » ne
+// déclenchait AUCUNE alerte. Chaque allergène parle désormais FR + EN + AR.
+// Et « ble » attrapait « sensible » (sous-chaîne) : la correspondance se fait
+// par MOTS entiers (préfixes autorisés), plus jamais par sous-chaîne aveugle.
 export const ALLERGENS = {
-  arachide:     { key: 'arachide',     label: 'Arachides',       match: ['arachide', 'cacahu'] },
-  fruits_coque: { key: 'fruits_coque', label: 'Fruits à coque',  match: ['coque', 'noix', 'amande', 'noisette'] },
-  lait:         { key: 'lait',         label: 'Lait',            match: ['lait', 'lactose', 'produits laitiers'] },
-  gluten:       { key: 'gluten',       label: 'Gluten',          match: ['gluten', 'blé', 'ble'] },
-  oeuf:         { key: 'oeuf',         label: 'Œuf',             match: ['oeuf', 'œuf'] },
-  poisson:      { key: 'poisson',      label: 'Poisson',         match: ['poisson'] },
-  fruits_mer:   { key: 'fruits_mer',   label: 'Fruits de mer',   match: ['crustac', 'fruits de mer', 'crevette'] },
-  soja:         { key: 'soja',         label: 'Soja',            match: ['soja'] },
+  arachide:     { key: 'arachide',     label: 'Arachides',       match: ['arachide', 'cacahu', 'peanut', 'فول سوداني', 'فستق العبيد'] },
+  fruits_coque: { key: 'fruits_coque', label: 'Fruits à coque',  match: ['coque', 'noix', 'amande', 'noisette', 'nut', 'nuts', 'almond', 'hazelnut', 'مكسرات', 'لوز', 'بندق'] },
+  lait:         { key: 'lait',         label: 'Lait',            match: ['lait', 'lactose', 'produits laitiers', 'milk', 'dairy', 'حليب', 'لبن', 'لاكتوز'] },
+  gluten:       { key: 'gluten',       label: 'Gluten',          match: ['gluten', 'blé', 'ble', 'wheat', 'قمح', 'غلوتين'] },
+  oeuf:         { key: 'oeuf',         label: 'Œuf',             match: ['oeuf', 'œuf', 'egg', 'eggs', 'بيض'] },
+  poisson:      { key: 'poisson',      label: 'Poisson',         match: ['poisson', 'fish', 'سمك'] },
+  fruits_mer:   { key: 'fruits_mer',   label: 'Fruits de mer',   match: ['crustac', 'fruits de mer', 'crevette', 'shellfish', 'seafood', 'shrimp', 'prawn', 'محار', 'روبيان', 'جمبري'] },
+  soja:         { key: 'soja',         label: 'Soja',            match: ['soja', 'soy', 'soya', 'صويا'] },
 }
 export const ALLERGEN_LIST = Object.values(ALLERGENS)
 export const allergenOf = k => ALLERGENS[k] || null
@@ -81,11 +86,24 @@ export function allergensOfDay(day) {
 }
 
 /** L'allergie d'un enfant croise-t-elle un allergène ? On ratisse large. */
+const normTxt = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+const NONE = new Set(['aucune', 'aucune connue', 'aucun', 'none', 'ras', 'لا يوجد', 'لا شيء', '-', '·'])
 export function studentReactsTo(student, allergenKey) {
-  const txt = String(student?.allergies || '').toLowerCase()
-  if (!txt || txt === 'aucune') return false
+  const raw = normTxt(student?.allergies)
+  if (!raw || NONE.has(raw.trim())) return false
   const a = ALLERGENS[allergenKey]
-  return !!a && a.match.some(m => txt.includes(m))
+  if (!a) return false
+  // Mots entiers, préfixe autorisé (« arachides » attrape « arachide ») —
+  // jamais de sous-chaîne interne (« sensible » n'attrape plus « ble »).
+  // L'article arabe « ال » est ignoré : « الفول السوداني » = « فول سوداني ».
+  const stripAl = w => w.replace(/^\u0627\u0644/, '')
+  const words = raw.split(/[^a-z\u0600-\u06FF]+/).filter(Boolean).map(stripAl)
+  const hit = tok => words.some(w => w === tok || w.startsWith(tok))
+  return a.match.some(m => {
+    const tok = normTxt(m)
+    if (tok.includes(' ')) return tok.split(/\s+/).map(stripAl).every(hit)  // expressions, mot à mot
+    return hit(stripAl(tok))
+  })
 }
 
 /**
