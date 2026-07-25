@@ -15,7 +15,7 @@ import { parseCSV, TARGETS, autoMap, applyMapping, buildPlan, applyPlan, undoLas
 import { db } from '@core/db.js'
 import { t } from '@core/i18n.js'
 import { PageHead, SectionCard, Btn, Field, Select, Textarea, EmptyState } from '../components/ui.jsx'
-import { Undo2, KeyRound, Download } from 'lucide-react'
+import { Undo2, KeyRound, Download, FileUp, CheckCircle2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const ACTION_UI = {
@@ -83,7 +83,7 @@ export default function ImportData() {
 
       {/* pas 1 — fichier */}
       {step === 1 && (
-        <SectionCard title={`1 · ${t('Le fichier')}`} icon="FileUp" sub={t('CSV (depuis Excel : Enregistrer sous → CSV UTF-8). Les en-têtes OneRoster sont reconnus.')} bodyClass="p-5 space-y-4">
+        <SectionCard title={`1 · ${t('Le fichier')}`} icon={<FileUp size={18}/>} sub={t('CSV (depuis Excel : Enregistrer sous → CSV UTF-8). Les en-têtes OneRoster sont reconnus.')} bodyClass="p-5 space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <Field label={t('Que contient le fichier ?')}>
               <Select value={target} onChange={e => setTarget(e.target.value)}>
@@ -168,7 +168,7 @@ export default function ImportData() {
 
       {/* pas 4 — résultat */}
       {step === 4 && result && (
-        <SectionCard title={`4 · ${t('C’est fait')}`} icon="CheckCircle2"
+        <SectionCard title={`4 · ${t('C’est fait')}`} icon={<CheckCircle2 size={18}/>}
           sub={`${result.created} ${t('créés')} · ${result.updated} ${t('mis à jour')} · ${result.skipped} ${t('ignorés')}`}>
           {result.credentials.length > 0 && (
             <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 mb-3">
