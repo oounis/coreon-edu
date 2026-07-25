@@ -250,9 +250,9 @@ export default function Settings() {
             </Card>
             {isDemo && (
               <Card className="p-6">
-                <div className="text-xs font-bold uppercase tracking-wide mb-2 flex items-center gap-2 text-coral"><AlertTriangle size={14} /> {t('Données de démonstration')}</div>
-                <p className="text-sm text-muted mb-3">{t('Cette base est la démo. Vous pouvez la remettre à zéro pour repartir d’une école propre.')}</p>
-                <Btn variant="danger" onClick={() => setResetOpen(true)}>{t('Réinitialiser la démonstration')}</Btn>
+                <div className="text-xs font-bold uppercase tracking-wide mb-2 flex items-center gap-2 text-coral"><AlertTriangle size={14} /> {t('École d’exemple')}</div>
+                <p className="text-sm text-muted mb-3">{t('Cette base est l’école d’exemple. Vous pouvez la remettre à zéro pour repartir d’une école propre.')}</p>
+                <Btn variant="danger" onClick={() => setResetOpen(true)}>{t('Réinitialiser l’école d’exemple')}</Btn>
               </Card>
             )}
           </>
@@ -279,9 +279,9 @@ export default function Settings() {
       </div>
     </div>
 
-    <Modal open={resetOpen} onClose={() => setResetOpen(false)} title={t('Réinitialiser la démonstration ?')}
+    <Modal open={resetOpen} onClose={() => setResetOpen(false)} title={t('Réinitialiser l’école d’exemple ?')}
       footer={<><Btn variant="ghost" onClick={() => setResetOpen(false)}>{t('Annuler')}</Btn><Btn variant="danger" onClick={doReset}>{t('Oui, réinitialiser')}</Btn></>}>
-      <p className="text-sm text-muted">{t('Toutes les données locales de démonstration seront effacées et l’école sera régénérée. Sans effet sur une vraie école.')}</p>
+      <p className="text-sm text-muted">{t('Toutes les données locales de l’école d’exemple seront effacées et l’école sera régénérée. Sans effet sur une vraie école.')}</p>
     </Modal>
   </>)
 }

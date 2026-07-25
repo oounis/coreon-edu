@@ -36,7 +36,7 @@ export default function SiteChrome(){
           <div className="flex items-center gap-2">
             <button onClick={()=>nav('/inscription')} className={`${BTN_MD} text-muted hover:text-ink hover:bg-canvas`}>{t('Pré-inscription')}</button>
             <button onClick={()=>nav('/login')} className={`${BTN_MD} text-muted hover:text-ink hover:bg-canvas`}>{t('Se connecter')}</button>
-            <button onClick={()=>nav('/login')} className={`${BTN_MD} text-white shadow-sm hover:opacity-90`} style={{background:A}}>{t('Démo gratuite')}</button>
+            <button onClick={()=>nav('/login')} className={`${BTN_MD} text-white shadow-sm hover:opacity-90`} style={{background:A}}>{t('Essai gratuit')}</button>
           </div>
         </div>
         {/* menu mobile : mêmes routes, sur une ligne défilante */}

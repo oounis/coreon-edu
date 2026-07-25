@@ -178,7 +178,7 @@ export default function Bulletin({ user, params }) {
       </Section>
 
       <Text style={{ color: C.muted, fontSize: 11, textAlign: 'center', marginTop: 18 }}>
-        Document généré par Coreon Edu : bulletin indicatif, sans valeur officielle dans cette démo.
+        Document généré par Coreon Edu : bulletin indicatif, sans valeur officielle.
       </Text>
     </Screen>
   )

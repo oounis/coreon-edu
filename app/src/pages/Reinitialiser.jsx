@@ -74,7 +74,7 @@ export default function Reinitialiser() {
               <p className="text-muted text-sm leading-relaxed">
                 {!token
                   ? t('Ce lien est incomplet. Ouvrez-le directement depuis l\'email reçu.')
-                  : t('Cette démonstration fonctionne sans serveur : aucun lien de réinitialisation n\'y est valable. Écrivez à support@kogiagroup.com.')}
+                  : t('Sans serveur connecté, aucun lien de réinitialisation n\'est valable ici. Écrivez à support@kogiagroup.com.')}
               </p>
               <Link to="/mot-de-passe-oublie" className="mt-7 w-full flex items-center justify-center rounded-xl text-white font-bold text-sm py-3.5"
                 style={{ background: `linear-gradient(135deg,${BRAND.action},${BRAND.mark})` }}>

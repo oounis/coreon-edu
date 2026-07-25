@@ -115,7 +115,7 @@ export default function Login({ onLogin }) {
         </Animated.View>
 
         <Animated.View style={enter(2)}>
-          <Text style={[S.label, { textAlign: 'center', marginTop: 22, marginBottom: 12 }]}>Démonstration · entrer comme :</Text>
+          <Text style={[S.label, { textAlign: 'center', marginTop: 22, marginBottom: 12 }]}>Essai · entrer comme :</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
             {quick.map(u => {
               const r = ROLE[u.role]

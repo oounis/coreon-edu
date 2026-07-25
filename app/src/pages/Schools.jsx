@@ -116,8 +116,8 @@ export default function Schools(){
     <Card className="p-5 mt-5 border-coral/40">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div><h3 className="font-bold flex items-center gap-2 text-coral"><ShieldAlert size={17}/> Zone sensible</h3>
-          <p className="text-sm text-muted mt-0.5">Réinitialiser remet toutes les données de démonstration à zéro.</p></div>
-        <Btn variant="danger" onClick={()=>setConfirmReset(true)}>Réinitialiser les données de démo</Btn>
+          <p className="text-sm text-muted mt-0.5">Réinitialiser remet toutes les données de l’école d’exemple à zéro.</p></div>
+        <Btn variant="danger" onClick={()=>setConfirmReset(true)}>Réinitialiser l’école d’exemple</Btn>
       </div>
     </Card>
 
@@ -183,7 +183,7 @@ export default function Schools(){
     <Modal open={confirmReset} onClose={()=>setConfirmReset(false)} title="Réinitialiser les données ?"
       footer={<><Btn variant="ghost" onClick={()=>setConfirmReset(false)}>Annuler</Btn>
         <Btn variant="danger" onClick={()=>{resetDb();location.reload()}}>Réinitialiser</Btn></>}>
-      <p className="text-sm text-muted">Toutes les données de démonstration (élèves, évaluations, paiements, écoles clientes…) seront remises à zéro. Cette action est irréversible.</p>
+      <p className="text-sm text-muted">Toutes les données de l’école d’exemple (élèves, évaluations, paiements, écoles clientes…) seront remises à zéro. Cette action est irréversible.</p>
     </Modal>
   </>)
 }

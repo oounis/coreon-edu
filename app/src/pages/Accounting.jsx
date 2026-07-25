@@ -92,7 +92,7 @@ function Etat() {
       )}
 
       <Card className="p-5 mt-4">
-        <div className="text-sm font-bold mb-1">Solde de trésorerie (démonstration)</div>
+        <div className="text-sm font-bold mb-1">Solde de trésorerie (indicatif)</div>
         <div className="text-3xl font-extrabold tabular-nums"
           style={{ color: f.balance >= 0 ? STATUS.ok : STATUS.danger }}>{money(f.balance)}</div>
         <p className="text-xs text-muted mt-1">Encaissements − masse salariale payée. Les autres charges viendront.</p>

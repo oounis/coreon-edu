@@ -88,7 +88,7 @@ export function Hero(){
           <h1 className="text-4xl md:text-5xl font-extrabold leading-[1.08] mt-5">{t('De la crèche à la 6ème,')}<br/><span style={{color:A}}>{t('un seul toit.')}</span></h1>
           <p className="text-lg text-muted mt-5 max-w-[52ch]">{t('Les logiciels scolaires ignorent la petite enfance ; les applications de crèche ignorent l’école. Un parent d’un enfant de 3 ans et d’un enfant de 8 ans jongle avec deux applications.')} <b className="text-ink">{t('Coreon EDU fait les deux : avec un seul compte parent.')}</b></p>
           <div className="flex flex-wrap gap-3 mt-7">
-            <button onClick={()=>nav('/login')} className={`${BTN_LG} text-white shadow-sm hover:opacity-90`} style={{background:A}}>{t('Essayer la démo')} <ArrowRight size={18}/></button>
+            <button onClick={()=>nav('/login')} className={`${BTN_LG} text-white shadow-sm hover:opacity-90`} style={{background:A}}>{t('Essayer Coreon')} <ArrowRight size={18}/></button>
             <button type="button" onClick={()=>document.getElementById('deux-mondes')?.scrollIntoView({behavior:'smooth'})} className={`${BTN_LG} bg-white border border-line hover:bg-canvas`}>{t('Comment c’est possible')}</button>
           </div>
           <div className="flex items-center gap-5 mt-7 text-sm text-muted flex-wrap">
@@ -290,7 +290,7 @@ export function DataSection(){
               </div>
             ))}
           </div>
-          <button onClick={()=>nav('/login')} className={`${BTN_MD} w-full mt-4 text-white`} style={{background:A}}><Download size={15}/> {t('Voir dans la démo')}</button>
+          <button onClick={()=>nav('/login')} className={`${BTN_MD} w-full mt-4 text-white`} style={{background:A}}><Download size={15}/> {t('Voir dans l’application')}</button>
         </motion.div>
       </div>
     </section>
@@ -303,8 +303,8 @@ export function Cta(){
     <section className="mx-auto max-w-[1120px] px-5 py-16">
       <motion.div {...up} className="rounded-3xl p-10 md:p-14 text-center text-white relative overflow-hidden" style={{background:'linear-gradient(135deg,#7539E4,#22D3EE)'}}>
         <h2 className="text-3xl md:text-4xl font-extrabold">{t('Voyez les deux mondes par vous-même.')}</h2>
-        <p className="mt-3 text-white/85 max-w-[54ch] mx-auto">{t('Ouvrez la démo avec le compte parent : un enfant en crèche, un enfant en 5ème : une seule application. C’est toute la démonstration.')}</p>
-        <button onClick={()=>nav('/login')} className={`${BTN_LG} mt-7 bg-white shadow-sm hover:opacity-90`} style={{color:A}}>{t('Démarrer la démo')} <ArrowRight size={18}/></button>
+        <p className="mt-3 text-white/85 max-w-[54ch] mx-auto">{t('Ouvrez l’application avec le compte parent : un enfant en crèche, un enfant en 5ème : une seule application. Tout est là.')}</p>
+        <button onClick={()=>nav('/login')} className={`${BTN_LG} mt-7 bg-white shadow-sm hover:opacity-90`} style={{color:A}}>{t('Ouvrir l’application')} <ArrowRight size={18}/></button>
       </motion.div>
     </section>
   )

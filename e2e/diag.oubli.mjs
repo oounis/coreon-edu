@@ -48,7 +48,7 @@ ok(/Lien inutilisable/i.test(t3), 'sans jeton, l\'écran le dit franchement au l
 // 7. avec un jeton mais en mode démo : idem, honnête
 await page.goto(`${B}/#/reinitialiser?token=faux123`); await page.reload(); await page.waitForTimeout(900)
 const t4 = await page.locator('body').innerText()
-ok(/Lien inutilisable|démonstration/i.test(t4), 'en démo, aucun formulaire trompeur')
+ok(/Lien inutilisable|sans serveur/i.test(t4), 'sans serveur, aucun formulaire trompeur')
 
 // 8. pas d'écran blanc, pas d'exception
 ok(errs.length === 0, `aucune exception JS (${errs.length})`)

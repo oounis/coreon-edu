@@ -28,10 +28,10 @@ export function DemoLiveButton({ className = '' }) {
 export function SummerChip() {
   if (isDemoLive()) return (
     <div className="hidden xl:flex items-center gap-2 pl-3 pr-3.5 py-1.5 rounded-2xl select-none"
-      style={{ background: 'linear-gradient(135deg,#E0E7FF,#C7D2FE)' }} title={t('Mode démonstration : l’application simule une journée de classe')}>
+      style={{ background: 'linear-gradient(135deg,#E0E7FF,#C7D2FE)' }} title={t('Journée simulée : l’application rejoue une journée de classe')}>
       <PlayCircle size={16} style={{ color: '#4338CA' }} />
       <div className="leading-none">
-        <div className="text-xs font-extrabold" style={{ color: '#3730A3' }}>{t('Mode démonstration')}</div>
+        <div className="text-xs font-extrabold" style={{ color: '#3730A3' }}>{t('Journée simulée')}</div>
         <button onClick={() => { setDemoLive(false); location.reload() }} className="text-[11px] font-semibold underline" style={{ color: '#4338CA' }}>{t('revenir au réel')}</button>
       </div>
     </div>
