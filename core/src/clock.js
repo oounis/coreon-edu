@@ -10,6 +10,7 @@
 
 import { getItem, setItem } from './storage.js'
 import { t } from './i18n.js'
+import { isWeekendDay, schoolDayIndex } from './locales.js'
 
 const DEMO_KEY = 'coreon_demo_live'
 const SCHOOL_OPEN = 8 * 60          // 08:00
@@ -52,13 +53,15 @@ export function now() {
   return d
 }
 
-// Lundi=0 … Vendredi=4. Le week-end retombe sur lundi (grille de référence).
+// 1er jour d'école du PAYS = 0 … 5e = 4 (audit B-2 : lun–ven n'était vrai qu'en
+// Tunisie ; au Golfe la semaine commence le dimanche). Le week-end retombe sur
+// le premier jour (grille de référence).
 export function dayIndex(d = now()) {
-  const wd = d.getDay()
-  return wd >= 1 && wd <= 5 ? wd - 1 : 0
+  const i = schoolDayIndex(d.getDay())
+  return i >= 0 ? Math.min(i, 4) : 0
 }
 
-export const isWeekend = (d = now()) => { const wd = d.getDay(); return wd === 0 || wd === 6 }
+export const isWeekend = (d = now()) => isWeekendDay(d.getDay())
 
 // Date locale au format YYYY-MM-DD (jamais toISOString(), qui est en UTC).
 export const isoOf = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`

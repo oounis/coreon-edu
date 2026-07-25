@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { N } from '@core/tokens.js'
 import { db, classById } from '@core/db.js'
 import { BUCKETS } from '@core/data.js'
+import { weekStart } from '@core/locales.js'
 import { studentSummary, mentionFor, lessonBreakdown } from '@core/results.js'
 import { PageHead, StatCard, SectionCard, EmptyState, Avatar, Btn, Tabs, Chip, SearchInput, Table, Modal, STATUS } from '../components/ui.jsx'
 import GradeHistory from '../components/GradeHistory.jsx'
@@ -20,7 +21,7 @@ const DAY=86400000
 // group evaluations into chart points depending on the period granularity
 function trendPoints(evals, period){
   const bucket = period==='year' ? at=>format(new Date(at),'MMM',{locale:fr})
-    : period==='month' ? at=>format(startOfWeek(new Date(at),{weekStartsOn:1}),'d MMM',{locale:fr})
+    : period==='month' ? at=>format(startOfWeek(new Date(at),{weekStartsOn:weekStart()}),'d MMM',{locale:fr})
     : at=>format(new Date(at),'EEE d',{locale:fr})
   const order={}, acc={}
   ;[...evals].sort((a,b)=>a.at-b.at).forEach(e=>{ const key=bucket(e.at)

@@ -17,6 +17,7 @@ import {
   ID_TYPES, PURPOSES, needsEscort, isInside, badgeNumber,
   CHECKLIST, CHECK_PHASES, checklistTotal, checklistDone, phaseDone, isPhaseComplete, checklistComplete,
 } from '@core/security.js'
+import { pack } from '@core/locales.js'
 import {
   securityNeeds, needsSecurity, isNightEvent, securityNotice, SECURITY_NOTICE_H,
   adultCount, childCount, goingCount, audienceOf,
@@ -464,7 +465,7 @@ function LogTab({ u, d, refresh }) {
 /* ── 5) Consignes ────────────────────────────────────────────────────────── */
 function ConsignesTab() {
   return (<>
-    <SectionCard icon={<Phone size={16} />} tint="coral" title={t("Numéros d'urgence")} sub={t('Tunisie')} bodyClass="p-3" className="mb-4">
+    <SectionCard icon={<Phone size={16} />} tint="coral" title={t("Numéros d'urgence")} sub={pack().label} bodyClass="p-3" className="mb-4">
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
         {URGENCES.map(x => (
           <a key={x.k} href={`tel:${x.num}`} className="rounded-xl border border-line p-3 hover:bg-canvas block">
@@ -494,7 +495,7 @@ function ConsignesTab() {
     </div>
 
     <p className="text-[12px] text-muted mt-4">
-      {t("Ces consignes suivent le cadre tunisien : Code de la sécurité et de la prévention des risques d'incendie (loi 2009-11) et instructions de la Protection civile : plan d'évacuation affiché, équipe de sécurité désignée, moyens de secours vérifiés. Elles ne remplacent pas la formation de l'agent, elles la rappellent.")}
+      {t("Ces consignes rappellent le cadre local de sécurité incendie et les instructions de la protection civile du pays : plan d'évacuation affiché, équipe de sécurité désignée, moyens de secours vérifiés. Elles ne remplacent pas la formation de l'agent, elles la rappellent.")}
     </p>
   </>)
 }

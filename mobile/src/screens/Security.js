@@ -12,6 +12,7 @@ import {
   ID_TYPES, PURPOSES, needsEscort, isInside, badgeNumber,
   CHECKLIST, CHECK_PHASES, checklistTotal, checklistDone, phaseDone, isPhaseComplete, checklistComplete,
 } from '@core/security.js'
+import { pack } from '@core/locales.js'
 import {
   securityNeeds, needsSecurity, isNightEvent, securityNotice, SECURITY_NOTICE_H,
   adultCount, childCount,
@@ -457,7 +458,7 @@ function LogTab({ u, d, force, accent }) {
 /* ── 5) Consignes ────────────────────────────────────────────────────────── */
 function ConsignesTab() {
   return (<>
-    <Section title="Numéros d'urgence · Tunisie" style={{ marginTop: 0 }}>
+    <Section title={`Numéros d'urgence · ${pack().label}`} style={{ marginTop: 0 }}>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
         {URGENCES.map(x => (
           <Card key={x.k} style={{ flexBasis: '47%', flexGrow: 1 }}
@@ -488,9 +489,9 @@ function ConsignesTab() {
         </Card>
       ))}
       <Text style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>
-        Ces consignes suivent le cadre tunisien : Code de la sécurité et de la prévention des risques d'incendie
-        (loi 2009-11) et instructions de la Protection civile : plan d'évacuation affiché, équipe de sécurité désignée,
-        moyens de secours vérifiés. Elles ne remplacent pas la formation de l'agent, elles la rappellent.
+        Ces consignes rappellent le cadre local de sécurité incendie et les instructions de la protection
+        civile du pays : plan d'évacuation affiché, équipe de sécurité désignée, moyens de secours vérifiés.
+        Elles ne remplacent pas la formation de l'agent, elles la rappellent.
       </Text>
     </Section>
   </>)

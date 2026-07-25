@@ -145,6 +145,52 @@ export const countryCode = () => pack().iso || 'XX'
 // CR-032 : les pays où la date hégirienne s'affiche à côté de la grégorienne.
 export const showsHijri = () => !!pack().hijri
 
+// ── La SEMAINE du pays (audit 2026-07-25, B-2) ───────────────────────────────
+// Le plus gros défaut fonctionnel du lancement : la semaine lun–ven était en dur
+// alors que le Golfe école du DIMANCHE au JEUDI (week-end vendredi-samedi).
+// `weekend` = jours getDay() chômés · `start` = 1er jour de semaine (getDay()).
+const WEEKS = {
+  BH: { weekend: [5, 6], start: 0 },   // dim–jeu, week-end ven-sam
+  QA: { weekend: [5, 6], start: 0 },
+  LY: { weekend: [5, 6], start: 0 },
+  TN: { weekend: [0, 6], start: 1 },   // lun–ven, week-end sam-dim
+}
+export const weekOf = () => WEEKS[localePackKey()] || WEEKS.TN
+export const isWeekendDay = wd => weekOf().weekend.includes(wd)
+export const weekStart = () => weekOf().start
+/** Les jours d'école (valeurs getDay()), dans l'ordre de la semaine du pays. */
+export const schoolDayNumbers = () => {
+  const out = []
+  for (let i = 0, d = weekStart(); i < 7; i++, d = (d + 1) % 7) if (!isWeekendDay(d)) out.push(d)
+  return out
+}
+/** getDay() → position 0..4 dans la semaine scolaire du pays, -1 si week-end. */
+export const schoolDayIndex = wd => schoolDayNumbers().indexOf(wd)
+
+// ── Les URGENCES du pays (audit 2026-07-25, SEC-1 — vie des personnes) ───────
+// Affichées au poste de sécurité : jamais un numéro d'un autre pays.
+const EMERGENCY = {
+  BH: [ { key: 'urgence', label: 'Urgences (police · ambulance · incendie)', tel: '999' } ],
+  QA: [ { key: 'urgence', label: 'Urgences (police · ambulance · incendie)', tel: '999' } ],
+  TN: [
+    { key: 'protection', label: 'Protection civile (incendie)', tel: '198' },
+    { key: 'samu', label: 'SAMU (urgence médicale)', tel: '190' },
+    { key: 'police', label: 'Police secours', tel: '197' },
+    { key: 'garde', label: 'Garde nationale', tel: '193' },
+  ],
+  LY: [
+    { key: 'police', label: 'Police secours', tel: '1515' },
+    { key: 'samu', label: 'Ambulance', tel: '193' },
+    { key: 'protection', label: 'Protection civile (incendie)', tel: '180' },
+  ],
+}
+export const emergencyNumbers = () => EMERGENCY[localePackKey()] || EMERGENCY.TN
+/** Le numéro à composer pour un type d'urgence ('samu', 'protection', 'police'…). */
+export const emergencyTel = key => {
+  const list = emergencyNumbers()
+  return (list.find(x => x.key === key) || list[0]).tel
+}
+
 // ── Curriculum du pays (CR-024) ───────────────────────────────────────────────
 const DEFAULT_CURRICULUM = { markMax: 20, passMark: 10, subjects: ['Mathématiques', 'Français', 'Arabe', 'Éveil scientifique', 'Anglais'], gradeScale: [] }
 export const curriculum = () => pack().curriculum || DEFAULT_CURRICULUM

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { current } from '@core/auth.js'
 import { db, studentById, setTimetableCell, TT_SUBJECTS } from '@core/db.js'
 import { DAYS, PERIODS, timetableFor, teacherTimetable } from '@core/data.js'
+import { schoolDayIndex } from '@core/locales.js'
 import { PageHead, Select, Field, Modal, Btn } from '../components/ui.jsx'
 import { subjectMeta } from '../subjects.jsx'
 import { Pencil, Trash2, Plus, Sun } from 'lucide-react'
@@ -27,7 +28,7 @@ export default function Timetable(){
   const grid = mode==='me'&&teacher ? teacherTimetable(teacher) : timetableFor(classId)
   const clsName = d.classes.find(c=>c.id===classId)?.name
   const sessions = grid.reduce((n,r)=>n+r.cells.filter(Boolean).length,0)
-  const todayIdx=(()=>{ const wd=new Date().getDay(); return wd>=1&&wd<=5 ? wd-1 : -1 })()
+  const todayIdx=(()=>{ const i=schoolDayIndex(new Date().getDay()); return i>=0&&i<5 ? i : -1 })()   // B-2
 
   const openCell=(pi,di,cell)=>{ if(!editable) return; setEdit({pi,di,subject:cell?.subject||'',room:cell?.room||ROOMS[0]}) }
   const saveCell=()=>{

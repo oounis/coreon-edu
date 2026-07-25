@@ -16,14 +16,14 @@
 // Protection civile, avec un plan d'évacuation et des consignes affichées. On garde
 // donc « plan d'évacuation » et « consignes », pas « PPMS ».
 
-// ── Numéros d'urgence tunisiens ─────────────────────────────────────────────
+// ── Numéros d'urgence DU PAYS (audit 2026-07-25, SEC-1 — vie des personnes) ──
+// Plus jamais en dur : le pack pays (locales.js) les fournit. Au Bahreïn et au
+// Qatar, un seul numéro : 999. Le Proxy garde la compatibilité (URGENCES.map…).
 import { STATUS, BRAND, N } from './tokens.js'
-export const URGENCES = [
-  { k: 'protection', label: 'Protection civile', num: '198', hint: 'Incendie, secours, évacuation' },
-  { k: 'samu', label: 'SAMU', num: '190', hint: 'Urgence médicale' },
-  { k: 'police', label: 'Police secours', num: '197', hint: 'Intrusion, agression' },
-  { k: 'garde', label: 'Garde nationale', num: '193', hint: 'Hors périmètre urbain' },
-]
+import { emergencyNumbers, emergencyTel } from './locales.js'
+const HINTS = { urgence: 'Police · ambulance · incendie', protection: 'Incendie, secours, évacuation', samu: 'Urgence médicale', police: 'Intrusion, agression', garde: 'Hors périmètre urbain' }
+const urgencesOf = () => emergencyNumbers().map(u => ({ k: u.key, label: u.label, num: u.tel, hint: HINTS[u.key] || '' }))
+export const URGENCES = new Proxy([], { get: (_, k) => { const a = urgencesOf(); const v = a[k]; return typeof v === 'function' ? v.bind(a) : v } })
 
 // Les icônes sont désignées par leur NOM lucide (contrat <Ic n="…"/>), jamais par
 // un emoji : un emoji change de dessin sur chaque plateforme (Android, iOS, Windows)
@@ -35,7 +35,7 @@ export const CONSIGNES = [
     k: 'evacuation', label: 'Évacuation · incendie', icon: 'Flame', color: STATUS.danger,
     steps: [
       "Donner l'alarme et prévenir la Direction.",
-      'Appeler la Protection civile (198) : adresse, nature du sinistre, nombre de personnes.',
+      `Appeler les secours incendie (${emergencyTel('protection')}) : adresse, nature du sinistre, nombre de personnes.`,
       'Ouvrir le portail en grand pour les secours ; dégager la voie d’accès.',
       'Guider l’évacuation vers le point de rassemblement (cour, côté rue).',
       'Vérifier salles, sanitaires et bibliothèque : personne ne reste.',
@@ -49,7 +49,7 @@ export const CONSIGNES = [
       'Fermer et verrouiller le portail et toutes les portes extérieures.',
       'Faire rentrer immédiatement tout le monde depuis la cour.',
       'Éteindre les lumières, s’éloigner des fenêtres, garder le silence.',
-      'Prévenir la Direction, puis la Police secours (197).',
+      `Prévenir la Direction, puis la police (${emergencyTel('police')}).`,
       'Ne rouvrir que sur ordre des forces de l’ordre ou de la Direction.',
     ],
   },
@@ -57,7 +57,7 @@ export const CONSIGNES = [
     k: 'intrusion', label: 'Intrusion', icon: 'OctagonAlert', color: STATUS.warn,
     steps: [
       'Ne pas s’interposer physiquement.',
-      'Alerter la Direction et la Police secours (197) ; décrire la personne.',
+      `Alerter la Direction et la police (${emergencyTel('police')}) ; décrire la personne.`,
       'Isoler les élèves : confinement des classes concernées.',
       'Noter l’heure, le signalement, le point d’entrée : main courante.',
       'Préserver les images de vidéosurveillance.',
@@ -67,7 +67,7 @@ export const CONSIGNES = [
     k: 'malaise', label: 'Malaise / accident', icon: 'Ambulance', color: STATUS.info,
     steps: [
       'Ne pas déplacer la personne, sauf danger immédiat.',
-      'Appeler le SAMU (190) ; suivre les instructions du régulateur.',
+      `Appeler les urgences médicales (${emergencyTel('samu')}) ; suivre les instructions du régulateur.`,
       'Envoyer quelqu’un ouvrir le portail et guider l’ambulance.',
       'Prévenir la Direction, qui prévient la famille.',
       'Consigner l’heure, les faits et les gestes effectués.',
@@ -78,7 +78,7 @@ export const CONSIGNES = [
     steps: [
       'Ne pas raccrocher ; faire parler, noter mot à mot, heure et voix.',
       'Ne toucher à aucun objet suspect ; ne pas utiliser de radio à proximité.',
-      'Prévenir la Direction, puis la Police secours (197).',
+      `Prévenir la Direction, puis la police (${emergencyTel('police')}).`,
       'Évacuer sur ordre, par un itinéraire éloigné de l’objet.',
     ],
   },

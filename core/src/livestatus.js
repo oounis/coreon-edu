@@ -1,7 +1,7 @@
 // Shared "where is the child right now" logic — used by Suivi en direct (Live.jsx)
 // and the parent dashboard live widget.
 import { PERIODS, timetableFor } from './data.js'
-import { isDemoLive, now as appNow, SCHOOL_OPEN, SCHOOL_CLOSE } from './clock.js'
+import { isDemoLive, now as appNow, isWeekend, dayIndex, SCHOOL_OPEN, SCHOOL_CLOSE } from './clock.js'
 import { BRAND, SERIES, STATUS, N } from './tokens.js'
 
 // Chemin des photos d'ambiance : la base d'assets est injectée par la
@@ -52,16 +52,16 @@ export function schoolPhase(now=appNow()){
   const m=now.getMonth() // 0-based : juin=5, juillet=6, août=7, septembre=8
   const summer = m===6 || m===7 || (m===8 && now.getDate()<15)
   if(summer) return 'vacances'
-  const wd=now.getDay(); if(wd===0||wd===6) return 'weekend'
+  if(isWeekend(now)) return 'weekend'   // le week-end du PAYS (B-2 : ven-sam au Golfe)
   const min=now.getHours()*60+now.getMinutes()
   // 15:00 pile = journée terminée, cohérent avec statusAt() (min>=close).
   return min<SCHOOL_OPEN ? 'before' : min>=SCHOOL_CLOSE ? 'after' : 'live'
 }
 // current-time helpers
 export function nowState(){
-  const now=appNow(); const wd=now.getDay(); const demo=isDemoLive()
-  const realWeekday=demo || (wd>=1&&wd<=5)
-  const dayIdx=(wd>=1&&wd<=5)?wd-1:0; const nowMin=now.getHours()*60+now.getMinutes()
+  const now=appNow(); const demo=isDemoLive()
+  const realWeekday=demo || !isWeekend(now)
+  const dayIdx=dayIndex(now); const nowMin=now.getHours()*60+now.getMinutes()
   const inSchool=realWeekday&&nowMin>=SCHOOL_OPEN&&nowMin<SCHOOL_CLOSE
   return { realWeekday, dayIdx, nowMin, inSchool }
 }

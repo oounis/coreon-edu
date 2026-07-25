@@ -6,7 +6,8 @@ import { notify } from '@core/notify.js'
 import { PageHead, Card, StatCard, SectionCard, Avatar, Btn, Modal, Field, Input, Select, Textarea, Tabs, EmptyState, SearchInput, STATUS } from '../components/ui.jsx'
 import { BriefcaseBusiness, Clock, UserX, Plane, Save, Download, ChevronLeft, ChevronRight, Check, X, Plus, TrendingUp, AlertTriangle, CalendarRange } from 'lucide-react'
 import { SoftArea } from '../components/charts.jsx'
-import { format, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, isWeekend } from 'date-fns'
+import { format, addMonths, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns'
+import { isWeekend } from '@core/clock.js'   // B-2 : le week-end du PAYS (ven-sam au Golfe)
 import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'
 

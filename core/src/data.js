@@ -1,5 +1,6 @@
 import { db, studentsOfClass } from './db.js'
 import { now as appNow, isWeekend, isDemoLive } from './clock.js'
+import { schoolDayNumbers } from './locales.js'
 import { STATUS } from './tokens.js'
 import { subjectHue } from './subjects.js'
 // Les icônes sont NOMMÉES, pas importées : le web les résout dans `lucide-react`,
@@ -53,7 +54,14 @@ export function teacherSchedule(now=appNow()){
 }
 
 // ─────────────── EMPLOI DU TEMPS (weekly timetable) ───────────────
-export const DAYS=['Lundi','Mardi','Mercredi','Jeudi','Vendredi']
+// B-2 (audit 2026-07-25) : les 5 jours d'école suivent le PAYS — lun–ven en
+// Tunisie, dim–jeu au Golfe. La grille stockée reste 5 colonnes : la colonne 0
+// est le PREMIER jour d'école du pays, quel qu'il soit. Le Proxy garde la
+// compatibilité : DAYS.map / DAYS[i] / DAYS.length marchent comme avant, mais
+// lisent la semaine du pack actif (même astuce que LEGAL dans tunisia.js).
+const DAY_NAMES=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi']
+const dayLabels=()=>schoolDayNumbers().slice(0,5).map(d=>DAY_NAMES[d])
+export const DAYS=new Proxy([],{ get:(_,k)=>{ const a=dayLabels(); const v=a[k]; return typeof v==='function'?v.bind(a):v } })
 export const PERIODS=[['08:00','09:00'],['09:00','10:00'],['10:15','11:15'],['11:15','12:15'],['13:00','14:00'],['14:00','15:00']]
 const ROOMS=['Salle 12','Salle 8','Salle 21','Labo','Gymnase','Salle Info']
 function h32(str){let h=0;for(const c of String(str))h=(h*31+c.charCodeAt(0))>>>0;return h}

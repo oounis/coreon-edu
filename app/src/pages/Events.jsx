@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { current } from '@core/auth.js'
+import { weekStart } from '@core/locales.js'
 import { db, mutate, uid } from '@core/db.js'
 import { notify } from '@core/notify.js'
 import { PageHead, Card, Btn, Modal, Field, Input, Select, Textarea, EmptyState, STATUS } from '../components/ui.jsx'
@@ -36,8 +37,8 @@ export default function Events(){
   const events=db().events
   const byDay=useMemo(()=>{const m={};events.forEach(e=>{(m[e.date]=m[e.date]||[]).push(e)});return m},[events])
   const days=useMemo(()=>eachDayOfInterval({
-    start:startOfWeek(startOfMonth(cursor),{weekStartsOn:1}),
-    end:endOfWeek(endOfMonth(cursor),{weekStartsOn:1}),
+    start:startOfWeek(startOfMonth(cursor),{weekStartsOn:weekStart()}),   // B-2 : la semaine du PAYS
+    end:endOfWeek(endOfMonth(cursor),{weekStartsOn:weekStart()}),
   }),[cursor])
 
   const openCreate=(dateStr)=>{ setF(emptyForm(dateStr||sel)); setOpen(true) }

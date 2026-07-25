@@ -20,13 +20,16 @@
 //     son enfant.
 // ════════════════════════════════════════════════════════════════════════════
 import { db, mutate, studentById } from './db.js'
+import { schoolDayNumbers } from './locales.js'
 
-// Les jours servis (école : lun→ven).
-export const DAYS = [
-  { key: 'lun', label: 'Lundi' }, { key: 'mar', label: 'Mardi' },
-  { key: 'mer', label: 'Mercredi' }, { key: 'jeu', label: 'Jeudi' },
-  { key: 'ven', label: 'Vendredi' },
-]
+// Les jours servis : les 5 jours d'école DU PAYS (B-2 — dim–jeu au Golfe).
+// Les CLÉS de stockage restent positionnelles ('lun' = 1er jour d'école, quel
+// qu'il soit) : les menus déjà saisis survivent au changement de pays ; seul
+// le LIBELLÉ affiché suit la semaine du pack actif.
+const DAY_KEYS = ['lun', 'mar', 'mer', 'jeu', 'ven']
+const DAY_NAMES = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi']
+const canteenDays = () => schoolDayNumbers().slice(0, 5).map((d, i) => ({ key: DAY_KEYS[i], label: DAY_NAMES[d] }))
+export const DAYS = new Proxy([], { get: (_, k) => { const a = canteenDays(); const v = a[k]; return typeof v === 'function' ? v.bind(a) : v } })
 
 // Les allergènes majeurs. `match` = les mots qui, dans le texte « allergies »
 // d'un enfant, déclenchent l'alerte. On ratisse LARGE : mieux vaut vérifier.

@@ -1480,3 +1480,29 @@ test("import : appliquer crée élève + parent + échéancier par les MÊMES ch
   assert.equal(db().students.length, nBefore, 'l’annulation rend la base d’avant')
   assert.ok(!db().students.find(s => s.name === 'Import Testenfant'))
 })
+
+// ── B-2 : LA SEMAINE DU PAYS — dimanche est un jour d'école au Bahreïn ───────
+test("semaine : le pays décide — au Bahreïn l'école va du dimanche au jeudi, week-end vendredi-samedi", async () => {
+  const { setLocalePack, schoolDayIndex, isWeekendDay, emergencyTel } = await import('../src/locales.js')
+  const { isWeekend, dayIndex } = await import('../src/clock.js')
+  const { DAYS } = await import('../src/data.js')
+  const { DAYS: CDAYS } = await import('../src/canteen.js')
+  try {
+    // Tunisie (défaut) : lundi = 1er jour, samedi/dimanche chômés — inchangé.
+    assert.equal(schoolDayIndex(1), 0); assert.ok(isWeekendDay(0) && isWeekendDay(6))
+    assert.equal(DAYS[0], 'Lundi'); assert.equal(DAYS.length, 5)
+    assert.equal(emergencyTel('protection'), '198', 'urgences tunisiennes par défaut')
+    setLocalePack('BH')
+    assert.equal(schoolDayIndex(0), 0, "dimanche = 1er jour d'école")
+    assert.equal(schoolDayIndex(4), 4, 'jeudi = 5e jour')
+    assert.ok(isWeekendDay(5) && isWeekendDay(6), 'vendredi-samedi chômés')
+    assert.ok(!isWeekendDay(0), 'dimanche travaillé')
+    assert.equal(DAYS[0], 'Dimanche'); assert.equal(DAYS[4], 'Jeudi')
+    assert.equal(isWeekend(new Date(2026, 6, 31)), true, 'vendredi 31 juillet 2026 = week-end au Bahreïn')
+    assert.equal(isWeekend(new Date(2026, 7, 2)), false, "dimanche 2 août = jour d'école au Bahreïn")
+    assert.equal(dayIndex(new Date(2026, 7, 2)), 0, 'la grille du dimanche est la colonne 0')
+    assert.equal(emergencyTel('protection'), '999', 'un seul numéro d’urgence au Bahreïn : 999')
+    assert.equal(CDAYS[0].label, 'Dimanche', 'le menu de cantine commence dimanche')
+    assert.equal(CDAYS[0].key, 'lun', 'la clé de stockage reste positionnelle (menus conservés)')
+  } finally { setLocalePack('TN') }
+})
