@@ -110,6 +110,7 @@ const applyAllowed = limiter(10, 60 * 60 * 1000)        // pré-inscription
 const forgotAllowed = limiter(5, 60 * 60 * 1000)        // mot de passe oublié
 const loginAllowed = limiter(20, 15 * 60 * 1000)        // force brute (audit 2026-07-25)
 const resetAllowed = limiter(10, 60 * 60 * 1000)        // devinette de jeton
+const mailAllowed = limiter(60, 60 * 60 * 1000)         // envois e-mail par utilisateur/heure
 
 // L'adresse du client. Derrière un reverse-proxy (Caddy/nginx), TOUTES les
 // requêtes portent l'IP du proxy : sans ceci, un seul visiteur épuise le
@@ -149,6 +150,21 @@ const MAIL_TOKEN = process.env.COREON_MAIL_TOKEN || ''
 const APP_URL = process.env.COREON_APP_URL || 'https://edu.kogiagroup.com'
 const SUPPORT = process.env.COREON_SUPPORT || 'support@kogiagroup.com'
 
+// Le relais unique : tout e-mail du serveur passe par ici. COREON_MAIL_TOKEN
+// doit être le SERVER_TOKEN du worker (voie serveur, distincte du jeton du
+// navigateur — le worker n'exige pas d'Origin pour cette voie-là).
+async function relayMail(to, subject, text) {
+  if (!MAIL_RELAY) { console.log(`[mail non relayé] ${to} · ${subject}`); return { ok: false, via: 'no-relay' } }
+  try {
+    const r = await fetch(MAIL_RELAY, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', ...(MAIL_TOKEN ? { authorization: `Bearer ${MAIL_TOKEN}` } : {}) },
+      body: JSON.stringify({ to, subject, text }),
+    })
+    return { ok: r.ok, via: r.ok ? 'sent' : 'relay-error' }
+  } catch (e) { return { ok: false, via: 'error', error: String(e?.message || e) } }
+}
+
 async function sendResetMail(to, token) {
   const link = `${APP_URL}/#/reinitialiser?token=${token}`
   const subject = 'Coreon EDU · réinitialiser votre mot de passe'
@@ -158,14 +174,7 @@ async function sendResetMail(to, token) {
     `Si vous n'avez rien demandé, ignorez ce message : votre mot de passe reste inchangé.\n\n` +
     `Besoin d'aide : ${SUPPORT}\nCoreon EDU, Kogia Group`
   if (!MAIL_RELAY) { console.log(`[mot de passe oublié] ${to} → ${link}`); return { ok: false, via: 'no-relay' } }
-  try {
-    const r = await fetch(MAIL_RELAY, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', ...(MAIL_TOKEN ? { authorization: `Bearer ${MAIL_TOKEN}` } : {}) },
-      body: JSON.stringify({ to, subject, text }),
-    })
-    return { ok: r.ok, via: r.ok ? 'sent' : 'relay-error' }
-  } catch (e) { return { ok: false, via: 'error', error: String(e?.message || e) } }
+  return relayMail(to, subject, text)
 }
 
 // ── HTTP ──────────────────────────────────────────────────────────────────────
@@ -291,6 +300,20 @@ export const server = http.createServer(async (req, res) => {
       school = { rev: school.rev + 1, blob: merged }
       persistSchool()
       return send(res, 200, { rev: school.rev, applied }, origin)
+    }
+
+    // ⚠️ AUDIT 2026-07-25 (MAIL-1) : le client (remote.js) appelait /api/mail…
+    // qui n'existait pas — ZÉRO e-mail ne partait en mode serveur. Le voici :
+    // personnel authentifié seulement, un destinataire, quota par utilisateur.
+    if (url.pathname === '/api/mail' && req.method === 'POST') {
+      if (user.role === 'parent') return send(res, 403, { error: 'Réservé au personnel.' }, origin)
+      if (!mailAllowed('mail:' + user.id)) return send(res, 429, { error: 'Quota d’envoi atteint pour cette heure.' }, origin)
+      const { to, subject, text } = await readBody(req)
+      if (!to || !subject || !text) return send(res, 400, { error: 'to/subject/text requis.' }, origin)
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(to)) || /[\r\n]/.test(String(to) + String(subject)))
+        return send(res, 400, { error: 'Destinataire ou sujet invalide.' }, origin)
+      const r = await relayMail(String(to), String(subject).slice(0, 200), String(text).slice(0, 20000))
+      return send(res, r.ok ? 200 : 502, r, origin)
     }
 
     if (url.pathname === '/api/op' && req.method === 'POST') {

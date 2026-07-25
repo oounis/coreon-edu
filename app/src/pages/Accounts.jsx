@@ -12,7 +12,7 @@ import { notify } from '@core/notify.js'
 import { t } from '@core/i18n.js'
 import { createAccount, updateAccount, setDisabled, resetPassword, directory, MANAGEABLE_ROLES } from '@core/accounts.js'
 import { STAFF_POSITIONS, regionsOf, regionLabel, docTypesFor, validCIN, idLabelFor } from '@core/tunisia.js'
-import { idTypesFor } from '@core/locales.js'
+import { idTypesFor, pack } from '@core/locales.js'
 import { PageHead, Avatar, Btn, Modal, Field, Input, Select, Section, SearchInput, STATUS } from '../components/ui.jsx'
 import Attach from '../components/Attach.jsx'
 import { UserPlus, KeyRound, Ban, Check, Paperclip, Pencil, Users } from 'lucide-react'
@@ -106,7 +106,7 @@ export default function Accounts(){
         <Field label={t('E-mail *')}><Input value={f.email} onChange={e=>setF({...f,email:e.target.value})} placeholder="nom@alnour.tn"/></Field>
         <Field label={t('Mot de passe temporaire')}><Input value={f.pw} onChange={e=>setF({...f,pw:e.target.value})} placeholder={t('défaut 1234')}/></Field>
       </Section>
-      <Section title={t('Identité (Tunisie)')}>
+      <Section title={`${t('Identité')} (${pack().label})`}>
         <Field label={t('Type de pièce')}><Select value={f.idType||''} onChange={e=>setF({...f,idType:e.target.value})}>{idTypesFor('staff').map(o=><option key={o.key} value={o.key}>{t(o.label)}</option>)}</Select></Field>
         <Field label={idLabelFor('staff')}><Input value={f.cin} onChange={e=>setF({...f,cin:e.target.value})} placeholder="12345678"/></Field>
         <Field label={t('Civilité')}><Select value={f.gender} onChange={e=>setF({...f,gender:e.target.value})}><option value="Homme">{t('Homme')}</option><option value="Femme">{t('Femme')}</option></Select></Field>
@@ -127,7 +127,7 @@ export default function Accounts(){
     {/* ── Profil ── */}
     <Modal open={!!view} onClose={()=>setView(null)} title={t('Profil')} size="xl">
       {view&&(<div><div className="flex items-center gap-4 mb-4"><Avatar name={view.name} seed={view.id} size={56}/><div><div className="text-xl font-extrabold">{view.name}</div><div className="text-muted text-sm">{ROLE[view.role]?.label}{view.position&&` · ${view.position}`}</div></div></div>
-        <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm mb-4">{[[t('E-mail'),view.email],[t('CIN'),view.cin],[t('Gouvernorat'),view.governorate],[t('Téléphone'),view.phone],[t('Adresse'),view.address],[t('Profession'),view.occupation]].filter(x=>x[1]).map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium">{v}</span></div>)}</div>
+        <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm mb-4">{[[t('E-mail'),view.email],[idLabelFor(view.role||'parent'),view.cin],[regionLabel(),view.governorate],[t('Téléphone'),view.phone],[t('Adresse'),view.address],[t('Profession'),view.occupation]].filter(x=>x[1]).map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium">{v}</span></div>)}</div>
         <div className="text-xs font-bold uppercase text-muted mb-2">{t('Pièces jointes')}</div>
         {(view.attachments||[]).length? <div className="space-y-1">{view.attachments.map((a,i)=><div key={i} className="flex justify-between text-sm border border-line rounded-lg px-3 py-1.5"><span className="text-muted">{a.type}</span><span className="font-medium inline-flex items-center gap-1.5"><Paperclip size={13} className="text-muted"/>{a.name}</span></div>)}</div> : <div className="text-sm text-muted">{t('Aucune pièce.')}</div>}
         {view.role!=='owner' && <div className="mt-5 pt-4 border-t border-line flex flex-wrap gap-2 items-center">

@@ -4,6 +4,7 @@
 import { useState } from 'react'
 import { current } from '@core/auth.js'
 import { db } from '@core/db.js'
+import { idLabelFor } from '@core/locales.js'
 import { isEarly, labelOf } from '@core/levels.js'
 import {
   VACCINES, RELATIONS, MILESTONES,
@@ -159,8 +160,8 @@ function Departs({ child, refresh }) {
             </Field>
             <Field label="Téléphone"><Input value={f.phone} onChange={e => setF({ ...f, phone: e.target.value })} /></Field>
           </div>
-          <Field label="Pièce d’identité (CIN) *" hint="Obligatoire. C’est ce que l’agent vérifie au portail.">
-            <Input value={f.cin} onChange={e => setF({ ...f, cin: e.target.value })} placeholder="09876543" />
+          <Field label={`Pièce d’identité (${idLabelFor('parent')}) *`} hint="Obligatoire. C’est ce que l’agent vérifie au portail.">
+            <Input value={f.cin} onChange={e => setF({ ...f, cin: e.target.value })} />
           </Field>
         </div>
       </Modal>

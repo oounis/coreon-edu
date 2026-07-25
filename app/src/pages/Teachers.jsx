@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { current } from '@core/auth.js'
 import { db, mutate, uid, assignRef } from '@core/db.js'
-import { currency } from '@core/currency.js'
+import { currency, money } from '@core/currency.js'
 import { PageHead, Avatar, Btn, Modal, Field, Input, Select, Section, SearchInput, EmptyState, Card } from '../components/ui.jsx'
 import { SubjectDot } from '../subjects.jsx'
 import { regionsOf, regionLabel, DOC_TYPES, validCIN, idLabelFor } from '@core/tunisia.js'
@@ -70,7 +70,7 @@ export default function Teachers(){
     </Modal>
     <Modal open={!!view} onClose={()=>setView(null)} title="Profil du personnel" size="xl">
       {view&&(<div><div className="flex items-center gap-4 mb-5"><Avatar name={view.name} seed={view.id} size={56}/><div><div className="text-xl font-extrabold">{view.name}</div><div className="text-muted text-sm">{view.designation} · {view.subject}</div></div></div>
-        <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">{[['Genre',view.gender],['CIN',view.cin],['Gouvernorat',view.governorate],['Date de naissance',view.dob],['Diplôme',view.qualification],['Expérience',`${view.experience} ans`],['Date d\'embauche',view.joiningDate],['Téléphone',view.phone],['E-mail',view.email],['Adresse',view.address],['Salaire',view.salary?`${view.salary} DT`:'·']].map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium text-right">{v||'·'}</span></div>)}</div></div>)}
+        <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">{[['Genre',view.gender],[idLabelFor('teacher'),view.cin],[regionLabel(),view.governorate],['Date de naissance',view.dob],['Diplôme',view.qualification],['Expérience',`${view.experience} ans`],['Date d\'embauche',view.joiningDate],['Téléphone',view.phone],['E-mail',view.email],['Adresse',view.address],['Salaire',view.salary?money(view.salary):'·']].map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium text-right">{v||'·'}</span></div>)}</div></div>)}
     </Modal>
   </>)
 }

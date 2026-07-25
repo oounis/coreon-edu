@@ -20,7 +20,7 @@
 // Plus jamais en dur : le pack pays (locales.js) les fournit. Au Bahreïn et au
 // Qatar, un seul numéro : 999. Le Proxy garde la compatibilité (URGENCES.map…).
 import { STATUS, BRAND, N } from './tokens.js'
-import { emergencyNumbers, emergencyTel } from './locales.js'
+import { emergencyNumbers, emergencyTel, idTypesFor } from './locales.js'
 const HINTS = { urgence: 'Police · ambulance · incendie', protection: 'Incendie, secours, évacuation', samu: 'Urgence médicale', police: 'Intrusion, agression', garde: 'Hors périmètre urbain' }
 const urgencesOf = () => emergencyNumbers().map(u => ({ k: u.key, label: u.label, num: u.tel, hint: HINTS[u.key] || '' }))
 export const URGENCES = new Proxy([], { get: (_, k) => { const a = urgencesOf(); const v = a[k]; return typeof v === 'function' ? v.bind(a) : v } })
@@ -115,7 +115,10 @@ export const LOG_KINDS = {
 export const logKindOf = k => LOG_KINDS[k] || LOG_KINDS.consigne
 
 // ── Registre des visiteurs ──────────────────────────────────────────────────
-export const ID_TYPES = ['CIN', 'Passeport', 'Carte de séjour', 'Carte professionnelle']
+// B-7 (audit 2026-07-25) : la pièce d'identité suit le PAYS — CPR au Bahreïn,
+// QID au Qatar, CIN en Tunisie. Proxy compatible (ID_TYPES.map/…).
+const idTypesOf = () => [...idTypesFor('parent').map(x => x.label), 'Carte professionnelle']
+export const ID_TYPES = new Proxy([], { get: (_, k) => { const a = idTypesOf(); const v = a[k]; return typeof v === 'function' ? v.bind(a) : v } })
 // Règle de sûreté : un visiteur qui va au contact des élèves ne circule jamais seul.
 // La Tunisie n'a pas de fichier type DBS ; le contrôle réel, c'est le badge,
 // l'escorte, et la pièce d'identité enregistrée.

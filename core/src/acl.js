@@ -59,7 +59,11 @@ export const mayWriteCollection = (role, key) => {
 const STAFF_STRIP_BASE = ['hrPayrolls', 'hrContracts', 'invoices', 'receipts', 'feeSchedule',
   'discounts', 'payments', 'expenses', 'schools', 'recruitPosts', 'recruitCandidates', 'documents']
 export const READ_STRIP = {
-  owner: [], schooladmin: [], admin: [],
+  owner: [], schooladmin: [],
+  // ⚠️ AUDIT 2026-07-25 (ACL-1) : admin lisait TOUT (paie, factures, salaires)
+  // alors qu'il ne peut RIEN y écrire — la séparation CR-016/020 n'était que
+  // côté écriture. Lecture désormais alignée : pas d'écriture ⇒ pas de lecture.
+  admin: [...HR_MONEY_COLLECTIONS],
   teacher: [...STAFF_STRIP_BASE, 'visitors', 'rounds', 'logbook'],
   // RH : voit paie/contrats/personnel, PAS le pédagogique ni la santé des élèves.
   hr: ['evaluations', 'reports', 'behavior', 'moments', 'journal', 'milestones',
