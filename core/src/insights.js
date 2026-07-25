@@ -19,7 +19,7 @@
 // ════════════════════════════════════════════════════════════════════════════
 import { db, attParts } from './db.js'
 import { traitOf } from './behavior.js'
-import { now } from './clock.js'
+import { now, nowMs, ms } from './clock.js'
 
 const DAY = 86400000
 
@@ -29,8 +29,8 @@ const DAY = 86400000
  * et le trait pour lequel on félicite le plus.
  */
 export function behaviorClimate(d = db(), days = 7) {
-  const since = now() - days * DAY
-  const recent = (d.behavior || []).filter(e => !e.removed && e.at >= since)
+  const since = nowMs() - days * DAY
+  const recent = (d.behavior || []).filter(e => !e.removed && ms(e.at) >= since)
   const positives = recent.filter(e => e.positive).length
   const toImprove = recent.length - positives
   const byTrait = {}
@@ -49,8 +49,8 @@ export function behaviorClimate(d = db(), days = 7) {
  * signal de bien-être, pas une sanction.
  */
 export function attendanceSignal(d = db(), days = 7) {
-  const since = now() - days * DAY
-  const prevSince = now() - 2 * days * DAY
+  const since = nowMs() - days * DAY
+  const prevSince = nowMs() - 2 * days * DAY
   const byIso = {}            // iso → { present, absent, late, at }
   const absByStudent = {}     // studentId → nb d'absences dans la fenêtre courante
   for (const key in (d.attendance || {})) {

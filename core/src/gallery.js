@@ -18,7 +18,7 @@
 //  On ne diffuse jamais l'image d'un enfant « par défaut ».
 // ════════════════════════════════════════════════════════════════════════════
 import { db, mutate, uid, studentById } from './db.js'
-import { now } from './clock.js'
+import { now, nowMs, ms } from './clock.js'
 import { notify } from './notify.js'
 
 export const moments = () => db().moments || []
@@ -39,7 +39,7 @@ export function share({ classId, childIds = [], caption = '', media = [], byId, 
   if (!media.length && !caption.trim()) return { error: 'Ajoutez une photo ou un mot.' }
   const m = {
     id: uid('mo'), classId, childIds: [...childIds], caption: caption.trim(),
-    media, consentOnly, by: byId, byName, at: now(),
+    media, consentOnly, by: byId, byName, at: nowMs(),
     likes: [],           // les « cœurs » des parents — un retour simple, sans commentaire public
   }
   mutate(d => { d.moments = [m, ...(d.moments || [])] })
@@ -89,10 +89,10 @@ export function visibleToParent(moment, user) {
 
 /** Le fil d'un parent : uniquement ce qu'il a le droit de voir, du plus récent. */
 export function feedForParent(user) {
-  return moments().filter(m => visibleToParent(m, user)).sort((a, b) => b.at - a.at)
+  return moments().filter(m => visibleToParent(m, user)).sort((a, b) => ms(b.at) - ms(a.at))
 }
 
 /** Le fil d'une classe (enseignant/direction) : tout ce qui a été partagé pour elle. */
 export function feedForClass(classId) {
-  return moments().filter(m => m.classId === classId).sort((a, b) => b.at - a.at)
+  return moments().filter(m => m.classId === classId).sort((a, b) => ms(b.at) - ms(a.at))
 }

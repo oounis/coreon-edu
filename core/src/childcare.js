@@ -16,7 +16,7 @@
 // heure, qui a remis l'enfant.
 // ════════════════════════════════════════════════════════════════════════════
 import { db, save } from './db.js'
-import { now, todayIso } from './clock.js'
+import { now, todayIso, nowMs, ms } from './clock.js'
 
 // ── SANTÉ : vaccins ─────────────────────────────────────────────────────────
 /** Le calendrier vaccinal tunisien (obligatoires). `months` = âge d'administration. */
@@ -79,7 +79,7 @@ export function addPickup(childId, { name, relation, phone, cin, addedBy }) {
     [childId]: [...list, {
       id: 'pk' + Date.now().toString(36),
       name: name.trim(), relation, phone: phone || '', cin: cin.trim(),
-      addedBy, addedAt: now(), active: true,
+      addedBy, addedAt: nowMs(), active: true,
     }],
   }
   save(d)
@@ -92,7 +92,7 @@ export function revokePickup(childId, id, by, reason) {
   d.pickups = {
     ...(d.pickups || {}),
     [childId]: pickupsOf(childId).map(p => p.id !== id ? p
-      : { ...p, active: false, revokedBy: by, revokedAt: now(), revokeReason: reason || '' }),
+      : { ...p, active: false, revokedBy: by, revokedAt: nowMs(), revokeReason: reason || '' }),
   }
   save(d)
   return { ok: true }
@@ -122,7 +122,7 @@ export function handOver(childId, personId, byName) {
     personName: check.person.name,
     relation: check.person.relation,
     cin: check.person.cin,
-    at: now(), date: todayIso(), by: byName,
+    at: nowMs(), date: todayIso(), by: byName,
   }
   d.departures = [rec, ...(d.departures || [])]
   save(d)
@@ -158,7 +158,7 @@ export function observe(childId, key, by) {
   const m = milestonesOf(childId)
   d.milestones = {
     ...(d.milestones || {}),
-    [childId]: { ...m, [key]: { at: now(), by } },
+    [childId]: { ...m, [key]: { at: nowMs(), by } },
   }
   save(d)
 }

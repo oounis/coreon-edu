@@ -25,7 +25,7 @@
 // ════════════════════════════════════════════════════════════════════════════
 import { db, save } from './db.js'
 import { currency } from './currency.js'
-import { now, todayIso } from './clock.js'
+import { now, todayIso, nowMs, ms } from './clock.js'
 import { labelOf } from './levels.js'
 
 // ── Le barème : ce que coûte une année, par niveau ──────────────────────────
@@ -68,7 +68,7 @@ export function grantDiscount({ studentId, kind, pct, amount = 0, reason, by }) 
     studentId, kind,
     pct: pct ?? DISCOUNT_KINDS[kind]?.pct ?? null,
     amount: Number(amount) || 0,          // bourse : un montant, pas un pourcentage
-    reason: reason || '', by, at: now(),
+    reason: reason || '', by, at: nowMs(),
   }
   d.discounts = [g, ...(d.discounts || [])]
   save(d)
@@ -146,7 +146,7 @@ export function issueInvoice(studentId, by) {
     gross: due.gross, pctCut: due.pctCut, bourse: due.bourse,
     total: due.total, paid: 0,
     stage: 'emise',
-    issuedAt: now(), issuedBy: by,
+    issuedAt: nowMs(), issuedBy: by,
     cancelledAt: null, cancelReason: null, creditNote: null,
   }
   d.invoices = [inv, ...(d.invoices || [])]
@@ -165,7 +165,7 @@ export function cancelInvoice(id, reason, by) {
   if (!reason?.trim()) return { error: 'Un motif est obligatoire : une annulation sans motif n’est pas défendable.' }
   const d = db()
   d.invoices = d.invoices.map(i => i.id !== id ? i : {
-    ...i, stage: 'annulee', cancelledAt: now(), cancelReason: reason, cancelledBy: by,
+    ...i, stage: 'annulee', cancelledAt: nowMs(), cancelReason: reason, cancelledBy: by,
     creditNote: nextNumber('AV', invoices().map(x => ({ number: x.creditNote })).filter(x => x.number)),
   })
   save(d)
@@ -192,7 +192,7 @@ export function collect(invoiceId, amount, method, by) {
     id: 're' + Date.now().toString(36),
     number: nextNumber('RE', receipts()),
     invoiceId, studentId: inv.studentId,
-    amount: a, method, at: now(), by,
+    amount: a, method, at: nowMs(), by,
   }
   d.receipts = [r, ...(d.receipts || [])]
   const paid = inv.paid + a

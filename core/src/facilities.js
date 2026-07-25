@@ -21,7 +21,7 @@
 // par un club qui paie. Les créneaux scolaires sont bloqués d'office.
 // ════════════════════════════════════════════════════════════════════════════
 import { db, save } from './db.js'
-import { now, todayIso } from './clock.js'
+import { now, todayIso, nowMs, ms } from './clock.js'
 
 export const FACILITY_KINDS = {
   piscine:     { key: 'piscine',     label: 'Piscine',       icon: 'Waves' },
@@ -136,7 +136,7 @@ export function book({ facilityId, date, from, to, audience, who, phone = '', cl
     price: p.total, gross: p.gross, memberCut: p.memberCut,
     stage: audience === 'interne' && p.total === 0 ? 'confirmee' : 'demande',
     paid: 0,
-    createdAt: now(), by,
+    createdAt: nowMs(), by,
   }
   d.bookings = [b, ...(d.bookings || [])]
   save(d)
@@ -175,7 +175,7 @@ export function payBooking(id, method, by) {
   if (b.stage === 'annulee') return { error: 'Réservation annulée.' }
   const d = db()
   d.bookings = d.bookings.map(x => x.id !== id ? x
-    : { ...x, stage: 'payee', paid: x.price, paidAt: now(), method, paidBy: by })
+    : { ...x, stage: 'payee', paid: x.price, paidAt: nowMs(), method, paidBy: by })
   save(d)
   return { ok: true }
 }
@@ -184,7 +184,7 @@ export function cancelBooking(id, reason) {
   if (!reason?.trim()) return { error: 'Un motif est obligatoire.' }
   const d = db()
   d.bookings = (d.bookings || []).map(b => b.id !== id ? b
-    : { ...b, stage: 'annulee', cancelReason: reason, cancelledAt: now() })
+    : { ...b, stage: 'annulee', cancelReason: reason, cancelledAt: nowMs() })
   save(d)
   return { ok: true }
 }

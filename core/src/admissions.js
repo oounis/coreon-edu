@@ -20,7 +20,7 @@
 // une place se libère, la liste d'attente avance. C'est comme ça dans la vraie vie.
 // ════════════════════════════════════════════════════════════════════════════
 import { db, save, classById, assignRef} from './db.js'
-import { now, todayIso } from './clock.js'
+import { now, todayIso, nowMs, ms } from './clock.js'
 import { levelOf, labelOf } from './levels.js'
 import { notify } from './notify.js'
 import { applicantEmail, emailsApplicant } from './admissions-mail.js'
@@ -68,7 +68,7 @@ function mailApplicant(id, stage, extra = {}) {
   const mail = applicantEmail(a, stage, extra)
   if (!mail) return
   const eid = 'm' + now().toString(36) + ((a.emails || []).length)
-  const entry = { id: eid, at: now(), stage, to: mail.to, subject: mail.subject, status: mailReady() ? 'envoi' : 'préparé' }
+  const entry = { id: eid, at: nowMs(), stage, to: mail.to, subject: mail.subject, status: mailReady() ? 'envoi' : 'préparé' }
   write(applications().map(x => x.id !== id ? x : { ...x, emails: [...(x.emails || []), entry] }))
   if (mailReady()) sendMail(mail).then(r => markEmail(id, eid, r.ok ? 'envoyé' : 'échec'))
 }
@@ -107,8 +107,8 @@ export function apply(payload) {
     // sans fichier derrière était un mensonge d'interface : l'administration
     // croyait la détenir. Corrigé le 2026-07-14 (défaut trouvé par Othman).
     files,                          // [{ type, name, size, mime, data }]
-    createdAt: now(),
-    history: [{ at: now(), stage: 'nouvelle', by: 'Parent (en ligne)' }],
+    createdAt: nowMs(),
+    history: [{ at: nowMs(), stage: 'nouvelle', by: 'Parent (en ligne)' }],
     emails: [],                     // journal des emails envoyés au candidat
     studentId: null,                // rempli à l'inscription — la trace du lien
   }
@@ -117,7 +117,7 @@ export function apply(payload) {
   // La preuve, pas l'espoir : on relit le stockage.
   if (appById(a.id)) return announced({ app: a, filesDropped: false })
   if (files.length) {
-    const light = { ...a, files: [], history: [...a.history, { at: now(), stage: 'nouvelle', by: 'Système', note: 'Pièces non conservées (stockage plein) : à réclamer.' }] }
+    const light = { ...a, files: [], history: [...a.history, { at: nowMs(), stage: 'nouvelle', by: 'Système', note: 'Pièces non conservées (stockage plein) : à réclamer.' }] }
     write([light, ...applications().filter(x => x.id !== a.id)])
     if (appById(a.id)) return announced({ app: light, filesDropped: true })
   }
@@ -166,7 +166,7 @@ export function advance(id, stage, by = 'Administration', note = '') {
     return { error: 'Des pièces obligatoires manquent encore.' }
   }
   const next = applications().map(x => x.id !== id ? x
-    : { ...x, stage, history: [...x.history, { at: now(), stage, by, note }] })
+    : { ...x, stage, history: [...x.history, { at: nowMs(), stage, by, note }] })
   write(next)
   // Prévenir le candidat par email du changement d'étape (accepté, refusé,
   // pièces à fournir, liste d'attente…). L'étape « nouvelle » a déjà son accusé.
@@ -233,7 +233,7 @@ export function enrol(id, classId, by = 'Administration') {
   }]
   d.applications = (d.applications || []).map(x => x.id !== id ? x : {
     ...x, stage: 'inscrit', studentId: sid,
-    history: [...x.history, { at: now(), stage: 'inscrit', by, note: `Classe ${classId}` }],
+    history: [...x.history, { at: nowMs(), stage: 'inscrit', by, note: `Classe ${classId}` }],
   })
   save(d)
   // « Bienvenue » — le candidat devient élève ; on le lui annonce par email.

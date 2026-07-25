@@ -19,7 +19,7 @@
 //     trace), mais l'historique d'un enfant ne se réécrit pas en silence.
 // ════════════════════════════════════════════════════════════════════════════
 import { db, mutate, uid, studentById } from './db.js'
-import { now } from './clock.js'
+import { now, nowMs, ms } from './clock.js'
 import { notify } from './notify.js'
 
 // Les catégories. `points` est indicatif (un repère de valorisation), PAS une
@@ -46,7 +46,7 @@ export const toImproveTraits = () => TRAIT_LIST.filter(t => !t.positive)
 export const traitOf = k => TRAITS[k] || null
 
 export const entries = () => db().behavior || []
-export const entriesFor = studentId => entries().filter(e => e.studentId === studentId).sort((a,b)=>b.at-a.at)
+export const entriesFor = studentId => entries().filter(e => e.studentId === studentId).sort((a,b)=>ms(b.at)-ms(a.at))
 
 /**
  * OBSERVER — l'enseignant note un comportement. Le parent est prévenu.
@@ -61,7 +61,7 @@ export function observe({ studentId, trait, note = '', byId, byName }) {
   const entry = {
     id: uid('bh'), studentId, classId: s.classId,
     trait, positive: t.positive, points: t.points,
-    note: note.trim(), byId, byName, at: now(), removed: null,
+    note: note.trim(), byId, byName, at: nowMs(), removed: null,
   }
   mutate(d => { d.behavior = [entry, ...(d.behavior || [])] })
   // Le parent est prévenu — le positif est une bonne nouvelle, pas un dossier.
@@ -80,7 +80,7 @@ export function observe({ studentId, trait, note = '', byId, byName }) {
 export function removeEntry(id, byName) {
   mutate(d => {
     const e = (d.behavior || []).find(x => x.id === id)
-    if (e && !e.removed) e.removed = { by: byName, at: now() }
+    if (e && !e.removed) e.removed = { by: byName, at: nowMs() }
   })
   return { ok: true }
 }
@@ -105,8 +105,8 @@ export function studentSummary(studentId) {
  * un classement d'élèves. (Règle n°9.)
  */
 export function classClimate(classId, days = 30) {
-  const since = now() - days * 86400000
-  const recent = entries().filter(e => e.classId === classId && !e.removed && e.at >= since)
+  const since = nowMs() - days * 86400000
+  const recent = entries().filter(e => e.classId === classId && !e.removed && ms(e.at) >= since)
   const positives = recent.filter(e => e.positive).length
   const toImprove = recent.length - positives
   const byTrait = {}

@@ -1506,3 +1506,23 @@ test("semaine : le pays décide — au Bahreïn l'école va du dimanche au jeudi
     assert.equal(CDAYS[0].key, 'lun', 'la clé de stockage reste positionnelle (menus conservés)')
   } finally { setLocalePack('TN') }
 })
+
+// ── CC-1 : les horodatages persistés sont des NOMBRES (stables au JSON) ──────
+test("temps : écrire nowMs(), lire ms() — la sieste survit au rechargement, l'héritage ISO reste lisible", async () => {
+  const { ms, nowMs } = await import('../src/clock.js')
+  const { startNap, endNap, napMinutes, entry } = await import('../src/journal.js')
+  const sid = db().students[0].id
+  startNap(sid); endNap(sid)
+  const j = entry(sid)
+  const nap = j.naps[j.naps.length - 1]
+  assert.equal(typeof nap.from, 'number', 'écrit en NOMBRE — un JSON.parse ne le change plus en chaîne')
+  assert.equal(typeof nap.to, 'number')
+  assert.ok(!Number.isNaN(napMinutes(j)), 'plus jamais NaN minutes de sieste')
+  // Après un « rechargement » (aller-retour JSON), l'arithmétique tient toujours.
+  const rt = JSON.parse(JSON.stringify(j))
+  assert.ok(!Number.isNaN(napMinutes(rt)), 'stable après sérialisation')
+  // L'héritage : un vieux dossier écrit en Date→chaîne ISO reste lisible par ms().
+  assert.ok(ms('2026-07-20T10:00:00.000Z') > 0, 'chaîne ISO lue')
+  assert.ok(Math.abs(nowMs() - ms(new Date())) < 2000, 'Date lue')
+  assert.equal(ms(null), 0, 'absent = 0, jamais NaN')
+})

@@ -21,7 +21,7 @@
 // ════════════════════════════════════════════════════════════════════════════
 import { db, mutate } from './db.js'
 import { REQUEST_DEFS } from './tunisia.js'
-import { now, todayIso, isoOf } from './clock.js'
+import { now, todayIso, isoOf, nowMs, ms } from './clock.js'
 import { notify } from './notify.js'
 
 /** La catégorie d'une demande = le groupe de son type. Jamais une saisie libre. */
@@ -39,7 +39,7 @@ export function assign(id, { assigneeId, assigneeName, deadline = null, byName }
     const x = d.requests.find(q => q.id === id)
     x.assigneeId = assigneeId; x.assigneeName = assigneeName; x.deadline = deadline
     x.trace = x.trace || []
-    x.trace.push({ at: now(), by: byName, action: 'assigne', note: `à ${assigneeName}${deadline ? `, échéance ${deadline}` : ''}` })
+    x.trace.push({ at: nowMs(), by: byName, action: 'assigne', note: `à ${assigneeName}${deadline ? `, échéance ${deadline}` : ''}` })
   })
   notify({ to: assigneeId, kind: 'request', actor: byName, title: 'travail assigné',
     body: `${r.type} : demandé par ${r.byName}${deadline ? ` · pour le ${deadline}` : ''}`, link: '/app/requests' })
@@ -60,7 +60,7 @@ export function close(id, { byId, byName, note = '' }) {
     x.status = 'closed'; x.closedAt = now(); x.closedBy = byName; x.closedById = byId
     x.closeNote = note; x.closedLate = late
     x.trace = x.trace || []
-    x.trace.push({ at: now(), by: byName, action: 'cloture', note: note || (late ? 'clôturée · en retard sur l’échéance' : 'clôturée') })
+    x.trace.push({ at: nowMs(), by: byName, action: 'cloture', note: note || (late ? 'clôturée · en retard sur l’échéance' : 'clôturée') })
   })
   if (r.by !== byId) notify({ to: r.by, kind: 'request', actor: byName, title: 'demande clôturée',
     body: `${r.type}${note ? ` · ${note}` : ''}`, link: '/app/requests' })

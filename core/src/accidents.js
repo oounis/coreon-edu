@@ -24,7 +24,7 @@
 //  4. RIEN NE S'EFFACE. On corrige par un ajout daté, jamais en réécrivant.
 // ════════════════════════════════════════════════════════════════════════════
 import { db, save, assignRef} from './db.js'
-import { now } from './clock.js'
+import { now, nowMs, ms } from './clock.js'
 
 /** Le schéma corporel. Un adulte pointe où l'enfant s'est fait mal — il n'écrit pas. */
 export const BODY_ZONES = [
@@ -103,7 +103,7 @@ export function declare({ childId, zones, kind, severity, whatHappened, care, at
     care: care || [],
     at: at || now(),
     stage: 'brouillon',
-    witness: { id: byId, name: byName, at: now() },   // qui a VU
+    witness: { id: byId, name: byName, at: nowMs() },   // qui a VU
     approver: null,                                    // qui a VALIDÉ
     sentAt: null,
     ack: null,                                         // { by, at } — le parent a SIGNÉ
@@ -127,7 +127,7 @@ export function approve(id, byId, byName) {
     return { error: 'Vous avez rédigé cette déclaration : un autre responsable doit la valider. Deux paires d’yeux, toujours.' }
   }
   write(accidents().map(x => x.id !== id ? x
-    : { ...x, stage: 'valide', approver: { id: byId, name: byName, at: now() } }))
+    : { ...x, stage: 'valide', approver: { id: byId, name: byName, at: nowMs() } }))
   return { ok: true }
 }
 
@@ -137,7 +137,7 @@ export function sendToParent(id) {
   if (!a) return { error: 'Déclaration introuvable.' }
   if (a.stage === 'brouillon') return { error: 'Validez la déclaration avant de l’envoyer au parent.' }
   if (a.stage !== 'valide') return { error: 'Déjà envoyée.' }
-  write(accidents().map(x => x.id !== id ? x : { ...x, stage: 'envoye', sentAt: now() }))
+  write(accidents().map(x => x.id !== id ? x : { ...x, stage: 'envoye', sentAt: nowMs() }))
   return { ok: true }
 }
 
@@ -150,7 +150,7 @@ export function acknowledge(id, parentName) {
   if (!a) return { error: 'Déclaration introuvable.' }
   if (a.stage !== 'envoye') return { error: 'Rien à accuser.' }
   write(accidents().map(x => x.id !== id ? x
-    : { ...x, stage: 'accuse', ack: { by: parentName, at: now() } }))
+    : { ...x, stage: 'accuse', ack: { by: parentName, at: nowMs() } }))
   return { ok: true }
 }
 
@@ -160,7 +160,7 @@ export function remind(id, by) {
   if (!a) return { error: 'Déclaration introuvable.' }
   if (a.stage !== 'envoye') return { error: 'Pas de relance nécessaire.' }
   write(accidents().map(x => x.id !== id ? x
-    : { ...x, reminders: [...x.reminders, { at: now(), by }] }))
+    : { ...x, reminders: [...x.reminders, { at: nowMs(), by }] }))
   return { ok: true }
 }
 
@@ -168,7 +168,7 @@ export function remind(id, by) {
 export function addNote(id, text, by) {
   if (!text?.trim()) return { error: 'Une note vide n’ajoute rien.' }
   write(accidents().map(x => x.id !== id ? x
-    : { ...x, notes: [...x.notes, { text: text.trim(), by, at: now() }] }))
+    : { ...x, notes: [...x.notes, { text: text.trim(), by, at: nowMs() }] }))
   return { ok: true }
 }
 
@@ -181,7 +181,7 @@ export function pendingAck() {
   const HOURS = 3600 * 1000
   return accidents()
     .filter(a => a.stage === 'envoye')
-    .map(a => ({ ...a, waitingHours: Math.round((now() - a.sentAt) / HOURS) }))
+    .map(a => ({ ...a, waitingHours: Math.round((nowMs() - ms(a.sentAt)) / HOURS) }))
     .sort((x, y) => y.waitingHours - x.waitingHours)
 }
 

@@ -14,7 +14,7 @@
 // Pas une note sur 20.
 // ════════════════════════════════════════════════════════════════════════════
 import { db, save } from './db.js'
-import { todayIso, now } from './clock.js'
+import { todayIso, now, nowMs, ms } from './clock.js'
 
 /** Les repas. `ate` : ce que l'enfant a RÉELLEMENT mangé — pas ce qui a été servi. */
 export const MEALS = [
@@ -76,22 +76,22 @@ export const setMeal = (childId, meal, ate, date = todayIso()) =>
 
 /** Une sieste. On enregistre le DÉBUT, puis la FIN — comme dans la vraie vie. */
 export function startNap(childId, date = todayIso()) {
-  const naps = [...entry(childId, date).naps, { from: now(), to: null }]
+  const naps = [...entry(childId, date).naps, { from: nowMs(), to: null }]
   return upsert(childId, date, { naps })
 }
 export function endNap(childId, date = todayIso()) {
   const naps = [...entry(childId, date).naps]
   const open = naps.findIndex(n => !n.to)
   if (open < 0) return entry(childId, date)
-  naps[open] = { ...naps[open], to: now() }
+  naps[open] = { ...naps[open], to: nowMs() }
   return upsert(childId, date, { naps })
 }
 export const isNapping = j => (j.naps || []).some(n => !n.to)
 export const napMinutes = j =>
-  (j.naps || []).reduce((m, n) => m + (n.to ? Math.round((n.to - n.from) / 60000) : 0), 0)
+  (j.naps || []).reduce((m, n) => m + (n.to ? Math.round((ms(n.to) - ms(n.from)) / 60000) : 0), 0)
 
 export const addDiaper = (childId, kind, date = todayIso()) =>
-  upsert(childId, date, { diapers: [...entry(childId, date).diapers, { kind, at: now() }] })
+  upsert(childId, date, { diapers: [...entry(childId, date).diapers, { kind, at: nowMs() }] })
 
 export const setMood = (childId, mood, date = todayIso()) => upsert(childId, date, { mood })
 export const setNote = (childId, note, date = todayIso()) => upsert(childId, date, { note })
@@ -104,7 +104,7 @@ export const setNote = (childId, note, date = todayIso()) => upsert(childId, dat
  * cause plus de mal que de bien. On envoie une fois, à la fin de la journée,
  * quand la journée est vraie.
  */
-export const sendToParents = (childId, date = todayIso()) => upsert(childId, date, { sentAt: now() })
+export const sendToParents = (childId, date = todayIso()) => upsert(childId, date, { sentAt: nowMs() })
 export const isSent = j => !!j.sentAt
 
 /** Ce que le parent voit. Jamais un journal non envoyé. */

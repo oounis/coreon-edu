@@ -63,6 +63,15 @@ export function dayIndex(d = now()) {
 
 export const isWeekend = (d = now()) => isWeekendDay(d.getDay())
 
+// ⚠️ AUDIT 2026-07-25 (CC-1) : now() renvoie une Date — persistée, elle devient
+// une CHAÎNE ISO au rechargement, et `now() - stocké` vaut NaN. Huit modules
+// cassaient sur données réelles (accusés d'accident, climat, siestes, tri des
+// moments) tout en passant les tests (graines fraîches). Règle désormais :
+//   ÉCRIRE  → nowMs()  (un nombre, stable au JSON)
+//   LIRE    → ms(x)    (nombre | Date | chaîne ISO → millisecondes)
+export const nowMs = () => +now()
+export const ms = v => v == null ? 0 : v instanceof Date ? +v : typeof v === 'number' ? v : (Date.parse(v) || 0)
+
 // Date locale au format YYYY-MM-DD (jamais toISOString(), qui est en UTC).
 export const isoOf = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 export const todayIso = () => isoOf(now())

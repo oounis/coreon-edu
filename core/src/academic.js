@@ -23,7 +23,7 @@
 // pas une moyenne sur 20 — il a des acquis observés. Deux barèmes, un seul module.
 // ════════════════════════════════════════════════════════════════════════════
 import { db, save } from './db.js'
-import { now, todayIso } from './clock.js'
+import { now, todayIso, nowMs, ms } from './clock.js'
 import { LEVELS, levelOf, labelOf, nextLevel, isEarly } from './levels.js'
 import { feesOf } from './accounting.js'
 import { curriculum, gradeOf } from './locales.js'
@@ -102,7 +102,7 @@ export function saveReport({ studentId, term, marks, comment, by }) {
     early: isEarly(cls?.level),
     marks: marks || {},
     comment: comment || '',
-    by, at: now(),
+    by, at: nowMs(),
   }
   d.reports = [...(d.reports || []).filter(x => !(x.studentId === studentId && x.term === term)), r]
   save(d)
@@ -310,7 +310,7 @@ export function runPromotion(by, { allowBlocked = false } = {}) {
       moved.push({ id: s.id, name: s.name, from: r.from, to: null, decision: 'diplome' })
       // Diplômé : il quitte l'école. On ARCHIVE, on ne supprime pas — un dossier
       // scolaire ne disparaît jamais.
-      return { ...s, classId: null, archived: true, archivedAt: now(), archivedReason: 'Fin de cycle' }
+      return { ...s, classId: null, archived: true, archivedAt: nowMs(), archivedReason: 'Fin de cycle' }
     }
     if (r.decision === 'redouble') moved.push({ id: s.id, name: s.name, from: r.from, to: r.from, decision: 'redouble' })
     return s
@@ -318,7 +318,7 @@ export function runPromotion(by, { allowBlocked = false } = {}) {
 
   d.promotions = [{
     id: 'pr' + Date.now().toString(36),
-    year, at: now(), by,
+    year, at: nowMs(), by,
     summary: p.summary,
     moved,
   }, ...(d.promotions || [])]
@@ -334,7 +334,7 @@ export function withdraw(studentId, reason, by) {
   if (!reason?.trim()) return { error: 'Un motif est obligatoire.' }
   const d = db()
   d.students = (d.students || []).map(s => s.id !== studentId ? s
-    : { ...s, classId: null, archived: true, archivedAt: now(), archivedReason: reason, archivedBy: by })
+    : { ...s, classId: null, archived: true, archivedAt: nowMs(), archivedReason: reason, archivedBy: by })
   save(d)
   return { ok: true }
 }

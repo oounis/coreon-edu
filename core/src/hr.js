@@ -19,7 +19,7 @@
 //     saisie libre. Sinon ce n'est pas de la paie, c'est un tableur.
 // ════════════════════════════════════════════════════════════════════════════
 import { db, save } from './db.js'
-import { now, todayIso } from './clock.js'
+import { now, todayIso, nowMs, ms } from './clock.js'
 
 // ── Contrats ────────────────────────────────────────────────────────────────
 export const CONTRACTS = {
@@ -91,7 +91,7 @@ export function requestLeave({ staffId, kind, from, to, reason = '' }) {
     staffId, kind, from, to, reason,
     days: daysBetween(from, to),
     stage: 'demande',
-    at: now(), decidedBy: null, decidedAt: null,
+    at: nowMs(), decidedBy: null, decidedAt: null,
   }
   d.hrLeaves = [l, ...(d.hrLeaves || [])]
   save(d)
@@ -111,7 +111,7 @@ export function decideLeave(id, stage, byId, byName) {
   if (l.stage !== 'demande') return { error: 'Cette demande a déjà été traitée.' }
   const d = db()
   d.hrLeaves = d.hrLeaves.map(x => x.id !== id ? x
-    : { ...x, stage, decidedBy: byName, decidedById: byId, decidedAt: now() })
+    : { ...x, stage, decidedBy: byName, decidedById: byId, decidedAt: nowMs() })
   save(d)
   return { ok: true }
 }
@@ -181,7 +181,7 @@ export function preparePayroll(month, staff, by = null) {
   const p = {
     month, stage: 'brouillon', lines,
     total: lines.reduce((s, l) => s + l.net, 0),
-    createdAt: now(),
+    createdAt: nowMs(),
     preparedBy: by?.name || null, preparedById: by?.id || null,
     validatedBy: null, validatedById: null, validatedAt: null, paidAt: null,
   }
@@ -225,7 +225,7 @@ export function validatePayroll(month, byId, byName) {
     return { error: 'Vous avez préparé cette paie : sa validation revient à une autre personne.' }
   const d = db()
   d.hrPayrolls = d.hrPayrolls.map(x => x.month !== month ? x
-    : { ...x, stage: 'valide', validatedBy: byName, validatedById: byId || null, validatedAt: now() })
+    : { ...x, stage: 'valide', validatedBy: byName, validatedById: byId || null, validatedAt: nowMs() })
   save(d)
   return { ok: true }
 }
@@ -235,7 +235,7 @@ export function markPaid(month) {
   if (!p) return { error: 'Aucune paie pour ce mois.' }
   if (p.stage !== 'valide') return { error: 'Validez la paie avant de la marquer payée.' }
   const d = db()
-  d.hrPayrolls = d.hrPayrolls.map(x => x.month !== month ? x : { ...x, stage: 'paye', paidAt: now() })
+  d.hrPayrolls = d.hrPayrolls.map(x => x.month !== month ? x : { ...x, stage: 'paye', paidAt: nowMs() })
   save(d)
   return { ok: true }
 }
