@@ -3,6 +3,7 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import toast from 'react-hot-toast'
 import { current } from '@core/auth.js'
+import { isRemote } from './remote.js'
 import AppShell from './components/AppShell.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
 import SiteChrome from './pages/site/Chrome.jsx'
@@ -106,9 +107,14 @@ export default function App(){
           <Route path="/tarifs" element={<PricingPage/>}/>
           <Route path="/faq" element={<FaqPage/>}/>
         </Route>
-        <Route path="/login" element={<Login/>}/>
+        {/* ⚠️ AUDIT 2026-07-25 (S-9) : en mode serveur, /login (connexions démo
+            en un clic) restait joignable après RemoteGate — escalade de rôle
+            côté client. En mode serveur, la porte est RemoteGate, pas ici. */}
+        <Route path="/login" element={isRemote() ? <Navigate to="/app" replace/> : <Login/>}/>
         {/* Le premier écran d'une école : pas de menu, pas de coquille — une seule question. */}
-        <Route path="/setup" element={<Setup/>}/>
+        {/* ⚠️ AUDIT 2026-07-25 : /setup était PUBLIC — n'importe qui réécrivait
+            le nom et les niveaux de l'école. Désormais protégé (direction). */}
+        <Route path="/setup" element={R(<Setup/>, "/setup")}/>
         {/* PUBLIQUE, sans compte : c'est le PARENT qui dépose la candidature.
             L'école ne ressaisit rien — la donnée entre à la source. */}
         <Route path="/inscription" element={<Inscription/>}/>

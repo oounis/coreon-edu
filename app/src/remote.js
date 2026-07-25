@@ -106,27 +106,36 @@ export function startSync() {
   async function push() {
     if (pushing) return
     pushing = true
-    const r = await call('/api/db', { baseRev: +base.getItem(REV) || 0, blob: JSON.parse(base.getItem(DB) || '{}') })
-    pushing = false
-    if (r.status === 200) base.setItem(REV, String(r.json.rev))
-    else if (r.status === 409) {
-      // Quelqu'un a écrit entre-temps : on prend la version du serveur, on le DIT.
-      base.setItem(DB, JSON.stringify(r.json.blob))
-      base.setItem(REV, String(r.json.rev))
-      window.dispatchEvent(new CustomEvent('coreon:remote-conflict'))
-      location.reload()
-    } else if (r.status === 401) remoteLogout()
+    // ⚠️ AUDIT 2026-07-25 : sans try/finally, la PREMIÈRE coupure réseau
+    // laissait `pushing=true` pour toujours — la synchro mourait en silence
+    // pendant que l'écran continuait de confirmer les enregistrements.
+    try {
+      const r = await call('/api/db', { baseRev: +base.getItem(REV) || 0, blob: JSON.parse(base.getItem(DB) || '{}') })
+      if (r.status === 200) base.setItem(REV, String(r.json.rev))
+      else if (r.status === 409) {
+        // Quelqu'un a écrit entre-temps : on prend la version du serveur, on le
+        // DIT — et on garde une COPIE locale de ce qui allait être perdu.
+        try { base.setItem('coreon_db_conflict', base.getItem(DB)) } catch { /* quota : la copie est best-effort */ }
+        base.setItem(DB, JSON.stringify(r.json.blob))
+        base.setItem(REV, String(r.json.rev))
+        window.dispatchEvent(new CustomEvent('coreon:remote-conflict'))
+        location.reload()
+      } else if (r.status === 401) remoteLogout()
+    } catch { schedule() /* réseau : on réessaie, on n'abandonne jamais en silence */ }
+    finally { pushing = false }
   }
   const schedule = () => { clearTimeout(timer); timer = setTimeout(push, 800) }
 
   // les écritures des AUTRES appareils : sondage léger, rechargement honnête
   setInterval(async () => {
-    if (pushing || timer && document.hidden) return
-    const r = await call('/api/rev')
-    if (r.status === 401) return remoteLogout()
-    if (r.status === 200 && r.json.rev > (+base.getItem(REV) || 0) && !pushing) {
-      if (await pull()) location.reload()
-    }
+    if (pushing || (timer && document.hidden)) return
+    try {
+      const r = await call('/api/rev')
+      if (r.status === 401) return remoteLogout()
+      if (r.status === 200 && r.json.rev > (+base.getItem(REV) || 0) && !pushing) {
+        if (await pull()) location.reload()
+      }
+    } catch { /* réseau : le prochain tour réessaiera */ }
   }, 20000)
 
   window.addEventListener('coreon:logout', remoteLogout)

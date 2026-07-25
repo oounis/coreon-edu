@@ -25,13 +25,13 @@
 import http from 'node:http'
 import { randomBytes } from 'node:crypto'
 import { gzipSync } from 'node:zlib'
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, statSync } from 'node:fs'
 import { hashPw, checkPw } from './pw.mjs'
-import { join, extname, dirname } from 'node:path'
+import { join, extname, dirname, resolve, normalize, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { makeStore } from './store.mjs'
 import { setStorage } from '../core/src/storage.js'
-import { blobForStaff, blobForParent, mergeWrite } from '../core/src/acl.js'
+import { blobForStaff, blobForParent, mergeWrite, mayWriteCollection } from '../core/src/acl.js'
 import { acknowledge } from '../core/src/accidents.js'
 import { toggleLike } from '../core/src/gallery.js'
 import { apply as applyAdmission } from '../core/src/admissions.js'
@@ -108,6 +108,19 @@ const limiter = (max, windowMs) => {
 }
 const applyAllowed = limiter(10, 60 * 60 * 1000)        // pré-inscription
 const forgotAllowed = limiter(5, 60 * 60 * 1000)        // mot de passe oublié
+const loginAllowed = limiter(20, 15 * 60 * 1000)        // force brute (audit 2026-07-25)
+const resetAllowed = limiter(10, 60 * 60 * 1000)        // devinette de jeton
+
+// L'adresse du client. Derrière un reverse-proxy (Caddy/nginx), TOUTES les
+// requêtes portent l'IP du proxy : sans ceci, un seul visiteur épuise le
+// quota de toute l'école. COREON_TRUST_PROXY=1 fait lire X-Forwarded-For.
+const ipOf = req => {
+  if (process.env.COREON_TRUST_PROXY === '1') {
+    const xff = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim()
+    if (xff) return xff
+  }
+  return req.socket.remoteAddress || '?'
+}
 
 // ── Mot de passe oublié ───────────────────────────────────────────────────────
 // Règles tenues ici, pas dans le client : un jeton est un secret, il ne se
@@ -183,6 +196,7 @@ export const server = http.createServer(async (req, res) => {
     if (url.pathname === '/api/health') return send(res, 200, { ok: true, rev: school.rev }, origin)
 
     if (url.pathname === '/api/login' && req.method === 'POST') {
+      if (!loginAllowed(ipOf(req))) return send(res, 429, { error: 'Trop de tentatives. Réessayez dans quelques minutes.' }, origin)
       const { email, pw } = await readBody(req)
       const cred = auth.users.find(u => u.email.toLowerCase() === String(email || '').trim().toLowerCase())
       const user = cred && (school.blob.users || []).find(u => u.id === cred.id)
@@ -214,6 +228,7 @@ export const server = http.createServer(async (req, res) => {
 
     // Poser le nouveau mot de passe. Le jeton meurt à l'usage.
     if (url.pathname === '/api/reset' && req.method === 'POST') {
+      if (!resetAllowed(ipOf(req))) return send(res, 429, { error: 'Trop de tentatives. Réessayez plus tard.' }, origin)
       const { token, pw } = await readBody(req)
       const rec = auth.resets[String(token || '')]
       if (!rec || rec.exp < Date.now()) {
@@ -256,13 +271,20 @@ export const server = http.createServer(async (req, res) => {
         const fresh = blobForStaff(school.blob, user.role)
         return send(res, 409, { rev: school.rev, blob: fresh, error: 'Quelqu\'un a écrit entre-temps : vos données ont été actualisées.' }, origin)
       }
-      // Les mots de passe créés à l'écran Comptes vont au registre d'auth, jamais au blob.
+      // Les mots de passe créés à l'écran Comptes vont au registre d'auth, jamais
+      // au blob. ⚠️ AUDIT 2026-07-25 (S-1) : cette boucle tournait AVANT l'ACL —
+      // n'importe quel rôle authentifié pouvait remplacer l'identifiant de la
+      // Direction. Désormais : on ne touche au registre QUE si le rôle a le
+      // droit d'écrire `users` (direction/propriétaire), ou pour SON propre
+      // compte ; et un utilisateur ne change jamais son propre e-mail ici.
       for (const u of (blob?.users || [])) {
-        if (u.pw) {
-          const i = auth.users.findIndex(x => x.id === u.id)
-          const rec = { id: u.id, email: u.email, hash: hashPw(u.pw) }
-          i >= 0 ? auth.users[i] = rec : auth.users.push(rec)
-        }
+        if (!u?.pw) continue
+        const self = u.id === user.id
+        if (!self && !mayWriteCollection(user.role, 'users')) continue
+        const i = auth.users.findIndex(x => x.id === u.id)
+        const email = self && i >= 0 ? auth.users[i].email : (u.email || (i >= 0 ? auth.users[i].email : ''))
+        const rec = { id: u.id, email, hash: hashPw(u.pw) }
+        i >= 0 ? auth.users[i] = rec : auth.users.push(rec)
       }
       persistAuth()
       const { merged, applied } = mergeWrite(school.blob, blob || {}, user.role)
@@ -292,9 +314,15 @@ if (STATIC) {
   server.removeAllListeners('request')
   server.on('request', (req, res) => {
     if (req.url.startsWith('/api/')) return base(req, res)
-    let p = join(STATIC, req.url.split('?')[0])
-    if (req.url === '/' || !existsSync(p)) p = join(STATIC, 'index.html')
-    res.writeHead(200, { 'content-type': MIME[extname(p)] || 'text/html' })
+    // ⚠️ AUDIT 2026-07-25 (S-2) : `join` résolvait les `..` — une requête brute
+    // `/../data/auth.json` sortait du dossier statique et servait le registre
+    // d'authentification. Désormais : résolution PUIS preuve de confinement.
+    const root = resolve(STATIC)
+    let p
+    try { p = resolve(root, '.' + normalize('/' + decodeURIComponent(req.url.split('?')[0]))) } catch { p = root }
+    if (!p.startsWith(root + sep) && p !== root) p = join(root, 'index.html')
+    if (req.url === '/' || !existsSync(p) || !statSync(p).isFile()) p = join(root, 'index.html')
+    res.writeHead(200, { 'content-type': MIME[extname(p)] || 'text/html', 'x-content-type-options': 'nosniff' })
     res.end(readFileSync(p))
   })
 }

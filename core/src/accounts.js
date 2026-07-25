@@ -17,7 +17,9 @@
 // ════════════════════════════════════════════════════════════════════════════
 import { db, mutate, uid, setParentChildren } from './db.js'
 
-export const MANAGEABLE_ROLES = ['schooladmin', 'admin', 'teacher', 'supervisor', 'security', 'parent']
+// ⚠️ AUDIT 2026-07-25 : `hr` et `accountant` manquaient — le client ne pouvait
+// PAS créer les deux comptes de département que l'ACL (CR-019) a été bâtie pour.
+export const MANAGEABLE_ROLES = ['schooladmin', 'admin', 'teacher', 'supervisor', 'security', 'parent', 'hr', 'accountant']
 
 const emailTaken = (d, email, exceptId = null) =>
   (d.users || []).some(u => u.id !== exceptId && String(u.email || '').toLowerCase() === String(email || '').trim().toLowerCase())

@@ -30,14 +30,25 @@ export default function App() {
       try {
       await hydrate()
       // Les modules qui touchent db() ne sont chargés qu'après l'hydratation.
-      const [{ current }, clock, storage, Login, Shell, Welcome] = await Promise.all([
+      const [{ current }, clock, storage, dbMod, locales, currency, academic, Login, Shell, Welcome] = await Promise.all([
         import('@core/auth.js'),
         import('@core/clock.js'),
         import('@core/storage.js'),
+        import('@core/db.js'),
+        import('@core/locales.js'),
+        import('@core/currency.js'),
+        import('@core/academic.js'),
         import('./src/screens/Login.js'),
         import('./src/Shell.js'),
         import('./src/screens/Welcome.js'),
       ])
+      // ⚠️ AUDIT 2026-07-25 : le mobile n'initialisait JAMAIS le pack pays — une
+      // école bahreïnie voyait dinars tunisiens, matières et pièces tunisiennes.
+      // Même rituel de démarrage que le web (main.jsx) : pays → devise → programme.
+      const _school = dbMod.settings()
+      locales.setLocalePack(_school.country)
+      currency.setCurrency(_school.currency)
+      academic.applyCurriculum()
       // Tant qu'il n'y a pas de vraie école : mode démonstration par défaut
       // (équivalent du ?live=1 du web), sans écraser un choix déjà mémorisé.
       if (storage.getItem('coreon_demo_live') == null) clock.setDemoLive(true)

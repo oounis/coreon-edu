@@ -1,4 +1,4 @@
-import { mutate, db, uid, studentById } from './db.js'
+import { mutate, db, uid, studentById, settings } from './db.js'
 import { sendMail, emailOfUser, parentEmailsOfStudent, parentEmailsOfClass } from './mailer.js'
 
 // Une notification vise soit UNE personne (`to`), soit un RÔLE (`role`).
@@ -27,8 +27,11 @@ function emailNotification({ to, role, classId, studentId, actor, title, body })
   if (studentId) parentEmailsOfStudent(studentId).forEach(e => rcpts.add(e))
   if (role === 'parent' && classId) parentEmailsOfClass(classId).forEach(e => rcpts.add(e))
   if (!rcpts.size) return
-  const subject = title ? title.charAt(0).toUpperCase() + title.slice(1) : 'École Al-Nour'
-  const text = `${actor ? actor + ' · ' : ''}${body || ''}\n\nÉcole Al-Nour (Coreon EDU)`
+  // ⚠️ AUDIT 2026-07-25 : « École Al-Nour » était en dur — chaque école signait
+  // ses emails du nom de l'école de démonstration tunisienne.
+  const school = settings().schoolName || 'Coreon EDU'
+  const subject = title ? title.charAt(0).toUpperCase() + title.slice(1) : school
+  const text = `${actor ? actor + ' · ' : ''}${body || ''}\n\n${school} (Coreon EDU)`
   rcpts.forEach(addr => { sendMail({ to: addr, subject, text }) })
 }
 

@@ -39,7 +39,10 @@ export const SECTIONS = [
 ]
 
 const ALL_NAV=[
-  { to:'/app', section:'quotidien', pinned:['owner','schooladmin','admin','teacher','supervisor','security','parent'], label:'Tableau de bord', icon:'LayoutDashboard', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent'] },
+  // ⚠️ AUDIT 2026-07-25 : hr/accountant manquaient ici (et sur Messages/Annonces)
+  // alors que leurs tableaux de bord existent — les deux départements ne
+  // pouvaient jamais REVENIR à leur accueil depuis la barre latérale.
+  { to:'/app', section:'quotidien', pinned:['owner','schooladmin','admin','teacher','supervisor','security','parent','hr','accountant'], label:'Tableau de bord', icon:'LayoutDashboard', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent','hr','accountant'] },
   { to:'/app/live', section:'quotidien', pinned:['parent'], label:'Suivi en direct', icon:'Radio', roles:['parent'] },
   { to:'/app/schools', section:'systeme', label:'Écoles', icon:'Building2', roles:['owner'] },
   { to:'/app/accounts', section:'systeme', label:'Comptes', icon:'UserCog', roles:['schooladmin'] },
@@ -113,8 +116,8 @@ const ALL_NAV=[
   { to:'/app/recruit', section:'equipe', label:'Recrutement', icon:'UserPlus', module:'recruit',
     roles:['schooladmin','hr'] },
   { to:'/app/requests', section:'equipe', label:'Demandes', icon:'FileText', roles:['teacher','admin','schooladmin','hr'] },
-  { to:'/app/messages', section:'quotidien', label:'Messages', icon:'MessageSquare', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent'] },
-  { to:'/app/notices', section:'quotidien', label:'Annonces', icon:'Megaphone', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent'] },
+  { to:'/app/messages', section:'quotidien', label:'Messages', icon:'MessageSquare', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent','hr','accountant'] },
+  { to:'/app/notices', section:'quotidien', label:'Annonces', icon:'Megaphone', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent','hr','accountant'] },
   // « Est-ce que ça s'intègre ? » est une QUESTION D'ACHAT dans toute école
   // internationale. OneRoster v1.2 : la réponse est un fichier, pas une promesse.
   { to:'/app/interop', section:'systeme', label:'Interopérabilité', icon:'Plug', module:'interop', roles:['schooladmin','admin'] },

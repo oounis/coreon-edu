@@ -97,7 +97,9 @@ function StaffBody({ u, d, nav }) {
     ['Users', '#7539E4', 'Élèves', d.students.length, '/app/students'],
     ['GraduationCap', '#2BD9A8', 'Classes', d.classes.length, null],
     ['ClipboardCheck', '#FFA62B', 'Évaluations', d.evaluations.length, u.role === 'teacher' ? '/app/evaluate' : null],
-    ['Megaphone', '#FF6B81', 'Annonces', (d.notices || []).length, '/app/notices'],
+    // ⚠️ AUDIT 2026-07-25 : `d.notices` n'existe pas — les annonces sont des
+    // notifications de type 'notice' ; la tuile affichait 0 pour toujours.
+    ['Megaphone', '#FF6B81', 'Annonces', (d.notifications || []).filter(n => n.kind === 'notice').length, '/app/notices'],
   ]
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>

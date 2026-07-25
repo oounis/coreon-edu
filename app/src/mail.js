@@ -11,10 +11,13 @@
 // l'email « préparé » (journalisé, jamais faussé).
 // ════════════════════════════════════════════════════════════════════════════
 const WORKER_URL = 'https://coreon-mail.kogiagroup.workers.dev'
-// Jeton partagé : simple barrière (le Worker vérifie AUSSI l'Origin du site).
-const WORKER_TOKEN = '6bdc8ed8e1cc997d552aac9fb8e442ab'
+// Jeton partagé : simple barrière (le Worker vérifie SURTOUT l'Origin + limite
+// le débit). ⚠️ AUDIT 2026-07-25 (S-4) : l'ancien jeton vivait EN CLAIR dans ce
+// fichier public — il a été RÉVOQUÉ. Le jeton vient désormais du build (secret
+// CI `VITE_MAIL_TOKEN`) : plus jamais dans le dépôt ni son historique.
+const WORKER_TOKEN = import.meta.env?.VITE_MAIL_TOKEN || ''
 
-export const mailReady = () => Boolean(WORKER_URL)
+export const mailReady = () => Boolean(WORKER_URL && WORKER_TOKEN)
 
 export async function sendViaWorker(mail) {
   if (!mail?.to) throw new Error('destinataire manquant')

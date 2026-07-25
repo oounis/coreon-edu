@@ -201,7 +201,10 @@ export function setBonus(month, staffId, bonus) {
     lines: x.lines.map(l => l.staffId !== staffId ? l
       : { ...l, bonus: Number(bonus) || 0, net: lineNet({ ...l, bonus: Number(bonus) || 0 }) }),
   })
-  const np = payrollOf(month)
+  // ⚠️ AUDIT 2026-07-25 : `payrollOf(month)` relisait le STOCKAGE (pas encore
+  // sauvé) — le total restait l'ANCIEN, puis était validé, payé et comptabilisé.
+  // On recalcule depuis `d`, la version en mémoire qui porte la prime.
+  const np = d.hrPayrolls.find(x => x.month === month)
   d.hrPayrolls = d.hrPayrolls.map(x => x.month !== month ? x
     : { ...x, total: np.lines.reduce((s, l) => s + l.net, 0) })
   save(d)

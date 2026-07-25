@@ -67,7 +67,12 @@ export default function Shell({ user, onLogout }) {
     setStack(s => [...s, { route, params }])
   }, [user.role])
   const back = useCallback(() => setStack(s => (s.length > 1 ? s.slice(0, -1) : s)), [])
-  const switchTab = useCallback(route => { tap(); setStack([{ route, params: null }]) }, [])
+  // ⚠️ AUDIT 2026-07-25 : `switchTab` sautait le contrôle d'accès que `navigate`
+  // applique — un rôle hr/comptable atteignait des écrans que access.js refuse.
+  const switchTab = useCallback(route => {
+    if (route !== '/more' && !route.startsWith('~') && !canAccess(user.role, route)) return
+    tap(); setStack([{ route, params: null }])
+  }, [user.role])
   const nav = useMemo(() => ({
     navigate, back, canBack: stack.length > 1,
     logout: () => { coreLogout(); onLogout() },

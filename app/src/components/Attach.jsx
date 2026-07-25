@@ -116,11 +116,16 @@ export default function Attach({ types, value = [], onChange, readOnly = false }
     if (!a.data) return toast.error('Cette pièce a été enregistrée sans fichier (ancienne version).')
     const w = window.open()
     if (!w) return toast.error('Autorisez les fenêtres pour ouvrir la pièce.')
-    w.document.write(
-      String(a.mime || '').startsWith('image/')
-        ? `<title>${a.name}</title><body style="margin:0;background:#0E2135"><img src="${a.data}" style="max-width:100%;display:block;margin:auto">`
-        : `<title>${a.name}</title><iframe src="${a.data}" style="border:0;width:100%;height:100vh"></iframe>`
-    )
+    // ⚠️ AUDIT 2026-07-25 (S-3) : le NOM du fichier vient du formulaire PUBLIC de
+    // pré-inscription — interpolé dans du HTML, c'était un XSS stocké exécuté
+    // dans la session de l'administration. On construit le DOM, jamais du HTML.
+    w.document.title = a.name
+    const isImg = String(a.mime || '').startsWith('image/')
+    const el = w.document.createElement(isImg ? 'img' : 'iframe')
+    el.src = a.data
+    el.style.cssText = isImg ? 'max-width:100%;display:block;margin:auto' : 'border:0;width:100%;height:100vh'
+    w.document.body.style.cssText = 'margin:0;background:#0E2135'
+    w.document.body.appendChild(el)
   }
 
   return (

@@ -79,6 +79,10 @@ export function toggleLike(id, userId) {
 export function visibleToParent(moment, user) {
   const kids = user?.childIds || []
   if (moment.childIds.some(id => kids.includes(id))) return true
+  // ⚠️ AUDIT 2026-07-25 : `consentOnly` était enregistré puis IGNORÉ — un moment
+  // restreint atteignait toute la classe. Restreint = uniquement les parents des
+  // enfants identifiés ; jamais par la règle « toute la classe ».
+  if (moment.consentOnly) return false
   if (moment.childIds.length === 0 && parentClassIds(user).includes(moment.classId)) return true
   return false
 }
