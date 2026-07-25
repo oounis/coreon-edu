@@ -9,3 +9,4 @@ dist/
 
 # large source artwork (catalogued in source_assets/README.md)
 source_assets/*.zip
+e2e/fat-report.json
