@@ -10,6 +10,7 @@ import { current } from '@core/auth.js'
 import { db, studentById, classById, settings } from '@core/db.js'
 import { DOC_LIST, docTypeOf, issueDocument, registry, docSummary } from '@core/documents.js'
 import { LEGAL } from '@core/tunisia.js'
+import { pack } from '@core/locales.js'
 import { PageHead, Card, Btn, Modal, Field, Input, Select, Avatar, EmptyState, SectionCard } from '../components/ui.jsx'
 import { ScrollText, Download, Printer, Check } from 'lucide-react'
 import { format } from 'date-fns'
@@ -45,7 +46,7 @@ function PaperDoc({ rec }) {
   return (
     <div className="bg-white p-2 text-sm">
       <div className="flex items-center justify-between border-b-2 pb-3 mb-4" style={{ borderColor: '#7539E4' }}>
-        <div><div className="font-extrabold">{m.sc.schoolName}</div><div className="text-xs text-muted">{m.sc.city}, Tunisie · Tél : {m.sc.phone}</div></div>
+        <div><div className="font-extrabold">{m.sc.schoolName}</div><div className="text-xs text-muted">{m.sc.city}, {pack().label} · Tél : {m.sc.phone}</div></div>
         <div className="text-xs text-right text-muted">N° : <b>{m.ref}</b><br />{m.sc.city}, le {m.today}</div>
       </div>
       <h2 className="text-center text-xl font-extrabold uppercase my-4">{m.title}</h2>
@@ -66,7 +67,7 @@ function downloadPDF(rec) {
   const m = docModel(rec); const doc = new jsPDF({ unit: 'mm', format: 'a4' }); const W = 210; let y = 20
   doc.setDrawColor(108, 92, 231); doc.setLineWidth(0.8); doc.line(20, 28, W - 20, 28)
   doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.text(m.sc.schoolName, 20, y)
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(120); doc.text(`${m.sc.city}, Tunisie · ${m.sc.phone}`, 20, y + 5)
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(120); doc.text(`${m.sc.city}, ${pack().label} · ${m.sc.phone}`, 20, y + 5)
   doc.text(`N° : ${m.ref}`, W - 20, y, { align: 'right' }); doc.text(`${m.sc.city}, le ${m.today}`, W - 20, y + 5, { align: 'right' })
   y = 44; doc.setTextColor(20); doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.text(m.title.toUpperCase(), W / 2, y, { align: 'center' })
   y += 12; doc.setFont('helvetica', 'normal'); doc.setFontSize(11)

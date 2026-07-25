@@ -1,4 +1,5 @@
 import { db, classById, settings } from '@core/db.js'
+import { pack, regionLabel } from '@core/locales.js'
 import { bulletinFor, mentionFor } from '@core/results.js'
 import { Btn, Avatar, STATUS } from './ui.jsx'
 import { Dialog } from '@headlessui/react'
@@ -34,7 +35,7 @@ export default function Bulletin({ student, onClose }){
             {/* en-tête établissement */}
             <div className="flex items-start justify-between gap-4 border-b-2 border-ink pb-4 mb-5">
               <div>
-                <div className="text-xs font-semibold text-muted">République Tunisienne · Ministère de l'Éducation</div>
+                <div className="text-xs font-semibold text-muted">{pack().label} · Bulletin scolaire</div>
                 <div className="text-2xl font-extrabold mt-1">{sc.schoolName}</div>
                 <div className="text-sm text-muted">{sc.city} · Année scolaire {sc.year}</div>
               </div>
@@ -52,7 +53,7 @@ export default function Bulletin({ student, onClose }){
                 <Line k="Classe" v={cls?.name}/>
                 <Line k="Cycle" v={cls?.cycle}/>
                 <Line k="N° d'inscription" v={student.rollNo}/>
-                <Line k="Gouvernorat" v={student.governorate}/>
+                <Line k={regionLabel()} v={student.governorate}/>
               </div>
             </div>
 

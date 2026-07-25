@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import jsPDF from 'jspdf'
 import { current } from '@core/auth.js'
+import { pack } from '@core/locales.js'
 import { db, mutate, uid, userById, studentById, classById, settings } from '@core/db.js'
 import { ROLE } from '@core/theme.js'
 import { notify } from '@core/notify.js'
 import { REQUEST_DEFS, typesForRole, LEGAL } from '@core/tunisia.js'
 import { categoryOf, assign as assignWork, close as closeWork, monthReport } from '@core/requests.js'
 import { todayIso } from '@core/clock.js'
-import { PageHead, Card, Btn, Modal, Field, Input, Select, Textarea, Badge, EmptyState, STATUS } from '../components/ui.jsx'
+import { PageHead, Card, Btn, Modal, Field, Input, Select, Textarea, Badge, EmptyState, STATUS, Mark } from '../components/ui.jsx'
 import { FileText, Plus, Printer, Check, X, ChevronRight, Paperclip, Eye, Download, Info, MessageSquare, UserCog, Hammer, BarChart3, AlarmClock } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -242,8 +243,8 @@ function docModel(r){
 function OfficialDoc({ r }){ const m=docModel(r); return (
   <div className="bg-white p-2 text-sm">
     <div className="flex items-center justify-between border-b-2 pb-3 mb-4" style={{borderColor:'#7539E4'}}>
-      <div className="flex items-center gap-2"><svg viewBox="0 0 68 72" width="34" height="34"><defs><linearGradient id="al" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#7539E4"/><stop offset="1" stopColor="#22D3EE"/></linearGradient></defs><path d="M34 62 C31 52 28 47 22 43 C15 38 10 31 7 22 C18 27 28 33 31 41 L34 46 L37 41 C40 33 50 27 61 22 C58 31 53 38 46 43 C40 47 37 52 34 62 Z" fill="url(#al)"/></svg><div><div className="font-extrabold">{m.sc.schoolName}</div><div className="text-xs text-muted">{m.sc.city}, Tunisie · Tél : {m.sc.phone}</div></div></div>
-      <div className="text-xs text-right text-muted">Réf : {m.ref}<br/>Tunis, le {m.today}</div></div>
+      <div className="flex items-center gap-2"><Mark size={34}/><div><div className="font-extrabold">{m.sc.schoolName}</div><div className="text-xs text-muted">{m.sc.city}, {pack().label} · Tél : {m.sc.phone}</div></div></div>
+      <div className="text-xs text-right text-muted">Réf : {m.ref}<br/>{m.sc.city}, le {m.today}</div></div>
     <h2 className="text-center text-xl font-extrabold uppercase my-4">{m.title}</h2>
     <p className="leading-7">{m.intro}</p>
     <div className="my-3 pl-4 border-l-2" style={{borderColor:'#EEF2FF'}}>{m.rows.map(([k,v])=><div key={k}><b>{k} :</b> {v}</div>)}</div>
@@ -256,8 +257,8 @@ function downloadPDF(r){
   const m=docModel(r); const doc=new jsPDF({unit:'mm',format:'a4'}); const W=210; let y=20
   doc.setDrawColor(108,92,231); doc.setLineWidth(0.8); doc.line(20,28,W-20,28)
   doc.setFont('helvetica','bold'); doc.setFontSize(15); doc.text(m.sc.schoolName,20,y)
-  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(120); doc.text(`${m.sc.city}, Tunisie · ${m.sc.phone}`,20,y+5)
-  doc.text(`Réf : ${m.ref}`,W-20,y,{align:'right'}); doc.text(`Tunis, le ${m.today}`,W-20,y+5,{align:'right'})
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(120); doc.text(`${m.sc.city}, ${pack().label} · ${m.sc.phone}`,20,y+5)
+  doc.text(`Réf : ${m.ref}`,W-20,y,{align:'right'}); doc.text(`${m.sc.city}, le ${m.today}`,W-20,y+5,{align:'right'})
   y=44; doc.setTextColor(20); doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.text(m.title.toUpperCase(),W/2,y,{align:'center'})
   y+=12; doc.setFont('helvetica','normal'); doc.setFontSize(11)
   doc.text(doc.splitTextToSize(m.intro,W-40),20,y); y+=10
