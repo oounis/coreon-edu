@@ -18,6 +18,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { settings, saveSettings, purgeDemoData } from '@core/db.js'
+import { current } from '@core/auth.js'
 import { LEVELS, EARLY_YEARS, PRIMARY } from '@core/levels.js'
 import { PACKS, PACK_LIST } from '@core/locales.js'
 import { LOCALES, setLocale } from '@core/i18n.js'
@@ -49,6 +50,7 @@ const SHAPES = [
 export default function Setup() {
   const nav = useNavigate()
   const s = settings()
+  const isOwner = current()?.role === 'owner'
   const [shape, setShape] = useState(null)
   const [levels, setLevels] = useState([])
   const [name, setName] = useState(s?.schoolName || '')
@@ -94,13 +96,13 @@ export default function Setup() {
           <Field label="Nom de l’établissement">
             <Input value={name} onChange={e => setName(e.target.value)} />
           </Field>
-          <Field label="Pays" hint={`Devise : ${PACKS[country]?.currency || 'DT'} · pièces, urgences et semaine du pays`}>
-            <Select value={country} onChange={e => { setCountry(e.target.value); setLoc(PACKS[e.target.value]?.locale || 'fr') }}>
+          <Field label="Pays" hint={isOwner ? `Devise : ${PACKS[country]?.currency || 'DT'} · pièces, urgences et semaine du pays` : 'Fixé par Kogia Group au provisionnement (contactez le support).'}>
+            <Select disabled={!isOwner} value={country} onChange={e => { setCountry(e.target.value); setLoc(PACKS[e.target.value]?.locale || 'fr') }}>
               {PACK_LIST.map(p => <option key={p.key} value={p.key}>{p.label}</option>)}
             </Select>
           </Field>
           <Field label="Langue par défaut">
-            <Select value={locale} onChange={e => setLoc(e.target.value)}>
+            <Select disabled={!isOwner} value={locale} onChange={e => setLoc(e.target.value)}>
               {Object.entries(LOCALES).map(([k, v]) => <option key={k} value={k}>{v.label || k}</option>)}
             </Select>
           </Field>

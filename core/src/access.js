@@ -5,7 +5,7 @@ export const ALL=['owner','schooladmin','admin','hr','accountant','teacher','sup
 export const ROUTE_ROLES={
   '/app': ALL,
   '/app/schools': ['owner'],
-  '/app/settings': ['schooladmin'],
+  '/app/settings': ['schooladmin','owner'],
   '/app/accounts': ['schooladmin'],
   '/app/students': ['schooladmin','admin','supervisor','teacher'],
   // La fiche élève 360° : le personnel — le parent a ses propres vues.
@@ -48,7 +48,7 @@ export const ROUTE_ROLES={
   '/app/child': ['teacher','admin','schooladmin'],
   '/app/interop': ['schooladmin','admin'],
   '/app/import': ['schooladmin'],
-  '/setup': ['schooladmin'],
+  '/setup': ['schooladmin','owner'],
   '/app/requests': ['teacher','admin','schooladmin','hr'],
   '/app/messages': ALL,
   '/app/notices': ALL,

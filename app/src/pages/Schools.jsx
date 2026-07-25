@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { BRAND } from '@core/tokens.js'
+import { PACK_LIST } from '@core/locales.js'
 import { db, mutate, uid, resetDb } from '@core/db.js'
 import { PageHead, Card, StatCard, SectionCard, Avatar, IconTile, Btn, Modal, Field, Input, Select, EmptyState, STATUS } from '../components/ui.jsx'
 import { Building2, Users, Wallet, Hourglass, KeyRound, Plus, Ban, Check, ShieldAlert, MapPin, Server, ExternalLink } from 'lucide-react'
@@ -9,12 +10,13 @@ import { todayIso } from '@core/clock.js'
 
 const PLAN_TINT={Pro:['#EEF0FE',BRAND.indigo],Essentiel:[STATUS.infoSoft,STATUS.info]}
 const ST={active:{label:'Active',bg:'#E2FBF3',fg:STATUS.ok},trial:{label:"Période d'essai",bg:'#FFF4DD',fg:STATUS.warn},suspended:{label:'Suspendue',bg:'#EEF1F6',fg:STATUS.neutral}}
-const BLANK={name:'',city:'Tunis',plan:'Essentiel',director:'',email:''}
+const BLANK={name:'',city:'',country:'BH',plan:'Essentiel',director:'',email:''}
 
 // Console Kogia Group : les écoles clientes de la plateforme.
 export default function Schools(){
   const [,force]=useState(0); const d=db()
   const [open,setOpen]=useState(false); const [f,setF]=useState(BLANK); const [confirmReset,setConfirmReset]=useState(false); const [confirmSuspend,setConfirmSuspend]=useState(null)
+  const [creds,setCreds]=useState(null)   // identifiants provisoires — montrés UNE fois
   const schools=d.schools||[]
   // studentCount peut être absent/nul sur une école créée à la main → 0, pas NaN
   const count=s=>s.live?d.students.length:(Number(s.studentCount)||0)
@@ -26,11 +28,15 @@ export default function Schools(){
   const [tile,setTile]=useState(null) // schools | students | mrr | trials
   const [tech,setTech]=useState(null)  // école dont on ouvre la fiche technique
 
+  // PROVISIONNEMENT (décision Othman 2026-07-26) : le PAYS se fixe ICI, par
+  // Kogia — jamais par l'école. Et plus de mensonge « identifiants envoyés » :
+  // rien ne part par e-mail ; le mot de passe provisoire s'affiche UNE fois.
   const add=()=>{
     if(!f.name.trim()||!f.director.trim()||!f.email.trim()) return toast.error('Nom, directeur et e-mail requis')
-    mutate(db=>{ db.schools.push({id:uid('sc'),name:f.name.trim(),city:f.city,plan:f.plan,price:f.plan==='Pro'?149:79,
+    const pw=Math.random().toString(36).slice(2,7)+Math.random().toString(36).slice(2,7)
+    mutate(db=>{ db.schools.push({id:uid('sc'),name:f.name.trim(),city:f.city,country:f.country||'TN',plan:f.plan,price:f.plan==='Pro'?149:79,
       status:'trial',since:todayIso(),studentCount:0,director:f.director.trim(),email:f.email.trim()}) })
-    toast.success(`${f.name} ajoutée : compte Direction créé et identifiants envoyés à ${f.email}`)
+    setCreds({email:f.email.trim(),pw,school:f.name.trim()})
     setOpen(false); setF(BLANK); force(x=>x+1)
   }
   // Suspendre une école gèle l'accès de tout un établissement : on confirme d'abord.
@@ -107,7 +113,7 @@ export default function Schools(){
             <div className="flex items-center gap-3">
               <Avatar name={sc.director} seed={sc.id} size={34}/>
               <div className="text-sm min-w-0"><b>{sc.director}</b>
-                <div className="text-muted truncate">{sc.email}{sc.live&&sadmin?<> mot de passe : <code>{sadmin.pw}</code></>:null}</div></div>
+                <div className="text-muted truncate">{sc.email}</div></div>
             </div>
           </div>
         </SectionCard>) })}
@@ -166,12 +172,25 @@ export default function Schools(){
       footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={add}>Créer l'école & le compte Direction</Btn></>}>
       <div className="grid sm:grid-cols-2 gap-3">
         <Field label="Nom de l'école *"><Input value={f.name} onChange={e=>setF({...f,name:e.target.value})} placeholder="École Les Oliviers"/></Field>
+        <Field label="Pays (contrat)" hint="Fixe devise, pièces d'identité, semaine et cadre légal — l'école ne peut pas le changer.">
+          <Select value={f.country} onChange={e=>setF({...f,country:e.target.value})}>
+            {PACK_LIST.map(p=><option key={p.key} value={p.key}>{p.label}</option>)}
+          </Select></Field>
         <Field label="Ville"><Input value={f.city} onChange={e=>setF({...f,city:e.target.value})}/></Field>
         <Field label="Plan"><Select value={f.plan} onChange={e=>setF({...f,plan:e.target.value})}><option>Essentiel</option><option>Pro</option></Select></Field>
         <Field label="Directeur / Directrice *"><Input value={f.director} onChange={e=>setF({...f,director:e.target.value})}/></Field>
         <Field label="E-mail du compte Direction *"><Input value={f.email} onChange={e=>setF({...f,email:e.target.value})} placeholder="direction@ecole.tn"/></Field>
       </div>
-      <p className="text-xs text-muted mt-3">L'école démarre en <b>période d'essai</b>. Le compte Direction reçoit ses identifiants et crée ensuite tous les autres comptes (Administration, Enseignant, Surveillant, Parent) dans son portail.</p>
+      <p className="text-xs text-muted mt-3">L'école démarre en <b>période d'essai</b>. Les identifiants du compte Direction s'affichent <b>une seule fois</b> à la création — aucun e-mail automatique n'est envoyé. La Direction crée ensuite tous les autres comptes dans son portail.</p>
+    </Modal>
+
+    <Modal open={!!creds} onClose={()=>setCreds(null)} title="Identifiants du compte Direction" size="sm"
+      footer={<Btn onClick={()=>setCreds(null)}>J'ai transmis les identifiants</Btn>}>
+      <p className="text-sm text-muted mb-3">Pour <b>{creds?.school}</b> — à remettre en main propre. Ils ne seront <b>plus jamais affichés</b>.</p>
+      <div className="rounded-xl border border-line p-3 text-sm space-y-1">
+        <div className="flex justify-between"><span className="text-muted">E-mail</span><code>{creds?.email}</code></div>
+        <div className="flex justify-between"><span className="text-muted">Mot de passe provisoire</span><code>{creds?.pw}</code></div>
+      </div>
     </Modal>
 
     <Modal open={!!confirmSuspend} onClose={()=>setConfirmSuspend(null)} title="Suspendre cette école ?" size="sm"

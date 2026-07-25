@@ -281,7 +281,7 @@ test('demandes : catégorie → assigné → échéance → clôture, tout est t
 })
 
 // ── L'arabe n'est pas une traduction, c'est une direction (i18n.js) ──────────
-import { t, setLocale, locale, dir, LOCALES, AR } from '../src/i18n.js'
+import { t, setLocale, locale, dir, LOCALES, AR, EN } from '../src/i18n.js'
 import { NAV, SECTIONS } from '../src/nav.js'
 import { LEVELS, CYCLES } from '../src/levels.js'
 
@@ -298,17 +298,22 @@ test('i18n : langue, direction, persistance, et retour au français jamais au tr
   setLocale('fr')
 })
 
-test('i18n : la couverture ne régresse pas — navigation, sections, rôles, niveaux', () => {
-  setLocale('ar')
-  const misses = []
-  const need = s => { if (!s) return; if (t(s) === s) misses.push(s) }
-  for (const n of NAV) { need(n.label); Object.values(n.labelFor || {}).forEach(need) }
-  SECTIONS.forEach(s => need(s.label))
-  LEVELS.forEach(l => need(l.label))
-  Object.values(CYCLES).forEach(c => need(c.label))
-  for (const r of ['Plateforme','Direction','Administration','Enseignant','Surveillant','Sécurité','Parent']) need(r)
-  setLocale('fr')
-  assert.deepEqual(misses, [], `traductions manquantes : ${misses.join(' · ')}`)
+test('i18n : la couverture ne régresse pas — navigation, sections, rôles, niveaux (AR et EN)', () => {
+  for (const loc of ['ar', 'en']) {
+    setLocale(loc)
+    const D = loc === 'ar' ? AR : EN
+    const misses = []
+    // Présence dans le DICTIONNAIRE (pas la sortie de t()) : un mot identique
+    // en anglais (« Documents ») est une traduction assumée, pas un oubli.
+    const need = s => { if (!s) return; if (!(s in D)) misses.push(s) }
+    for (const n of NAV) { need(n.label); Object.values(n.labelFor || {}).forEach(need) }
+    SECTIONS.forEach(s => need(s.label))
+    LEVELS.forEach(l => need(l.label))
+    Object.values(CYCLES).forEach(c => need(c.label))
+    for (const r of ['Plateforme','Direction','Administration','Enseignant','Surveillant','Sécurité','Parent']) need(r)
+    setLocale('fr')
+    assert.deepEqual(misses, [], `traductions ${loc} manquantes : ${misses.join(' · ')}`)
+  }
 })
 
 test('i18n : le dictionnaire ne contient ni entrée vide ni copie du français', () => {

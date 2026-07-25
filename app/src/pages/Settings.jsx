@@ -79,6 +79,7 @@ export default function Settings() {
     if (!f.levels.length) return toast.error(t('Une école accueille au moins un niveau.'))
     const levelsChanged = JSON.stringify(f.levels) !== JSON.stringify(orig.levels || DEFAULT_SETTINGS.levels)
     const modsChanged = OPTIONAL_MODULES.some(m => mods[m] !== moduleActive(m))
+    const packChanged = f.country !== orig.country || f.currency !== orig.currency || (f.locale || 'fr') !== (orig.locale || 'fr')
     setLocalePack(f.country)
     setCurrency(f.currency)
     applyCurriculum()   // CR-024 : le pays change le curriculum
@@ -87,7 +88,7 @@ export default function Settings() {
     setItem('coreon_modules', JSON.stringify(overrides))
     setModuleOverrides(overrides)
     setSaved(true)
-    if (levelsChanged || modsChanged) {
+    if (levelsChanged || modsChanged || packChanged) {
       toast.success(t('Paramètres enregistrés : la navigation se recharge.'))
       setTimeout(() => location.reload(), 750)
     } else {
@@ -195,11 +196,20 @@ export default function Settings() {
         {tab === 'local' && (
           <Card className="p-6">
             <h3 className="font-bold flex items-center gap-2 mb-4"><Globe size={18} className="accent-text" /> {t('Localisation & finances')}</h3>
+            {/* GOUVERNANCE (décision Othman, 2026-07-26) : le pays, la devise et
+                la langue par défaut sont fixés PAR KOGIA GROUP au provisionnement
+                de l'école — c'est le contrat, pas un réglage d'école. La direction
+                les VOIT (transparence) mais ne les change pas. */}
+            {u.role !== 'owner' && (
+              <div className="mb-4 p-3 rounded-xl bg-canvas text-sm text-muted flex items-start gap-2">
+                <span aria-hidden="true">🔒</span>
+                <span>{t('Pays, devise et langue par défaut sont fixés par Kogia Group au provisionnement de votre école. Pour un changement, contactez support@kogiagroup.com.')}</span>
+              </div>)}
             <div className="grid sm:grid-cols-2 gap-3">
               {/* CR-004/005 : le PAYS pilote régions, pièce d'identité et cadre
                   légal. La Tunisie reste le défaut ; on ne suppose plus rien. */}
               <Field label={t('Pays')} hint={t('Détermine les régions, la pièce d’identité et le cadre légal.')}>
-                <Select value={f.country || 'TN'} onChange={e => {
+                <Select disabled={u.role !== 'owner'} value={f.country || 'TN'} onChange={e => {
                   const k = e.target.value; const pk = PACKS[k]
                   set('country', k)
                   if (pk?.currency) set('currency', pk.currency)   // devise suggérée du pays
@@ -209,14 +219,15 @@ export default function Settings() {
                 </Select>
               </Field>
               <Field label={t('Devise')} hint={t('Utilisée pour tous les montants (frais, paie, budget).')}>
-                <Select value={f.currency || 'DT'} onChange={e => set('currency', e.target.value)}>
+                <Select disabled={u.role !== 'owner'} value={f.currency || 'DT'} onChange={e => set('currency', e.target.value)}>
                   {CURRENCIES.map(([code, name]) => <option key={code} value={code}>{code} · {t(name)}</option>)}
                 </Select>
               </Field>
               <Field label={t('Langue par défaut')} hint={t('La langue d’un nouvel appareil. Chacun peut la changer.')}>
-                <Select value={f.locale || 'fr'} onChange={e => set('locale', e.target.value)}>
+                <Select disabled={u.role !== 'owner'} value={f.locale || 'fr'} onChange={e => set('locale', e.target.value)}>
                   <option value="fr">Français</option>
                   <option value="ar">العربية</option>
+                  <option value="en">English</option>
                 </Select>
               </Field>
             </div>

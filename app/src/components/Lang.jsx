@@ -1,4 +1,4 @@
-// Le sélecteur de langue. Deux boutons, pas un menu : il n'y a que deux langues,
+// Le sélecteur de langue. Des boutons, pas un menu : trois langues (FR · EN · ع),
 // et un parent pressé ne cherche pas dans une liste déroulante.
 // Changer de langue RECHARGE la page : c'est le seul moyen honnête de changer
 // aussi la DIRECTION (dir) de tout l'écran d'un coup — et les données survivent.
@@ -13,7 +13,7 @@ export default function LangSwitch({ className = '' }) {
         <button key={l.key} type="button" lang={l.key}
           onClick={() => { if (l.key !== cur) { setLocale(l.key); location.reload() } }}
           className={`px-2.5 py-1.5 text-xs font-bold transition ${l.key === cur ? 'accent-bg text-white' : 'text-muted hover:text-ink'}`}>
-          {l.key === 'ar' ? 'ع' : 'FR'}
+          {{ ar: 'ع', fr: 'FR', en: 'EN' }[l.key]}
         </button>
       ))}
     </div>

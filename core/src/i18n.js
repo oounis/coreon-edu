@@ -27,6 +27,11 @@ import { getItem, setItem } from './storage.js'
 export const LOCALES = {
   fr: { key: 'fr', label: 'Français', dir: 'ltr' },
   ar: { key: 'ar', label: 'العربية',  dir: 'rtl' },
+  // L'ANGLAIS (2026-07-26) : Bahreïn déclare ar + en ; les écoles privées du
+  // Golfe travaillent largement en anglais. Tranche 1 : l'écorce (navigation,
+  // sections, rôles, niveaux — verrouillée par le test de couverture) ; le
+  // reste retombe honnêtement sur le français et se traduit page par page.
+  en: { key: 'en', label: 'English',  dir: 'ltr' },
 }
 
 const KEY = 'coreon_locale'
@@ -45,13 +50,14 @@ export function setLocale(l) {
 }
 export const dir = () => LOCALES[locale()].dir
 /** Le repère de dates suit la langue — ar-TN garde les chiffres latins, lisibles des deux publics. */
-export const dateLocale = () => (locale() === 'ar' ? 'ar-TN' : 'fr-FR')
+export const dateLocale = () => (locale() === 'ar' ? 'ar-TN' : locale() === 'en' ? 'en-GB' : 'fr-FR')
 export const isRTL = () => dir() === 'rtl'
 
 /** Traduire. Le français est la clé ; s'il manque une entrée, il reste le texte. */
 export function t(text) {
   if (!text || locale() === 'fr') return text
-  return AR[text] || text
+  const d = locale() === 'ar' ? AR : locale() === 'en' ? EN : null
+  return (d && d[text]) || text
 }
 
 // ── Le dictionnaire arabe ────────────────────────────────────────────────────
@@ -730,3 +736,116 @@ Object.assign(AR, {
   'Factures, reçus, avoirs': 'الفواتير والوصولات والإشعارات',
   'Frais & finances': 'المعاليم والمالية',
 })
+
+// ── Le dictionnaire anglais ──────────────────────────────────────────────────
+// Tranche 1 (2026-07-26) : l'écorce — navigation, sections, rôles, niveaux
+// (nommage MoE du Golfe : KG1/KG2, Grade 1-6), connexion, coin des fêtes.
+// Même règle que l'arabe : le français est la clé ; ce qui manque reste français.
+export const EN = {
+  // Navigation
+  'Tableau de bord': 'Dashboard',
+  'Suivi en direct': 'Live tracking',
+  'Écoles': 'Schools',
+  'Comptes': 'Accounts',
+  'Inscriptions': 'Admissions',
+  'Élèves': 'Students',
+  'Enseignants': 'Teachers',
+  'Personnel': 'Staff',
+  'RH & Paie': 'HR & Payroll',
+  'Comptabilité': 'Accounting',
+  'Bulletins & passage': 'Report cards & promotion',
+  'Installations': 'Facilities',
+  'Mon pointage': 'My clock-in',
+  'Évaluer': 'Evaluate',
+  'Dossier de l’enfant': 'Child file',
+  'Journal du jour': 'Daily journal',
+  'La journée de mon enfant': 'My child’s day',
+  'Suivi élèves': 'Student results',
+  'Emploi du temps': 'Timetable',
+  'Présence': 'Attendance',
+  'Devoirs': 'Homework',
+  'Examens': 'Exams',
+  'Frais & Finances': 'Fees & Finance',
+  'Mes paiements': 'My payments',
+  'Bibliothèque': 'Library',
+  'Transport': 'Transport',
+  'Événements': 'Events',
+  'Poste de sécurité': 'Security post',
+  'Espaces': 'Spaces',
+  'Espace parents': 'Parents’ space',
+  'Espace enseignants': 'Teachers’ space',
+  'Espace personnel': 'Staff space',
+  // Ces mots sont IDENTIQUES en anglais — présents pour que le test de
+  // couverture prouve qu'ils sont assumés, pas oubliés.
+  'Incidents': 'Incidents',
+  'Accidents': 'Accidents',
+  'Déclarations d’accident': 'Accident reports',
+  'Comportement': 'Behaviour',
+  'Comportement de mon enfant': 'My child’s behaviour',
+  'Moments': 'Moments',
+  'Cantine': 'Canteen',
+  'Documents': 'Documents',
+  'Budget & rapports': 'Budget & reports',
+  'Inventaire': 'Inventory',
+  'Recrutement': 'Recruitment',
+  'Demandes': 'Requests',
+  'Messages': 'Messages',
+  'Annonces': 'Announcements',
+  'Interopérabilité': 'Interoperability',
+  'Import de données': 'Data import',
+  'Paramètres': 'Settings',
+  // Sections
+  'Au quotidien': 'Every day',
+  'Élèves & familles': 'Students & families',
+  'Pédagogie': 'Teaching',
+  'Vie de l’école': 'School life',
+  'Équipe': 'Team',
+  'Finances': 'Finance',
+  'Administration': 'Admin office',
+  // Rôles
+  'Plateforme': 'Platform',
+  'Direction': 'Management',
+  'Enseignant': 'Teacher',
+  'Surveillant': 'Supervisor',
+  'Sécurité': 'Security',
+  'Parent': 'Parent',  // identique en anglais
+  // Cycles & niveaux — le nommage attendu au Golfe (MoE) : KG et Grades.
+  'Petite enfance': 'Early years',
+  'Primaire': 'Primary',
+  'Crèche': 'Nursery',
+  'Pré-maternelle': 'Pre-KG',
+  'Maternelle 1': 'KG1',
+  'Maternelle 2': 'KG2',
+  '1ère année': 'Grade 1',
+  '2ème année': 'Grade 2',
+  '3ème année': 'Grade 3',
+  '4ème année': 'Grade 4',
+  '5ème année': 'Grade 5',
+  '6ème année': 'Grade 6',
+  // Connexion & écorce
+  'Se connecter': 'Sign in',
+  'Connexion': 'Sign in',
+  'Mot de passe': 'Password',
+  'E-mail': 'Email',
+  'Rechercher…': 'Search…',
+  'Déconnexion': 'Sign out',
+  'Notifications': 'Notifications',
+  'Enregistrer': 'Save',
+  'Annuler': 'Cancel',
+  'Continuer': 'Continue',
+  'Retour': 'Back',
+  'Fermer': 'Close',
+  'Imprimer': 'Print',
+  'Ajouter': 'Add',
+  // Coin des fêtes
+  "aujourd'hui": 'today',
+  'demain': 'tomorrow',
+  'dans': 'in',
+  'j': 'd',
+  'jour férié': 'public holiday',
+  'prochain congé': 'next holiday',
+  'Fêtes et journées à venir': 'Upcoming holidays & observances',
+  'selon la lune': 'subject to moon sighting',
+  'FÉRIÉ': 'HOLIDAY',
+  'À venir': 'Coming up',
+}

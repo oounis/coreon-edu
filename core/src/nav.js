@@ -123,7 +123,7 @@ const ALL_NAV=[
   { to:'/app/interop', section:'systeme', label:'Interopérabilité', icon:'Plug', module:'interop', roles:['schooladmin','admin'] },
   // CR-034 : la porte d'intégration — les données du client entrent, validées.
   { to:'/app/import', section:'systeme', label:'Import de données', icon:'FileUp', module:'interop', roles:['schooladmin'] },
-  { to:'/app/settings', section:'systeme', label:'Paramètres', icon:'Settings', roles:['schooladmin'] },
+  { to:'/app/settings', section:'systeme', label:'Paramètres', icon:'Settings', roles:['schooladmin','owner'] },
 ]
 
 // Un module éteint disparaît du menu et de la palette (features.js).
