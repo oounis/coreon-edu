@@ -73,9 +73,9 @@ export default function DataTable({
       {/* barre d'outils */}
       <div className="flex items-center gap-2 p-3 border-b border-line flex-wrap">
         <div className="relative flex-1 min-w-[180px] max-w-xs">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+          <Search size={15} className="absolute start-3 top-1/2 -translate-y-1/2 text-muted" />
           <input value={q} onChange={e => { setQ(e.target.value); setPage(0) }} placeholder={searchPlaceholder}
-            className="w-full rounded-xl border border-line bg-white pl-9 pr-3 py-2 text-sm accent-ring" />
+            className="w-full rounded-xl border border-line bg-white ps-9 pe-3 py-2 text-sm accent-ring" />
         </div>
         {toolbar}
         <div className="ms-auto flex items-center gap-2">
@@ -109,7 +109,7 @@ export default function DataTable({
         ? <EmptyState icon={<Search size={24} />} title={q ? 'Aucun résultat' : empty.title} sub={q ? `Rien ne correspond à « ${q} ».` : empty.sub} />
         : <div className="overflow-x-auto scroll-thin">
           <table className="w-full text-sm">
-            <thead><tr className="text-left text-[11px] uppercase tracking-wide text-muted bg-canvas select-none">
+            <thead><tr className="text-start text-[11px] uppercase tracking-wide text-muted bg-canvas select-none">
               {hasBulk && <th className="px-3 py-2.5 w-8">
                 <input type="checkbox" aria-label="Tout sélectionner" checked={selected.size === slice.length && slice.length > 0} onChange={toggleAll} /></th>}
               {visible.map(c => (

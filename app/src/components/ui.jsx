@@ -44,7 +44,7 @@ export function StatCard({ label, value, sub, tint='brand', icon, to, onClick })
     <div className="min-w-0 flex-1"><div className="text-[1.7rem] font-extrabold leading-none tabular-nums">{value}</div><div className="text-xs text-muted mt-1.5 truncate">{label}{sub&&<span className="ml-1"> {sub}</span>}</div></div></>
   const base="group card p-4 flex items-center gap-3.5 relative overflow-hidden"
   if(to) return <Link to={to} className={`${base} k-lift`}>{inner}</Link>
-  if(onClick) return <button onClick={onClick} className={`${base} k-lift k-press text-left w-full`}>{inner}</button>
+  if(onClick) return <button onClick={onClick} className={`${base} k-lift k-press text-start w-full`}>{inner}</button>
   return <div className="card p-4 flex items-center gap-3.5 relative overflow-hidden">{inner}</div>
 }
 export function Badge({ status, label: lbl, tone }){
@@ -113,7 +113,7 @@ export function Modal({ open, onClose, title, children, footer, size='lg' }){
 }
 export function Table({ head, children }){
   return <div className="card overflow-hidden"><div className="overflow-x-auto scroll-thin"><table className="w-full text-sm">
-    <thead><tr className="text-left text-[12px] uppercase tracking-wide text-muted bg-canvas">{head.map((h,i)=><th key={i} className="px-4 py-3 font-semibold">{h}</th>)}</tr></thead>
+    <thead><tr className="text-start text-[12px] uppercase tracking-wide text-muted bg-canvas">{head.map((h,i)=><th key={i} className="px-4 py-3 font-semibold">{h}</th>)}</tr></thead>
     <tbody className="divide-y divide-line">{children}</tbody></table></div></div>
 }
 export function PageHead({ title, sub, action }){
@@ -231,9 +231,9 @@ export function SkeletonStats({ n=4 }){ return <div className="grid gap-3 sm:gri
 
 export function SearchInput({ value, onChange, placeholder='Rechercher…', className='' }){
   return <div className={`relative ${className}`}>
-    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none"/>
+    <Search size={16} className="absolute start-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none"/>
     <input value={value} onChange={onChange} placeholder={placeholder} aria-label={placeholder}
-      className="w-full rounded-xl border border-line bg-white pl-9 pr-3 py-2.5 text-sm accent-ring"/>
+      className="w-full rounded-xl border border-line bg-white ps-9 pe-3 py-2.5 text-sm accent-ring"/>
   </div>
 }
 export function Toolbar({ children, className='' }){ return <div className={`flex items-center gap-2 flex-wrap mb-4 ${className}`}>{children}</div> }
