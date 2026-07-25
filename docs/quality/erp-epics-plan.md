@@ -139,3 +139,24 @@ urgent pour un premier pilote → il vient en dernier, porté par un vrai besoin
 
 _Rien dans ce plan n'est engagé. Il attend ta décision sur D‑1/D‑2/D‑3 avant
 qu'une seule ligne du modèle de données ne bouge._
+
+---
+
+## 6. ✅ DÉCISIONS PRISES — 2026-07-25
+
+Othman a **délégué la décision** (« go with your recommendation and decide instead
+of me »). Les trois recommandations deviennent donc les décisions :
+
+- **D-1 — TRANCHÉ :** « vrai ERP » pour la vente = départements ✅ + numérotation
+  (CR-017, à lancer) + séparation des tâches (maker‑checker). Le maker‑checker
+  paie est **fait** (commit 85fb30d) ; celui de la facturation suit avec CR-029.
+  Journal d'audit = prérequis du **pilote réel**, pas de la vente. Partie double
+  et clôture de période = V2.
+- **D-2 — TRANCHÉ :** **pas** d'entité Person avant le premier pilote. CR-018
+  reste planifié, déclenché par la signature d'un 2ᵉ marché / multi-établissement.
+- **D-3 — TRANCHÉ :** **pas** de partie double tant qu'aucun prospect ne l'exige.
+  La simple entrée + maker‑checker + références CR-017 suffisent au pilote.
+
+**Ordre d'exécution acté :** finir CR-028 par tranches (1er volet livré) →
+CR-029 socle comptable (maker-checker facture, barème de frais) → CR-017
+références partout → journal d'audit → [pilote] → CR-018.
