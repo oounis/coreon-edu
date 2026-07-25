@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { current } from '@core/auth.js'
 import { db, mutate, studentById } from '@core/db.js'
+import { dueFor } from '@core/accounting.js'
+import { money } from '@core/currency.js'
+import { t } from '@core/i18n.js'
+import { Modal, Field } from '../components/ui.jsx'
 import { notify } from '@core/notify.js'
 import { PageHead, Card, Avatar, Btn, Select, EmptyState, STATUS } from '../components/ui.jsx'
 import { CreditCard, Check, Send, Hourglass, Info } from 'lucide-react'
@@ -19,6 +23,11 @@ export default function Payments(){
   const [kidId,setKidId]=useState(kids[0]?.id)
   const child=kids.find(k=>k.id===kidId)||kids[0]
   const months=db().payments[child?.id]||[]
+  // ⚠️ QA FAT 2026-07-26 (REJET) : la page ne montrait AUCUN montant — un parent
+  // ne savait ni combien il doit, ni en quelle devise. Le barème parle enfin.
+  const fee=child?dueFor(child.id):null
+  const monthly=fee&&!fee.error?fee.total:null
+  const [confirm,setConfirm]=useState(null)   // null | 'all' | index de mois
   const paid=months.filter(m=>m.status==='paid').length
   const declarable=months.filter(m=>m.status==='due'||m.status==='overdue')
   const awaiting=months.filter(m=>m.status==='pending').length
@@ -37,13 +46,24 @@ export default function Payments(){
     notify({role:'admin',kind:'payment',actor:u.name,title:'Paiement signalé',body:`${child.name} · ${declarable.length} mois signalés : à confirmer`,link:'/app/finance'})
     notify({role:'schooladmin',kind:'payment',actor:u.name,title:'Paiement signalé',body:`${child.name} · ${declarable.length} mois signalés : à confirmer`,link:'/app/finance'})
     toast.success("Versement signalé · l'administration confirmera après encaissement"); force(x=>x+1) }
+  const confirmBody = confirm==='all'
+    ? `${declarable.length} ${t('mois seront signalés comme versés')}${monthly!=null?` · ${t('total')} ${money(monthly*declarable.length)}`:''}`
+    : confirm!=null&&months[confirm]?`${months[confirm].month}${monthly!=null?` · ${money(monthly)}`:''}`:''
+
   if(!child) return <Card><EmptyState icon={<CreditCard size={26}/>} title="Aucun enfant associé" sub="Demandez à la direction de lier votre compte à votre enfant."/></Card>
   return (<>
-    <PageHead title="Mes paiements" sub={`${child.name} · ${paid}/${months.length} mois confirmés`}
+    <PageHead title={t('Mes paiements')} sub={`${child.name} · ${paid}/${months.length} ${t('mois confirmés')}${monthly!=null?` · ${t('mensualité')} ${money(monthly)}`:''}${monthly!=null&&declarable.length?` · ${t('reste à régler')} ${money(monthly*declarable.length)}`:''}`}
       action={<div className="flex items-center gap-2">
         {kids.length>1&&<Select value={child.id} onChange={e=>setKidId(e.target.value)}>{kids.map(k=><option key={k.id} value={k.id}>{k.name}</option>)}</Select>}
-        {declarable.length>0&&<Btn onClick={declareAll}><Send size={16}/> Signaler un versement ({declarable.length})</Btn>}
+        {declarable.length>0&&<Btn onClick={()=>setConfirm('all')}><Send size={16}/> {t('Signaler un versement')} ({declarable.length})</Btn>}
       </div>}/>
+
+    <Modal open={confirm!=null} onClose={()=>setConfirm(null)} title={t('Signaler un versement ?')} size="sm"
+      footer={<><Btn variant="ghost" onClick={()=>setConfirm(null)}>{t('Annuler')}</Btn>
+        <Btn onClick={()=>{ const c=confirm; setConfirm(null); c==='all'?declareAll():declare(c) }}><Send size={14}/> {t('Signaler')}</Btn></>}>
+      <p className="text-sm font-semibold">{confirmBody}</p>
+      <p className="text-xs text-muted mt-2">{t('Vous déclarez avoir effectué ce versement — l’administration le confirmera après encaissement. Un signalement erroné se corrige auprès de l’école.')}</p>
+    </Modal>
 
     <div className="flex items-start gap-2.5 rounded-2xl px-4 py-3 mb-4 text-sm max-w-[680px]" style={{background:STATUS.infoSoft,color:'#0B5E86'}}>
       <Info size={16} className="mt-0.5 shrink-0"/>
@@ -61,7 +81,7 @@ export default function Payments(){
             <div className="text-[11px] text-muted mt-1">{FR[m.status]}</div>
             {m.status==='paid' ? <div className="mt-1.5 text-[11px] text-muted inline-flex items-center gap-0.5"><Check size={11}/> Confirmé</div>
              : m.status==='pending' ? <div className="mt-1.5 text-[11px] inline-flex items-center gap-0.5" style={{color:STATUS.warn}}><Hourglass size={11}/> En attente</div>
-             : <button onClick={()=>declare(i)} className="mt-1.5 text-[11px] font-bold accent-text inline-flex items-center gap-0.5"><Send size={11}/> Signaler</button>}
+             : <button onClick={()=>setConfirm(i)} className="mt-1.5 text-[11px] font-bold accent-text inline-flex items-center gap-0.5"><Send size={11}/> Signaler</button>}
           </div>
         ))}
       </div>

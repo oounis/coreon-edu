@@ -114,7 +114,10 @@ function Factures({ refresh }) {
   const [method, setMethod] = useState('especes')
   const nameOf = id => (d.students || []).find(s => s.id === id)?.name || id
 
+  // QA FAT 2026-07-26 : 121 factures IMMUABLES d'un clic sec — désormais confirmé.
   const issueAll = () => {
+    const n = (d.students || []).filter(s => !invoices().some(i => i.studentId === s.id && i.stage !== 'annulee')).length
+    if (!window.confirm(`${n} ${t('factures immuables seront émises (une par élève non facturé). Continuer ?')}`)) return
     let ok = 0, skipped = 0
     for (const s of d.students || []) {
       if (invoices().some(i => i.studentId === s.id && i.stage !== 'annulee')) { skipped++; continue }

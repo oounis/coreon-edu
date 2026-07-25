@@ -361,7 +361,11 @@ function seed(){
     const F=["Yasmine","Mohamed","Nour","Rania","Aziz","Sana","Wael","Ines","Ghassen","Meriem","Sami","Rim","Khalil","Asma","Bilel","Chaima","Oussama","Salma","Anis","Marwa","Seif","Emna","Tarek","Hiba","Zied","Amani","Fares","Cyrine","Hamza","Lina","Nadia","Rayen","Sirine","Wassim","Mouna"]
     const L=["Bouazizi","Gharbi","Mansouri","Chebbi","Dridi","Saidi","Amri","Baccouche","Guedri","Hamdi","Jaziri","Karoui","Louati","Mathlouthi","Nasri","Oueslati","Rekik","Sfaxi","Turki","Zaoui","Ferchichi","Ghanmi","Haddad","Kacem","Lassoued"]
     const ALL=["Aucune","Aucune","Aucune","Aucune","Aucune","Aucune","Aucune","Aucune","Aucune","Aucune","Arachides","Lait de vache","Œufs","Gluten"]
-    const Rg=x=>h32('kogia:pleine:'+x)/4294967295
+    // ⚠️ QA FAT 2026-07-26 : le hachage ×31 varie peu dans ses bits HAUTS pour
+    // des clés quasi identiques ('f7'/'f17'/'f27') — et le tirage lit ces bits :
+    // 8 « Chaima Karoui » par classe. Le mélangeur (avalanche) reste déterministe.
+    const mix=h=>{h^=h>>>16;h=Math.imul(h,0x45d9f3b);h^=h>>>16;h=Math.imul(h,0x45d9f3b);h^=h>>>16;return h>>>0}
+    const Rg=x=>mix(h32('kogia:pleine:'+x))/4294967295
     const CLS=classes.map(c=>c.id)
     const yearOf=cid=>({kg_ns:2024,kg_pk:2022,kg_1:2021,kg_2:2020,c1a:2019,c2a:2018,c9a:2017,c4a:2016,c5a:2015,c6a:2014}[cid]||2016)
     for(let i=0;i<85;i++){

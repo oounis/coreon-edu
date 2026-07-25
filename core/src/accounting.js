@@ -24,7 +24,7 @@
 //     produit — on ne la casse pas ici.)
 // ════════════════════════════════════════════════════════════════════════════
 import { db, save } from './db.js'
-import { currency } from './currency.js'
+import { currency, money, roundMoney } from './currency.js'
 import { now, todayIso, nowMs, ms } from './clock.js'
 import { labelOf } from './levels.js'
 
@@ -100,7 +100,7 @@ export function dueFor(studentId, d = db()) {
 
   const gs = discountsOf(studentId, d)
   const pctTotal = gs.filter(g => g.pct).reduce((s, g) => s + g.pct, 0)
-  const pctCut = Math.round(gross * Math.min(pctTotal, 100) / 100)
+  const pctCut = roundMoney(gross * Math.min(pctTotal, 100) / 100)
   const bourse = gs.filter(g => !g.pct).reduce((s, g) => s + g.amount, 0)
 
   const net = Math.max(0, gross - pctCut - bourse)
@@ -185,7 +185,7 @@ export function collect(invoiceId, amount, method, by) {
   const a = Number(amount) || 0
   if (a <= 0) return { error: 'Le montant doit être positif.' }
   const rest = inv.total - inv.paid
-  if (a > rest) return { error: `Le reste dû n’est que de ${rest} ${currency()}.` }
+  if (a > rest + 1e-9) return { error: `Le reste dû n’est que de ${money(rest)}.` }
 
   const d = db()
   const r = {
@@ -206,8 +206,11 @@ export function collect(invoiceId, amount, method, by) {
 export function financials() {
   const inv = invoices().filter(i => i.stage !== 'annulee')
   const invoiced = inv.reduce((s, i) => s + i.total, 0)
-  const collected = inv.reduce((s, i) => s + i.paid, 0)
-  const outstanding = invoiced - collected
+  // ⚠️ QA FAT 2026-07-26 : l'encaissé se comptait sur les factures ACTIVES —
+  // annuler une facture PAYÉE faisait disparaître 3 500 BHD d'espèces réelles.
+  // L'encaissé, ce sont LES REÇUS : un reçu émis ne disparaît jamais.
+  const collected = roundMoney((db().receipts || []).reduce((s, r) => s + (r.amount || 0), 0))
+  const outstanding = roundMoney(Math.max(0, invoiced - inv.reduce((s, i) => s + i.paid, 0)))
   const cancelled = invoices().filter(i => i.stage === 'annulee').length
 
   // Ce que l'école DEVRAIT facturer si tous les élèves l'étaient : le manque à gagner

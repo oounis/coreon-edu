@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { t } from '@core/i18n.js'
 import { db, mutate, FEE_MONTHS, studentById } from '@core/db.js'
 import { notify } from '@core/notify.js'
 import { PageHead, Card, StatCard, Avatar, Btn, EmptyState, Modal, STATUS } from '../components/ui.jsx'
@@ -30,6 +31,10 @@ export default function Finance(){
     notify({to:s.parentId,kind:'payment',actor:'Administration',...msg,link:'/app/payments'})
   }
   const cycle=(sid,mi)=>{
+    // QA FAT 2026-07-26 : un clic sur une case VERTE « dé-encaissait » un mois
+    // payé et alertait le parent. L'annulation d'un encaissement se confirme.
+    const cur=(db().payments[sid]||[])[mi]
+    if(cur?.status==='paid' && !window.confirm(t('Ce mois est encaissé. L’annuler et prévenir le parent ?'))) return
     let month,next
     mutate(db=>{ const p=db.payments[sid][mi]; month=p.month; next=NEXT[p.status]||'paid'; p.status=next })
     tellParent(sid,month,next)
@@ -117,7 +122,7 @@ export default function Finance(){
           {d.students.map(s=>(
             <tr key={s.id}>
               <td className="px-2 py-2"><div className="flex items-center gap-2 min-w-[160px]"><Avatar name={s.name} seed={s.id} size={28}/><span className="font-medium">{s.name}</span></div></td>
-              {d.payments[s.id].map((p,mi)=>(
+              {(d.payments[s.id]||[]).map((p,mi)=>(
                 <td key={mi} className="px-1 py-2 text-center">
                   <button onClick={()=>cycle(s.id,mi)} title={`${p.month} · ${COL_FR[p.status]}`} className="w-6 h-6 rounded-md mx-auto block" style={{background:COL[p.status]}}/>
                 </td>

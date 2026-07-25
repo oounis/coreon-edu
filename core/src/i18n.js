@@ -23,6 +23,7 @@
 //  3. On n'ajoute une langue qu'avec son test de couverture.
 // ════════════════════════════════════════════════════════════════════════════
 import { getItem, setItem } from './storage.js'
+import { countryCode } from './locales.js'
 
 export const LOCALES = {
   fr: { key: 'fr', label: 'Français', dir: 'ltr' },
@@ -50,7 +51,9 @@ export function setLocale(l) {
 }
 export const dir = () => LOCALES[locale()].dir
 /** Le repère de dates suit la langue — ar-TN garde les chiffres latins, lisibles des deux publics. */
-export const dateLocale = () => (locale() === 'ar' ? 'ar-TN' : locale() === 'en' ? 'en-GB' : 'fr-FR')
+// QA FAT 2026-07-26 : « جويلية/جوان » est l'arabe TUNISIEN — Bahreïn dit
+// « يوليو/يونيو ». Le repère de dates suit langue ET pays.
+export const dateLocale = () => (locale() === 'ar' ? 'ar-' + countryCode() : locale() === 'en' ? 'en-GB' : 'fr-FR')
 export const isRTL = () => dir() === 'rtl'
 
 /** Traduire. Le français est la clé ; s'il manque une entrée, il reste le texte. */
@@ -182,6 +185,21 @@ export const AR = {
   'Présence 30 j': 'الحضور 30 يومًا',
   'Inscrire un élève': 'تسجيل تلميذ',
   'Niveau demandé': 'المستوى المطلوب',
+  // Toasts & confirmations (QA FAT vague 2)
+  'Appel enregistré · direction et parents notifiés': 'سُجّل الحضور · تم إشعار الإدارة والأولياء',
+  'Appel corrigé — seuls les changements ont été notifiés.': 'صُحّح الحضور — أُشعر المعنيون بالتغييرات فقط.',
+  'Appel déjà enregistré — rien n’a changé.': 'الحضور مسجّل مسبقًا — لا تغيير.',
+  'Moment partagé : les parents sont prévenus': 'شوركت اللحظة: تم إشعار الأولياء',
+  'Menu enregistré': 'حُفظت قائمة الطعام',
+  'Encouragement noté : le parent est prévenu': 'سُجّل التشجيع: تم إشعار الولي',
+  'Observation notée': 'سُجّلت الملاحظة',
+  'Validée.': 'تم الاعتماد.',
+  'Envoyée au parent.': 'أُرسلت إلى الولي.',
+  'Envoyer au parent ?': 'إرسال إلى الولي؟',
+  'Envoyer': 'إرسال',
+  'La famille sera notifiée immédiatement et la déclaration ne pourra plus être modifiée — seules des notes pourront s’ajouter.': 'ستُشعر العائلة فورًا ولن يعود بالإمكان تعديل التصريح — يمكن إضافة ملاحظات فقط.',
+  'JOURNÉE TYPE': 'يوم نموذجي',
+  'EN DIRECT': 'مباشر',
   // Jours fériés tunisiens
   "Jour de l'an": 'رأس السنة الميلاديّة',
   "Fête de l'Indépendance": 'عيد الاستقلال',
@@ -871,4 +889,19 @@ export const EN = {
   'Présence 30 j': 'Attendance 30d',
   'Inscrire un élève': 'Enrol a student',
   'Niveau demandé': 'Requested level',
+  // Toasts & confirmations (QA FAT vague 2)
+  'Appel enregistré · direction et parents notifiés': 'Roll call saved · management and parents notified',
+  'Appel corrigé — seuls les changements ont été notifiés.': 'Roll call corrected — only the changes were notified.',
+  'Appel déjà enregistré — rien n’a changé.': 'Roll call already saved — nothing changed.',
+  'Moment partagé : les parents sont prévenus': 'Moment shared: parents have been notified',
+  'Menu enregistré': 'Menu saved',
+  'Encouragement noté : le parent est prévenu': 'Encouragement recorded: the parent has been notified',
+  'Observation notée': 'Observation recorded',
+  'Validée.': 'Validated.',
+  'Envoyée au parent.': 'Sent to the parent.',
+  'Envoyer au parent ?': 'Send to the parent?',
+  'Envoyer': 'Send',
+  'La famille sera notifiée immédiatement et la déclaration ne pourra plus être modifiée — seules des notes pourront s’ajouter.': 'The family will be notified immediately and the report can no longer be edited — only notes can be added.',
+  'JOURNÉE TYPE': 'TYPICAL DAY',
+  'EN DIRECT': 'LIVE',
 }

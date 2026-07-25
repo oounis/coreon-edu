@@ -19,6 +19,7 @@
 //     saisie libre. Sinon ce n'est pas de la paie, c'est un tableur.
 // ════════════════════════════════════════════════════════════════════════════
 import { db, save } from './db.js'
+import { roundMoney } from './currency.js'
 import { now, todayIso, nowMs, ms } from './clock.js'
 
 // ── Contrats ────────────────────────────────────────────────────────────────
@@ -168,7 +169,7 @@ export function preparePayroll(month, staff, by = null) {
     const off = unpaidDays(s.id, month)
     // La retenue « sans solde » se prorate sur le brut FIXE (30 j de référence),
     // pas sur la prime : une prime ne se retient pas pour une absence.
-    const deduction = Math.round((gross / 30) * off)
+    const deduction = roundMoney((gross / 30) * off)   // QA : au fils, pas au dinar
     const bonus = 0
     return {
       staffId: s.id, name: s.name, role: s.role || s.designation || '·',

@@ -24,7 +24,7 @@ export default function CommandPalette({ open, onClose, user }){
     const out=[]
     // Un module éteint (features.js) ne doit pas apparaître ici : le proposer puis
     // rebondir en silence vers l'accueil = « le clic ne marche pas » pour l'utilisateur.
-    NAV.filter(n=>n.roles.includes(user.role)&&featureEnabled(n.to)&&(!query||n.label.toLowerCase().includes(query)))
+    NAV.filter(n=>n.roles.includes(user.role)&&featureEnabled(n.to)&&(!query||n.label.toLowerCase().includes(query)||t(n.labelFor?.[user.role]||n.label).toLowerCase().includes(query)))
       .slice(0,query?6:9)
       .forEach(n=>out.push({group:t('Pages'),label:t(n.labelFor?.[user.role]||n.label),icon:n.icon,run:()=>navigate(n.to)}))
     const canStudents=['schooladmin','admin','supervisor','teacher'].includes(user.role)

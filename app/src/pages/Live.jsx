@@ -8,7 +8,8 @@ import { Radio, Clock, MapPin, Moon, Sun, CalendarCheck, ClipboardCheck } from '
 import { AREAS, fmt, daySegments, statusAt, schoolPhase } from '@core/livestatus.js'
 import { studentSummary, mentionFor } from '@core/results.js'
 import RouteMap from '../components/RouteMapFlow.jsx'
-import { isoOf, now as appNow, isDemoLive } from '@core/clock.js'
+import { isoOf, now as appNow, isDemoLive, isWeekend, dayIndex } from '@core/clock.js'
+import { t } from '@core/i18n.js'
 import { rentreeLabel, DemoLiveButton } from '../components/Summer.jsx'
 
 const stopLabel=s=> s.kind==='class'?(s.cell?.subject||'Étude') : s.kind==='cour'?'Récré' : s.kind==='cantine'?'Déjeuner' : 'Étude'
@@ -21,8 +22,8 @@ export default function Live(){
   const cls=kid?classById(kid.classId):null
 
   // ── temps scolaire réel : le suivi vit aux heures de l'école, pas après ──
-  const now=appNow(); const wd=now.getDay(); const realWeekday=isDemoLive()||(wd>=1&&wd<=5)
-  const dayIdx=(wd>=1&&wd<=5)?wd-1:0
+  const now=appNow(); const realWeekday=isDemoLive()||!isWeekend(now)
+  const dayIdx=dayIndex(now)
   const nowMin=now.getHours()*60+now.getMinutes()
   const phase = schoolPhase(now)
   const defMin = phase==='live'?nowMin : phase==='after'?900 : phase==='before'?480 : 630   // vacances/week-end → aperçu 10:30
@@ -51,7 +52,9 @@ export default function Live(){
     .map(e=>({id:e.id,subject:e.subject,lesson:e.lesson,score:studentSummary(e,kid.id).score})).filter(x=>x.score!=null)
   const lessons=segs.filter(s=>s.kind==='class').length
 
-  const pill = liveNow ? {txt:`EN DIRECT · ${fmt(min)}`,bg:STATUS.live,pulse:true}
+  // QA FAT 2026-07-26 : en mode simulé, dire « EN DIRECT » à un parent est un
+  // mensonge. On assume : « JOURNÉE TYPE ».
+  const pill = liveNow ? {txt:`${isDemoLive()?t('JOURNÉE TYPE'):t('EN DIRECT')} · ${fmt(min)}`,bg:STATUS.live,pulse:!isDemoLive()}
     : simulated ? {txt:`Journée type · ${fmt(min)}`,bg:'#F59E0B'}
     : exploring ? {txt:`Aperçu · ${fmt(min)}`,bg:STATUS.neutral}
     : phase==='after' ? {txt:'Journée terminée',bg:'#8B5CF6'}

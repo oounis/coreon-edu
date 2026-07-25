@@ -97,7 +97,17 @@ function EditDayModal({ day, onClose }) {
   const setName = (i, name) => setDishes(v => v.map((d, j) => j === i ? { ...d, name } : d))
   const toggleAllergen = (i, a) => setDishes(v => v.map((d, j) => j === i ? { ...d, allergens: d.allergens.includes(a) ? d.allergens.filter(x => x !== a) : [...d.allergens, a] } : d))
   const remove = i => setDishes(v => v.filter((_, j) => j !== i))
-  const save = () => { setDay(day, dishes.filter(d => d.name.trim())); toast.success(`Menu du ${label.toLowerCase()} enregistré`); onClose() }
+  const save = () => {
+    const kept = dishes.filter(d => d.name.trim())
+    // ⚠️ QA FAT 2026-07-26 : enregistrer un jour VIDÉ effaçait menu ET alertes
+    // allergie en silence, avec un toast de succès. On le dit, on confirme.
+    if (!kept.length && dishesOf(day).length && !window.confirmEmptyOk) {
+      if (!window.confirm(t('Ce jour sera VIDÉ : le menu et ses alertes allergie disparaissent. Continuer ?'))) return
+    }
+    setDay(day, kept)
+    toast.success(kept.length ? `${t('Menu enregistré')} · ${label}` : `${t('Jour vidé')} · ${label}`)
+    onClose()
+  }
 
   return (
     <Modal open onClose={onClose} size="xl" title={`Menu · ${label}`}

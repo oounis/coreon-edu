@@ -1,6 +1,7 @@
 // RH & PAIE — le module ennuyeux qu'il faut faire parfaitement.
 // On ne gagne pas un client avec la paie ; on le PERD sans elle.
 import { useMemo, useState } from 'react'
+import { t } from '@core/i18n.js'
 import { current } from '@core/auth.js'
 import { db } from '@core/db.js'
 import { currency, money } from '@core/currency.js'
@@ -222,10 +223,16 @@ function Payroll({ staff, me, refresh }) {
     toast.success('Paie validée. Elle est désormais verrouillée.')
     refresh()
   }
+  // QA FAT 2026-07-26 : l'acte le plus grave du module était le seul sans
+  // confirmation — et 7 lignes « sans contrat » à 0 partaient sans un mot.
   const pay = () => {
+    const zeros = (p?.lines || []).filter(l => !l.net).length
+    const msg = `${t('Marquer cette paie comme payée ? Elle sera définitivement verrouillée.')}` +
+      (zeros ? `\n\n⚠ ${zeros} ${t('ligne(s) à 0 (sans contrat) — vérifiez avant de payer.')}` : '')
+    if (!window.confirm(msg)) return
     const r = markPaid(month)
     if (r.error) return toast.error(r.error)
-    toast.success('Paie marquée comme payée.')
+    toast.success(t('Paie marquée comme payée.'))
     refresh()
   }
 

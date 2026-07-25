@@ -90,7 +90,7 @@ function Composer({ u, classId, onClose }) {
   const submit = () => {
     const r = share({ classId, childIds: kids, caption, media, byId: u.id, byName: u.name })
     if (r.error) return toast.error(r.error)
-    toast.success('Moment partagé : les parents sont prévenus 📸')
+    toast.success(t('Moment partagé : les parents sont prévenus') + ' 📸')
     onClose()
   }
 

@@ -8,7 +8,7 @@ import { db, mutate, uid, studentById } from '@core/db.js'
 import { current } from '@core/auth.js'
 import { notify } from '@core/notify.js'
 import { studentSummary, mentionFor } from '@core/results.js'
-import { now } from '@core/clock.js'
+import { now, nowMs } from '@core/clock.js'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'
@@ -69,7 +69,7 @@ export default function Evaluate(){
     const teacher=me?.name||'Enseignant'
     // On ne conserve que les badges des élèves réellement notés.
     const cleanBadges=Object.fromEntries(Object.entries(badges).filter(([sid])=>graded.some(s=>s.id===sid)))
-    const ev={ id:uid('ev'), at:Date.now(), classId:cls.cls.id, className:cls.cls.name, subject:cls.slot.subject, lesson:lesson.trim()||null, teacher, placements:cleanPlacements, badges:cleanBadges, note }
+    const ev={ id:uid('ev'), at:nowMs(), classId:cls.cls.id, className:cls.cls.name, subject:cls.slot.subject, lesson:lesson.trim()||null, teacher, placements:cleanPlacements, badges:cleanBadges, note }
     mutate(db=>{ db.evaluations.unshift(ev) })
     students.forEach(s=>{ if(s.parentId){ const sum=studentSummary(ev,s.id); if(sum.score!=null) notify({to:s.parentId,studentId:s.id,email:true,kind:'evaluation',title:`Nouvelle évaluation pour ${s.name.split(' ')[0]}`,body:`${cls.slot.subject} : ${sum.score}/100${sum.badge?` · ${sum.badge.label}`:''}`,link:'/app'}) } })
     notify({role:'admin',kind:'evaluation',actor:teacher,title:`Évaluation enregistrée · ${cls.cls.name}`,body:`${cls.slot.subject} · ${graded.length} élèves notés`,link:'/app/students'})

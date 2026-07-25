@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { current } from '@core/auth.js'
 import { db, mutate, studentById, classById , attParts } from '@core/db.js'
 import { notify } from '@core/notify.js'
+import { t } from '@core/i18n.js'
 import { PageHead, Card, StatCard, SectionCard, Avatar, Btn, Badge, EmptyState, Modal, STATUS } from '../components/ui.jsx'
 import { currentClass, teacherSchedule } from '@core/data.js'
 import { todayIso, isoOf } from '@core/clock.js'
@@ -254,13 +255,20 @@ function MarkView(){
 
   const save=()=>{
     if(saving) return                                   // pas de double-enregistrement
+    // ⚠️ QA FAT 2026-07-26 : un second clic renvoyait TOUTES les notifications.
+    // Identique → on le dit sans rien renvoyer ; corrigé → on ne notifie que
+    // les élèves dont la marque a CHANGÉ.
+    const prev=db().attendance[key]||null
+    if(prev&&JSON.stringify(prev)===JSON.stringify(marks)){ toast(t('Appel déjà enregistré — rien n’a changé.')); return }
     setSaving(true)
     mutate(db=>{db.attendance[key]=marks})
-    const flagged=cls.students.filter(s=>marks[s.id]!=='present')
-    notify({role:'admin',kind:'info',title:`Appel · ${cls.cls.name}`,body:`${counts.present} présents · ${counts.absent} absents · ${counts.late} retards (${cls.subject})`,link:'/app/attendance'})
-    notify({role:'schooladmin',kind:'info',title:`Appel · ${cls.cls.name}`,body:`${counts.absent} absent(s), ${counts.late} retard(s)`,link:'/app/attendance'})
+    const flagged=cls.students.filter(s=>marks[s.id]!=='present'&&(!prev||prev[s.id]!==marks[s.id]))
+    if(!prev){
+      notify({role:'admin',kind:'info',title:`Appel · ${cls.cls.name}`,body:`${counts.present} présents · ${counts.absent} absents · ${counts.late} retards (${cls.subject})`,link:'/app/attendance'})
+      notify({role:'schooladmin',kind:'info',title:`Appel · ${cls.cls.name}`,body:`${counts.absent} absent(s), ${counts.late} retard(s)`,link:'/app/attendance'})
+    }
     flagged.forEach(s=>{ if(s.parentId) notify({to:s.parentId,kind:'info',title:`Présence de ${s.name.split(' ')[0]}`,body:`${s.name} a été marqué(e) ${FR[marks[s.id]].toLowerCase()} aujourd'hui (${cls.subject}).`,link:'/app'}) })
-    toast.success('Appel enregistré · direction et parents notifiés')
+    toast.success(prev?t('Appel corrigé — seuls les changements ont été notifiés.'):t('Appel enregistré · direction et parents notifiés'))
     setTick(x=>x+1); setTimeout(()=>setSaving(false),600)
   }
 

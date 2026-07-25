@@ -98,7 +98,7 @@ function ObserveModal({ student, u, onClose }) {
     if (!picked) return toast.error('Choisissez un comportement à noter.')
     const r = observe({ studentId: student.id, trait: picked, note, byId: u.id, byName: u.name })
     if (r.error) return toast.error(r.error)
-    toast.success(TRAITS[picked].positive ? 'Encouragement noté : le parent est prévenu 👏' : 'Observation notée')
+    toast.success(TRAITS[picked].positive ? t('Encouragement noté : le parent est prévenu') + ' 👏' : t('Observation notée'))
     setNote(''); setPicked(null); force(x => x + 1)
   }
 

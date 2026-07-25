@@ -52,9 +52,10 @@ function TeacherJournal({ classes }) {
   const rows = classId ? entriesOfDay(classId, date) : []
   const sum = classId ? classSummary(classId, date) : null
 
+  const [confirmSend, setConfirmSend] = useState(null)   // QA : l'envoi se confirme
   const send = child => {
     sendToParents(child.id, date); refresh()
-    toast.success(`Journée de ${child.name.split(' ')[0]} envoyée à ses parents`)
+    toast.success(`${t('Journée envoyée aux parents')} · ${child.name.split(' ')[0]}`)
   }
 
   return (
@@ -109,7 +110,7 @@ function TeacherJournal({ classes }) {
                   ? <span className="text-xs font-bold flex items-center gap-1" style={{ color: STATUS.ok }}>
                       <Ic n="Check" size={14} /> Envoyé à {hhmm(j.sentAt)}
                     </span>
-                  : <Btn size="sm" onClick={() => send(child)}><Ic n="Send" size={14} /> Envoyer la journée</Btn>}
+                  : <Btn size="sm" onClick={() => setConfirmSend(child)}><Ic n="Send" size={14} /> {t('Envoyer la journée')}</Btn>}
               </div>
 
               {/* Repas — ce que l'enfant a RÉELLEMENT mangé, pas ce qui a été servi. */}
@@ -280,6 +281,11 @@ function ParentJournal({ children }) {
           )
         })}
       </div>
+      <Modal open={!!confirmSend} onClose={() => setConfirmSend(null)} title={t('Envoyer la journée ?')} size="sm"
+      footer={<><Btn variant="ghost" onClick={() => setConfirmSend(null)}>{t('Annuler')}</Btn>
+        <Btn onClick={() => { const c = confirmSend; setConfirmSend(null); send(c) }}><Ic n="Send" size={14}/> {t('Envoyer')}</Btn></>}>
+      <p className="text-sm text-muted">{t('Les parents recevront la journée telle quelle — elle ne pourra plus être modifiée ensuite.')}</p>
+    </Modal>
     </>
   )
 }

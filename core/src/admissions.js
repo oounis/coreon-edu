@@ -19,7 +19,7 @@
 // La CAPACITÉ est vérifiée au moment de l'inscription, pas à la candidature :
 // une place se libère, la liste d'attente avance. C'est comme ça dans la vraie vie.
 // ════════════════════════════════════════════════════════════════════════════
-import { db, save, classById, assignRef} from './db.js'
+import { db, save, classById, assignRef, FEE_MONTHS } from './db.js'
 import { now, todayIso, nowMs, ms } from './clock.js'
 import { levelOf, labelOf } from './levels.js'
 import { notify } from './notify.js'
@@ -214,6 +214,10 @@ export function enrol(id, classId, by = 'Administration') {
   const sid = 's' + Date.now().toString(36)
   const [first, ...rest] = String(a.childName).trim().split(' ')
   const last = rest.join(' ') || '·'
+  // QA FAT 2026-07-26 (REJET) : l'inscrit n'avait pas d'echeancier — /app/finance
+  // tombait pour toute l'ecole des la premiere vraie inscription.
+  d.payments = d.payments || {}
+  d.payments[sid] = FEE_MONTHS.map(m => ({ month: m, status: 'due' }))
   d.students = [...(d.students || []), {
     id: sid,
     name: a.childName,

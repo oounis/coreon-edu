@@ -67,6 +67,7 @@ export default function Accidents() {
   const [, force] = useState(0)
   const refresh = () => force(n => n + 1)
   const [open, setOpen] = useState(false)
+  const [confirmSend, setConfirmSend] = useState(null)   // QA : l'envoi au parent se confirme
   const [note, setNote] = useState({})
 
   const isParent = me.role === 'parent'
@@ -221,11 +222,11 @@ export default function Accidents() {
                       </span>
                     : <Btn size="sm" onClick={() => {
                         const r = approve(a.id, me.id, me.name)
-                        r.error ? toast.error(r.error) : toast.success('Validée.'); refresh()
+                        r.error ? toast.error(r.error) : toast.success(t('Validée.')); refresh()
                       }}><Ic n="UserCheck" size={14} /> Valider</Btn>
                 )}
                 {a.stage === 'valide' && (
-                  <Btn size="sm" onClick={() => { sendToParent(a.id); toast.success('Envoyée au parent.'); refresh() }}>
+                  <Btn size="sm" onClick={() => setConfirmSend(a.id)}>
                     <Ic n="Send" size={14} /> Envoyer au parent
                   </Btn>
                 )}
@@ -245,6 +246,12 @@ export default function Accidents() {
       </div>
 
       {open && <DeclareModal me={me} onClose={() => setOpen(false)} onDone={() => { setOpen(false); refresh() }} />}
+      <Modal open={!!confirmSend} onClose={() => setConfirmSend(null)} title={t('Envoyer au parent ?')} size="sm"
+        footer={<><Btn variant="ghost" onClick={() => setConfirmSend(null)}>{t('Annuler')}</Btn>
+          <Btn onClick={() => { sendToParent(confirmSend); setConfirmSend(null); toast.success(t('Envoyée au parent.')); refresh() }}>
+            <Ic n="Send" size={14}/> {t('Envoyer')}</Btn></>}>
+        <p className="text-sm text-muted">{t('La famille sera notifiée immédiatement et la déclaration ne pourra plus être modifiée — seules des notes pourront s’ajouter.')}</p>
+      </Modal>
     </>
   )
 }
