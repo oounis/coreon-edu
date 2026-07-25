@@ -1409,3 +1409,74 @@ test('séparation : l\'Administration N\'ÉCRIT NI la paie NI la comptabilité (
   assert.deepEqual(merged.hrPayrolls, server.hrPayrolls, 'la paie postée par admin est ignorée')
   assert.ok(applied.includes('students') && !applied.includes('hrPayrolls'))
 })
+
+// ── CR-034 : LA PORTE D'INTÉGRATION — les données du client entrent, validées ─
+test('import : parseCSV lit BOM, guillemets, point-virgule et champs multilignes', async () => {
+  const { parseCSV } = await import('../src/importer.js')
+  const csv = '﻿nom;classe;note\n"Ben Salah, Amira";5A;"aime les ""maths"""\nYoussef;5A;ras'
+  const p = parseCSV(csv)
+  assert.equal(p.delimiter, ';')
+  assert.deepEqual(p.headers, ['nom', 'classe', 'note'])
+  assert.equal(p.rows.length, 2)
+  assert.equal(p.rows[0][0], 'Ben Salah, Amira', 'les guillemets protègent la virgule')
+  assert.equal(p.rows[0][2], 'aime les "maths"', 'guillemets doublés décodés')
+})
+
+test('import : autoMap reconnaît les en-têtes français ET OneRoster', async () => {
+  const { autoMap } = await import('../src/importer.js')
+  const fr = autoMap(['Nom complet', 'Date de naissance', 'Classe', 'Email parent'], 'students')
+  assert.equal(fr.name, 0); assert.equal(fr.dob, 1); assert.equal(fr.className, 2); assert.equal(fr.parentEmail, 3)
+  const or = autoMap(['givenName', 'familyName', 'email', 'role', 'username'], 'staff')
+  assert.equal(or.firstName, 0); assert.equal(or.lastName, 1)
+  assert.ok(or.email != null, 'email OneRoster rapproché')
+})
+
+test("import : le plan (répétition générale) détecte doublons, dates invalides, classe inconnue, fiche existante — sans RIEN écrire", async () => {
+  const { buildPlan } = await import('../src/importer.js')
+  const d = db()
+  const exist = d.students[0]
+  const before = JSON.stringify(d.students.length)
+  const plan = buildPlan(d, 'students', [
+    { name: 'Nouvel Élève', dob: '12/04/2019', className: 'Classe Inconnue Z' },
+    { name: 'Nouvel Élève', dob: '12/04/2019' },                       // doublon du fichier
+    { name: 'Sans Date', dob: '99/99/2019' },                          // date invalide
+    { name: exist.name, dob: exist.dob },                              // déjà connu → màj
+  ])
+  assert.equal(plan.rows[0].action, 'create')
+  assert.ok(plan.rows[0].warnings.some(w => /sera créée/.test(w)), 'classe inconnue annoncée')
+  assert.equal(plan.rows[0].data.dob, '2019-04-12', 'dd/mm/yyyy normalisé en ISO')
+  assert.equal(plan.rows[1].action, 'skip', 'doublon du fichier ignoré')
+  assert.equal(plan.rows[2].action, 'error', 'date invalide = erreur')
+  assert.equal(plan.rows[3].action, 'update', 'fiche existante = mise à jour, jamais un double')
+  assert.equal(plan.rows[3].matchId, exist.id)
+  assert.equal(JSON.stringify(db().students.length), before, 'le plan n’écrit RIEN')
+})
+
+test("import : appliquer crée élève + parent + échéancier par les MÊMES chemins, journalise, et S'ANNULE", async () => {
+  const { buildPlan, applyPlan, undoLastImport, importJournal } = await import('../src/importer.js')
+  const { isValidRef } = await import('../src/refs.js')
+  const d0 = db()
+  const nBefore = d0.students.length
+  const plan = buildPlan(d0, 'students', [
+    { name: 'Import Testenfant', dob: '2019-03-05', className: d0.classes[0].name, parentName: 'Import Testparent', parentEmail: 'import.parent@test.bh', gender: 'F', allergies: 'Peanut' },
+  ])
+  const r = applyPlan('students', plan, { byId: 'u1', byName: 'Testeur', file: 'test.csv' })
+  assert.equal(r.ok, true); assert.equal(r.created, 1)
+  const d1 = db()
+  const st = d1.students.find(s => s.name === 'Import Testenfant')
+  assert.ok(st, 'élève créé')
+  assert.ok(isValidRef(st.ref), 'référence ERP posée par le générateur central')
+  assert.equal(st.classId, d1.classes[0].id, 'classe existante rapprochée par son nom')
+  const parent = d1.users.find(u => u.email === 'import.parent@test.bh')
+  assert.ok(parent && parent.childIds.includes(st.id), 'parent créé et lié DES DEUX CÔTÉS')
+  assert.equal(st.parentId, parent.id)
+  assert.ok(Array.isArray(d1.payments[st.id]) && d1.payments[st.id].length >= 9, 'échéancier semé')
+  assert.equal(r.credentials.length, 1, 'identifiant provisoire remis une seule fois')
+  assert.equal(importJournal()[0].created, 1, 'import journalisé (monitoring)')
+  // L'ANNULATION : la photographie d'avant restaure tout.
+  assert.equal(r.undoAvailable, true)
+  const u = undoLastImport()
+  assert.equal(u.ok, true)
+  assert.equal(db().students.length, nBefore, 'l’annulation rend la base d’avant')
+  assert.ok(!db().students.find(s => s.name === 'Import Testenfant'))
+})

@@ -121,6 +121,8 @@ const ALL_NAV=[
   // « Est-ce que ça s'intègre ? » est une QUESTION D'ACHAT dans toute école
   // internationale. OneRoster v1.2 : la réponse est un fichier, pas une promesse.
   { to:'/app/interop', section:'systeme', label:'Interopérabilité', icon:'Plug', module:'interop', roles:['schooladmin','admin'] },
+  // CR-034 : la porte d'intégration — les données du client entrent, validées.
+  { to:'/app/import', section:'systeme', label:'Import de données', icon:'FileUp', module:'interop', roles:['schooladmin'] },
   { to:'/app/settings', section:'systeme', label:'Paramètres', icon:'Settings', roles:['schooladmin'] },
 ]
 

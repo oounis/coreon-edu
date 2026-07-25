@@ -193,6 +193,8 @@ export const AR = {
   'Fête nationale (2e jour)': 'العيد الوطني (اليوم الثاني)',
   'Journée nationale du sport': 'اليوم الوطني للرياضة',
   'Fête de la Libération': 'عيد التحرير',
+  // Import de données (CR-034)
+  'Import de données': 'استيراد البيانات',
   // Journées mondiales
   "Journée internationale de l'éducation": 'اليوم العالمي للتعليم',
   'Journée de la langue maternelle': 'اليوم العالمي للغة الأمّ',

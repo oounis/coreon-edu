@@ -45,6 +45,7 @@ const Facilities = lazy(() => import('./pages/Facilities.jsx'))
 const Accidents = lazy(() => import('./pages/Accidents.jsx'))
 const ChildFile = lazy(() => import('./pages/ChildFile.jsx'))
 const Interop = lazy(() => import('./pages/Interop.jsx'))
+const ImportData = lazy(() => import('./pages/ImportData.jsx'))
 const Requests = lazy(() => import('./pages/Requests.jsx'))
 const Notices = lazy(() => import('./pages/Notices.jsx'))
 const Schools = lazy(() => import('./pages/Schools.jsx'))
@@ -162,6 +163,7 @@ export default function App(){
         <Route path="/app/accidents" element={R(<Accidents/>, "/app/accidents")}/>
         <Route path="/app/child" element={R(<ChildFile/>, "/app/child")}/>
         <Route path="/app/interop" element={R(<Interop/>, "/app/interop")}/>
+        <Route path="/app/import" element={R(<ImportData/>, "/app/import")}/>
 
         <Route path="/app/requests" element={R(<Requests/>, "/app/requests")}/>
         <Route path="/app/messages" element={R(<Messages/>, "/app/messages")}/>

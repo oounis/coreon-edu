@@ -47,6 +47,7 @@ export const ROUTE_ROLES={
   '/app/accidents': ['teacher','supervisor','admin','schooladmin','parent'],
   '/app/child': ['teacher','admin','schooladmin'],
   '/app/interop': ['schooladmin','admin'],
+  '/app/import': ['schooladmin'],
   '/setup': ['schooladmin'],
   '/app/requests': ['teacher','admin','schooladmin','hr'],
   '/app/messages': ALL,
