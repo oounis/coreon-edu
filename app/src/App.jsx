@@ -188,7 +188,7 @@ export default function App(){
         <Route path="/app/messages" element={R(<Messages/>, "/app/messages")}/>
         <Route path="/app/notices" element={R(<Notices/>, "/app/notices")}/>
         <Route path="/app/notifications" element={R(<Notifications/>, "/app/notifications")}/>
-        <Route path="*" element={<Navigate to="/" replace/>}/>
+        <Route path="*" element={<Navigate to={current() ? "/app" : "/"} replace/>}/>
       </Routes>
       </Suspense>
       </Boundary>

@@ -42,7 +42,7 @@ export default function Timetable(){
     <PageHead title="Emploi du temps"
       sub={<span className="inline-flex items-center gap-2 flex-wrap">
         {mode==='me'&&teacher ? <>{teacher.name} · {teacher.subject}</> : <>Classe {clsName}</>}
-        <span className="text-line">|</span>{sessions} séances · Lun–Ven · 6 périodes
+        <span className="text-line">|</span>{sessions} séances · {DAYS[0].slice(0,3)}–{DAYS[4].slice(0,3)} · 6 périodes
         {editable && <span className="inline-flex items-center gap-1 text-[12px] font-bold accent-soft accent-text px-2 py-0.5 rounded-full"><Pencil size={11}/> mode édition · cliquez sur une case</span>}
       </span>}
       action={

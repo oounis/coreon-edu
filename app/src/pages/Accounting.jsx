@@ -1,6 +1,7 @@
 // COMPTABILITÉ — barème, remises & bourses, factures, reçus, état financier.
 // Une facture émise ne se modifie pas : on l'annule par un avoir, daté et motivé.
 import { useState } from 'react'
+import { t } from '@core/i18n.js'
 import { current } from '@core/auth.js'
 import { db } from '@core/db.js'
 import { LEVELS, schoolLevels, labelOf } from '@core/levels.js'
@@ -243,7 +244,7 @@ function Eleves({ refresh }) {
               <div className="min-w-0">
                 <div className="font-bold text-sm truncate">{s.name}</div>
                 <div className="text-xs text-muted font-semibold">
-                  {labelOf((d.classes || []).find(c => c.id === s.classId)?.level)}
+                  {t(labelOf((d.classes || []).find(c => c.id === s.classId)?.level))}
                 </div>
               </div>
               <span className="flex-1" />

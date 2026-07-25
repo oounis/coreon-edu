@@ -174,6 +174,14 @@ export const AR = {
   'Fêtes et journées à venir': 'الأعياد والأيّام القادمة',
   'selon la lune': 'حسب رؤية الهلال',
   'FÉRIÉ': 'عطلة',
+  // QA FAT 2026-07-26 : clés critiques qui manquaient
+  'Mot de passe oublié ?': 'نسيت كلمة المرور؟',
+  'revenir au réel': 'العودة إلى الوقت الحقيقي',
+  'Journée simulée : l’application rejoue une journée de classe': 'يوم محاكى: يعيد التطبيق تشغيل يوم دراسي عادي',
+  'Référence': 'المرجع',
+  'Présence 30 j': 'الحضور 30 يومًا',
+  'Inscrire un élève': 'تسجيل تلميذ',
+  'Niveau demandé': 'المستوى المطلوب',
   // Jours fériés tunisiens
   "Jour de l'an": 'رأس السنة الميلاديّة',
   "Fête de l'Indépendance": 'عيد الاستقلال',
@@ -848,4 +856,19 @@ export const EN = {
   'selon la lune': 'subject to moon sighting',
   'FÉRIÉ': 'HOLIDAY',
   'À venir': 'Coming up',
+  // Connexion (QA FAT 2026-07-26 : la 1re page vue devait être 100 % EN)
+  'Bon retour': 'Welcome back',
+  'Connectez-vous à votre portail.': 'Sign in to your portal.',
+  'Mot de passe oublié ?': 'Forgot your password?',
+  'Essai · connexion en un clic :': 'Demo · one-click sign-in:',
+  'Journée simulée': 'Simulated school day',
+  'revenir au réel': 'back to real time',
+  'Journée simulée : l’application rejoue une journée de classe': 'Simulated day: the app replays a normal school day',
+  // Répertoire élèves (écorce des tables)
+  'Référence': 'Reference',
+  'Élève': 'Student',
+  'Cycle': 'Cycle',
+  'Présence 30 j': 'Attendance 30d',
+  'Inscrire un élève': 'Enrol a student',
+  'Niveau demandé': 'Requested level',
 }

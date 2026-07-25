@@ -43,6 +43,18 @@ import { locale, dir, setLocale } from '@core/i18n.js'
 import { settings } from '@core/db.js'
 import { setCurrency } from '@core/currency.js'
 import { setLocalePack } from '@core/locales.js'
+
+// ⚠️ QA FAT 2026-07-26 : hors-ligne, un chunk paresseux qui échoue laissait un
+// ÉCRAN BLANC muet. Vite émet 'vite:preloadError' — on recharge une fois
+// (souvent le réseau est revenu) au lieu de mourir en silence.
+window.addEventListener('vite:preloadError', e => {
+  e.preventDefault()
+  if (!sessionStorage.getItem('coreon_chunk_retry')) {
+    sessionStorage.setItem('coreon_chunk_retry', '1')
+    location.reload()
+  }
+})
+window.addEventListener('load', () => sessionStorage.removeItem('coreon_chunk_retry'))
 import { applyCurriculum } from '@core/academic.js'
 // Paramètres de l'ÉCOLE posés avant le premier rendu : le pack de PAYS (régions,
 // pièce d'identité, cadre légal), la devise (money() la lit en mémoire) et la

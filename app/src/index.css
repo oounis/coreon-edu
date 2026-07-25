@@ -183,3 +183,13 @@ b, strong { font-weight: 700 }
   .print\:hidden { display: none !important }
   @page { margin: 14mm }
 }
+
+/* ⚠️ QA FAT 2026-07-26 (REJET n°1) : en RTL, toute donnée LTR — téléphones,
+   dates, « A+ », texte français de repli — se brouillait : « +216 20 111 111 »
+   s'affichait inversé, les points finaux sautaient en tête de ligne.
+   unicode-bidi:plaintext fait suivre à chaque élément la direction de son
+   PREMIER caractère fort : l'arabe reste arabe, les données LTR redeviennent
+   lisibles. L'alignement (text-align) n'est pas affecté. */
+[dir="rtl"] :is(p, span, div, a, li, td, th, dt, dd, h1, h2, h3, h4, button, label, option) {
+  unicode-bidi: plaintext;
+}

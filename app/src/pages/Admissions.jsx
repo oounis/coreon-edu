@@ -8,6 +8,7 @@
 // pleine ne fait pas échouer le clic : elle bascule en liste d'attente. Le
 // système ne ment jamais sur une place qu'il n'a pas.
 import { useState } from 'react'
+import { t } from '@core/i18n.js'
 import {
   applications, appById, STAGES, docsFor, docsComplete, hasDoc, setFiles, advance,
   openClasses, enrol, summary, stageLabel,
@@ -101,7 +102,7 @@ export default function Admissions() {
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-bold truncate group-hover:accent-text">{x.childName}{x.ref && <code className="ms-2 text-[10px] font-semibold text-muted tabular-nums">{x.ref}</code>}</span>
                   <span className="block text-xs text-muted truncate">
-                    {labelOf(x.level)} · {x.parentName} · {fmt(x.createdAt)}
+                    {t(labelOf(x.level))} · {x.parentName} · {fmt(x.createdAt)}
                   </span>
                 </span>
                 {!st?.terminal && (
@@ -141,7 +142,7 @@ export default function Admissions() {
             <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
               <Info label="Enfant" value={a.childName} />
               <Info label="Naissance" value={a.dob ? `${a.dob}${ageOf(a.dob) != null ? ` · ${ageOf(a.dob)} ans` : ''}` : '·'} />
-              <Info label="Niveau demandé" value={labelOf(a.level)} />
+              <Info label="Niveau demandé" value={t(labelOf(a.level))} />
               <Info label="Parent / tuteur" value={a.parentName} />
               <Info label="Téléphone" value={a.parentPhone
                 ? <a href={`tel:${a.parentPhone}`} className="accent-text font-bold">{a.parentPhone}</a> : '·'} />

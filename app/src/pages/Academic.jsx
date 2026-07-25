@@ -2,6 +2,7 @@
 // Le passage n'est pas « grade + 1 » : c'est un processus daté, irréversible, et
 // qui touche à l'argent. On le montre AVANT de l'exécuter.
 import { useState } from 'react'
+import { t } from '@core/i18n.js'
 import { current } from '@core/auth.js'
 import { db } from '@core/db.js'
 import {
@@ -97,7 +98,7 @@ function Bulletins({ refresh }) {
               <Avatar name={s.name} seed={s.id} />
               <div className="min-w-0">
                 <div className="font-bold text-sm truncate">{s.name}</div>
-                <div className="text-xs text-muted font-semibold">{labelOf(cls?.level)}</div>
+                <div className="text-xs text-muted font-semibold">{t(labelOf(cls?.level))}</div>
               </div>
               <span className="flex-1" />
               {r
@@ -404,7 +405,7 @@ function Passage({ refresh }) {
                 return (
                   <tr key={r.student.id} className="border-b border-line last:border-0 hover:bg-canvas">
                     <td className="px-5 py-2.5 font-semibold">{r.student.name}</td>
-                    <td className="px-3 py-2.5 text-muted">{labelOf(r.from)}</td>
+                    <td className="px-3 py-2.5 text-muted">{t(labelOf(r.from))}</td>
                     <td className="px-3 py-2.5 text-right tabular-nums">
                       {r.average != null
                         ? <span style={{ color: r.average >= PASS_MARK ? STATUS.ok : STATUS.danger }}>{r.average}</span>
