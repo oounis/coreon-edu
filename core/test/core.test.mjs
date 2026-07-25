@@ -426,6 +426,54 @@ test("fêtes : l'agenda est trié, mélange fériés et journées, et passe l'an
   assert.ok(a.some(x => x.kind === 'ferie') && a.some(x => x.kind === 'journee'))
 })
 
+// ── CR-032 : le calendrier des fériés suit le PAYS de l'école ────────────────
+test('fêtes : chaque pays de lancement a ses tables 2026 et 2027, datées dans la bonne année', async () => {
+  const { FERIES_PAR_PAYS } = await import('../src/fetes.js')
+  assert.deepEqual(Object.keys(FERIES_PAR_PAYS).sort(), ['BH', 'LY', 'QA', 'TN'], 'les quatre marchés, pas un de plus')
+  for (const [pays, tables] of Object.entries(FERIES_PAR_PAYS)) {
+    for (const y of [2026, 2027]) {
+      assert.ok(Array.isArray(tables[y]) && tables[y].length >= 8, `${pays} a une table ${y}`)
+      for (const f of tables[y]) {
+        assert.match(f.d, /^\d{4}-\d{2}-\d{2}$/, `${pays} ${f.label} : date ISO`)
+        assert.equal(Number(f.d.slice(0, 4)), y, `${pays} ${f.label} : rangée dans ${y}`)
+        assert.ok(!Number.isNaN(new Date(f.d).getTime()), `${pays} ${f.label} : date réelle`)
+      }
+    }
+  }
+})
+
+test('fêtes : le férié affiché change avec le pays — et la Tunisie reste le défaut', async () => {
+  const { setLocalePack } = await import('../src/locales.js')
+  const { ferieOf } = await import('../src/fetes.js')
+  try {
+    // défaut TN : le 16 décembre n'est pas férié, le 17 (Révolution) l'est
+    assert.equal(ferieOf('2026-12-16'), null)
+    assert.match(ferieOf('2026-12-17').label, /Révolution/)
+    setLocalePack('BH')
+    assert.match(ferieOf('2026-12-16').label, /nationale/, 'Fête nationale du Bahreïn')
+    assert.equal(ferieOf('2026-07-25'), null, "la République tunisienne n'est pas fériée au Bahreïn")
+    assert.equal(nextFerie('2026-06-20').d, '2026-06-24', 'Achoura est le prochain congé bahreïni')
+    setLocalePack('QA')
+    assert.match(ferieOf('2026-12-18').label, /nationale/, 'Fête nationale du Qatar')
+    assert.match(ferieOf('2026-02-10').label, /sport/, 'Journée du sport (2e mardi de février)')
+    setLocalePack('LY')
+    assert.match(ferieOf('2026-12-24').label, /Indépendance/, 'Indépendance libyenne')
+    assert.match(ferieOf('2026-05-26').label, /Arafat/, "Jour d'Arafat férié en Libye")
+  } finally { setLocalePack('TN') }
+})
+
+test("fêtes : la date hégirienne (Umm al-Qura) se lit nativement, seuls BH/QA/LY l'affichent", async () => {
+  const { hijriOf } = await import('../src/fetes.js')
+  const { setLocalePack, showsHijri } = await import('../src/locales.js')
+  assert.match(hijriOf('2026-01-01', 'fr'), /1447/, 'janvier 2026 = 1447 H')
+  assert.match(hijriOf('2026-07-25', 'fr'), /1448/, 'juillet 2026 = 1448 H')
+  assert.ok(/هـ|١٤٤٨|1448/.test(hijriOf('2026-07-25', 'ar-TN')), 'formatée en arabe')
+  try {
+    assert.equal(showsHijri(), false, "pas d'affichage hégirien en Tunisie")
+    for (const p of ['BH', 'QA', 'LY']) { setLocalePack(p); assert.equal(showsHijri(), true, `${p} affiche l'hégirien`) }
+  } finally { setLocalePack('TN') }
+})
+
 // ── La cantine : le menu qui PROTÈGE l'enfant (croisement allergies) ─────────
 import { atRiskForDay, studentReactsTo, setDay, toggleSubscriber, allergensOfDay, weekForChild, summary as canteenSummary } from '../src/canteen.js'
 

@@ -21,7 +21,7 @@
 export const PACKS = {
   // ── Bahreïn ───────────────────────────────────────────────────────────────
   BH: {
-    key: 'BH', label: 'Bahreïn', iso: 'BH', currency: 'BHD', locale: 'ar', dialCode: '+973',
+    key: 'BH', label: 'Bahreïn', iso: 'BH', currency: 'BHD', locale: 'ar', dialCode: '+973', hijri: true,
     languages: { primary: 'ar', secondary: 'en' },
     regionLabel: 'Ville',
     cities: ['Manama', 'Muharraq', 'Riffa', 'Hamad Town', "A'ali", 'Isa Town', 'Sitra', 'Budaiya', 'Jidhafs', 'Al Hidd', 'Sanabis', 'Tubli'],
@@ -46,7 +46,7 @@ export const PACKS = {
 
   // ── Qatar ─────────────────────────────────────────────────────────────────
   QA: {
-    key: 'QA', label: 'Qatar', iso: 'QA', currency: 'QAR', locale: 'ar', dialCode: '+974',
+    key: 'QA', label: 'Qatar', iso: 'QA', currency: 'QAR', locale: 'ar', dialCode: '+974', hijri: true,
     languages: { primary: 'ar', secondary: 'en' },
     regionLabel: 'Ville',
     cities: ['Doha', 'Al Rayyan', 'Al Wakrah', 'Al Khor', 'Lusail', 'Umm Salal', 'Al Wukair', 'Mesaieed', 'Dukhan', 'Al Daayen', 'Al Shamal'],
@@ -94,7 +94,7 @@ export const PACKS = {
 
   // ── Libye ─────────────────────────────────────────────────────────────────
   LY: {
-    key: 'LY', label: 'Libye', iso: 'LY', currency: 'LYD', locale: 'ar', dialCode: '+218',
+    key: 'LY', label: 'Libye', iso: 'LY', currency: 'LYD', locale: 'ar', dialCode: '+218', hijri: true,
     languages: { primary: 'ar', secondary: 'en' },
     regionLabel: 'Ville',
     cities: ['Tripoli', 'Benghazi', 'Misrata', 'Sabha', 'Al Bayda', 'Zawiya', 'Ajdabiya', 'Tobruk', 'Al Khums', 'Zliten', 'Sirte', 'Gharyan', 'Derna', 'Sabratha', 'Zuwara', 'Murzuq'],
@@ -142,6 +142,8 @@ export const validId = v => pack().validId(v)
 export const legal = () => pack().legal
 export const packCurrency = () => pack().currency
 export const countryCode = () => pack().iso || 'XX'
+// CR-032 : les pays où la date hégirienne s'affiche à côté de la grégorienne.
+export const showsHijri = () => !!pack().hijri
 
 // ── Curriculum du pays (CR-024) ───────────────────────────────────────────────
 const DEFAULT_CURRICULUM = { markMax: 20, passMark: 10, subjects: ['Mathématiques', 'Français', 'Arabe', 'Éveil scientifique', 'Anglais'], gradeScale: [] }

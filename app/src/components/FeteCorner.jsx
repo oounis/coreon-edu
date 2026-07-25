@@ -6,7 +6,8 @@ import { Menu } from '@headlessui/react'
 import { format } from 'date-fns'
 import { fr, arTN } from 'date-fns/locale'
 import { todayIso, now as appNow } from '@core/clock.js'
-import { feteOfDay, nextFerie, upcoming } from '@core/fetes.js'
+import { feteOfDay, nextFerie, upcoming, hijriOf } from '@core/fetes.js'
+import { showsHijri } from '@core/locales.js'
 import { t, locale } from '@core/i18n.js'
 import { ChevronDown } from 'lucide-react'
 
@@ -51,6 +52,10 @@ export default function FeteCorner() {
               ? `${format(new Date(head.d), 'EEEE d MMMM', { locale: dfLocale() })} · ${inLabel(head.inDays)}`
               : format(appNow(), 'EEEE d MMMM yyyy', { locale: dfLocale() })}
           </div>
+          {showsHijri() && (
+            <div className="text-[11px] text-muted mt-0.5">
+              {hijriOf(head.kind === 'prochain' ? head.d : today, locale() === 'ar' ? 'ar-TN' : 'fr')}
+            </div>)}
         </div>
         <div className="p-3">
           <div className="text-[11px] font-bold uppercase tracking-wide text-muted px-2 mb-1">{t('À venir')}</div>

@@ -183,6 +183,16 @@ export const AR = {
   'Mouled': 'المولد النبويّ',
   "Fête de l'Évacuation": 'عيد الجلاء',
   'Fête de la Révolution': 'عيد الثورة',
+  // Jours fériés Bahreïn · Qatar · Libye (CR-032)
+  'Aïd el-Fitr (3e jour)': 'عيد الفطر (اليوم الثالث)',
+  'Aïd el-Idha (3e jour)': 'عيد الأضحى (اليوم الثالث)',
+  'Achoura': 'عاشوراء',
+  'Achoura (2e jour)': 'عاشوراء (اليوم الثاني)',
+  "Jour d'Arafat": 'يوم عرفة',
+  'Fête nationale': 'العيد الوطني',
+  'Fête nationale (2e jour)': 'العيد الوطني (اليوم الثاني)',
+  'Journée nationale du sport': 'اليوم الوطني للرياضة',
+  'Fête de la Libération': 'عيد التحرير',
   // Journées mondiales
   "Journée internationale de l'éducation": 'اليوم العالمي للتعليم',
   'Journée de la langue maternelle': 'اليوم العالمي للغة الأمّ',
