@@ -17,9 +17,11 @@
 // ════════════════════════════════════════════════════════════════════════════
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { settings, saveSettings } from '@core/db.js'
+import { settings, saveSettings, purgeDemoData } from '@core/db.js'
 import { LEVELS, EARLY_YEARS, PRIMARY } from '@core/levels.js'
-import { Card, Btn, Input, Field } from '../components/ui.jsx'
+import { PACKS, PACK_LIST } from '@core/locales.js'
+import { LOCALES, setLocale } from '@core/i18n.js'
+import { Card, Btn, Input, Field, Select } from '../components/ui.jsx'
 import { Ic } from '../icons.jsx'
 import toast from 'react-hot-toast'
 
@@ -50,6 +52,11 @@ export default function Setup() {
   const [shape, setShape] = useState(null)
   const [levels, setLevels] = useState([])
   const [name, setName] = useState(s?.schoolName || '')
+  // B-6 (audit 2026-07-25) : le pays, la langue et la devise sont des questions
+  // FONDATRICES — elles n'étaient jamais posées, et l'école ouvrait en Tunisie.
+  const [country, setCountry] = useState(s?.country || 'TN')
+  const [locale, setLoc] = useState(s?.locale || (PACKS[s?.country || 'TN']?.locale ?? 'fr'))
+  const [purge, setPurge] = useState(false)
 
   const pick = sh => { setShape(sh.key); setLevels(sh.levels) }
   const toggle = k => setLevels(l => l.includes(k) ? l.filter(x => x !== k) : [...l, k])
@@ -57,9 +64,19 @@ export default function Setup() {
   const finish = () => {
     if (!name.trim()) return toast.error('Le nom de l’école est requis.')
     if (!levels.length) return toast.error('Choisissez au moins un niveau.')
-    saveSettings({ ...settings(), schoolName: name.trim(), levels })
+    const currency = PACKS[country]?.currency || 'DT'
+    saveSettings({ ...settings(), schoolName: name.trim(), levels, country, currency, locale })
+    if (purge) {
+      const r = purgeDemoData()
+      if (r.error) return toast.error(r.error)
+      // re-poser les réglages par-dessus la base purgée (purge garde settings,
+      // mais on veut les NOUVEAUX : nom, pays, niveaux).
+      saveSettings({ schoolName: name.trim(), levels, country, currency, locale })
+    }
+    setLocale(locale)
     toast.success('C’est prêt. Coreon Edu s’est adapté à votre école.')
-    nav('/app')
+    // Pays/devise/programme se lisent au démarrage (main.jsx) : rechargement franc.
+    setTimeout(() => { location.hash = '#/app'; location.reload() }, 600)
   }
 
   return (
@@ -73,9 +90,21 @@ export default function Setup() {
           </p>
         </div>
 
-        <Field label="Nom de l’établissement">
-          <Input value={name} onChange={e => setName(e.target.value)} placeholder="École Al-Nour" />
-        </Field>
+        <div className="grid sm:grid-cols-3 gap-3">
+          <Field label="Nom de l’établissement">
+            <Input value={name} onChange={e => setName(e.target.value)} />
+          </Field>
+          <Field label="Pays" hint={`Devise : ${PACKS[country]?.currency || 'DT'} · pièces, urgences et semaine du pays`}>
+            <Select value={country} onChange={e => { setCountry(e.target.value); setLoc(PACKS[e.target.value]?.locale || 'fr') }}>
+              {PACK_LIST.map(p => <option key={p.key} value={p.key}>{p.label}</option>)}
+            </Select>
+          </Field>
+          <Field label="Langue par défaut">
+            <Select value={locale} onChange={e => setLoc(e.target.value)}>
+              {Object.entries(LOCALES).map(([k, v]) => <option key={k} value={k}>{v.label || k}</option>)}
+            </Select>
+          </Field>
+        </div>
 
         <div className="text-sm font-bold mt-6 mb-3">Quels niveaux accueillez-vous ?</div>
         <div className="grid sm:grid-cols-3 gap-3">
@@ -124,6 +153,17 @@ export default function Setup() {
             </div>
           </Card>
         )}
+
+        {/* Le passage « école réelle » : on quitte la démonstration pour de bon. */}
+        <Card className="p-4 mt-5 flex items-start gap-3">
+          <input id="purge" type="checkbox" checked={purge} onChange={e => setPurge(e.target.checked)} className="mt-1" />
+          <label htmlFor="purge" className="text-sm">
+            <span className="font-bold">École réelle : vider les données d’exemple.</span>{' '}
+            <span className="text-muted">Retire les élèves, classes et écritures de démonstration —
+            garde vos réglages, votre barème et les comptes de direction. Irréversible :
+            vos vraies données entreront ensuite par « Import de données ».</span>
+          </label>
+        </Card>
 
         <div className="flex justify-end mt-6">
           <Btn size="lg" onClick={finish} disabled={!shape || !name.trim()}>

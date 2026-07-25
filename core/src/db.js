@@ -742,6 +742,22 @@ export function save(d){
 }
 export function mutate(fn){const d=db();fn(d);save(d);return d}
 export function resetDb(){removeItem(KEY)}
+
+// ⚠️ AUDIT 2026-07-25 (CC-2) : une installation neuve démarrait avec l'école de
+// DÉMONSTRATION (120 faux élèves tunisiens, mots de passe publiés) et rien ne la
+// purgeait jamais. Voici le passage « école réelle » : on VIDE toutes les données
+// d'exemple, on GARDE les réglages, le barème et les comptes de direction.
+export function purgeDemoData(){
+  const d=db()
+  const keep=new Set(['settings','_v','feeSchedule'])
+  const out={}
+  for(const [k,v] of Object.entries(d)){
+    if(keep.has(k)) out[k]=v
+    else if(k==='users') out[k]=(v||[]).filter(u=>u.role==='schooladmin'||u.role==='owner')
+    else out[k]=Array.isArray(v)?[]:(v&&typeof v==='object'?{}:v)
+  }
+  return save(out)?{ok:true}:{error:"Le stockage a refusé l'écriture."}
+}
 export const uid=(p="id")=>p+"_"+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3)
 
 // ── lien parent ↔ enfant ────────────────────────────────────────────────────

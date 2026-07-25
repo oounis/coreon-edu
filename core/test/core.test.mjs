@@ -1526,3 +1526,24 @@ test("temps : écrire nowMs(), lire ms() — la sieste survit au rechargement, l
   assert.ok(Math.abs(nowMs() - ms(new Date())) < 2000, 'Date lue')
   assert.equal(ms(null), 0, 'absent = 0, jamais NaN')
 })
+
+// ── CC-2 : le passage « école réelle » — la démo se vide, les réglages restent ─
+test("école réelle : purgeDemoData vide l'exemple, garde réglages/barème/direction", async () => {
+  const { purgeDemoData, resetDb, saveSettings } = await import('../src/db.js')
+  resetDb(); const d0 = db()                       // graine de démonstration
+  assert.ok(d0.students.length > 100, 'la démo est pleine')
+  // Le vrai flux (Setup) : on renomme l'école AVANT de purger — le garde-fou de
+  // migration ne réinjecte les comptes démo que pour « École Al-Nour ».
+  saveSettings({ schoolName: 'École Test Réelle' })
+  const r = purgeDemoData()
+  assert.equal(r.ok, true)
+  const d1 = db()
+  assert.equal(d1.students.length, 0, 'plus aucun élève d’exemple')
+  assert.equal(d1.classes.length, 0)
+  assert.equal((d1.evaluations || []).length, 0)
+  assert.deepEqual(Object.keys(d1.attendance || {}), [], 'plus de présence d’exemple')
+  assert.ok(d1.users.every(u => u.role === 'schooladmin' || u.role === 'owner'), 'seuls direction/propriétaire restent')
+  assert.ok(d1.users.some(u => u.role === 'schooladmin'), 'la direction peut toujours se connecter')
+  assert.ok(d1.settings, 'les réglages survivent')
+  resetDb(); db()                                  // re-semer pour la suite des tests
+})
