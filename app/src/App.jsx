@@ -86,6 +86,24 @@ function Protected({ el, roles, path }){
 }
 const R=(el,path)=> <Protected el={el} roles={ROUTE_ROLES[path]} path={path}/>
 
+// ⚠️ AUDIT 2026-07-25 : aucun error boundary — le moindre throw dans une page
+// lazy = ÉCRAN BLANC sans issue. ErrorState existait dans ui.jsx… utilisé nulle
+// part. Le voici, global : la page fautive s'excuse, le reste de l'app survit.
+import { Component } from 'react'
+import { ErrorState } from './components/ui.jsx'
+class Boundary extends Component {
+  state = { error: null }
+  static getDerivedStateFromError(error){ return { error } }
+  componentDidCatch(error){ console.error('[boundary]', error) }
+  render(){
+    if (this.state.error) return (
+      <div className="min-h-screen grid place-items-center bg-canvas p-6">
+        <ErrorState onRetry={() => { this.setState({ error: null }); location.reload() }}/>
+      </div>)
+    return this.props.children
+  }
+}
+
 export default function App(){
   return (
     <HashRouter>
@@ -96,6 +114,7 @@ export default function App(){
           chargement — la page était scannée pendant que ce squelette était
           encore à l'écran. Avec un rôle, le lecteur d'écran annonce enfin
           l'attente, et le contrôle d'accessibilité cesse d'être capricieux. */}
+      <Boundary>
       <Suspense fallback={<div className="min-h-screen grid place-items-center"><div role="status" aria-live="polite" className="skeleton w-40 h-10" aria-label="Chargement…"/></div>}>
       <Routes>
         {/* La vitrine publique : une coquille partagée (en-tête + pied) et une
@@ -172,6 +191,7 @@ export default function App(){
         <Route path="*" element={<Navigate to="/" replace/>}/>
       </Routes>
       </Suspense>
+      </Boundary>
     </HashRouter>
   )
 }

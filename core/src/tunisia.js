@@ -38,7 +38,7 @@ export const validCIN=v=> packValidId(v)
 // Demandes — schémas détaillés par type (champs + circuit de validation)
 export const REQUEST_DEFS={
   "Demande de congé":{group:"RH",audience:["teacher","supervisor","admin"],chain:["schooladmin"],doc:false,
-    note:"Congé annuel : 18 j/an (<5 ans), 24 j/an (≥6 ans). Maternité : 30 j (art. 66). Maladie : justificatif requis (art. 244).",
+    note:"Selon la réglementation locale du travail et le contrat de l'employé. Maladie : justificatif requis.",
     fields:[{k:"leaveType",l:"Type de congé",t:"select",o:["Congé annuel","Congé maladie","Congé maternité","Congé paternité","Congé sans solde","Congé exceptionnel (familial)"],req:1},
       {k:"from",l:"Du",t:"date",req:1},{k:"to",l:"Au",t:"date",req:1},{k:"days",l:"Nombre de jours",t:"number"},
       {k:"reason",l:"Motif",t:"textarea"},{k:"replacement",l:"Remplaçant / passation",t:"text"},{k:"cert",l:"Certificat médical (si maladie)",t:"attach"}]},
@@ -50,14 +50,14 @@ export const REQUEST_DEFS={
   "Attestation de salaire":{group:"Documents",audience:["teacher","supervisor","admin"],chain:["admin","schooladmin"],doc:true,
     fields:[{k:"addressedTo",l:"Destinataire (banque / organisme)",t:"text"},{k:"purpose",l:"Motif",t:"text"},{k:"copies",l:"Nombre de copies",t:"number"}]},
   "Avance sur salaire":{group:"RH",audience:["teacher","supervisor","admin"],chain:["admin","schooladmin","owner"],doc:false,
-    note:"Remboursement limité à ~10% du salaire net par mois (art. 150 Code du travail).",
-    fields:[{k:"amount",l:"Montant demandé (DT)",t:"number",req:1},{k:"reason",l:"Motif",t:"textarea",req:1},{k:"months",l:"Remboursement (nb de mensualités)",t:"number"}]},
+    note:"Remboursement par mensualités, selon la politique de l'école et la réglementation locale du travail.",
+    fields:[{k:"amount",l:"Montant demandé",t:"number",req:1},{k:"reason",l:"Motif",t:"textarea",req:1},{k:"months",l:"Remboursement (nb de mensualités)",t:"number"}]},
   "Demande de mutation":{group:"RH",audience:["teacher","supervisor","admin"],chain:["schooladmin","owner"],doc:false,
     fields:[{k:"target",l:"Établissement / affectation souhaitée",t:"text",req:1},{k:"reasonType",l:"Motif",t:"select",o:["Rapprochement familial","Raison de santé","Convenance personnelle","Autre"]},{k:"date",l:"Date souhaitée",t:"date"},{k:"details",l:"Détails",t:"textarea"}]},
   "Demande de formation":{group:"RH",audience:["teacher","supervisor","admin"],chain:["schooladmin","owner"],doc:false,
-    fields:[{k:"title",l:"Intitulé de la formation",t:"text",req:1},{k:"org",l:"Organisme",t:"text"},{k:"from",l:"Du",t:"date"},{k:"to",l:"Au",t:"date"},{k:"cost",l:"Coût estimé (DT)",t:"number"},{k:"goal",l:"Objectif",t:"textarea"}]},
+    fields:[{k:"title",l:"Intitulé de la formation",t:"text",req:1},{k:"org",l:"Organisme",t:"text"},{k:"from",l:"Du",t:"date"},{k:"to",l:"Au",t:"date"},{k:"cost",l:"Coût estimé",t:"number"},{k:"goal",l:"Objectif",t:"textarea"}]},
   "Demande de matériel":{group:"Logistique",audience:["teacher","supervisor","admin"],chain:["admin","schooladmin"],doc:false,
-    fields:[{k:"items",l:"Articles demandés",t:"textarea",req:1},{k:"qty",l:"Quantité totale",t:"number"},{k:"budget",l:"Budget estimé (DT)",t:"number"},{k:"justif",l:"Justification",t:"textarea"}]},
+    fields:[{k:"items",l:"Articles demandés",t:"textarea",req:1},{k:"qty",l:"Quantité totale",t:"number"},{k:"budget",l:"Budget estimé",t:"number"},{k:"justif",l:"Justification",t:"textarea"}]},
   "Certificat de scolarité":{group:"Élève",audience:["parent"],chain:["admin"],doc:true,
     fields:[{k:"child",l:"Enfant",t:"child",req:1},{k:"year",l:"Année scolaire",t:"text",def:"2026 / 2027"},{k:"addressedTo",l:"Destinataire",t:"text"},{k:"copies",l:"Nombre de copies",t:"number"}]},
   "Autorisation de sortie":{group:"Élève",audience:["parent"],chain:["schooladmin"],doc:false,
@@ -68,7 +68,12 @@ export const REQUEST_DEFS={
     fields:[{k:"subject",l:"Objet",t:"text",req:1},{k:"child",l:"Élève concerné",t:"child"},{k:"description",l:"Description (dates, lieux, personnes)",t:"textarea",req:1},{k:"expected",l:"Résolution souhaitée",t:"textarea"}]},
 }
 export const REQUEST_LIST=Object.keys(REQUEST_DEFS)
-export const typesForRole=role=>REQUEST_LIST.filter(t=>REQUEST_DEFS[t].audience.includes(role))
+// hr/accountant (CR-019) déposent les mêmes demandes que l'administration.
+const ROLE_EQUIV={hr:'admin',accountant:'admin'}
+export const typesForRole=role=>REQUEST_LIST.filter(t=>{
+  const aud=REQUEST_DEFS[t].audience
+  return aud.includes(role)||(ROLE_EQUIV[role]&&aud.includes(ROLE_EQUIV[role]))
+})
 // rétro-compat
 export const REQUEST_TYPES=Object.fromEntries(Object.entries(REQUEST_DEFS).map(([k,v])=>[k,{chain:v.chain,doc:v.doc}]))
 
