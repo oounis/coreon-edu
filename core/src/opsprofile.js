@@ -62,7 +62,7 @@ export function techProfile(school, db) {
     diagnostic: [
       line('Mode', school?.live ? 'Démonstration (données locales)' : 'Client (serveur dédié · à provisionner)'),
       line('Révision des données', rev),
-      line('Joignable', school?.status === 'suspended' ? 'Suspendue' : 'Oui'),
+      line('Joignable', school?.status === 'suspended' ? 'Suspendue' : (school?.lastSeen ? 'Oui' : 'Jamais connectée')),
     ],
   }
 }

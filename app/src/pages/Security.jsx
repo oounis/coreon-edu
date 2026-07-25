@@ -245,7 +245,7 @@ function ChecklistModal({ ev, u, onClose, refresh }) {
 }
 
 /* ── 2) Registre des visiteurs ───────────────────────────────────────────── */
-const BLANK_V = () => ({ name: '', idType: 'CIN', idNumber: '', org: '', purpose: PURPOSES[0], hostName: '', vehicle: '', escortName: '' })
+const BLANK_V = () => ({ name: '', idType: ID_TYPES[0], idNumber: '', org: '', purpose: PURPOSES[0], hostName: '', vehicle: '', escortName: '' })
 
 function VisitorsTab({ u, d, refresh }) {
   const [open, setOpen] = useState(false)

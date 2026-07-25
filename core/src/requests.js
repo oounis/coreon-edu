@@ -30,9 +30,10 @@ export const categoryOf = r => REQUEST_DEFS[r.type]?.group || 'Autre'
 const reqById = id => db().requests.find(r => r.id === id) || null
 
 /** ASSIGNER un travail : à qui, pour quand. Trace + notification à l'assigné. */
-export function assign(id, { assigneeId, assigneeName, deadline = null, byName }) {
+export function assign(id, { assigneeId, assigneeName, deadline = null, byName, byId, role }) {
   const r = reqById(id)
   if (!r) return { error: 'Demande introuvable.' }
+  if (role && !mayHandle(r, byId, role)) return { error: 'Seules la Direction, la RH ou l’Administration confient un travail.' }
   if (r.status !== 'approved') return { error: 'Seule une demande approuvée peut être assignée.' }
   if (!assigneeId) return { error: 'À qui confier ce travail ?' }
   mutate(d => {
@@ -50,9 +51,16 @@ export function assign(id, { assigneeId, assigneeName, deadline = null, byName }
  * CLÔTURER : l'assigné ou la direction ferme, avec un mot. Le retard est
  * constaté ici — l'échéance dépassée reste écrite, elle ne se retouche pas.
  */
-export function close(id, { byId, byName, note = '' }) {
+// QA FAT 2026-07-26 : assign/close n'avaient AUCUN contrôle de rôle — la garde
+// ne vivait qu'à l'écran. Le cœur décide : Direction, RH, Administration, ou
+// l'ASSIGNÉ lui-même. `role` est optionnel (compat) mais recommandé.
+const mayHandle = (r, byId, role) =>
+  !role || role === 'schooladmin' || role === 'hr' || role === 'admin' || r.assigneeId === byId
+
+export function close(id, { byId, byName, note = '', role } = {}) {
   const r = reqById(id)
   if (!r) return { error: 'Demande introuvable.' }
+  if (!mayHandle(r, byId, role)) return { error: 'Cette tâche ne vous est pas confiée.' }
   if (r.status !== 'approved') return { error: 'Seule une demande approuvée se clôture.' }
   const late = !!(r.deadline && todayIso() > r.deadline)
   mutate(d => {

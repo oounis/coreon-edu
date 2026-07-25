@@ -62,7 +62,7 @@ const ALL_NAV=[
   // Location des installations : les murs de l'école sont vides le soir et le
   // week-end. Une SECONDE ligne de revenus — qu'aucun ERP scolaire ne propose.
   { to:'/app/facilities', section:'vie', label:'Installations', icon:'Waves', module:'facilities', roles:['schooladmin','admin'] },
-  { to:'/app/pointage', section:'quotidien', pinned:['teacher','supervisor','security','admin'], label:'Mon pointage', icon:'Fingerprint', roles:['teacher','supervisor','security','admin'] },
+  { to:'/app/pointage', section:'quotidien', pinned:['teacher','supervisor','security','admin','hr','accountant'], label:'Mon pointage', icon:'Fingerprint', roles:['teacher','supervisor','security','admin','hr','accountant'] },
   { to:'/app/evaluate', section:'quotidien', pinned:['teacher'], label:'Évaluer', icon:'ClipboardCheck', roles:['teacher'] },
   // ── Petite enfance : le trou du marché. Aucun ERP scolaire généraliste n'a ça.
   // Le dossier de l'enfant : santé, personnes autorisées, jalons. Petite enfance
@@ -83,7 +83,7 @@ const ALL_NAV=[
   { to:'/app/transport', section:'vie', label:'Transport', icon:'Bus', roles:['schooladmin','admin','parent'] },
   { to:'/app/events', section:'vie', label:'Événements', icon:'CalendarDays', roles:['schooladmin','admin','teacher','supervisor','security','parent'] },
   { to:'/app/security', section:'quotidien', pinned:['security'], label:'Poste de sécurité', icon:'ShieldCheck', roles:['security','schooladmin','admin'] },
-  { to:'/app/social', section:'vie', label:'Espaces', icon:'Sparkles', roles:['parent','teacher','supervisor','security','schooladmin','admin'],
+  { to:'/app/social', section:'vie', label:'Espaces', icon:'Sparkles', roles:['parent','teacher','supervisor','security','schooladmin','admin','hr','accountant'],
     labelFor:{parent:'Espace parents',teacher:'Espace enseignants',supervisor:'Espace personnel',security:'Espace personnel'} },
   { to:'/app/incidents', section:'eleves', label:'Incidents', icon:'ShieldAlert', roles:['supervisor','security','admin','schooladmin'] },
   // Déclarations d'accident : la chaîne de confiance école ↔ parent. Deux paires
@@ -115,7 +115,7 @@ const ALL_NAV=[
     roles:['schooladmin','admin'] },
   { to:'/app/recruit', section:'equipe', label:'Recrutement', icon:'UserPlus', module:'recruit',
     roles:['schooladmin','hr'] },
-  { to:'/app/requests', section:'equipe', label:'Demandes', icon:'FileText', roles:['teacher','admin','schooladmin','hr'] },
+  { to:'/app/requests', section:'equipe', label:'Demandes', icon:'FileText', roles:['teacher','admin','schooladmin','hr','accountant','supervisor','security'] },
   { to:'/app/messages', section:'quotidien', label:'Messages', icon:'MessageSquare', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent','hr','accountant'] },
   { to:'/app/notices', section:'quotidien', label:'Annonces', icon:'Megaphone', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent','hr','accountant'] },
   // « Est-ce que ça s'intègre ? » est une QUESTION D'ACHAT dans toute école

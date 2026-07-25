@@ -25,7 +25,8 @@ export default function Login() {
   const go = () => {
     const u = login(email, pw)
     if (u && !u.disabled) nav('/app')
-    else setErr(u && u.disabled ? t('Ce compte a été désactivé. Contactez la direction.') : t('E-mail ou mot de passe incorrect.'))
+    else setErr(u?.suspended ? t('L’accès de cette école est suspendu. Contactez Kogia Group.')
+      : u && u.disabled ? t('Ce compte a été désactivé. Contactez la direction.') : t('E-mail ou mot de passe incorrect.'))
   }
   const quick = db().users
     .filter(u => ['schooladmin', 'admin', 'hr', 'accountant', 'teacher', 'supervisor', 'security', 'parent'].includes(u.role))

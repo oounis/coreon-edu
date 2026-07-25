@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { t } from '@core/i18n.js'
 import { db, mutate, uid } from '@core/db.js'
 import { current } from '@core/auth.js'
 import { ROLE } from '@core/theme.js'
@@ -21,7 +22,9 @@ import { isoOf } from '@core/clock.js'
 function staffList(d){
   return [
     ...d.teachers.map(t=>({id:t.id,name:t.name,sub:`${t.designation||'Enseignant'} · ${t.subject||''}`})),
-    ...d.users.filter(u=>['admin','supervisor'].includes(u.role)).map(u=>({id:u.id,name:u.name,sub:u.position||ROLE[u.role].label})),
+    // QA FAT 2026-07-26 : sécurité, RH et comptabilité n'existaient pas dans
+    // l'appel du personnel — un gardien sans présence RH officielle.
+    ...d.users.filter(u=>['admin','supervisor','security','hr','accountant'].includes(u.role)).map(u=>({id:u.id,name:u.name,sub:u.position||ROLE[u.role].label})),
   ]
 }
 // jours ouvrés (lun–ven) d'une plage
@@ -211,14 +214,17 @@ function LeavesTab({ d, staff, refresh }){
   // pouvait approuver les congés des enseignants — et surtout LE SIEN, déposé
   // depuis sa propre badgeuse. Deux verrous : le rôle, et « pas soi-même ».
   const me=current()
-  const isDirection=me.role==='schooladmin'
+  const isDirection=me.role==='schooladmin'||me.role==='hr'   // QA : la RH décide aussi (jamais le sien)
   const myStaffId=me.teacherId||me.id
   const canDecide=lv=> isDirection && lv.staffId!==myStaffId
+  const [deciding,setDeciding]=useState(null)   // QA : anti double-clic sur liste mouvante
 
   const decide=(lv,status)=>{
+    if(deciding) return                       // QA : la liste se recompacte sous le curseur
     if(!canDecide(lv)) return toast.error(lv.staffId===myStaffId
-      ? "Vous ne pouvez pas décider de votre propre congé"
-      : "Seule la Direction peut accorder un congé")
+      ? t("Vous ne pouvez pas décider de votre propre congé")
+      : t("Seule la Direction ou la RH peut accorder un congé"))
+    setDeciding(lv.id); setTimeout(()=>setDeciding(null),700)
     mutate(db=>{ const x=(db.staffLeaves||[]).find(y=>y.id===lv.id); if(x&&x.status==='pending'){ x.status=status; x.by=me.name } })
     if(status==='approved'&&lv.type!=='permission') applyLeave(lv)   // une permission de quelques heures ne remplit pas la journée
     notify({to:lv.staffId,kind:'info',actor:'Direction',title:status==='approved'?'Congé approuvé':'Congé refusé',
@@ -256,7 +262,7 @@ function LeavesTab({ d, staff, refresh }){
                 ? <><Btn size="sm" onClick={()=>decide(lv,'approved')}><Check size={14}/> Approuver</Btn>
                     <Btn size="sm" variant="danger" onClick={()=>decide(lv,'rejected')}><X size={14}/></Btn></>
                 : <span className="text-[12px] font-semibold text-muted text-right shrink-0">
-                    {lv.staffId===myStaffId ? 'Votre demande · \nla Direction décide' : 'Décision réservée\nà la Direction'}
+                    {lv.staffId===myStaffId ? 'Votre demande · \nla Direction décide' : t('Décision réservée à la Direction ou à la RH')}
                   </span>}
             </div>))}
         </SectionCard>

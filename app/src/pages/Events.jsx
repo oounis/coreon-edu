@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { current } from '@core/auth.js'
 import { weekStart } from '@core/locales.js'
+import { t } from '@core/i18n.js'
 import { db, mutate, uid } from '@core/db.js'
 import { notify } from '@core/notify.js'
 import { PageHead, Card, Btn, Modal, Field, Input, Select, Textarea, EmptyState, STATUS } from '../components/ui.jsx'
@@ -74,7 +75,7 @@ export default function Events(){
           </div>
         </div>
         <div className="grid grid-cols-7 text-center text-[12px] font-semibold text-muted mb-1">
-          {['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map(d=><div key={d} className="py-1">{d}</div>)}
+          {Array.from({length:7},(_,i)=>['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'][(weekStart()+i)%7]).map(d=><div key={d} className="py-1">{t(d)}</div>)}
         </div>
         <div className="grid grid-cols-7 gap-1">
           {days.map(day=>{

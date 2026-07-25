@@ -34,8 +34,16 @@ export default function Schools(){
   const add=()=>{
     if(!f.name.trim()||!f.director.trim()||!f.email.trim()) return toast.error('Nom, directeur et e-mail requis')
     const pw=Math.random().toString(36).slice(2,7)+Math.random().toString(36).slice(2,7)
-    mutate(db=>{ db.schools.push({id:uid('sc'),name:f.name.trim(),city:f.city,country:f.country||'TN',plan:f.plan,price:f.plan==='Pro'?149:79,
-      status:'trial',since:todayIso(),studentCount:0,director:f.director.trim(),email:f.email.trim()}) })
+    const email=f.email.trim().toLowerCase()
+    if(db().users.some(u=>(u.email||'').toLowerCase()===email)) return toast.error("Cet e-mail a déjà un compte.")
+    // QA FAT 2026-07-26 (REJET) : on AFFICHAIT un mot de passe provisoire sans
+    // créer le compte — l'école cliente ne pouvait jamais se connecter.
+    mutate(db=>{
+      const scid=uid('sc')
+      db.schools.push({id:scid,name:f.name.trim(),city:f.city,country:f.country||'TN',plan:f.plan,price:f.plan==='Pro'?149:79,
+        status:'trial',since:todayIso(),studentCount:0,director:f.director.trim(),email})
+      db.users.push({id:uid('u'),role:'schooladmin',name:f.director.trim(),email,pw,schoolId:scid})
+    })
     setCreds({email:f.email.trim(),pw,school:f.name.trim()})
     setOpen(false); setF(BLANK); force(x=>x+1)
   }
