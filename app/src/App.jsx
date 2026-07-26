@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import toast from 'react-hot-toast'
 import { current } from '@core/auth.js'
@@ -95,6 +95,10 @@ class Boundary extends Component {
   state = { error: null }
   static getDerivedStateFromError(error){ return { error } }
   componentDidCatch(error){ console.error('[boundary]', error) }
+  // ⚠️ QA 2026-07-26 : sans ce réarmement, la PREMIÈRE erreur gelait toute
+  // l'application — chaque page suivante restait l'écran d'excuse, sans que
+  // rien ne le dise. Une page fautive ne condamne plus les autres.
+  componentDidUpdate(prev){ if (this.state.error && prev.routeKey !== this.props.routeKey) this.setState({ error: null }) }
   render(){
     if (this.state.error) return (
       <div className="min-h-screen grid place-items-center bg-canvas p-6">
@@ -102,6 +106,12 @@ class Boundary extends Component {
       </div>)
     return this.props.children
   }
+}
+
+/** La clé de route : elle change à chaque navigation et réarme le boundary. */
+function RoutedBoundary({ children }){
+  const loc = useLocation()
+  return <Boundary routeKey={loc.pathname}>{children}</Boundary>
 }
 
 export default function App(){
@@ -114,7 +124,7 @@ export default function App(){
           chargement — la page était scannée pendant que ce squelette était
           encore à l'écran. Avec un rôle, le lecteur d'écran annonce enfin
           l'attente, et le contrôle d'accessibilité cesse d'être capricieux. */}
-      <Boundary>
+      <RoutedBoundary>
       <Suspense fallback={<div className="min-h-screen grid place-items-center"><div role="status" aria-live="polite" className="skeleton w-40 h-10" aria-label="Chargement…"/></div>}>
       <Routes>
         {/* La vitrine publique : une coquille partagée (en-tête + pied) et une
@@ -191,7 +201,7 @@ export default function App(){
         <Route path="*" element={<Navigate to={current() ? "/app" : "/"} replace/>}/>
       </Routes>
       </Suspense>
-      </Boundary>
+      </RoutedBoundary>
     </HashRouter>
   )
 }

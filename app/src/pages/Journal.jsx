@@ -22,7 +22,7 @@ import {
   entry, entriesOfDay, setMeal, startNap, endNap, addDiaper, setMood, setNote,
   sendToParents, isSent, isNapping, napMinutes, classSummary,
 } from '@core/journal.js'
-import { PageHead, Card, Btn, EmptyState, Avatar, STATUS } from '../components/ui.jsx'
+import { PageHead, Card, Btn, EmptyState, Avatar, STATUS, Modal } from '../components/ui.jsx'
 import { Ic } from '../icons.jsx'
 import toast from 'react-hot-toast'
 
