@@ -95,7 +95,7 @@ jobs:
     environment: { name: github-pages, url: "${{ steps.deployment.outputs.page_url }}" }
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
   # ── 4. APRÈS LA MISE EN LIGNE : le site réel répond-il ? ───────────────────
   # « Déployé » n'est pas « en ligne ». On vérifie l'adresse de production.
