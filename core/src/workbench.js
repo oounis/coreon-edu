@@ -55,19 +55,19 @@ export function decisionsFor(user) {
     add(aValider.length, {
       key: 'accident-valider', icon: 'HeartPulse', tone: 'danger', to: '/app/accidents',
       label: n_(aValider.length, 'déclaration d’accident à valider', 'déclarations d’accident à valider'),
-      sub: 'Deux paires d’yeux : un adulte a vu, vous contrôlez.',
+      sub: t('Deux paires d’yeux : un adulte a vu, vous contrôlez.'),
     })
     const aEnvoyer = acc.filter(a => a.stage === 'valide')
     add(aEnvoyer.length, {
       key: 'accident-envoyer', icon: 'Send', tone: 'danger', to: '/app/accidents',
       label: n_(aEnvoyer.length, 'accident validé à envoyer au parent', 'accidents validés à envoyer aux parents'),
-      sub: 'Le parent doit savoir avant la sortie des classes.',
+      sub: t('Le parent doit savoir avant la sortie des classes.'),
     })
     const aRelancer = acc.filter(a => a.stage === 'envoye' && (now() - a.sentAt) > ACK_LATE_HOURS * HOURS)
     add(aRelancer.length, {
       key: 'accident-relancer', icon: 'BellRing', tone: 'warn', to: '/app/accidents',
       label: n_(aRelancer.length, 'accusé de réception en retard', 'accusés de réception en retard'),
-      sub: 'Plus de 24 h sans signature du parent : relancer.',
+      sub: t('Plus de 24 h sans signature du parent : relancer.'),
     })
 
     // ── Les familles qui attendent une réponse ─────────────────────────────
@@ -76,32 +76,32 @@ export function decisionsFor(user) {
     add(nouvelles.length, {
       key: 'adm-nouvelles', icon: 'UserPlus', tone: 'info', to: '/app/admissions',
       label: n_(nouvelles.length, 'candidature reçue à ouvrir', 'candidatures reçues à ouvrir'),
-      sub: 'Déposées en ligne par les parents.',
+      sub: t('Déposées en ligne par les parents.'),
     })
     const completes = apps.filter(a => a.stage === 'pieces' && docsComplete(a))
     add(completes.length, {
       key: 'adm-completes', icon: 'FileCheck2', tone: 'info', to: '/app/admissions',
       label: n_(completes.length, 'dossier complet à passer à l’étude', 'dossiers complets à passer à l’étude'),
-      sub: 'Toutes les pièces obligatoires sont là.',
+      sub: t('Toutes les pièces obligatoires sont là.'),
     })
     const aTrancher = apps.filter(a => a.stage === 'examen')
     add(aTrancher.length, {
       key: 'adm-trancher', icon: 'Scale', tone: 'warn', to: '/app/admissions',
       label: n_(aTrancher.length, 'candidature à trancher', 'candidatures à trancher'),
-      sub: 'Accepter ou refuser · la famille attend.',
+      sub: t('Accepter ou refuser · la famille attend.'),
     })
     const aInscrire = apps.filter(a => a.stage === 'accepte')
     add(aInscrire.length, {
       key: 'adm-inscrire', icon: 'School', tone: 'info', to: '/app/admissions',
       label: n_(aInscrire.length, 'accepté à inscrire dans une classe', 'acceptés à inscrire dans une classe'),
-      sub: 'La capacité décide : le système ne promet pas une place qui n’existe pas.',
+      sub: t('La capacité décide : le système ne promet pas une place qui n’existe pas.'),
     })
     // Liste d'attente : ne remonte QUE si une place s'est réellement libérée.
     const attentePlace = apps.filter(a => a.stage === 'attente' && openClasses(a.level).some(c => c.free > 0))
     add(attentePlace.length, {
       key: 'adm-attente', icon: 'Hourglass', tone: 'warn', to: '/app/admissions',
       label: n_(attentePlace.length, 'famille en liste d’attente : une place s’est libérée', 'familles en liste d’attente : des places se sont libérées'),
-      sub: 'Premier arrivé, premier servi : la liste avance.',
+      sub: t('Premier arrivé, premier servi : la liste avance.'),
     })
 
     // ── L'équipe ────────────────────────────────────────────────────────────
@@ -110,27 +110,27 @@ export function decisionsFor(user) {
     add(conges.length, {
       key: 'hr-conges', icon: 'CalendarOff', tone: 'warn', to: '/app/hr',
       label: n_(conges.length, 'demande de congé à décider', 'demandes de congé à décider'),
-      sub: 'Un employé attend pour organiser sa vie.',
+      sub: t('Un employé attend pour organiser sa vie.'),
     })
     const demandes = (d.requests || []).filter(r =>
       r.status === 'pending' && r.chain[r.currentLevel] === role && r.by !== user.id)
     add(demandes.length, {
       key: 'req-viser', icon: 'FileText', tone: 'info', to: '/app/requests',
       label: n_(demandes.length, 'demande du personnel à viser', 'demandes du personnel à viser'),
-      sub: 'Le circuit de validation attend votre étape.',
+      sub: t('Le circuit de validation attend votre étape.'),
     })
     // Le travail qui suit la signature (requests.js) : assigner, puis surveiller.
     const aAssigner = (d.requests || []).filter(r => r.status === 'approved' && !r.assigneeId)
     add(aAssigner.length, {
       key: 'req-assigner', icon: 'UserCog', tone: 'info', to: '/app/requests',
       label: n_(aAssigner.length, 'demande approuvée à assigner', 'demandes approuvées à assigner'),
-      sub: 'Un travail sans responsable n’avance pas.',
+      sub: t('Un travail sans responsable n’avance pas.'),
     })
     const enRetard = (d.requests || []).filter(r => r.status === 'approved' && r.deadline && todayIso() > r.deadline)
     add(enRetard.length, {
       key: 'req-retard', icon: 'AlarmClock', tone: 'warn', to: '/app/requests',
       label: n_(enRetard.length, 'travail en retard sur son échéance', 'travaux en retard sur leur échéance'),
-      sub: 'L’échéance est passée : relancer, ou clôturer en le disant.',
+      sub: t('L’échéance est passée : relancer, ou clôturer en le disant.'),
     })
 
     // ── L'argent, en dernier — mais jamais oublié ───────────────────────────
@@ -140,7 +140,7 @@ export function decisionsFor(user) {
     add(versements, {
       key: 'fin-versements', icon: 'CreditCard', tone: 'info', to: '/app/finance',
       label: n_(versements, 'versement signalé par un parent : à confirmer', 'versements signalés par les parents : à confirmer'),
-      sub: 'Le parent ne se déclare jamais payé : vous confirmez après encaissement.',
+      sub: t('Le parent ne se déclare jamais payé : vous confirmez après encaissement.'),
     })
     payrolls().filter(p => p.stage !== 'paye').forEach(p => add(1, {
       key: 'hr-paie-' + p.month, icon: 'Banknote', tone: 'warn', to: '/app/hr',
@@ -161,14 +161,14 @@ export function decisionsFor(user) {
     add(aSigner.length, {
       key: 'parent-ack', icon: 'HeartPulse', tone: 'danger', to: '/app/accidents',
       label: n_(aSigner.length, 'déclaration d’accident à signer', 'déclarations d’accident à signer'),
-      sub: 'L’école attend votre accusé de réception.',
+      sub: t('L’école attend votre accusé de réception.'),
     })
     let retards = 0
     kids.forEach(k => (d.payments?.[k] || []).forEach(p => { if (p.status === 'overdue') retards++ }))
     add(retards, {
       key: 'parent-retards', icon: 'CreditCard', tone: 'warn', to: '/app/payments',
       label: n_(retards, 'mois de scolarité en retard', 'mois de scolarité en retard'),
-      sub: 'Signalez un versement : l’école confirmera.',
+      sub: t('Signalez un versement : l’école confirmera.'),
     })
   }
 

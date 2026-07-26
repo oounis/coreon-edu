@@ -18,6 +18,7 @@
 //     prédit rien qu'on ne saurait justifier.
 // ════════════════════════════════════════════════════════════════════════════
 import { db, attParts } from './db.js'
+import { t } from './i18n.js'
 import { traitOf } from './behavior.js'
 import { now, nowMs, ms } from './clock.js'
 
@@ -100,7 +101,7 @@ export function schoolInsights(d = db(), { days = 7 } = {}) {
       key: 'climat', icon: 'Sparkles',
       tone: bc.positiveRate >= 70 ? 'ok' : bc.positiveRate >= 45 ? 'info' : 'warn',
       value: `${bc.positiveRate}%`,
-      label: 'Climat de classe positif',
+      label: t('Climat de classe positif'),
       sub: `${bc.positives} encouragement${bc.positives > 1 ? 's' : ''} · ${bc.toImprove} rappel${bc.toImprove > 1 ? 's' : ''} cette semaine${tr ? ` · surtout « ${tr.label} »` : ''}`,
       to: '/app/behavior',
     })
@@ -119,7 +120,7 @@ export function schoolInsights(d = db(), { days = 7 } = {}) {
       key: 'presence', icon: 'CalendarCheck', tone,
       value: `${Math.round(at.current * 100)}%`,
       label: `Absentéisme ${dir}`,
-      sub: `Sur les ${days} derniers jours d'école`,
+      sub: `${t('Sur les')} ${days} ${t('derniers jours d’école')}`,
       to: '/app/attendance',
     })
   }
@@ -130,7 +131,7 @@ export function schoolInsights(d = db(), { days = 7 } = {}) {
       key: 'assiduite', icon: 'Stethoscope', tone: 'warn',
       value: String(at.watch.length),
       label: `Enfant${at.watch.length > 1 ? 's' : ''} à surveiller`,
-      sub: 'Absences répétées cette semaine : prendre des nouvelles',
+      sub: t('Absences répétées cette semaine : prendre des nouvelles'),
       to: '/app/attendance',
     })
   }
@@ -142,8 +143,8 @@ export function schoolInsights(d = db(), { days = 7 } = {}) {
       key: 'recouvrement', icon: 'Wallet',
       tone: fs.overdue > 0 ? 'warn' : 'ok',
       value: `${fs.rate}%`,
-      label: 'Recouvrement des frais',
-      sub: fs.overdue > 0 ? `${fs.overdue} mois en retard à relancer` : 'Tous les mois dus sont réglés',
+      label: t('Recouvrement des frais'),
+      sub: fs.overdue > 0 ? `${fs.overdue} ${t('mois en retard à relancer')}` : t('Tous les mois dus sont réglés'),
       to: '/app/finance',
     })
   }

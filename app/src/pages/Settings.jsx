@@ -9,6 +9,7 @@ import { OPTIONAL_MODULES, moduleActive, setModuleOverrides } from '@core/featur
 import { setCurrency } from '@core/currency.js'
 import { applyCurriculum } from '@core/academic.js'
 import { setLocalePack, PACK_LIST, PACKS, citiesOf, regionLabel } from '@core/locales.js'
+import { LOCALES } from '@core/i18n.js'
 import { t } from '@core/i18n.js'
 import { N, SERIES, BRAND } from '@core/tokens.js'
 import { Building2, Layers, Boxes, Globe, Palette, Database, Save, Check, Download, ShieldCheck, AlertTriangle } from 'lucide-react'
@@ -282,7 +283,7 @@ export default function Settings() {
           <div className="mt-4 space-y-1.5 text-sm">
             <div className="flex justify-between"><span className="text-muted">{t('Directeur')}</span><span className="font-medium">{f.director || '·'}</span></div>
             <div className="flex justify-between"><span className="text-muted">{t('Devise')}</span><span className="font-medium">{f.currency || 'DT'}</span></div>
-            <div className="flex justify-between"><span className="text-muted">{t('Langue')}</span><span className="font-medium">{f.locale === 'ar' ? 'العربية' : 'Français'}</span></div>
+            <div className="flex justify-between"><span className="text-muted">{t('Langue')}</span><span className="font-medium">{LOCALES[f.locale || 'fr']?.label || 'Français'}</span></div>
             <div className="flex justify-between"><span className="text-muted">{t('Niveaux')}</span><span className="font-medium">{f.levels.length}</span></div>
             <div className="flex justify-between"><span className="text-muted">{t('Modules optionnels')}</span><span className="font-medium">{activeMods} / {OPTIONAL_MODULES.length}</span></div>
           </div>
