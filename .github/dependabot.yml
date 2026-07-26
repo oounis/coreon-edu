@@ -1,0 +1,19 @@
+# Mises à jour de dépendances — gratuit, intégré à GitHub.
+# Groupées et mensuelles : on veut être à jour, pas noyés sous les PR.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /app
+    schedule: { interval: monthly }
+    open-pull-requests-limit: 5
+    groups:
+      tout: { patterns: ['*'] }
+  - package-ecosystem: npm
+    directory: /mobile
+    schedule: { interval: monthly }
+    open-pull-requests-limit: 3
+    groups:
+      tout: { patterns: ['*'] }
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: monthly }

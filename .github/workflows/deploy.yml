@@ -44,6 +44,11 @@ jobs:
         run: |
           npm ci --legacy-peer-deps --no-audit --no-fund
           npx oxlint
+      - name: Couverture des traductions (outil libre, docs/quality/i18n-audit.py)
+        run: |
+          python3 docs/quality/i18n-audit.py
+          # La barrière monte à mesure qu'on traduit : jamais en arrière.
+          python3 docs/quality/i18n-audit.py --gate 40
       - name: Audit des dépendances — CRITIQUE bloque, HAUTE avertit
         working-directory: app
         run: |

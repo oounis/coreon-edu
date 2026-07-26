@@ -1,0 +1,41 @@
+# ════════════════════════════════════════════════════════════════════════════
+# SÉCURITÉ & HYGIÈNE — entièrement avec des outils GRATUITS de GitHub.
+#   · CodeQL : l'analyse statique de sécurité de GitHub (gratuite, dépôt public)
+#   · Détection de secrets : un jeton commis ne repasse plus jamais (le jeton du
+#     worker mail avait vécu des semaines dans ce dépôt public)
+# Hebdomadaire + à chaque poussée sur les trois branches.
+# ════════════════════════════════════════════════════════════════════════════
+name: Sécurité (CodeQL & secrets)
+on:
+  push: { branches: [main, int, dev] }
+  schedule: [{ cron: '0 3 * * 1' }]     # lundi 03:00 UTC
+  workflow_dispatch:
+permissions: { contents: read, security-events: write, actions: read }
+
+jobs:
+  codeql:
+    name: CodeQL (JavaScript)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with: { languages: javascript-typescript, queries: security-and-quality }
+      - uses: github/codeql-action/analyze@v3
+
+  secrets:
+    name: Aucun secret dans le code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Motifs de secrets connus
+        run: |
+          set -e
+          # Jetons GitHub, clés AWS, jetons Bearer en dur, clés privées.
+          PAT='ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|Bearer [A-Za-z0-9]{32,}'
+          if grep -rInE "$PAT" --include='*.js' --include='*.jsx' --include='*.mjs' --include='*.json' --include='*.yml' \
+               --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=.git . ; then
+            echo "::error::Secret probable dans le code — le retirer ET le RÉVOQUER."
+            exit 1
+          fi
+          echo "✓ aucun motif de secret connu"
