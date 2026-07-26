@@ -22,6 +22,7 @@ import os
 OUT = os.path.join(os.path.dirname(__file__), 'Coreon-EDU_Product-Inventory.xlsx')
 AUDIT_DATE = '2026-07-25'
 FIX_REF = 'CORRIGÉ 2026-07-25 (6dcc445)'
+QA_REF = 'CORRIGÉ 2026-07-26 (FAT QA v1.4/v1.5)'
 
 # ── style ─────────────────────────────────────────────────────────────────────
 H_FILL = PatternFill('solid', fgColor='312E81')     # indigo profond
@@ -362,6 +363,67 @@ D = [
 ]
 ws = sheet(wb, 'Dettes & Décisions', 'DETTES STRUCTURELLES & DÉCISIONS À PRENDRE', 'Ce qui ne se corrige pas en un commit', ['Sujet','Constat','Voie','Priorité'], [30,52,40,14])
 fill(ws, D)
+
+# ═══ 11. FAT EXPLORATOIRE 2026-07-26 (5 rapports QA) ═════════════════════════
+FAT = [
+ ('REJET','Vérité UI','« Suspendre l\'école » ne coupait AUCUN accès (badge décoratif)', QA_REF),
+ ('REJET','Vérité UI','Le provisionnement affichait un mot de passe sans CRÉER le compte', QA_REF),
+ ('REJET','Vérité UI','Registre visiteurs : affichait « CPR », enregistrait « CIN »', QA_REF),
+ ('REJET','Vérité UI','Calendrier : en-têtes Lun–Dim sur une grille commençant dimanche', QA_REF),
+ ('REJET','Vérité UI','« Joignable : Oui » codé en dur, sans aucune sonde', QA_REF),
+ ('REJET','Argent','/app/finance CRASHAIT pour toute l\'école dès la 1re inscription réelle', QA_REF),
+ ('REJET','Argent','Annuler une facture PAYÉE faisait disparaître l\'encaissé des états', QA_REF),
+ ('REJET','Argent','money() : format français en anglais (12,345 lu « douze mille ») + décimales mixtes', QA_REF),
+ ('REJET','Argent','Arrondi au dinar entier : chaque remise % volait ~234 fils', QA_REF),
+ ('REJET','Légal','Inscription : « loi 2004-63 » (tunisienne) sous une case PDPL bahreïnie', QA_REF),
+ ('REJET','Légal','Certificats et documents signés « (INPDP) » — autorité tunisienne', QA_REF),
+ ('REJET','Données','Groupe sanguin « O+ » présélectionné ET ENREGISTRÉ (donnée médicale inventée)', QA_REF),
+ ('REJET','Fonctionnel','Une CRÈCHE ne pouvait inscrire personne (niveaux 1ère–6ème seulement)', QA_REF),
+ ('REJET','Fonctionnel','Formulaire élève : nom de 500 car., naissance 1900, tél « abc### » acceptés', QA_REF),
+ ('REJET','RTL','Arabe : téléphones affichés À L\'ENVERS (« 111 111 20 216+ »), chiffres brouillés', QA_REF),
+ ('REJET','Robustesse','Hors-ligne : chunk paresseux en échec = ÉCRAN BLANC muet', QA_REF),
+ ('REJET','Démo','8 élèves homonymes par classe (« Chaima Karoui » ×8) — graine non crédible', QA_REF),
+ ('MAJEUR','Fonctionnel','Appel : ré-enregistrer re-notifiait TOUS les parents', QA_REF),
+ ('MAJEUR','Parent','Mes paiements : AUCUN montant, aucune devise', QA_REF),
+ ('MAJEUR','Confirmations','Accident→parent, journal→parent, vider un jour de cantine : sans confirmation', QA_REF),
+ ('MAJEUR','Rôles','RH et Comptabilité privés de Demandes / Espaces / Pointage (CR-019 incomplet)', QA_REF),
+ ('MAJEUR','Rôles','RH ne pouvait pas décider un congé ; sécurité/RH/compta absents de l\'appel', QA_REF),
+ ('MAJEUR','Autorisation','requests.js : assign/close SANS contrôle de rôle (garde uniquement à l\'écran)', QA_REF),
+ ('MAJEUR','Honnêteté','Badge « EN DIRECT » sur une journée SIMULÉE montré au parent', QA_REF),
+ ('MAJEUR','Admissions','Refuser un enfant : 1 clic, sans confirmation ni motif (le recrutement, lui, exige un motif)', QA_REF),
+ ('MAJEUR','i18n','Toasts français derrière des boutons anglais (appel, moment, validation, envoi)', QA_REF),
+ ('OUVERT','Argent','Deux modèles d\'argent (factures vs grille mensuelle) peuvent se contredire','OUVERT — D5'),
+ ('OUVERT','Argent','Location et activités : encaissement sans reçu numéroté, hors comptabilité','OUVERT — D5'),
+ ('OUVERT','Sécurité','Journal d\'audit inexistant (qui a lu un dossier médical) — exigence PDPL','OUVERT — D6'),
+ ('OUVERT','i18n','~310 clés encore non traduites (EN 62 %, AR 63 %)','OUVERT — D4'),
+ ('OUVERT','Exploitation','Hébergement serveur inexistant : données dans le navigateur, mots de passe en clair','OUVERT — D9'),
+ ('OUVERT','Exploitation','Aucune supervision (Sentry/sonde) ni restauration de sauvegarde répétée','OUVERT — D9'),
+ ('OUVERT','Pays','TVA 10 % / facture NBR · GOSI-EOSB dans la paie · reporting MOE','OUVERT — D3'),
+ ('OUVERT','UX','Tuiles du tableau de bord n\'ouvrent pas toutes le détail ; pas d\'édition/archivage élève','OUVERT — D8'),
+]
+ws = sheet(wb, 'FAT 2026-07-26', 'FAT EXPLORATOIRE — 5 rapports QA (méthode « rejeter la livraison »)',
+           'Chaque ingénieur QA a piloté un vrai navigateur, école configurée BAHREÏN, en EN et AR. Les 5 ont voté REJET.',
+           ['Sévérité','Domaine','Constat','Statut'], [12,16,86,34])
+fill(ws, FAT, sev_col=1)
+
+# ═══ 12. NORME D'ACCEPTATION v1 ══════════════════════════════════════════════
+ACC = [
+ ('D1','Intégrité fonctionnelle','Aucun écran ne casse ; actions irréversibles confirmées ; aucune donnée inventée','core: npm test · e2e: npm run all · node e2e/fat.mjs','CONFORME','—'),
+ ('D2','Vérité de l\'interface','Ce que l\'écran affirme est VRAI (bouton, identifiant, état mesuré)','Revue FAT exploratoire par rôle','CONFORME','—'),
+ ('D3','Conformité pays','Semaine, devise, pièce, loi, urgences, fériés : du pack, jamais en dur','node e2e/diag.feries-pays.mjs · node e2e/fat.mjs','PARTIEL','TVA/NBR · GOSI-EOSB · reporting MOE'),
+ ('D4','Langue FR/EN/AR','Aucune phrase d\'une autre langue à l\'écran','python3 docs/quality/i18n-audit.py','PARTIEL','EN 62 % / AR 63 % → seuil client 95 %'),
+ ('D5','Intégrité de l\'argent','Rien ne disparaît ; arrondi au fils ; format par langue ; écritures confirmées','Tests cœur compta/paie + revue FAT argent','PARTIEL','Unifier les 2 modèles · reçus location/activités'),
+ ('D6','Sécurité & données','Pas de secret, pas d\'élévation, accès par rôle, consentement pays, audit','securite.yml (CodeQL+secrets) · server tests','PARTIEL','Journal d\'audit · sortir du mode démo'),
+ ('D7','Données du client','Entrée sans ressaisie, sortie libre','node e2e/diag.import.mjs · export OneRoster','CONFORME','(ZIP d\'export : confort)'),
+ ('D8','UX & accessibilité','Pas d\'écran blanc, états complets, RTL, clavier, contraste','e2e parcours.qualite (axe) · parcours.uiux (25 pages)','CONFORME','—'),
+ ('D9','Exploitation','3 environnements, tests bloquants, retour arrière, sauvegardes, supervision','deploy.yml + envs.yml','PARTIEL','HÉBERGEMENT SERVEUR · supervision · restauration testée'),
+ ('D10','Preuve & documentation','Tout ce qui est affirmé est mesurable et daté','Ce classeur + ACCEPTANCE-STANDARD-v1.md','CONFORME','—'),
+ ('','PRONONCÉ v1.5.0','PILOTE ACCOMPAGNÉ : oui — LIVRAISON AUTONOME : pas encore','','PILOTE','3 portes : D9 hébergement → D4 langue 95 % → D5/D3 argent & conformité'),
+]
+ws = sheet(wb, 'Norme d\'acceptation v1', 'NORME D\'ACCEPTATION PRODUIT v1 (2026-07-26)',
+           'Ce que « acceptable pour une école qui paie » veut dire — critère, mesure exécutable, état. Détail : docs/quality/ACCEPTANCE-STANDARD-v1.md',
+           ['#','Domaine','Critère','Comment on le mesure','État','Ce qui manque'], [6,26,52,44,12,50])
+fill(ws, ACC, sev_col=5)
 
 wb.save(OUT)
 print(f'OK → {OUT}')
