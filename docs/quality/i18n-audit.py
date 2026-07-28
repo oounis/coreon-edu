@@ -19,6 +19,11 @@ import re, sys, json, glob, os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 I18N = os.path.join(ROOT, 'core/src/i18n.js')
+# Un fichier par langue depuis 2026-07-28 : les dictionnaires sont des morceaux
+# chargés à la demande, plus des passagers du premier téléchargement.
+DICT_AR = os.path.join(ROOT, 'core/src/i18n.ar.js')
+DICT_EN = os.path.join(ROOT, 'core/src/i18n.en.js')
+DICTS = {os.path.basename(DICT_AR), os.path.basename(DICT_EN), 'i18n.js'}
 
 KEY_PATTERNS = [re.compile(r"\bt\(\s*'((?:[^'\\]|\\.)+)'\s*\)"),
                 re.compile(r'\bt\(\s*"((?:[^"\\]|\\.)+)"\s*\)')]
@@ -31,8 +36,8 @@ def used_keys():
              + glob.glob(os.path.join(ROOT, 'core/src/*.js'))
              + glob.glob(os.path.join(ROOT, 'mobile/src/**/*.js'), recursive=True))
     for f in files:
-        if f.endswith('i18n.js'):
-            continue
+        if os.path.basename(f) in DICTS:      # la mécanique et les dictionnaires
+            continue                          # ne sont pas des appelants
         src = open(f, encoding='utf-8').read()
         for pat in KEY_PATTERNS:
             for m in pat.finditer(src):
@@ -41,18 +46,22 @@ def used_keys():
     return keys
 
 def dict_keys():
-    """Les clés présentes dans chaque dictionnaire (AR puis EN)."""
-    src = open(I18N, encoding='utf-8').read()
-    cut = src.find('export const EN = {')
-    if cut < 0:
-        raise SystemExit('i18n.js : bloc EN introuvable')
-    def parse(block):
+    """Les clés présentes dans chaque dictionnaire.
+
+    Depuis 2026-07-28 chaque langue est un FICHIER à part (i18n.ar.js /
+    i18n.en.js), chargé dynamiquement : `i18n.js` ne porte plus que la
+    mécanique. L'outil lit donc un fichier par langue.
+    """
+    def parse(path):
+        if not os.path.exists(path):
+            raise SystemExit(f'dictionnaire introuvable : {path}')
+        src = open(path, encoding='utf-8').read()
         out = set()
         for pat in (r"^\s*'((?:[^'\\]|\\.)+)'\s*:", r'^\s*"((?:[^"\\]|\\.)+)"\s*:'):
-            for m in re.finditer(pat, block, re.M):
+            for m in re.finditer(pat, src, re.M):
                 out.add(m.group(1).replace("\\'", "'").replace('\\"', '"'))
         return out
-    return {'ar': parse(src[:cut]), 'en': parse(src[cut:])}
+    return {'ar': parse(DICT_AR), 'en': parse(DICT_EN)}
 
 def main():
     args = sys.argv[1:]

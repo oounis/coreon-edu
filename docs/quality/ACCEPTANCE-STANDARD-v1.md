@@ -47,6 +47,13 @@ et l'état au 2026-07-26 (après les 5 rapports FAT exploratoires et 6 vagues de
 **État : 🟡 partiel — EN 62 % · AR 63 %** (823 clés). L'écorce, le tableau de bord, les réglages, les élèves, les comptes, l'import, la connexion et le parcours parent sont traduits. Restent ~310 clés : poste de sécurité, vitrine publique, quelques écrans métier.
 **Règle posée :** la barrière CI ne redescend jamais (40 → 60 % ce jour).
 **Seuil d'acceptation client : 95 % EN et AR.**
+**⚠️ Leçon du 2026-07-28 — traduire ne doit RIEN peser aux autres langues.** Le lot 2
+a fait échouer la livraison v1.5.0 sur la barrière de poids (452 KB gzip pour 450 de
+budget) : les dictionnaires vivaient dans `i18n.js`, que tout le produit importe pour
+`t()`, donc une visiteuse **française** téléchargeait l'arabe ET l'anglais. Chaque
+langue est désormais un morceau à part (`i18n.ar.js`, `i18n.en.js`) chargé
+dynamiquement, et seulement celle que l'appareil lit — première visite 452 → 426 KB.
+La marche vers 95 % (≈310 clés) ne peut donc plus rebloquer une livraison.
 
 ### D5 · Intégrité de l'argent
 **Critère.** Aucun encaissement ne disparaît ; arrondi au fils ; un montant s'affiche dans la langue du lecteur ; toute écriture d'argent est confirmée et tracée.
@@ -133,3 +140,4 @@ SERVI** (`curl` sur un marqueur de la livraison). « Fusionné » n'est pas « e
 | Date | Version | Prononcé | Par |
 |---|---|---|---|
 | 2026-07-26 | v1.5.0 | Pilote accompagné ✅ · livraison autonome ❌ (D3/D4/D5/D6/D9 en réserve) | Kogia Group |
+| 2026-07-28 | v1.5.1 | **v1.5.0 n'était jamais montée en ligne** — sa chaîne `main` avait échoué sur la barrière de poids et le déploiement fut *sauté*, la production restant à v1.4.1 pendant deux jours. Rappel de la règle §4 : « fusionné » n'est pas « en ligne », et un tag n'est pas une preuve — **seul le bundle SERVI l'est.** | Kogia Group |

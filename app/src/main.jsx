@@ -39,7 +39,7 @@ import '@fontsource-variable/plus-jakarta-sans'
 import '@fontsource/tajawal/400.css'
 import '@fontsource/tajawal/500.css'
 import '@fontsource/tajawal/700.css'
-import { locale, dir, setLocale } from '@core/i18n.js'
+import { locale, dir, setLocale, loadDict } from '@core/i18n.js'
 import { settings } from '@core/db.js'
 import { setCurrency } from '@core/currency.js'
 import { setLocalePack } from '@core/locales.js'
@@ -69,5 +69,12 @@ if (getItem('coreon_locale') == null && _school.locale) setLocale(_school.locale
 // de lecture se posent sur <html> avant le premier rendu.
 document.documentElement.lang = locale()
 document.documentElement.dir = dir()
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>{isRemote() ? <RemoteGate/> : <App/>}</React.StrictMode>)
+// Le DICTIONNAIRE de la langue lue est un morceau à part (i18n.ar.js /
+// i18n.en.js) : une visiteuse française ne télécharge plus l'arabe ni l'anglais.
+// On l'attend AVANT le premier rendu — sinon l'écran s'afficherait un instant en
+// français puis basculerait sous les yeux. Le français, lui, n'attend rien
+// (il EST la clé) ; et si le morceau manque, `t()` retombe sur le français.
+loadDict().then(() => {
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    <React.StrictMode>{isRemote() ? <RemoteGate/> : <App/>}</React.StrictMode>)
+})

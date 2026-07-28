@@ -281,7 +281,12 @@ test('demandes : catégorie → assigné → échéance → clôture, tout est t
 })
 
 // ── L'arabe n'est pas une traduction, c'est une direction (i18n.js) ──────────
-import { t, setLocale, locale, dir, LOCALES, AR, EN } from '../src/i18n.js'
+import { t, setLocale, locale, dir, LOCALES, registerDict } from '../src/i18n.js'
+// Les dictionnaires sont des morceaux à part depuis 2026-07-28 (poids du bundle) :
+// le test les prend directement et les POSE, sans passer par import() dynamique.
+import AR from '../src/i18n.ar.js'
+import EN from '../src/i18n.en.js'
+registerDict('ar', AR); registerDict('en', EN)
 import { NAV, SECTIONS } from '../src/nav.js'
 import { LEVELS, CYCLES } from '../src/levels.js'
 
