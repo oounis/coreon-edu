@@ -310,7 +310,7 @@ function VisitorsTab({ u, d, refresh }) {
       <div className="grid sm:grid-cols-2 gap-3">
         <Field label={t('Nom & prénom *')}><Input value={f.name} onChange={e => setF({ ...f, name: e.target.value })} placeholder="Nizar Ben Amor" /></Field>
         <Field label={t('Société / organisme')}><Input value={f.org} onChange={e => setF({ ...f, org: e.target.value })} placeholder="Papeterie El Amel" /></Field>
-        <Field label={t("Pièce d'identité")}><Select value={f.idType} onChange={e => setF({ ...f, idType: e.target.value })}>{ID_TYPES.map(t => <option key={t}>{t}</option>)}</Select></Field>
+        <Field label={t("Pièce d'identité")}><Select value={f.idType} onChange={e => setF({ ...f, idType: e.target.value })}>{ID_TYPES.map(v => <option key={v}>{v}</option>)}</Select></Field>
         <Field label={t('Numéro *')} hint={t('Enregistré, jamais affiché en entier.')}><Input value={f.idNumber} onChange={e => setF({ ...f, idNumber: e.target.value })} placeholder="0912xxxx" /></Field>
         <Field label={t('Motif de la visite')}><Select value={f.purpose} onChange={e => setF({ ...f, purpose: e.target.value })}>{PURPOSES.map(p => <option key={p}>{p}</option>)}</Select></Field>
         <Field label={t('Personne visitée *')}><Input value={f.hostName} onChange={e => setF({ ...f, hostName: e.target.value })} placeholder="Hela Morjane" /></Field>

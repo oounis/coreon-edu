@@ -31,8 +31,8 @@ export default function CommandPalette({ open, onClose, user }){
     const canTeachers=['schooladmin','admin'].includes(user.role)
     if(query&&canStudents) d.students.filter(s=>s.name.toLowerCase().includes(query)).slice(0,5)
       .forEach(s=>out.push({group:'Élèves',label:s.name,sub:classById(s.classId)?.name,seed:s.id,run:()=>navigate('/app/students',{state:{openStudent:s.id}})}))
-    if(query&&canTeachers) d.teachers.filter(t=>t.name.toLowerCase().includes(query)||(t.subject||'').toLowerCase().includes(query)).slice(0,3)
-      .forEach(t=>out.push({group:'Enseignants',label:t.name,sub:t.subject,seed:t.id,run:()=>navigate('/app/teachers',{state:{openTeacher:t.id}})}))
+    if(query&&canTeachers) d.teachers.filter(v=>v.name.toLowerCase().includes(query)||(v.subject||'').toLowerCase().includes(query)).slice(0,3)
+      .forEach(v=>out.push({group:'Enseignants',label:v.name,sub:v.subject,seed:v.id,run:()=>navigate('/app/teachers',{state:{openTeacher:v.id}})}))
     return out
   },[query,user.role,open]) // eslint-disable-line
 
@@ -73,7 +73,7 @@ export default function CommandPalette({ open, onClose, user }){
           <div className="flex items-center gap-3 px-4 py-2.5 border-t border-line text-[12px] text-muted shrink-0">
             <span className="flex items-center gap-1"><Kbd>↑</Kbd><Kbd>↓</Kbd> naviguer</span>
             <span className="flex items-center gap-1"><Kbd>↵</Kbd> ouvrir</span>
-            <span className="flex items-center gap-1 ml-auto"><Kbd>Ctrl</Kbd><Kbd>K</Kbd> depuis n'importe où</span>
+            <span className="flex items-center gap-1 ml-auto"><Kbd>Ctrl</Kbd><Kbd>K</Kbd> {t("depuis n'importe où")}</span>
           </div>
         </Dialog.Panel>
       </div>

@@ -100,7 +100,7 @@ function BellMenu({ user }){
   // détection en direct : toute nouvelle notification déclenche un toast cliquable
   const seen=useRef(unread)
   useEffect(()=>{
-    const t=setInterval(()=>{
+    const setInterval2=setInterval(()=>{
       const u2=unreadFor(user)
       if(u2>seen.current){
         const latest=inboxFor(user).find(n=>!n.read)
@@ -112,7 +112,7 @@ function BellMenu({ user }){
       }
       seen.current=u2; force(x=>x+1)
     },15000)
-    return ()=>clearInterval(t)
+    return ()=>clearInterval(setInterval2)
   },[user])
   return (
     <Menu as="div" className="relative">
@@ -127,7 +127,7 @@ function BellMenu({ user }){
           {list.length? list.map(n=><Menu.Item key={n.id}>{()=> <NotifRow n={n} compact onClick={()=>openN(n)}/>}</Menu.Item>)
            : <div className="px-3 py-8 text-center text-sm text-muted">{t('Aucune notification')}</div>}
         </div>
-        <Menu.Item>{()=> <button onClick={()=>nav('/app/notifications')} className="w-full text-center text-sm font-semibold accent-text py-3 border-t border-line">Voir toutes les notifications</button>}</Menu.Item>
+        <Menu.Item>{()=> <button onClick={()=>nav('/app/notifications')} className="w-full text-center text-sm font-semibold accent-text py-3 border-t border-line">{t('Voir toutes les notifications')}</button>}</Menu.Item>
       </Menu.Items>
     </Menu>
   )

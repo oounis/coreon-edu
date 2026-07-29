@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
+import { t } from '@core/i18n.js'
 import { DndContext, DragOverlay, PointerSensor, KeyboardSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core'
 import { Clock, ChevronRight, ChevronLeft, Check, Zap, RotateCcw, Users, MapPin, CalendarDays } from 'lucide-react'
 import { StudentChip, DropZone, dndAnnouncements } from '../components/dnd.jsx'
@@ -81,15 +82,15 @@ export default function Evaluate(){
 
   /* ---------- 0) MODE ÉTÉ : pas de classe, pas d'évaluation ---------- */
   if(isSummer()) return (<>
-    <PageHead title="Évaluation rapide" sub="Le cœur de Coreon Edu : en pause estivale."/>
+    <PageHead title={t('Évaluation rapide')} sub={t('Le cœur de Coreon Edu : en pause estivale.')}/>
     <SummerFreeze feature="L'évaluation en classe" detail="Il n'y a pas de séances à évaluer pendant les vacances : votre emploi du temps redémarrera automatiquement avec la nouvelle année scolaire.">
-      <Btn variant="soft" onClick={()=>{location.hash='#/app/students'}}>Revoir mes élèves</Btn>
+      <Btn variant="soft" onClick={()=>{location.hash='#/app/students'}}>{t('Revoir mes élèves')}</Btn>
     </SummerFreeze>
   </>)
 
   /* ---------- 1) SCHEDULE PICKER (entry screen) ---------- */
   if(!slot) return (<>
-    <PageHead title="Mon emploi du temps" sub="Choisissez la classe à évaluer : la séance en cours est mise en avant. Les élèves se chargent automatiquement."/>
+    <PageHead title={t('Mon emploi du temps')} sub={t('Choisissez la classe à évaluer : la séance en cours est mise en avant. Les élèves se chargent automatiquement.')}/>
     <div className="flex items-center gap-2 text-sm text-muted mb-4"><CalendarDays size={16} className="accent-text"/> {format(now(),'EEEE d MMMM yyyy',{locale: df()})}</div>
     <div className="grid sm:grid-cols-2 gap-4">
       {sched.map((s,i)=>(
@@ -99,10 +100,10 @@ export default function Evaluate(){
           <div className="text-xl font-extrabold mt-2">{s.cls.name} <span className="text-muted text-base font-medium"> {s.subject}</span></div>
           <div className="text-sm text-muted">{s.cls.grade}</div>
           <div className="flex items-center gap-4 mt-3 text-sm text-muted">
-            <span className="flex items-center gap-1"><Users size={14}/> {s.students.length} élèves</span>
+            <span className="flex items-center gap-1"><Users size={14}/> {s.students.length} {t('élèves')}</span>
             {s.room && <span className="flex items-center gap-1"><MapPin size={14}/> {s.room}</span>}
           </div>
-          <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold accent-text">Évaluer cette classe <ChevronRight size={15}/></div>
+          <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold accent-text">{t('Évaluer cette classe')} <ChevronRight size={15}/></div>
         </button>
       ))}
     </div>
@@ -116,12 +117,12 @@ export default function Evaluate(){
       <div className="text-center">
         <div className="w-14 h-14 rounded-2xl grid place-items-center mx-auto accent-soft accent-text" aria-hidden="true"><Ic n="ClipboardCheck" size={26}/></div>
         <div className="w-12 h-12 -mt-3 rounded-full grid place-items-center text-white mx-auto accent-bg pop relative"><Check size={24}/></div>
-        <h1 className="text-2xl font-extrabold mt-3">Enregistré & partagé</h1>
-        <p className="text-muted mt-1">{cls.cls.name} · {cls.slot.subject} · {saved.length} élèves notés. Parents et direction notifiés.</p>
+        <h1 className="text-2xl font-extrabold mt-3">{t('Enregistré & partagé')}</h1>
+        <p className="text-muted mt-1">{cls.cls.name} · {cls.slot.subject} · {saved.length} {t('élèves notés. Parents et direction notifiés.')}</p>
       </div>
       {saved.length>0 && (
         <div className="card p-4 mt-6 text-left">
-          <div className="text-xs font-bold uppercase accent-text mb-2">Notes enregistrées</div>
+          <div className="text-xs font-bold uppercase accent-text mb-2">{t('Notes enregistrées')}</div>
           <div className="divide-y divide-line">
             {saved.map((s,i)=>(<div key={i} className="flex items-center justify-between py-2 text-sm">
               <span className="font-medium inline-flex items-center gap-1.5">{s.name} {s.badge&&<span className="accent-text" title={s.badge.label}><Ic n={s.badge.icon} size={14}/></span>}</span>
@@ -131,7 +132,7 @@ export default function Evaluate(){
         </div>
       )}
       <div className="card p-4 mt-4 text-left">
-        <div className="text-xs font-bold uppercase text-muted mb-2">Historique de la classe · {classHistory.length} évaluation(s) enregistrée(s)</div>
+        <div className="text-xs font-bold uppercase text-muted mb-2">{t('Historique de la classe ·')} {classHistory.length} {t('évaluation(s) enregistrée(s)')}</div>
         <div className="space-y-1.5">
           {classHistory.slice(0,6).map(e=>(<div key={e.id} className="flex items-center justify-between text-sm">
             <span>{e.subject}</span>
@@ -140,23 +141,23 @@ export default function Evaluate(){
         </div>
       </div>
       <div className="flex items-center justify-center gap-3 mt-6">
-        <Btn variant="ghost" onClick={backToSchedule}><ChevronLeft size={16}/> Emploi du temps</Btn>
-        <Btn onClick={reset}>Nouvelle évaluation · cette classe</Btn>
+        <Btn variant="ghost" onClick={backToSchedule}><ChevronLeft size={16}/> {t('Emploi du temps')}</Btn>
+        <Btn onClick={reset}>{t('Nouvelle évaluation · cette classe')}</Btn>
       </div>
     </div>)
 
   /* ---------- 2) EVALUATION ---------- */
   return (<>
-    <PageHead title="Évaluation rapide" sub="Glissez chaque élève sur une réponse. Cinq questions, en quelques secondes."/>
+    <PageHead title={t('Évaluation rapide')} sub={t('Glissez chaque élève sur une réponse. Cinq questions, en quelques secondes.')}/>
     <div className="card p-4 mb-5 flex items-center justify-between flex-wrap gap-3">
       <div className="flex items-center gap-3"><span className="w-11 h-11 rounded-xl grid place-items-center accent-soft accent-text"><Clock size={20}/></span>
         <div><div className="font-semibold">{cls.cls.name} · {cls.slot.subject} <span className="text-muted font-normal"> {cls.cls.grade}</span></div>
-          <div className="text-sm text-muted">{cls.slot.start}–{cls.slot.end} · {students.length} élèves {cls.isLive&&<span className="ml-1 text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{background:STATUS.ok}}>● EN COURS</span>}</div></div></div>
+          <div className="text-sm text-muted">{cls.slot.start}–{cls.slot.end} · {students.length} {t('élèves')} {cls.isLive&&<span className="ml-1 text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{background:STATUS.ok}}>● EN COURS</span>}</div></div></div>
       <div className="flex items-center gap-2">
         <input value={lesson} onChange={e=>setLesson(e.target.value)} maxLength={40}
-          placeholder="Leçon du jour (ex. Les fractions)" aria-label="Leçon du jour"
+          placeholder={t('Leçon du jour (ex. Les fractions)')} aria-label={t('Leçon du jour')}
           className="rounded-xl border border-line bg-white px-3 py-2 text-sm accent-ring w-56"/>
-        <button onClick={backToSchedule} className="text-sm accent-text font-semibold inline-flex items-center gap-1 hover:underline"><ChevronLeft size={15}/> Emploi du temps</button>
+        <button onClick={backToSchedule} className="text-sm accent-text font-semibold inline-flex items-center gap-1 hover:underline"><ChevronLeft size={15}/> {t('Emploi du temps')}</button>
       </div>
     </div>
     <div className="flex items-center gap-1.5 mb-4">{QUESTIONS.map((_,i)=><div key={i} className="h-1.5 flex-1 rounded-full" style={{background:i<=step?'var(--accent)':STATUS.neutralSoft}}/>)}<div className="h-1.5 flex-1 rounded-full" style={{background:step>=5?'var(--accent)':STATUS.neutralSoft}}/></div>
@@ -164,13 +165,13 @@ export default function Evaluate(){
     {step<5 ? (
       <DndContext sensors={sensors} accessibility={{announcements:dndAnnouncements(BUCKETS)}} collisionDetection={closestCenter} onDragStart={({active})=>setActive(active.data.current.student)} onDragEnd={onDragEnd} onDragCancel={()=>setActive(null)}>
         <div className="flex items-center justify-between mb-3">
-          <div><div className="text-xs font-bold uppercase accent-text">Question {step+1} sur 5</div><h2 className="text-xl font-bold">{q.text}</h2></div>
-          <div className="text-sm text-muted">{Object.keys(place).length}/{students.length} placés</div>
+          <div><div className="text-xs font-bold uppercase accent-text">Question {step+1} {t('sur 5')}</div><h2 className="text-xl font-bold">{q.text}</h2></div>
+          <div className="text-sm text-muted">{Object.keys(place).length}/{students.length} {t('placés')}</div>
         </div>
-        <p className="sr-only">Glissez chaque élève vers une réponse. Au clavier : tabulez jusqu'à un élève, appuyez sur espace pour le saisir, utilisez les flèches pour choisir une réponse, puis espace pour le déposer.</p>
-        <DropZone id="pool" label="Élèves à placer" className="card border-dashed p-3 mb-4 min-h-[64px]">
-          <div className="flex flex-wrap gap-2">{pool.length? pool.map(s=><StudentChip key={s.id} student={s}/>) : <span className="text-sm text-muted px-2 py-1 inline-flex items-center gap-1"><Check size={14}/> Tous placés</span>}</div>
-          {pool.length>0&&<div className="flex gap-2 mt-2 flex-wrap"><span className="text-xs text-muted py-1">Rapide :</span>{BUCKETS.map(b=><button key={b.key} onClick={()=>autoFill(b.key)} className="text-xs px-2 py-1 rounded-full border border-line hover:bg-canvas">tous → {b.label}</button>)}</div>}
+        <p className="sr-only">{t("Glissez chaque élève vers une réponse. Au clavier : tabulez jusqu'à un élève, appuyez sur espace pour le saisir, utilisez les flèches pour choisir une réponse, puis espace pour le déposer.")}</p>
+        <DropZone id="pool" label={t('Élèves à placer')} className="card border-dashed p-3 mb-4 min-h-[64px]">
+          <div className="flex flex-wrap gap-2">{pool.length? pool.map(s=><StudentChip key={s.id} student={s}/>) : <span className="text-sm text-muted px-2 py-1 inline-flex items-center gap-1"><Check size={14}/> {t('Tous placés')}</span>}</div>
+          {pool.length>0&&<div className="flex gap-2 mt-2 flex-wrap"><span className="text-xs text-muted py-1">Rapide :</span>{BUCKETS.map(b=><button key={b.key} onClick={()=>autoFill(b.key)} className="text-xs px-2 py-1 rounded-full border border-line hover:bg-canvas">{t('tous →')} {b.label}</button>)}</div>}
         </DropZone>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {BUCKETS.map(b=>{ const inB=students.filter(s=>place[s.id]===b.key); return (
@@ -182,17 +183,17 @@ export default function Evaluate(){
         </div>
         <div className="flex items-center justify-between mt-6">
           <Btn variant="ghost" onClick={()=>step>0&&setStep(step-1)} disabled={step===0}><ChevronLeft size={16}/> Retour</Btn>
-          <button onClick={()=>setPlacements(p=>({...p,[q.id]:{}}))} className="text-sm text-muted hover:text-ink inline-flex items-center gap-1"><RotateCcw size={14}/> réinitialiser</button>
+          <button onClick={()=>setPlacements(p=>({...p,[q.id]:{}}))} className="text-sm text-muted hover:text-ink inline-flex items-center gap-1"><RotateCcw size={14}/> {t('réinitialiser')}</button>
           <Btn onClick={()=>setStep(step+1)}>{step<4?'Suivant':'Badges & note'} <ChevronRight size={16}/></Btn>
         </div>
         <DragOverlay>{active? <StudentChip student={active} overlay/> : null}</DragOverlay>
       </DndContext>
     ) : (
       <div>
-        <h2 className="text-xl font-bold mb-1">Badges & une note rapide</h2>
-        <p className="text-muted text-sm mb-4">Facultatif : touchez un élève, puis un badge.</p>
+        <h2 className="text-xl font-bold mb-1">{t('Badges & une note rapide')}</h2>
+        <p className="text-muted text-sm mb-4">{t('Facultatif : touchez un élève, puis un badge.')}</p>
         <BadgePicker students={students} badges={badges} setBadges={setBadges}/>
-        <Textarea value={note} onChange={e=>setNote(e.target.value)} placeholder="Note facultative pour les parents / l'administration…" className="mt-4 h-24"/>
+        <Textarea value={note} onChange={e=>setNote(e.target.value)} placeholder={t("Note facultative pour les parents / l'administration…")} className="mt-4 h-24"/>
         <div className="flex items-center justify-between mt-6"><Btn variant="ghost" onClick={()=>setStep(4)}><ChevronLeft size={16}/> Retour</Btn><Btn onClick={submit} disabled={saving}><Zap size={17}/> {saving?'Enregistrement…':'Enregistrer & partager'}</Btn></div>
       </div>
     )}

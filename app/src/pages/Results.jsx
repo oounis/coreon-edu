@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { t } from '@core/i18n.js'
 import { N } from '@core/tokens.js'
 import { db, classById } from '@core/db.js'
 import { BUCKETS } from '@core/data.js'
@@ -88,22 +89,22 @@ export default function Results(){
   const rows=ranked.filter(x=>!query||x.s.name.toLowerCase().includes(query))
 
   return (<>
-    <PageHead title="Suivi des élèves" sub="Toutes les évaluations, les élèves à féliciter et ceux à accompagner."
+    <PageHead title={t('Suivi des élèves')} sub={t('Toutes les évaluations, les élèves à féliciter et ceux à accompagner.')}
       action={<div className="flex items-center gap-2 flex-wrap">
-        <Chip active={classId==='all'} onClick={()=>setClassId('all')}>Toutes les classes</Chip>
+        <Chip active={classId==='all'} onClick={()=>setClassId('all')}>{t('Toutes les classes')}</Chip>
         {d.classes.map(c=><Chip key={c.id} active={classId===c.id} onClick={()=>setClassId(c.id)}>{c.name}</Chip>)}
       </div>}/>
     <div className="mb-5"><Tabs tabs={PERIODS} value={period} onChange={setPeriod}/></div>
 
     {data.evals.length===0 ? (
-      <SectionCard headless><EmptyState icon={<BarChart3 size={26}/>} title="Aucune évaluation sur cette période"
-        sub="Élargissez la période ou choisissez une autre classe."/></SectionCard>
+      <SectionCard headless><EmptyState icon={<BarChart3 size={26}/>} title={t('Aucune évaluation sur cette période')}
+        sub={t('Élargissez la période ou choisissez une autre classe.')}/></SectionCard>
     ) : (<>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-        <StatCard tint="brand"  icon={<ClipboardCheck size={20}/>} value={data.evals.length} label="Évaluations" onClick={()=>setTile('evals')}/>
-        <StatCard tint="mint"   icon={<Gauge size={20}/>}          value={data.overall!=null?`${data.overall}/100`:'·'} label="Moyenne générale" onClick={()=>setTile('overall')}/>
-        <StatCard tint="sky"    icon={<Users size={20}/>}          value={data.students.length} label="Élèves évalués" onClick={()=>setTile('students')}/>
-        <StatCard tint="coral"  icon={<LifeBuoy size={20}/>}       value={struggling} label="En difficulté" sub="moy. < 40" onClick={()=>setTile('struggling')}/>
+        <StatCard tint="brand"  icon={<ClipboardCheck size={20}/>} value={data.evals.length} label={t('Évaluations')} onClick={()=>setTile('evals')}/>
+        <StatCard tint="mint"   icon={<Gauge size={20}/>}          value={data.overall!=null?`${data.overall}/100`:'·'} label={t('Moyenne générale')} onClick={()=>setTile('overall')}/>
+        <StatCard tint="sky"    icon={<Users size={20}/>}          value={data.students.length} label={t('Élèves évalués')} onClick={()=>setTile('students')}/>
+        <StatCard tint="coral"  icon={<LifeBuoy size={20}/>}       value={struggling} label={t('En difficulté')} sub="moy. < 40" onClick={()=>setTile('struggling')}/>
       </div>
 
       {tile && (()=>{ const openStudent=s=>{ setTile(null); setView(s) }
@@ -116,43 +117,43 @@ export default function Results(){
                 <div key={e.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-semibold truncate">{e.subject}{e.lesson?` · ${e.lesson}`:''}</span>
-                    <span className="block text-[12px] text-muted">{classById(e.classId)?.name} · {format(new Date(e.at),'EEEE d MMMM',{locale: df()})} · {e.scores.length} élèves</span></span>
+                    <span className="block text-[12px] text-muted">{classById(e.classId)?.name} · {format(new Date(e.at),'EEEE d MMMM',{locale: df()})} · {e.scores.length} {t('élèves')}</span></span>
                   <span className="text-sm font-extrabold" style={{color:m.color}}>{e.avg}/100</span>
                 </div>)})}
             </div>)},
           overall:{ title:'Moyenne générale · le détail', body:(<>
             <div className="flex items-end gap-4 mb-4">
               <span className="text-4xl font-extrabold" style={{color:mentionFor(data.overall).color}}>{data.overall}/100</span>
-              <span className="text-sm text-muted pb-1">{data.evals.length} évaluations · {data.students.length} élèves</span>
+              <span className="text-sm text-muted pb-1">{data.evals.length} {t('évaluations ·')} {data.students.length} {t('élèves')}</span>
             </div>
-            <div className="text-xs font-bold uppercase tracking-wide text-muted mb-2">Par classe</div>
+            <div className="text-xs font-bold uppercase tracking-wide text-muted mb-2">{t('Par classe')}</div>
             <div className="space-y-2.5">
               {classAvgs.sort((a,b)=>b.avg-a.avg).map(({c,n,avg})=>{ const m=mentionFor(avg); return (
                 <div key={c.id} className="flex items-center gap-3">
                   <span className="w-24 text-sm font-bold shrink-0 truncate">{c.name}</span>
                   <div className="flex-1 h-2.5 rounded-full bg-canvas overflow-hidden"><div className="h-full rounded-full" style={{width:`${avg}%`,background:m.color}}/></div>
                   <span className="w-16 text-right text-sm font-extrabold" style={{color:m.color}}>{avg}/100</span>
-                  <span className="w-16 text-right text-xs text-muted">{n} élèves</span>
+                  <span className="w-16 text-right text-xs text-muted">{n} {t('élèves')}</span>
                 </div>) })}
             </div></>)},
           students:{ title:`Élèves évalués · ${ranked.length}`, body:(
             <div className="space-y-1">{ranked.map((x,i)=><RankRow key={x.s.id} x={x} i={i} onOpen={()=>openStudent(x.s)}/>)}</div>)},
           struggling:{ title:'En difficulté · moyenne < 40', body: strugglingRows.length===0
-            ? <EmptyState icon={<LifeBuoy size={24}/>} title="Aucun élève en difficulté" sub="Aucune moyenne sous 40 sur la période."/>
+            ? <EmptyState icon={<LifeBuoy size={24}/>} title={t('Aucun élève en difficulté')} sub={t('Aucune moyenne sous 40 sur la période.')}/>
             : <div className="space-y-1">{strugglingRows.map((x,i)=><RankRow key={x.s.id} x={x} i={i} onOpen={()=>openStudent(x.s)}/>)}</div>},
         }[tile]
         return (
         <Modal open onClose={()=>setTile(null)} title={C.title} size="xl"
-          footer={<>{['students','struggling'].includes(tile)&&<span className="text-[11px] text-muted mr-auto self-center">Cliquez sur un élève pour ouvrir son historique complet.</span>}
+          footer={<>{['students','struggling'].includes(tile)&&<span className="text-[11px] text-muted mr-auto self-center">{t('Cliquez sur un élève pour ouvrir son historique complet.')}</span>}
             <Btn variant="ghost" onClick={()=>setTile(null)}>Fermer</Btn></>}>
           {C.body}
         </Modal>) })()}
 
       <div className="grid lg:grid-cols-[1fr_340px] gap-4 mb-5">
-        <SectionCard icon={<TrendingUp size={16}/>} tint="brand" title="Évolution de la moyenne" sub={`Moyenne des évaluations · ${PERIODS.find(p=>p.value===period).label.toLowerCase()}`}>
+        <SectionCard icon={<TrendingUp size={16}/>} tint="brand" title={t('Évolution de la moyenne')} sub={`Moyenne des évaluations · ${PERIODS.find(p=>p.value===period).label.toLowerCase()}`}>
           <SoftArea data={trend} dataKey="moyenne" color={SERIES[0]} id="gAvg" domain={[0,100]} height={224}/>
         </SectionCard>
-        <SectionCard icon={<Gauge size={16}/>} tint="grape" title="Répartition des niveaux" sub="Toutes réponses confondues">
+        <SectionCard icon={<Gauge size={16}/>} tint="grape" title={t('Répartition des niveaux')} sub={t('Toutes réponses confondues')}>
           {/* barre empilée + puces : on compare des longueurs, pas des angles */}
           <div className="pt-6"><DistributionBar items={pie}/></div>
           <div className="grid grid-cols-2 gap-1.5 mt-4">
@@ -162,36 +163,36 @@ export default function Results(){
       </div>
 
       <div className="grid lg:grid-cols-2 gap-4 mb-5">
-        <SectionCard icon={<Trophy size={16}/>} tint="mint" title="Top élèves" sub="Les meilleures moyennes de la période" bodyClass="p-3">
+        <SectionCard icon={<Trophy size={16}/>} tint="mint" title={t('Top élèves')} sub={t('Les meilleures moyennes de la période')} bodyClass="p-3">
           {top.map((x,i)=><RankRow key={x.s.id} x={x} i={i} onOpen={()=>setView(x.s)} best/>)}
         </SectionCard>
-        <SectionCard icon={<LifeBuoy size={16}/>} tint="coral" title="À accompagner" sub="Les moyennes les plus fragiles : à suivre de près" bodyClass="p-3">
+        <SectionCard icon={<LifeBuoy size={16}/>} tint="coral" title={t('À accompagner')} sub={t('Les moyennes les plus fragiles : à suivre de près')} bodyClass="p-3">
           {low.map((x,i)=><RankRow key={x.s.id} x={x} i={i} onOpen={()=>setView(x.s)}/>)}
         </SectionCard>
       </div>
 
-      <SectionCard icon={<BookMarked size={16}/>} tint="grape" title="Performance par matière & leçon"
+      <SectionCard icon={<BookMarked size={16}/>} tint="grape" title={t('Performance par matière & leçon')}
         sub={`${classId==='all'?"Toute l'école":d.classes.find(c=>c.id===classId)?.name} · moyenne de toutes les évaluations de la période · le cœur du pilotage pédagogique`} className="mb-5">
         <LessonMap data={subjectAgg}/>
       </SectionCard>
 
       {classAvgs.length>1 && (
-        <SectionCard icon={<Users size={16}/>} tint="sky" title="Moyenne par classe" className="mb-5">
+        <SectionCard icon={<Users size={16}/>} tint="sky" title={t('Moyenne par classe')} className="mb-5">
           <div className="space-y-3">
             {classAvgs.sort((a,b)=>b.avg-a.avg).map(({c,n,avg})=>{ const m=mentionFor(avg); return (
               <div key={c.id} className="flex items-center gap-3">
                 <span className="w-20 text-sm font-bold shrink-0">{c.name}</span>
                 <div className="flex-1 h-2.5 rounded-full bg-canvas overflow-hidden"><div className="h-full rounded-full" style={{width:`${avg}%`,background:m.color}}/></div>
                 <span className="w-16 text-right text-sm font-extrabold" style={{color:m.color}}>{avg}/100</span>
-                <span className="w-16 text-right text-xs text-muted">{n} élèves</span>
+                <span className="w-16 text-right text-xs text-muted">{n} {t('élèves')}</span>
               </div>) })}
           </div>
         </SectionCard>
       )}
 
-      <SectionCard icon={<ClipboardCheck size={16}/>} tint="brand" title="Tous les élèves évalués" sub="Cliquez sur un élève pour ouvrir son historique complet"
-        action={<SearchInput value={q} onChange={e=>setQ(e.target.value)} placeholder="Rechercher un élève…" className="w-56"/>} bodyClass="p-0">
-        {rows.length===0 ? <EmptyState icon={<Search size={24}/>} title="Aucun élève ne correspond"/> : (
+      <SectionCard icon={<ClipboardCheck size={16}/>} tint="brand" title={t('Tous les élèves évalués')} sub={t('Cliquez sur un élève pour ouvrir son historique complet')}
+        action={<SearchInput value={q} onChange={e=>setQ(e.target.value)} placeholder={t('Rechercher un élève…')} className="w-56"/>} bodyClass="p-0">
+        {rows.length===0 ? <EmptyState icon={<Search size={24}/>} title={t('Aucun élève ne correspond')}/> : (
         <div className="overflow-x-auto scroll-thin"><table className="w-full text-sm">
           <thead><tr className="text-left text-[12px] uppercase tracking-wide text-muted bg-canvas">
             {['#','Élève','Classe','Évaluations','Moyenne','Mention','Tendance',''].map((h,i)=><th key={i} className="px-4 py-3 font-semibold">{h}</th>)}</tr></thead>
@@ -204,7 +205,7 @@ export default function Results(){
                 <td className="px-4 py-2.5 text-muted">{x.count}</td>
                 <td className="px-4 py-2.5 font-extrabold" style={{color:x.mention.color}}>{x.avg}/100</td>
                 <td className="px-4 py-2.5"><span className="text-[12px] font-bold px-2 py-0.5 rounded-full" style={{background:x.mention.color+'1E',color:x.mention.color}}>{x.mention.label}</span></td>
-                <td className="px-4 py-2.5"><TrendArrow t={x.trend}/></td>
+                <td className="px-4 py-2.5"><TrendArrow v={x.trend}/></td>
                 <td className="px-4 py-2.5 text-muted"><ChevronRight size={15}/></td>
               </tr>))}
           </tbody>
@@ -227,14 +228,14 @@ function StudentLessonMap({ d, sid }){
   const bk=lessonBreakdown(d.evaluations.filter(e=>{const s=d.students.find(x=>x.id===sid);return s&&e.classId===s.classId}),sid)
   if(!bk.length) return null
   return (<div className="mb-5">
-    <h3 className="text-sm font-bold uppercase tracking-wide accent-text mb-2">Par matière & leçon</h3>
+    <h3 className="text-sm font-bold uppercase tracking-wide accent-text mb-2">{t('Par matière & leçon')}</h3>
     <LessonMap data={bk} compact/>
   </div>)
 }
 
-function TrendArrow({ t }){
-  if(t>2)  return <span className="inline-flex items-center gap-1 text-xs font-bold" style={{color:STATUS.ok}}><TrendingUp size={14}/>+{t}</span>
-  if(t<-2) return <span className="inline-flex items-center gap-1 text-xs font-bold" style={{color:STATUS.danger}}><TrendingDown size={14}/>{t}</span>
+function TrendArrow({ v }){
+  if(v>2)  return <span className="inline-flex items-center gap-1 text-xs font-bold" style={{color:STATUS.ok}}><TrendingUp size={14}/>+{v}</span>
+  if(v<-2) return <span className="inline-flex items-center gap-1 text-xs font-bold" style={{color:STATUS.danger}}><TrendingDown size={14}/>{v}</span>
   return <span className="inline-flex items-center gap-1 text-xs font-bold" style={{color:STATUS.neutral}}><Minus size={14}/> stable</span>
 }
 function RankRow({ x, i, onOpen, best }){
@@ -245,8 +246,8 @@ function RankRow({ x, i, onOpen, best }){
         style={medal?{background:['#FFF4DD','#EEF1F6','#FCEEE2'][i],color:[STATUS.warn,N.slate,STATUS.warn][i]}:{background:STATUS.neutralSoft,color:N.slate}}>{i+1}</span>
       <Avatar name={x.s.name} seed={x.s.id} size={34}/>
       <span className="min-w-0 flex-1"><span className="block font-semibold truncate leading-tight">{x.s.name}</span>
-        <span className="block text-[12px] text-muted">{classById(x.s.classId)?.name} · {x.count} évaluation{x.count>1?'s':''}</span></span>
-      <TrendArrow t={x.trend}/>
+        <span className="block text-[12px] text-muted">{classById(x.s.classId)?.name} · {x.count} {t('évaluation')}{x.count>1?'s':''}</span></span>
+      <TrendArrow v={x.trend}/>
       <span className="text-sm font-extrabold w-14 text-right" style={{color:x.mention.color}}>{x.avg}/100</span>
     </button>
   )

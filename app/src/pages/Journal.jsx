@@ -61,7 +61,7 @@ function TeacherJournal({ classes }) {
 
   return (
     <>
-      <PageHead title="Journal du jour" sub="Repas, sieste, change, humeur : en un geste. Envoyé aux parents en fin de journée." />
+      <PageHead title={t('Journal du jour')} sub={t('Repas, sieste, change, humeur : en un geste. Envoyé aux parents en fin de journée.')} />
 
       <div className="flex flex-wrap gap-2 mb-4">
         {classes.map(c => (
@@ -85,8 +85,8 @@ function TeacherJournal({ classes }) {
         </div>
       )}
 
-      {!rows.length && <EmptyState icon="Baby" title="Aucun enfant dans cette classe."
-        sub="Ajoutez des enfants depuis la page Élèves." />}
+      {!rows.length && <EmptyState icon="Baby" title={t('Aucun enfant dans cette classe.')}
+        sub={t('Ajoutez des enfants depuis la page Élèves.')} />}
 
       <div className="grid gap-3">
         {rows.map(({ child, j }) => {
@@ -109,7 +109,7 @@ function TeacherJournal({ classes }) {
                 </div>
                 {sent
                   ? <span className="text-xs font-bold flex items-center gap-1" style={{ color: STATUS.ok }}>
-                      <Ic n="Check" size={14} /> Envoyé à {hhmm(j.sentAt)}
+                      <Ic n="Check" size={14} /> {t('Envoyé à')} {hhmm(j.sentAt)}
                     </span>
                   : <Btn size="sm" onClick={() => setConfirmSend(child)}><Ic n="Send" size={14} /> {t('Envoyer la journée')}</Btn>}
               </div>
@@ -139,7 +139,7 @@ function TeacherJournal({ classes }) {
                 <div className="flex items-center gap-2 flex-wrap">
                   {napping
                     ? <Btn size="sm" variant="soft" onClick={() => { endNap(child.id, date); refresh() }}>
-                        <Ic n="Sunrise" size={14} /> Réveillé
+                        <Ic n="Sunrise" size={14} /> {t('Réveillé')}
                       </Btn>
                     : <Btn size="sm" variant="soft" onClick={() => { startNap(child.id, date); refresh() }}>
                         <Ic n="Moon" size={14} /> S'endort
@@ -159,7 +159,7 @@ function TeacherJournal({ classes }) {
                   ))}
                   {!!j.diapers?.length && (
                     <span className="text-xs text-muted font-semibold">
-                      {j.diapers.length} aujourd'hui · dernier à {hhmm(j.diapers.at(-1).at)}
+                      {j.diapers.length} {t("aujourd'hui · dernier à")} {hhmm(j.diapers.at(-1).at)}
                     </span>
                   )}
                 </div>
@@ -177,10 +177,10 @@ function TeacherJournal({ classes }) {
               </div>
 
               <div>
-                <div className="text-xs font-bold text-muted mb-1.5">Un mot pour les parents</div>
+                <div className="text-xs font-bold text-muted mb-1.5">{t('Un mot pour les parents')}</div>
                 <textarea rows={2} defaultValue={j.note}
                   onBlur={e => { setNote(child.id, e.target.value, date); refresh() }}
-                  placeholder="Il a beaucoup ri au moment des chansons."
+                  placeholder={t('Il a beaucoup ri au moment des chansons.')}
                   className="w-full rounded-xl border border-line px-3 py-2 text-sm accent-ring" />
               </div>
             </Card>
@@ -210,7 +210,7 @@ function ParentJournal({ children }) {
   const date = todayIso()
   return (
     <>
-      <PageHead title="La journée de mon enfant" sub="Ce que l'école a partagé aujourd'hui." />
+      <PageHead title={t('La journée de mon enfant')} sub={t("Ce que l'école a partagé aujourd'hui.")} />
       <div className="grid gap-4">
         {children.map(child => {
           const j = entry(child.id, date)
@@ -226,7 +226,7 @@ function ParentJournal({ children }) {
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted">
                   <Ic n="Clock" size={15} />
-                  La journée est en cours. Elle vous sera envoyée en fin d'après-midi.
+                  {t("La journée est en cours. Elle vous sera envoyée en fin d'après-midi.")}
                 </div>
               </Card>
             )
@@ -238,7 +238,7 @@ function ParentJournal({ children }) {
                   <Avatar name={child.name} seed={child.id} />
                   <div>
                     <div className="font-bold">{child.name}</div>
-                    <div className="text-xs text-muted font-semibold">Envoyé à {hhmm(j.sentAt)}</div>
+                    <div className="text-xs text-muted font-semibold">{t('Envoyé à')} {hhmm(j.sentAt)}</div>
                   </div>
                 </div>
                 {mood && (
@@ -259,7 +259,7 @@ function ParentJournal({ children }) {
                       <b>{ATE.find(a => a.key === j.meals[m.key])?.label}</b>
                     </div>
                   ))}
-                  {!Object.keys(j.meals || {}).length && <div className="text-[13px] text-muted">Rien de noté.</div>}
+                  {!Object.keys(j.meals || {}).length && <div className="text-[13px] text-muted">{t('Rien de noté.')}</div>}
                 </div>
 
                 <div className="rounded-xl p-3" style={{ background: STATUS.infoSoft }}>
@@ -278,14 +278,14 @@ function ParentJournal({ children }) {
                   </div>
                   <div className="text-2xl font-extrabold tabular-nums">{j.diapers?.length || 0}</div>
                   {!!j.diapers?.length && (
-                    <div className="text-[12px] text-muted">Dernier à {hhmm(j.diapers.at(-1).at)}</div>
+                    <div className="text-[12px] text-muted">{t('Dernier à')} {hhmm(j.diapers.at(-1).at)}</div>
                   )}
                 </div>
               </div>
 
               {j.note && (
                 <div className="mt-4 rounded-xl p-4 accent-soft">
-                  <div className="text-xs font-bold text-muted mb-1">Un mot de l'éducatrice</div>
+                  <div className="text-xs font-bold text-muted mb-1">{t("Un mot de l'éducatrice")}</div>
                   <p className="text-sm">{j.note}</p>
                 </div>
               )}
@@ -310,19 +310,19 @@ export default function Journal() {
       .filter(s => (u.childIds || []).includes(s.id))
       .filter(s => isEarly((d.classes || []).find(c => c.id === s.classId)?.level))
     if (!kids.length) {
-      return <EmptyState icon="Baby" title="Aucun enfant en petite enfance."
-        sub="Le journal du jour concerne la crèche et la maternelle." />
+      return <EmptyState icon="Baby" title={t('Aucun enfant en petite enfance.')}
+        sub={t('Le journal du jour concerne la crèche et la maternelle.')} />
     }
     return <ParentJournal children={kids} />
   }
 
   const early = (d.classes || []).filter(c => isEarly(c.level))
   const mine = u.role === 'teacher'
-    ? early.filter(c => ((d.teachers || []).find(t => t.email === u.email)?.classes || []).includes(c.id))
+    ? early.filter(c => ((d.teachers || []).find(v => v.email === u.email)?.classes || []).includes(c.id))
     : early
   if (!mine.length) {
-    return <EmptyState icon="Baby" title="Aucune classe de petite enfance."
-      sub="Le journal du jour concerne la crèche et la maternelle." />
+    return <EmptyState icon="Baby" title={t('Aucune classe de petite enfance.')}
+      sub={t('Le journal du jour concerne la crèche et la maternelle.')} />
   }
   return <TeacherJournal classes={mine} />
 }

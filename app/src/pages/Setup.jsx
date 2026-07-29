@@ -21,7 +21,7 @@ import { settings, saveSettings, purgeDemoData } from '@core/db.js'
 import { current } from '@core/auth.js'
 import { LEVELS, EARLY_YEARS, PRIMARY } from '@core/levels.js'
 import { PACKS, PACK_LIST } from '@core/locales.js'
-import { LOCALES, setLocale } from '@core/i18n.js'
+import { LOCALES, setLocale, t } from '@core/i18n.js'
 import { Card, Btn, Input, Field, Select } from '../components/ui.jsx'
 import { Ic } from '../icons.jsx'
 import toast from 'react-hot-toast'
@@ -85,15 +85,14 @@ export default function Setup() {
     <div className="min-h-screen bg-canvas grid place-items-center p-6">
       <div className="w-full max-w-3xl">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold">Bienvenue dans Coreon Edu.</h1>
+          <h1 className="text-3xl font-extrabold">{t('Bienvenue dans Coreon Edu.')}</h1>
           <p className="text-muted mt-2 max-w-xl mx-auto">
-            Une seule question, et l’application se règle sur votre école : vous ne verrez
-            que ce qui vous concerne.
+            {t('Une seule question, et l’application se règle sur votre école : vous ne verrez que ce qui vous concerne.')}
           </p>
         </div>
 
         <div className="grid sm:grid-cols-3 gap-3">
-          <Field label="Nom de l’établissement">
+          <Field label={t('Nom de l’établissement')}>
             <Input value={name} onChange={e => setName(e.target.value)} />
           </Field>
           <Field label="Pays" hint={isOwner ? `Devise : ${PACKS[country]?.currency || 'DT'} · pièces, urgences et semaine du pays` : 'Fixé par Kogia Group au provisionnement (contactez le support).'}>
@@ -101,7 +100,7 @@ export default function Setup() {
               {PACK_LIST.map(p => <option key={p.key} value={p.key}>{p.label}</option>)}
             </Select>
           </Field>
-          <Field label="Langue par défaut">
+          <Field label={t('Langue par défaut')}>
             <Select disabled={!isOwner} value={locale} onChange={e => setLoc(e.target.value)}>
               {Object.entries(LOCALES).map(([k, v]) => <option key={k} value={k}>{v.label || k}</option>)}
             </Select>
@@ -119,7 +118,7 @@ export default function Setup() {
                 style={on ? { borderColor: 'var(--accent)', background: 'var(--accent-soft)' } : {}}>
                 {sh.best && (
                   <span className="absolute -top-2.5 right-3 text-[10px] font-extrabold uppercase tracking-wider
-                    px-2 py-0.5 rounded-full text-white accent-bg">Le plus courant</span>
+                    px-2 py-0.5 rounded-full text-white accent-bg">{t('Le plus courant')}</span>
                 )}
                 <span className="w-11 h-11 rounded-xl grid place-items-center accent-soft accent-text mb-3">
                   <Ic n={sh.icon} size={22} />
@@ -138,7 +137,7 @@ export default function Setup() {
           <Card className="p-5 mt-5">
             <div className="text-sm font-bold mb-1">Affiner, si besoin</div>
             <p className="text-xs text-muted mb-3">
-              Décochez un niveau que vous n’accueillez pas. Vous pourrez le changer plus tard.
+              {t('Décochez un niveau que vous n’accueillez pas. Vous pourrez le changer plus tard.')}
             </p>
             <div className="flex flex-wrap gap-2">
               {LEVELS.map(l => {
@@ -160,10 +159,8 @@ export default function Setup() {
         <Card className="p-4 mt-5 flex items-start gap-3">
           <input id="purge" type="checkbox" checked={purge} onChange={e => setPurge(e.target.checked)} className="mt-1" />
           <label htmlFor="purge" className="text-sm">
-            <span className="font-bold">École réelle : vider les données d’exemple.</span>{' '}
-            <span className="text-muted">Retire les élèves, classes et écritures de démonstration —
-            garde vos réglages, votre barème et les comptes de direction. Irréversible :
-            vos vraies données entreront ensuite par « Import de données ».</span>
+            <span className="font-bold">{t('École réelle : vider les données d’exemple.')}</span>{' '}
+            <span className="text-muted">{t('Retire les élèves, classes et écritures de démonstration — garde vos réglages, votre barème et les comptes de direction. Irréversible : vos vraies données entreront ensuite par « Import de données ».')}</span>
           </label>
         </Card>
 
@@ -174,7 +171,7 @@ export default function Setup() {
         </div>
 
         <p className="text-center text-xs text-muted mt-6">
-          Coreon Edu : par Kogia Group
+          {t('Coreon Edu : par Kogia Group')}
         </p>
       </div>
     </div>

@@ -17,7 +17,7 @@ const TYPES=[
   {k:'Événement',c:'#7539E4'}, {k:'Réunion',c:STATUS.info}, {k:'Examen',c:STATUS.danger},
   {k:'Vacances',c:STATUS.ok}, {k:'Sortie',c:STATUS.warn},
 ]
-const tint=t=>(TYPES.find(x=>x.k===t)||TYPES[0]).c
+const tint=v=>(TYPES.find(x=>x.k===v)||TYPES[0]).c
 const AUD={all:'Toute l’école',parent:'Parents',teacher:'Enseignants',supervisor:'Surveillants'}
 const emptyForm=d=>({date:d||'',time:'',title:'',type:'Événement',desc:'',place:'',audience:'all'})
 
@@ -60,8 +60,8 @@ export default function Events(){
   const upcoming=events.filter(e=>e.date>=format(new Date(),'yyyy-MM-dd')).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5)
 
   return (<>
-    <PageHead title="Calendrier & événements" sub="Réunions, examens, sorties et vacances : au même endroit."
-      action={canAdd&&<Btn onClick={()=>openCreate(sel)}><Plus size={16}/> Nouvel événement</Btn>}/>
+    <PageHead title={t('Calendrier & événements')} sub={t('Réunions, examens, sorties et vacances : au même endroit.')}
+      action={canAdd&&<Btn onClick={()=>openCreate(sel)}><Plus size={16}/> {t('Nouvel événement')}</Btn>}/>
 
     <div className="grid lg:grid-cols-[1fr_320px] gap-5">
       {/* Calendar */}
@@ -96,7 +96,7 @@ export default function Events(){
             )
           })}
         </div>
-        {canAdd&&<div className="text-[12px] text-muted mt-3">Astuce : double-cliquez sur un jour pour y ajouter un événement.</div>}
+        {canAdd&&<div className="text-[12px] text-muted mt-3">{t('Astuce : double-cliquez sur un jour pour y ajouter un événement.')}</div>}
       </Card>
 
       {/* Side: selected day + upcoming */}
@@ -124,39 +124,39 @@ export default function Events(){
                 </div>
               </div>
             ))}
-          </div> : <EmptyState icon={<CalendarDays size={22}/>} title="Aucun événement ce jour" sub={canAdd?'Double-cliquez sur un jour du calendrier pour en ajouter un.':'Sélectionnez un autre jour du calendrier.'}/>}
+          </div> : <EmptyState icon={<CalendarDays size={22}/>} title={t('Aucun événement ce jour')} sub={canAdd?'Double-cliquez sur un jour du calendrier pour en ajouter un.':'Sélectionnez un autre jour du calendrier.'}/>}
         </Card>
 
         <Card className="p-4">
-          <div className="font-bold mb-3 flex items-center gap-2"><CalendarDays size={16} className="accent-text"/> À venir</div>
+          <div className="font-bold mb-3 flex items-center gap-2"><CalendarDays size={16} className="accent-text"/> {t('À venir')}</div>
           <div className="space-y-2">
             {upcoming.length? upcoming.map(e=>(
               <button key={e.id} onClick={()=>{setSel(e.date);setCursor(startOfMonth(parseISO(e.date)))}} className="w-full flex items-center gap-3 text-left rounded-lg p-2 hover:bg-canvas">
                 <div className="w-11 text-center shrink-0"><div className="text-lg font-extrabold" style={{color:tint(e.type)}}>{e.date.slice(8,10)}</div><div className="text-[11px] text-muted uppercase">{format(parseISO(e.date),'MMM',{locale: df()})}</div></div>
                 <div className="min-w-0"><div className="text-sm font-semibold truncate">{e.title}</div><div className="text-[12px] text-muted">{e.type}{e.time?' · '+e.time:''}</div></div>
               </button>
-            )) : <EmptyState icon={<CalendarDays size={22}/>} title="Rien de prévu" sub="Les prochains événements apparaîtront ici."/>}
+            )) : <EmptyState icon={<CalendarDays size={22}/>} title={t('Rien de prévu')} sub={t('Les prochains événements apparaîtront ici.')}/>}
           </div>
         </Card>
       </div>
     </div>
 
-    <Modal open={open} onClose={()=>setOpen(false)} title="Nouvel événement"
+    <Modal open={open} onClose={()=>setOpen(false)} title={t('Nouvel événement')}
       footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={add}>Ajouter au calendrier</Btn></>}>
       <div className="grid sm:grid-cols-2 gap-3">
-        <Field label="Titre"><Input value={f.title} onChange={e=>setF({...f,title:e.target.value})} placeholder="ex. Réunion parents"/></Field>
-        <Field label="Type"><Select value={f.type} onChange={e=>setF({...f,type:e.target.value})}>{TYPES.map(t=><option key={t.k}>{t.k}</option>)}</Select></Field>
+        <Field label="Titre"><Input value={f.title} onChange={e=>setF({...f,title:e.target.value})} placeholder={t('ex. Réunion parents')}/></Field>
+        <Field label="Type"><Select value={f.type} onChange={e=>setF({...f,type:e.target.value})}>{TYPES.map(v=><option key={v.k}>{v.k}</option>)}</Select></Field>
         <Field label="Date"><Input type="date" value={f.date} onChange={e=>setF({...f,date:e.target.value})}/></Field>
         <Field label="Heure (optionnel)"><Input type="time" value={f.time} onChange={e=>setF({...f,time:e.target.value})}/></Field>
-        <Field label="Lieu (optionnel)"><Input value={f.place} onChange={e=>setF({...f,place:e.target.value})} placeholder="ex. Salle des fêtes"/></Field>
+        <Field label="Lieu (optionnel)"><Input value={f.place} onChange={e=>setF({...f,place:e.target.value})} placeholder={t('ex. Salle des fêtes')}/></Field>
         <Field label="Destinataires"><Select value={f.audience} onChange={e=>setF({...f,audience:e.target.value})}>{Object.entries(AUD).map(([k,v])=><option key={k} value={k}>{v}</option>)}</Select></Field>
-        <div className="sm:col-span-2"><Field label="Description (optionnel)"><Textarea rows={3} value={f.desc} onChange={e=>setF({...f,desc:e.target.value})} placeholder="Détails de l’événement…"/></Field></div>
+        <div className="sm:col-span-2"><Field label="Description (optionnel)"><Textarea rows={3} value={f.desc} onChange={e=>setF({...f,desc:e.target.value})} placeholder={t('Détails de l’événement…')}/></Field></div>
       </div>
     </Modal>
 
-    <Modal open={!!confirmDel} onClose={()=>setConfirmDel(null)} title="Supprimer cet événement ?" size="sm"
+    <Modal open={!!confirmDel} onClose={()=>setConfirmDel(null)} title={t('Supprimer cet événement ?')} size="sm"
       footer={<><Btn variant="ghost" onClick={()=>setConfirmDel(null)}>Annuler</Btn><Btn onClick={()=>del(confirmDel)}><Trash2 size={15}/> Supprimer</Btn></>}>
-      <p className="text-sm text-muted">« {confirmDel?.title} » sera retiré du calendrier de l'école. Cette action est définitive.</p>
+      <p className="text-sm text-muted">« {confirmDel?.title} {t("» sera retiré du calendrier de l'école. Cette action est définitive.")}</p>
     </Modal>
   </>)
 }

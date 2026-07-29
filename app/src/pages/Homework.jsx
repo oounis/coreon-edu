@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { t } from '@core/i18n.js'
 import { current } from '@core/auth.js'
 import { db, mutate, uid, classById } from '@core/db.js'
 import { notify, classIdsOfParent } from '@core/notify.js'
@@ -21,22 +22,22 @@ export default function Homework(){
   const myClassIds=u.role==='parent'?classIdsOfParent(u):null
   const homework=myClassIds? d.homework.filter(h=>myClassIds.includes(h.classId)) : d.homework
   return (<>
-    <PageHead title="Devoirs" sub="Travaux à faire et dates de remise." action={isTeacher&&!isSummer()&&<Btn onClick={()=>setOpen(true)}><Plus size={16}/> Publier un devoir</Btn>}/>
-    {isSummer()&&<div className="flex items-center gap-2.5 rounded-2xl px-4 py-3 mb-4 text-sm font-semibold" style={{background:'linear-gradient(90deg,#FEF3C7,#FDE68A55)',color:'#92400E'}}><Sun size={16}/> Vacances d'été · pas de nouveaux devoirs avant la rentrée du {rentreeLabel()}. Les anciens devoirs restent consultables.</div>}
+    <PageHead title="Devoirs" sub={t('Travaux à faire et dates de remise.')} action={isTeacher&&!isSummer()&&<Btn onClick={()=>setOpen(true)}><Plus size={16}/> {t('Publier un devoir')}</Btn>}/>
+    {isSummer()&&<div className="flex items-center gap-2.5 rounded-2xl px-4 py-3 mb-4 text-sm font-semibold" style={{background:'linear-gradient(90deg,#FEF3C7,#FDE68A55)',color:'#92400E'}}><Sun size={16}/> {t("Vacances d'été · pas de nouveaux devoirs avant la rentrée du")} {rentreeLabel()}. Les anciens devoirs restent consultables.</div>}
     <div className="grid md:grid-cols-2 gap-3">
       {homework.length? homework.map(h=>(<Card key={h.id} className="p-4 flex gap-3"><SubjectDot label={h.subject} size={40} iconSize={18}/>
         <div><div className="font-semibold">{h.title}</div><div className="text-sm text-muted">{h.subject} · {classById(h.classId)?.name}</div>
           {h.details&&<div className="text-sm mt-1">{h.details}</div>}
-          <div className="text-xs text-muted mt-1 flex items-center gap-1"><CalendarClock size={12}/> À rendre le {h.due||'·'}</div></div></Card>))
-       : <Card className="md:col-span-2"><EmptyState icon={<BookOpen size={26}/>} title="Aucun devoir publié" sub="Les devoirs et leurs dates de remise apparaîtront ici."/></Card>}
+          <div className="text-xs text-muted mt-1 flex items-center gap-1"><CalendarClock size={12}/> {t('À rendre le')} {h.due||'·'}</div></div></Card>))
+       : <Card className="md:col-span-2"><EmptyState icon={<BookOpen size={26}/>} title={t('Aucun devoir publié')} sub={t('Les devoirs et leurs dates de remise apparaîtront ici.')}/></Card>}
     </div>
-    <Modal open={open} onClose={()=>setOpen(false)} title="Publier un devoir" footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={add}>Publier</Btn></>}>
+    <Modal open={open} onClose={()=>setOpen(false)} title={t('Publier un devoir')} footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={add}>Publier</Btn></>}>
       <div className="grid sm:grid-cols-2 gap-3">
         <Field label="Classe"><Select value={f.classId} onChange={e=>setF({...f,classId:e.target.value})}>{d.classes.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</Select></Field>
-        <Field label="Matière"><Input value={f.subject} onChange={e=>setF({...f,subject:e.target.value})}/></Field>
+        <Field label={t('Matière')}><Input value={f.subject} onChange={e=>setF({...f,subject:e.target.value})}/></Field>
         <Field label="Titre"><Input value={f.title} onChange={e=>setF({...f,title:e.target.value})}/></Field>
-        <Field label="Date de remise"><Input type="date" value={f.due} onChange={e=>setF({...f,due:e.target.value})}/></Field>
-      </div><div className="mt-3"><Field label="Détails"><Textarea value={f.details} onChange={e=>setF({...f,details:e.target.value})} className="h-20"/></Field></div>
+        <Field label={t('Date de remise')}><Input type="date" value={f.due} onChange={e=>setF({...f,due:e.target.value})}/></Field>
+      </div><div className="mt-3"><Field label={t('Détails')}><Textarea value={f.details} onChange={e=>setF({...f,details:e.target.value})} className="h-20"/></Field></div>
     </Modal>
   </>)
 }

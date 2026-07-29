@@ -18,8 +18,8 @@ export function DemoLiveButton({ className = '' }) {
       onClick={() => { setDemoLive(true); location.reload() }}
       className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full ${className}`}
       style={{ background: '#EEF2FF', color: '#7539E4' }}
-      title="Simule une journée de classe pour découvrir le produit hors période scolaire">
-      <PlayCircle size={13} /> Voir en mode journée de classe
+      title={t('Simule une journée de classe pour découvrir le produit hors période scolaire')}>
+      <PlayCircle size={13} /> {t('Voir en mode journée de classe')}
     </button>
   )
 }
@@ -57,9 +57,9 @@ export function SummerFreeze({ feature, detail, children }) {
       <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full" style={{ background: 'radial-gradient(circle,#FDE68A66,transparent 70%)' }} />
       <div className="w-14 h-14 rounded-2xl grid place-items-center mx-auto accent-soft accent-text" aria-hidden="true"><Ic n="Sun" size={26}/></div>
       <div className="inline-flex items-center gap-1.5 text-[12px] font-bold px-3 py-1 rounded-full mt-2" style={{ background: '#FEF3C7', color: '#92400E' }}>
-        <Sun size={12} /> VACANCES D'ÉTÉ</div>
-      <h2 className="text-xl font-extrabold mt-2">{feature} reprend à la rentrée</h2>
-      <p className="text-sm text-muted mt-1 max-w-md mx-auto">{detail} Rendez-vous le <b>{rentreeLabel()}</b>d'ici là, profitez de l'été !</p>
+        <Sun size={12} /> {t("VACANCES D'ÉTÉ")}</div>
+      <h2 className="text-xl font-extrabold mt-2">{feature} {t('reprend à la rentrée')}</h2>
+      <p className="text-sm text-muted mt-1 max-w-md mx-auto">{detail} {t('Rendez-vous le')} <b>{rentreeLabel()}</b>{t("d'ici là, profitez de l'été !")}</p>
       <div className="mt-4 flex justify-center gap-2 flex-wrap items-center">
         <DemoLiveButton />
         {children}

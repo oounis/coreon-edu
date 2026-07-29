@@ -4,6 +4,7 @@
 // ne mesure pas encore. Le cœur (budget.js) calcule ; cet écran raconte.
 // ════════════════════════════════════════════════════════════════════════════
 import { useState } from 'react'
+import { t } from '@core/i18n.js'
 import { current } from '@core/auth.js'
 import { studentById } from '@core/db.js'
 import { monthlyReport, yearSeries, addExpense, voidExpense, EXPENSE_CATS, expenseCatOf } from '@core/budget.js'
@@ -64,21 +65,21 @@ export default function Budget() {
   }
 
   return (<>
-    <PageHead title="Budget & rapports" sub="Encaissé, versé, dépensé : le mois en trente secondes : que des chiffres réels."
+    <PageHead title="Budget & rapports" sub={t('Encaissé, versé, dépensé : le mois en trente secondes : que des chiffres réels.')}
       action={<div className="flex items-center gap-2">
         <input type="month" value={month} onChange={e => setMonth(e.target.value)} className="rounded-xl border border-line bg-white px-3 py-2 text-sm font-semibold" />
         <Btn variant="soft" onClick={exportCSV}><Download size={15} /> CSV</Btn>
-        <Btn onClick={() => setOpen(true)}><Plus size={15} /> Dépense</Btn>
+        <Btn onClick={() => setOpen(true)}><Plus size={15} /> {t('Dépense')}</Btn>
       </div>} />
 
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-      <StatCard tint="mint" icon={<Wallet size={20} />} value={money(R.income)} label="Encaissé" sub={monthLabel} onClick={() => setTile('income')} />
-      <StatCard tint="grape" icon={<BriefcaseBusiness size={20} />} value={money(R.wages)} label="Salaires versés" onClick={() => setTile('wages')} />
-      <StatCard tint="butter" icon={<ReceiptText size={20} />} value={money(R.spent)} label="Dépenses" onClick={() => setTile('spent')} />
-      <StatCard tint={R.balance >= 0 ? 'sky' : 'coral'} icon={<Scale size={20} />} value={money(R.balance)} label="Solde du mois" onClick={() => setTile('balance')} />
+      <StatCard tint="mint" icon={<Wallet size={20} />} value={money(R.income)} label={t('Encaissé')} sub={monthLabel} onClick={() => setTile('income')} />
+      <StatCard tint="grape" icon={<BriefcaseBusiness size={20} />} value={money(R.wages)} label={t('Salaires versés')} onClick={() => setTile('wages')} />
+      <StatCard tint="butter" icon={<ReceiptText size={20} />} value={money(R.spent)} label={t('Dépenses')} onClick={() => setTile('spent')} />
+      <StatCard tint={R.balance >= 0 ? 'sky' : 'coral'} icon={<Scale size={20} />} value={money(R.balance)} label={t('Solde du mois')} onClick={() => setTile('balance')} />
     </div>
 
-    <SectionCard icon={<TrendingUp size={16} />} tint="mint" title={`Solde mensuel · ${year}`} sub="Encaissements moins salaires et dépenses, mois par mois">
+    <SectionCard icon={<TrendingUp size={16} />} tint="mint" title={`Solde mensuel · ${year}`} sub={t('Encaissements moins salaires et dépenses, mois par mois')}>
       <SoftArea data={series} dataKey="solde" color={STATUS.ok} id="gBud" unit={` ${currency()}`} height={220} />
     </SectionCard>
 
@@ -86,7 +87,7 @@ export default function Budget() {
       const C = {
         income: {
           title: `Encaissé · ${monthLabel}`, body: (R.receipts.length + R.rentals.length) === 0
-            ? <EmptyState icon={<Wallet size={24} />} title="Rien d'encaissé ce mois-ci" sub="Les reçus de scolarité et les locations payées apparaîtront ici." />
+            ? <EmptyState icon={<Wallet size={24} />} title={t("Rien d'encaissé ce mois-ci")} sub={t('Les reçus de scolarité et les locations payées apparaîtront ici.')} />
             : <>
               {R.receipts.map(r => <Row key={r.id} left={studentById(r.studentId)?.name || 'Élève'} sub={`Reçu ${r.number} · ${format(new Date(r.at), 'd MMM', { locale: df() })}`} right={money(r.amount)} tone={STATUS.ok} />)}
               {R.rentals.map(b => <Row key={b.id} left={b.who} sub={`Location · ${b.date} · ${b.from}–${b.to}`} right={money(b.price)} tone={STATUS.ok} />)}
@@ -94,19 +95,19 @@ export default function Budget() {
         },
         wages: {
           title: `Salaires versés · ${monthLabel}`, body: R.payrolls.length === 0
-            ? <EmptyState icon={<BriefcaseBusiness size={24} />} title="Aucune paie versée ce mois-ci" sub="La paie se prépare et se verse dans RH & Paie." />
+            ? <EmptyState icon={<BriefcaseBusiness size={24} />} title={t('Aucune paie versée ce mois-ci')} sub={t('La paie se prépare et se verse dans RH & Paie.')} />
             : R.payrolls.flatMap(p => (p.lines || []).map(l => <Row key={p.month + l.staffId} left={l.name} sub={l.role || ''} right={money(l.net)} />))
         },
         spent: {
           title: `Dépenses · ${monthLabel}`, body: R.expenses.length === 0
-            ? <EmptyState icon={<ReceiptText size={24} />} title="Aucune dépense inscrite" sub="Le carnet couvre ce que le produit ne mesure pas : fournitures, maintenance…" />
+            ? <EmptyState icon={<ReceiptText size={24} />} title={t('Aucune dépense inscrite')} sub={t('Le carnet couvre ce que le produit ne mesure pas : fournitures, maintenance…')} />
             : R.expenses.map(e => (
               <div key={e.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-semibold truncate">{e.label}</span>
                   <span className="block text-[12px] text-muted">{expenseCatOf(e.category).label} · {e.date} · {e.by}</span></span>
                 <span className="text-sm font-extrabold shrink-0" style={{ color: STATUS.warn }}>−{money(e.amount)}</span>
-                <button onClick={() => cancel(e.id)} title="Annuler (motivé)" className="w-7 h-7 grid place-items-center rounded-lg text-muted hover:text-ink hover:bg-canvas shrink-0"><X size={14} /></button>
+                <button onClick={() => cancel(e.id)} title={t('Annuler (motivé)')} className="w-7 h-7 grid place-items-center rounded-lg text-muted hover:text-ink hover:bg-canvas shrink-0"><X size={14} /></button>
               </div>))
         },
         balance: {
@@ -127,16 +128,16 @@ export default function Budget() {
         </Modal>)
     })()}
 
-    <Modal open={open} onClose={() => setOpen(false)} title="Inscrire une dépense"
+    <Modal open={open} onClose={() => setOpen(false)} title={t('Inscrire une dépense')}
       footer={<><Btn variant="ghost" onClick={() => setOpen(false)}>Annuler</Btn><Btn onClick={submit}>Inscrire</Btn></>}>
       <div className="grid sm:grid-cols-2 gap-3">
         <Field label="Date"><Input type="date" value={f.date} onChange={e => setF({ ...f, date: e.target.value })} /></Field>
-        <Field label="Catégorie"><Select value={f.category} onChange={e => setF({ ...f, category: e.target.value })}>
+        <Field label={t('Catégorie')}><Select value={f.category} onChange={e => setF({ ...f, category: e.target.value })}>
           {Object.values(EXPENSE_CATS).map(c => <option key={c.key} value={c.key}>{c.label}</option>)}</Select></Field>
-        <Field label="Libellé *"><Input value={f.label} onChange={e => setF({ ...f, label: e.target.value })} placeholder="Ramettes de papier, peinture atelier…" /></Field>
+        <Field label={t('Libellé *')}><Input value={f.label} onChange={e => setF({ ...f, label: e.target.value })} placeholder={t('Ramettes de papier, peinture atelier…')} /></Field>
         <Field label={`Montant (${currency()}) *`}><Input type="number" min="0" value={f.amount} onChange={e => setF({ ...f, amount: e.target.value })} /></Field>
       </div>
-      <p className="text-[12px] text-muted mt-3">Une dépense inscrite ne s'efface pas : elle s'annule, motivée : la trace reste.</p>
+      <p className="text-[12px] text-muted mt-3">{t("Une dépense inscrite ne s'efface pas : elle s'annule, motivée : la trace reste.")}</p>
     </Modal>
   </>)
 }

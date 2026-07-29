@@ -107,25 +107,25 @@ export default function Inscription() {
           </span>
           <h1 className="text-2xl font-extrabold">{t('Candidature reçue.')}</h1>
           <p className="text-muted mt-2 max-w-md mx-auto">
-            L’école va l’examiner et vous recontactera au <b>{a.parentPhone}</b>.
+            {t('L’école va l’examiner et vous recontactera au')} <b>{a.parentPhone}</b>.
             {done.filesDropped
-              ? <> <b>Vos pièces n’ont pas pu être conservées</b> (mémoire de l’appareil pleine) : l’école vous les redemandera, la candidature est bien enregistrée.</>
+              ? <> <b>{t('Vos pièces n’ont pas pu être conservées')}</b> {t('(mémoire de l’appareil pleine) : l’école vous les redemandera, la candidature est bien enregistrée.')}</>
               : a.files?.length
-                ? <> Nous avons bien reçu <b>{a.files.length} pièce(s)</b>.</>
-                : <> Les pièces manquantes vous seront demandées.</>}
+                ? <> {t('Nous avons bien reçu')} <b>{a.files.length} {t('pièce(s)')}</b>.</>
+                : <> {t('Les pièces manquantes vous seront demandées.')}</>}
           </p>
           {a.parentEmail && (
             <p className="text-muted mt-2 max-w-md mx-auto">
               {mailReady()
-                ? <>Un accusé de réception vient d’être envoyé à <b>{a.parentEmail}</b>. Vous serez informé(e) par email à chaque étape.</>
-                : <>Vous serez informé(e) à <b>{a.parentEmail}</b> à chaque étape.</>}
+                ? <>{t('Un accusé de réception vient d’être envoyé à')} <b>{a.parentEmail}</b>. Vous serez informé(e) par email à chaque étape.</>
+                : <>{t('Vous serez informé(e) à')} <b>{a.parentEmail}</b> {t('à chaque étape.')}</>}
             </p>
           )}
           <div className="mt-5 inline-block rounded-xl border border-line px-5 py-3">
             <div className="text-xs font-bold text-muted uppercase tracking-wider">{t('Votre référence')}</div>
             <div className="text-xl font-extrabold tabular-nums">{a.id.toUpperCase()}</div>
           </div>
-          <p className="text-xs text-muted mt-4">Notez-la : elle nous permet de retrouver le dossier de {a.childName}.</p>
+          <p className="text-xs text-muted mt-4">{t('Notez-la : elle nous permet de retrouver le dossier de')} {a.childName}.</p>
           <div className="mt-6">
             <Link to="/"><Btn variant="ghost">{t('Retour à l’accueil')}</Btn></Link>
           </div>
@@ -195,7 +195,7 @@ export default function Inscription() {
       </Card>
 
       <p className="text-xs text-muted text-center mt-4">
-        Vos informations ne servent qu’à cette candidature. {s?.schoolName || 'L’école'} est la seule à les voir.
+        {t('Vos informations ne servent qu’à cette candidature.')} {s?.schoolName || 'L’école'} {t('est la seule à les voir.')}
       </p>
     </Screen>
   )

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { t } from '@core/i18n.js'
 import { BRAND } from '@core/tokens.js'
 import { PACK_LIST } from '@core/locales.js'
 import { db, mutate, uid, resetDb } from '@core/db.js'
@@ -59,11 +60,11 @@ export default function Schools(){
   }
 
   return (<>
-    <PageHead title="Écoles clientes" sub="Les établissements abonnés à Coreon Edu · vous créez l'école et son compte Direction, l'école gère le reste."
-      action={<Btn onClick={()=>{setF(BLANK);setOpen(true)}}><Plus size={16}/> Ajouter une école</Btn>}/>
+    <PageHead title={t('Écoles clientes')} sub={t("Les établissements abonnés à Coreon Edu · vous créez l'école et son compte Direction, l'école gère le reste.")}
+      action={<Btn onClick={()=>{setF(BLANK);setOpen(true)}}><Plus size={16}/> {t('Ajouter une école')}</Btn>}/>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-      <StatCard label="Écoles clientes" value={schools.filter(s=>s.status!=='suspended').length} tint="brand" icon={<Building2/>} onClick={()=>setTile('schools')}/>
-      <StatCard label="Élèves gérés" value={totalStudents} tint="sky" icon={<Users/>} onClick={()=>setTile('students')}/>
+      <StatCard label={t('Écoles clientes')} value={schools.filter(s=>s.status!=='suspended').length} tint="brand" icon={<Building2/>} onClick={()=>setTile('schools')}/>
+      <StatCard label={t('Élèves gérés')} value={totalStudents} tint="sky" icon={<Users/>} onClick={()=>setTile('students')}/>
       <StatCard label="Revenu mensuel" value={`${mrr} €`} sub="abonnements actifs" tint="mint" icon={<Wallet/>} onClick={()=>setTile('mrr')}/>
       <StatCard label="En essai" value={trials} tint="butter" icon={<Hourglass/>} onClick={()=>setTile('trials')}/>
     </div>
@@ -75,7 +76,7 @@ export default function Schools(){
       return (
       <Modal open onClose={()=>setTile(null)} title={TITLE[tile]} size="xl"
         footer={<Btn variant="ghost" onClick={()=>setTile(null)}>Fermer</Btn>}>
-        {list.length===0 ? <EmptyState icon={<Building2 size={24}/>} title="Aucune école dans cet état" sub="Rien à afficher pour le moment."/>
+        {list.length===0 ? <EmptyState icon={<Building2 size={24}/>} title={t('Aucune école dans cet état')} sub={t('Rien à afficher pour le moment.')}/>
         : <div className="space-y-1.5">
           {list.map(sc=>{ const st=ST[sc.status]||ST.active
             return (
@@ -84,14 +85,14 @@ export default function Schools(){
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-semibold truncate">{sc.name}</span>
                 <span className="block text-[12px] text-muted truncate">{sc.city} · plan {sc.plan} · cliente depuis {sc.since}</span></span>
-              {tile==='students'&&<span className="text-sm font-extrabold accent-text">{count(sc)} élèves</span>}
+              {tile==='students'&&<span className="text-sm font-extrabold accent-text">{count(sc)} {t('élèves')}</span>}
               {tile==='mrr'&&<span className="text-sm font-extrabold" style={{color:STATUS.ok}}>{sc.price} €/mois</span>}
               {['schools','trials'].includes(tile)&&<span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:st.bg,color:st.fg}}>{st.label}</span>}
             </div>) })}
         </div>}
       </Modal>) })()}
 
-    {schools.length===0 ? <Card><EmptyState icon={<Building2 size={26}/>} title="Aucune école cliente" sub="Ajoutez votre première école pour lui ouvrir l'accès à la plateforme."/></Card>
+    {schools.length===0 ? <Card><EmptyState icon={<Building2 size={26}/>} title={t('Aucune école cliente')} sub={t("Ajoutez votre première école pour lui ouvrir l'accès à la plateforme.")}/></Card>
     : <div className="grid lg:grid-cols-2 gap-4">
       {schools.map(sc=>{ const st=ST[sc.status]||ST.active; const [pbg,pfg]=PLAN_TINT[sc.plan]||PLAN_TINT.Essentiel
         return (
@@ -101,23 +102,23 @@ export default function Schools(){
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-bold text-lg truncate">{sc.name}</span>
-                {sc.live&&<span className="text-[11px] font-bold px-2 py-0.5 rounded-full accent-soft accent-text">ÉCOLE DE DÉMO</span>}
+                {sc.live&&<span className="text-[11px] font-bold px-2 py-0.5 rounded-full accent-soft accent-text">{t('ÉCOLE DE DÉMO')}</span>}
               </div>
               <div className="text-sm text-muted flex items-center gap-1.5"><MapPin size={13}/>{sc.city} · cliente depuis {sc.since}</div>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:pbg,color:pfg}}>Plan {sc.plan} · {sc.price} €/mois</span>
                 <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:st.bg,color:st.fg}}>{st.label}</span>
-                <span className="text-xs text-muted">{count(sc)} élèves</span>
+                <span className="text-xs text-muted">{count(sc)} {t('élèves')}</span>
               </div>
             </div>
             <div className="flex flex-col gap-2 shrink-0">
               <Btn size="sm" variant="soft" onClick={()=>setTech(sc)}><Server size={14}/> Fiche technique</Btn>
               <Btn size="sm" variant={sc.status==='suspended'?'primary':'danger'} onClick={()=>toggle(sc)}>
-                {sc.status==='suspended'?<><Check size={14}/> Réactiver</>:<><Ban size={14}/> Suspendre</>}</Btn>
+                {sc.status==='suspended'?<><Check size={14}/> {t('Réactiver')}</>:<><Ban size={14}/> Suspendre</>}</Btn>
             </div>
           </div>
           <div className="mt-4 rounded-2xl bg-canvas p-3.5">
-            <div className="text-xs font-bold text-muted flex items-center gap-1.5 mb-2"><KeyRound size={13}/> Compte Direction (créé par la plateforme)</div>
+            <div className="text-xs font-bold text-muted flex items-center gap-1.5 mb-2"><KeyRound size={13}/> {t('Compte Direction (créé par la plateforme)')}</div>
             <div className="flex items-center gap-3">
               <Avatar name={sc.director} seed={sc.id} size={34}/>
               <div className="text-sm min-w-0"><b>{sc.director}</b>
@@ -130,8 +131,8 @@ export default function Schools(){
     <Card className="p-5 mt-5 border-coral/40">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div><h3 className="font-bold flex items-center gap-2 text-coral"><ShieldAlert size={17}/> Zone sensible</h3>
-          <p className="text-sm text-muted mt-0.5">Réinitialiser remet toutes les données de l’école d’exemple à zéro.</p></div>
-        <Btn variant="danger" onClick={()=>setConfirmReset(true)}>Réinitialiser l’école d’exemple</Btn>
+          <p className="text-sm text-muted mt-0.5">{t('Réinitialiser remet toutes les données de l’école d’exemple à zéro.')}</p></div>
+        <Btn variant="danger" onClick={()=>setConfirmReset(true)}>{t('Réinitialiser l’école d’exemple')}</Btn>
       </div>
     </Card>
 
@@ -148,7 +149,7 @@ export default function Schools(){
                 <div key={r.label} className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
                   <span className="text-muted">{r.label}</span>
                   {r.missing
-                    ? <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{background:STATUS.warnSoft,color:STATUS.warn}}>à collecter</span>
+                    ? <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{background:STATUS.warnSoft,color:STATUS.warn}}>{t('à collecter')}</span>
                     : <span className="font-semibold text-right truncate">{String(r.value)}</span>}
                 </div>
               ))}
@@ -165,10 +166,10 @@ export default function Schools(){
           {missing>0 && (
             <div className="rounded-xl border px-3 py-2 text-xs font-semibold mb-4"
               style={{borderColor:STATUS.warn+'55',background:STATUS.warnSoft,color:STATUS.warn}}>
-              {missing} information(s) pas encore collectée(s). On montre ce qu'on a, on ne l'invente pas.
+              {missing} {t("information(s) pas encore collectée(s). On montre ce qu'on a, on ne l'invente pas.")}
             </div>
           )}
-          <Section title="Identité" icon={<Building2 size={13}/>} rows={prof.identite}/>
+          <Section title={t('Identité')} icon={<Building2 size={13}/>} rows={prof.identite}/>
           <Section title="Contact" icon={<KeyRound size={13}/>} rows={prof.contact}/>
           <Section title="Infrastructure" icon={<Server size={13}/>} rows={prof.infra}/>
           <Section title="Diagnostic" icon={<ShieldAlert size={13}/>} rows={prof.diagnostic}/>
@@ -176,41 +177,41 @@ export default function Schools(){
       })()}
     </Modal>
 
-    <Modal open={open} onClose={()=>setOpen(false)} title="Ajouter une école cliente"
-      footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={add}>Créer l'école & le compte Direction</Btn></>}>
+    <Modal open={open} onClose={()=>setOpen(false)} title={t('Ajouter une école cliente')}
+      footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={add}>{t("Créer l'école & le compte Direction")}</Btn></>}>
       <div className="grid sm:grid-cols-2 gap-3">
-        <Field label="Nom de l'école *"><Input value={f.name} onChange={e=>setF({...f,name:e.target.value})} placeholder="École Les Oliviers"/></Field>
-        <Field label="Pays (contrat)" hint="Fixe devise, pièces d'identité, semaine et cadre légal — l'école ne peut pas le changer.">
+        <Field label={t("Nom de l'école *")}><Input value={f.name} onChange={e=>setF({...f,name:e.target.value})} placeholder={t('École Les Oliviers')}/></Field>
+        <Field label="Pays (contrat)" hint={t("Fixe devise, pièces d'identité, semaine et cadre légal — l'école ne peut pas le changer.")}>
           <Select value={f.country} onChange={e=>setF({...f,country:e.target.value})}>
             {PACK_LIST.map(p=><option key={p.key} value={p.key}>{p.label}</option>)}
           </Select></Field>
         <Field label="Ville"><Input value={f.city} onChange={e=>setF({...f,city:e.target.value})}/></Field>
         <Field label="Plan"><Select value={f.plan} onChange={e=>setF({...f,plan:e.target.value})}><option>Essentiel</option><option>Pro</option></Select></Field>
         <Field label="Directeur / Directrice *"><Input value={f.director} onChange={e=>setF({...f,director:e.target.value})}/></Field>
-        <Field label="E-mail du compte Direction *"><Input value={f.email} onChange={e=>setF({...f,email:e.target.value})} placeholder="direction@ecole.tn"/></Field>
+        <Field label={t('E-mail du compte Direction *')}><Input value={f.email} onChange={e=>setF({...f,email:e.target.value})} placeholder="direction@ecole.tn"/></Field>
       </div>
-      <p className="text-xs text-muted mt-3">L'école démarre en <b>période d'essai</b>. Les identifiants du compte Direction s'affichent <b>une seule fois</b> à la création — aucun e-mail automatique n'est envoyé. La Direction crée ensuite tous les autres comptes dans son portail.</p>
+      <p className="text-xs text-muted mt-3">{t("L'école démarre en")} <b>{t("période d'essai")}</b>. Les identifiants du compte Direction s'affichent <b>{t('une seule fois')}</b> {t("à la création — aucun e-mail automatique n'est envoyé. La Direction crée ensuite tous les autres comptes dans son portail.")}</p>
     </Modal>
 
-    <Modal open={!!creds} onClose={()=>setCreds(null)} title="Identifiants du compte Direction" size="sm"
-      footer={<Btn onClick={()=>setCreds(null)}>J'ai transmis les identifiants</Btn>}>
-      <p className="text-sm text-muted mb-3">Pour <b>{creds?.school}</b> — à remettre en main propre. Ils ne seront <b>plus jamais affichés</b>.</p>
+    <Modal open={!!creds} onClose={()=>setCreds(null)} title={t('Identifiants du compte Direction')} size="sm"
+      footer={<Btn onClick={()=>setCreds(null)}>{t("J'ai transmis les identifiants")}</Btn>}>
+      <p className="text-sm text-muted mb-3">{t('Pour')} <b>{creds?.school}</b> {t('— à remettre en main propre. Ils ne seront')} <b>{t('plus jamais affichés')}</b>.</p>
       <div className="rounded-xl border border-line p-3 text-sm space-y-1">
         <div className="flex justify-between"><span className="text-muted">E-mail</span><code>{creds?.email}</code></div>
-        <div className="flex justify-between"><span className="text-muted">Mot de passe provisoire</span><code>{creds?.pw}</code></div>
+        <div className="flex justify-between"><span className="text-muted">{t('Mot de passe provisoire')}</span><code>{creds?.pw}</code></div>
       </div>
     </Modal>
 
-    <Modal open={!!confirmSuspend} onClose={()=>setConfirmSuspend(null)} title="Suspendre cette école ?" size="sm"
+    <Modal open={!!confirmSuspend} onClose={()=>setConfirmSuspend(null)} title={t('Suspendre cette école ?')} size="sm"
       footer={<><Btn variant="ghost" onClick={()=>setConfirmSuspend(null)}>Annuler</Btn>
         <Btn variant="danger" onClick={()=>doSuspend(confirmSuspend)}><Ban size={15}/> Suspendre</Btn></>}>
-      <p className="text-sm text-muted">L'accès de <b>{confirmSuspend?.name}</b> sera gelé : la direction, les enseignants et les parents ne pourront plus se connecter. Vous pourrez réactiver l'école à tout moment.</p>
+      <p className="text-sm text-muted">{t("L'accès de")} <b>{confirmSuspend?.name}</b> {t("sera gelé : la direction, les enseignants et les parents ne pourront plus se connecter. Vous pourrez réactiver l'école à tout moment.")}</p>
     </Modal>
 
-    <Modal open={confirmReset} onClose={()=>setConfirmReset(false)} title="Réinitialiser les données ?"
+    <Modal open={confirmReset} onClose={()=>setConfirmReset(false)} title={t('Réinitialiser les données ?')}
       footer={<><Btn variant="ghost" onClick={()=>setConfirmReset(false)}>Annuler</Btn>
-        <Btn variant="danger" onClick={()=>{resetDb();location.reload()}}>Réinitialiser</Btn></>}>
-      <p className="text-sm text-muted">Toutes les données de l’école d’exemple (élèves, évaluations, paiements, écoles clientes…) seront remises à zéro. Cette action est irréversible.</p>
+        <Btn variant="danger" onClick={()=>{resetDb();location.reload()}}>{t('Réinitialiser')}</Btn></>}>
+      <p className="text-sm text-muted">{t('Toutes les données de l’école d’exemple (élèves, évaluations, paiements, écoles clientes…) seront remises à zéro. Cette action est irréversible.')}</p>
     </Modal>
   </>)
 }

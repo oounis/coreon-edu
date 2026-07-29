@@ -48,14 +48,14 @@ function StaffGallery({ u }) {
   const feed = classId ? feedForClass(classId) : []
 
   return (<>
-    <PageHead title={t('Moments')} sub="Une photo de la journée, et le parent la voit le soir même."
+    <PageHead title={t('Moments')} sub={t('Une photo de la journée, et le parent la voit le soir même.')}
       action={<div className="flex gap-2">
         <Select value={classId} onChange={e => setClassId(e.target.value)} className="w-auto">{classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</Select>
         <Btn onClick={() => setComposing(true)}><ImagePlus size={16} /> Partager</Btn>
       </div>} />
 
     {feed.length === 0
-      ? <Card><EmptyState icon="Camera" title="Aucun moment partagé" sub="Partagez une photo de la journée : les parents adorent." /></Card>
+      ? <Card><EmptyState icon="Camera" title={t('Aucun moment partagé')} sub={t('Partagez une photo de la journée : les parents adorent.')} /></Card>
       : <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {feed.map(m => <MomentCard key={m.id} m={m} u={u} onChange={refresh} canDelete />)}
       </div>}
@@ -110,9 +110,9 @@ function Composer({ u, classId, onClose }) {
             <input type="file" accept="image/*" multiple className="hidden" onChange={addFiles} />
           </label>
         </div>
-        <Field label="Un mot (facultatif)"><Textarea value={caption} onChange={e => setCaption(e.target.value)} className="h-16" placeholder="Atelier peinture ce matin : tout le monde a adoré !" /></Field>
+        <Field label={t('Un mot (facultatif)')}><Textarea value={caption} onChange={e => setCaption(e.target.value)} className="h-16" placeholder={t('Atelier peinture ce matin : tout le monde a adoré !')} /></Field>
         <div>
-          <div className="text-xs font-semibold text-muted mb-1.5">Enfants sur la photo (facultatif : sinon c'est un moment de toute la classe)</div>
+          <div className="text-xs font-semibold text-muted mb-1.5">{t("Enfants sur la photo (facultatif : sinon c'est un moment de toute la classe)")}</div>
           <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto scroll-thin">
             {students.map(s => {
               const on = kids.includes(s.id)
@@ -120,7 +120,7 @@ function Composer({ u, classId, onClose }) {
                 className={`text-[13px] font-semibold px-2.5 py-1.5 rounded-full border transition ${on ? 'text-white accent-bg border-transparent' : 'bg-white border-line text-muted'}`}>{s.name.split(' ')[0]}</button>
             })}
           </div>
-          <p className="text-[11px] text-muted mt-2">Seuls les parents des enfants identifiés (ou de la classe) verront ce moment.</p>
+          <p className="text-[11px] text-muted mt-2">{t('Seuls les parents des enfants identifiés (ou de la classe) verront ce moment.')}</p>
         </div>
       </div>
     </Modal>
@@ -132,9 +132,9 @@ function ParentFeed({ u }) {
   const [, force] = useState(0)
   const feed = feedForParent(u)
   return (<>
-    <PageHead title={t('Moments')} sub="Les photos de la journée de votre enfant." />
+    <PageHead title={t('Moments')} sub={t('Les photos de la journée de votre enfant.')} />
     {feed.length === 0
-      ? <Card><EmptyState icon="Camera" title="Rien encore" sub="Les moments partagés par l'école apparaîtront ici." /></Card>
+      ? <Card><EmptyState icon="Camera" title="Rien encore" sub={t("Les moments partagés par l'école apparaîtront ici.")} /></Card>
       : <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {feed.map(m => <MomentCard key={m.id} m={m} u={u} onChange={() => force(x => x + 1)} />)}
       </div>}

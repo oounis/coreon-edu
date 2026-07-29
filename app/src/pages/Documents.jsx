@@ -5,6 +5,7 @@
 // règles ; cet écran délivre et réimprime.
 // ════════════════════════════════════════════════════════════════════════════
 import { useState } from 'react'
+import { t } from '@core/i18n.js'
 import jsPDF from 'jspdf'
 import { current } from '@core/auth.js'
 import { db, studentById, classById, settings } from '@core/db.js'
@@ -19,7 +20,7 @@ import toast from 'react-hot-toast'
 
 /* ---------- le contenu du document (partagé aperçu + PDF) ---------- */
 function docModel(rec) {
-  const sc = settings(), t = docTypeOf(rec.type)
+  const sc = settings(), docType = docTypeOf(rec.type)
   const s = studentById(rec.studentId)
   const cls = classById(rec.classId)
   const rows = [
@@ -34,7 +35,7 @@ function docModel(rec) {
     radiation: `n'est plus inscrit(e) dans notre établissement${s?.archivedAt ? ` depuis le ${format(new Date(s.archivedAt), 'dd/MM/yyyy')}` : ''}. Son dossier scolaire reste archivé et disponible. Le présent certificat est délivré pour servir et valoir ce que de droit${rec.addressedTo ? ` (${rec.addressedTo})` : ''}.`,
   }
   return {
-    title: t?.label || rec.type, ref: rec.number, today: format(new Date(rec.at), 'dd/MM/yyyy'),
+    title: docType?.label || rec.type, ref: rec.number, today: format(new Date(rec.at), 'dd/MM/yyyy'),
     sc, rows, by: rec.by,
     intro: `La Direction de l'établissement ${sc.schoolName} ${rec.type === 'radiation' ? 'certifie' : 'certifie'} que l'élève :`,
     body: BODY[rec.type] || '',
@@ -46,8 +47,8 @@ function PaperDoc({ rec }) {
   return (
     <div className="bg-white p-2 text-sm">
       <div className="flex items-center justify-between border-b-2 pb-3 mb-4" style={{ borderColor: '#7539E4' }}>
-        <div><div className="font-extrabold">{m.sc.schoolName}</div><div className="text-xs text-muted">{m.sc.city}, {pack().label} · Tél : {m.sc.phone}</div></div>
-        <div className="text-xs text-right text-muted">N° : <b>{m.ref}</b><br />{m.sc.city}, le {m.today}</div>
+        <div><div className="font-extrabold">{m.sc.schoolName}</div><div className="text-xs text-muted">{m.sc.city}, {pack().label} {t('· Tél :')} {m.sc.phone}</div></div>
+        <div className="text-xs text-right text-muted">N° : <b>{m.ref}</b><br />{m.sc.city}{t(', le')} {m.today}</div>
       </div>
       <h2 className="text-center text-xl font-extrabold uppercase my-4">{m.title}</h2>
       <p className="leading-7">{m.intro}</p>
@@ -56,10 +57,10 @@ function PaperDoc({ rec }) {
       </div>
       <p className="leading-7">{m.body}</p>
       <div className="mt-6 grid grid-cols-2 gap-4">
-        <div className="text-xs text-muted"><b>Délivré par :</b><div className="flex items-center gap-1 mt-1"><Check size={10} className="shrink-0" /> {m.by} · {m.today}</div></div>
-        <div className="text-center"><div className="h-12" /><div className="border-t border-ink/30 pt-1 text-xs">Cachet & signature de la Direction</div></div>
+        <div className="text-xs text-muted"><b>{t('Délivré par :')}</b><div className="flex items-center gap-1 mt-1"><Check size={10} className="shrink-0" /> {m.by} · {m.today}</div></div>
+        <div className="text-center"><div className="h-12" /><div className="border-t border-ink/30 pt-1 text-xs">{t('Cachet & signature de la Direction')}</div></div>
       </div>
-      <div className="text-[11px] text-muted mt-6 pt-2 border-t border-line">Document n° {m.ref}, inscrit au registre · généré par Coreon Edu, conforme à la {LEGAL.law}{LEGAL.authority ? ` (${LEGAL.authority})` : ''}.</div>
+      <div className="text-[11px] text-muted mt-6 pt-2 border-t border-line">Document n° {m.ref}{t(', inscrit au registre · généré par Coreon Edu, conforme à la')} {LEGAL.law}{LEGAL.authority ? ` (${LEGAL.authority})` : ''}.</div>
     </div>)
 }
 
@@ -88,8 +89,8 @@ export default function Documents() {
   const [sid, setSid] = useState('')
   const [addressedTo, setAddressedTo] = useState('')
   const [view, setView] = useState(null)         // le document ouvert (aperçu / réimpression)
-  const t = docTypeOf(type)
-  const pool = (d.students || []).filter(s => t?.needs === 'archived' ? s.archived : !s.archived)
+  const docType = docTypeOf(type)
+  const pool = (d.students || []).filter(s => docType?.needs === 'archived' ? s.archived : !s.archived)
   const sum = docSummary()
 
   const issue = () => {
@@ -101,11 +102,11 @@ export default function Documents() {
   }
 
   return (<>
-    <PageHead title="Documents officiels" sub="Le guichet : certificats et attestations numérotés, chaque délivrance inscrite au registre." />
+    <PageHead title="Documents officiels" sub={t('Le guichet : certificats et attestations numérotés, chaque délivrance inscrite au registre.')} />
 
     <div className="grid lg:grid-cols-[1fr_380px] gap-4 mb-4">
       <Card className="p-4">
-        <div className="text-xs font-bold uppercase tracking-wide text-muted mb-2">Délivrer un document</div>
+        <div className="text-xs font-bold uppercase tracking-wide text-muted mb-2">{t('Délivrer un document')}</div>
         <div className="grid sm:grid-cols-2 gap-2 mb-3">
           {DOC_LIST.map(x => (
             <button key={x.key} onClick={() => { setType(x.key); setSid('') }}
@@ -115,30 +116,30 @@ export default function Documents() {
             </button>))}
         </div>
         <div className="grid sm:grid-cols-2 gap-3 items-end">
-          <Field label={t?.needs === 'archived' ? 'Élève (dossiers archivés)' : 'Élève'}>
+          <Field label={docType?.needs === 'archived' ? 'Élève (dossiers archivés)' : 'Élève'}>
             <Select value={sid} onChange={e => setSid(e.target.value)}>
               <option value="">Choisir</option>
               {pool.map(s => <option key={s.id} value={s.id}>{s.name}{s.classId ? ` · ${classById(s.classId)?.name || ''}` : ''}</option>)}
             </Select>
           </Field>
-          <Field label="À l'attention de (optionnel)" hint="CNSS, banque, employeur, nouvelle école…">
+          <Field label={t("À l'attention de (optionnel)")} hint={t('CNSS, banque, employeur, nouvelle école…')}>
             <Input value={addressedTo} onChange={e => setAddressedTo(e.target.value)} placeholder="CNSS" />
           </Field>
         </div>
-        {pool.length === 0 && <p className="text-[12px] text-muted mt-2">Aucun élève dans cet état{t?.needs === 'archived' ? 'la radiation ne concerne que les dossiers archivés' : ''}.</p>}
-        <Btn className="mt-3" onClick={issue}><ScrollText size={15} /> Délivrer & inscrire au registre</Btn>
+        {pool.length === 0 && <p className="text-[12px] text-muted mt-2">{t('Aucun élève dans cet état')}{docType?.needs === 'archived' ? 'la radiation ne concerne que les dossiers archivés' : ''}.</p>}
+        <Btn className="mt-3" onClick={issue}><ScrollText size={15} /> {t('Délivrer & inscrire au registre')}</Btn>
       </Card>
 
       <Card className="p-4">
-        <div className="text-xs font-bold uppercase tracking-wide text-muted mb-2">Le registre</div>
-        <div className="text-3xl font-extrabold">{sum.thisMonth}<span className="text-sm font-semibold text-muted ml-2">ce mois-ci · {sum.total} au total</span></div>
-        <p className="text-[12px] text-muted mt-2">Chaque document porte un numéro de série par type et par année. Le registre ne s'efface jamais : une série qui saute est une remarque d'audit.</p>
+        <div className="text-xs font-bold uppercase tracking-wide text-muted mb-2">{t('Le registre')}</div>
+        <div className="text-3xl font-extrabold">{sum.thisMonth}<span className="text-sm font-semibold text-muted ml-2">{t('ce mois-ci ·')} {sum.total} au total</span></div>
+        <p className="text-[12px] text-muted mt-2">{t("Chaque document porte un numéro de série par type et par année. Le registre ne s'efface jamais : une série qui saute est une remarque d'audit.")}</p>
       </Card>
     </div>
 
-    <SectionCard icon={<ScrollText size={16} />} tint="brand" title="Registre des documents délivrés" sub="Cliquez sur une ligne pour réimprimer" bodyClass="p-3">
+    <SectionCard icon={<ScrollText size={16} />} tint="brand" title={t('Registre des documents délivrés')} sub={t('Cliquez sur une ligne pour réimprimer')} bodyClass="p-3">
       {registry().length === 0
-        ? <EmptyState icon={<ScrollText size={24} />} title="Aucun document délivré" sub="Le premier certificat délivré ouvrira le registre." />
+        ? <EmptyState icon={<ScrollText size={24} />} title={t('Aucun document délivré')} sub={t('Le premier certificat délivré ouvrira le registre.')} />
         : <div className="space-y-1">
           {registry().map(rec => (
             <button key={rec.id} onClick={() => setView(rec)} className="w-full flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas text-left">
@@ -155,7 +156,7 @@ export default function Documents() {
     <Modal open={!!view} onClose={() => setView(null)} title={view ? `Document ${view.number}` : ''} size="xl"
       footer={<><Btn variant="ghost" onClick={() => setView(null)}>Fermer</Btn>
         <Btn variant="soft" onClick={() => window.print()}><Printer size={15} /> Imprimer</Btn>
-        <Btn onClick={() => downloadPDF(view)}><Download size={15} /> Télécharger PDF</Btn></>}>
+        <Btn onClick={() => downloadPDF(view)}><Download size={15} /> {t('Télécharger PDF')}</Btn></>}>
       {view && <PaperDoc rec={view} />}
     </Modal>
   </>)

@@ -66,13 +66,13 @@ export default function Finance(){
     toast.success(`${sent} parent(s) relancé(s)${noParent?` · ${noParent} élève(s) sans compte parent lié`:''}`)
   }
   return (<>
-    <PageHead title="Frais & Finances" sub="Confirmez les versements signalés, encaissez au guichet, relancez les retards."
-      action={<Btn onClick={remindAll} disabled={lateStudents.length===0}><BellRing size={15}/> Relancer tous les retards ({lateStudents.length})</Btn>}/>
+    <PageHead title="Frais & Finances" sub={t('Confirmez les versements signalés, encaissez au guichet, relancez les retards.')}
+      action={<Btn onClick={remindAll} disabled={lateStudents.length===0}><BellRing size={15}/> {t('Relancer tous les retards (')}{lateStudents.length})</Btn>}/>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-      <StatCard label="Payés" value={counts.paid} tint="mint" icon={<Wallet/>} onClick={()=>setTile('paid')}/>
-      <StatCard label="À confirmer" value={counts.pending} tint="butter" icon={<Hourglass/>} sub="signalés par les parents" onClick={()=>setTile('pending')}/>
+      <StatCard label={t('Payés')} value={counts.paid} tint="mint" icon={<Wallet/>} onClick={()=>setTile('paid')}/>
+      <StatCard label={t('À confirmer')} value={counts.pending} tint="butter" icon={<Hourglass/>} sub={t('signalés par les parents')} onClick={()=>setTile('pending')}/>
       <StatCard label="En retard" value={counts.overdue} tint="coral" icon={<Wallet/>} onClick={()=>setTile('overdue')}/>
-      <StatCard label="Impayés (à venir)" value={counts.due} tint="sky" icon={<Wallet/>} onClick={()=>setTile('due')}/>
+      <StatCard label={t('Impayés (à venir)')} value={counts.due} tint="sky" icon={<Wallet/>} onClick={()=>setTile('due')}/>
     </div>
 
     {tile && (()=>{ const rows=byStatus(tile)
@@ -80,9 +80,9 @@ export default function Finance(){
       return (
       <Modal open onClose={()=>setTile(null)} title={`${TITLE[tile]} · ${counts[tile]} mois`} size="xl"
         footer={<>{tile==='pending'&&rows.length>0&&<Btn onClick={()=>{confirmAll();setTile(null)}}><Check size={15}/> Tout confirmer</Btn>}
-          {tile==='overdue'&&rows.length>0&&<Btn onClick={()=>{remindAll();setTile(null)}}><BellRing size={15}/> Relancer tous</Btn>}
+          {tile==='overdue'&&rows.length>0&&<Btn onClick={()=>{remindAll();setTile(null)}}><BellRing size={15}/> {t('Relancer tous')}</Btn>}
           <Btn variant="ghost" onClick={()=>setTile(null)}>Fermer</Btn></>}>
-        {rows.length===0 ? <EmptyState icon={<Wallet size={24}/>} title="Aucun mois dans cet état" sub="Rien à afficher pour le moment."/>
+        {rows.length===0 ? <EmptyState icon={<Wallet size={24}/>} title={t('Aucun mois dans cet état')} sub={t('Rien à afficher pour le moment.')}/>
         : <div className="space-y-1.5">
           {rows.map(({s,months})=>(
             <div key={s.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
@@ -100,24 +100,24 @@ export default function Finance(){
 
     {toConfirm.length>0 && <Card className="p-4 mb-5">
       <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-        <h3 className="font-bold flex items-center gap-1.5"><Hourglass size={16} style={{color:STATUS.warn}}/> Versements signalés · à confirmer <span className="text-xs text-muted font-normal">({toConfirm.length})</span></h3>
+        <h3 className="font-bold flex items-center gap-1.5"><Hourglass size={16} style={{color:STATUS.warn}}/> {t('Versements signalés · à confirmer')} <span className="text-xs text-muted font-normal">({toConfirm.length})</span></h3>
         <Btn size="sm" onClick={confirmAll}><Check size={14}/> Tout confirmer</Btn>
       </div>
-      <p className="text-xs text-muted mb-3">Un parent a signalé avoir payé. Confirmez après encaissement : le mois passe en « Payé » et le parent est prévenu.</p>
+      <p className="text-xs text-muted mb-3">{t('Un parent a signalé avoir payé. Confirmez après encaissement : le mois passe en « Payé » et le parent est prévenu.')}</p>
       <div className="space-y-1.5 max-h-64 overflow-y-auto scroll-thin">
         {toConfirm.map(({s,p,mi})=>(
           <div key={s.id+p.month} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
             <Avatar name={s.name} seed={s.id} size={32}/>
             <span className="min-w-0 flex-1"><span className="block text-sm font-semibold truncate">{s.name}</span>
-              <span className="block text-[12px] text-muted">{p.month} · signalé par le parent</span></span>
+              <span className="block text-[12px] text-muted">{p.month} {t('· signalé par le parent')}</span></span>
             <Btn size="sm" onClick={()=>cycle(s.id,mi)}><Check size={14}/> Confirmer</Btn>
           </div>))}
       </div>
     </Card>}
-    {d.students.length===0 ? <Card><EmptyState icon={<Wallet size={26}/>} title="Aucun élève" sub="Les échéanciers de paiement apparaîtront ici dès qu'un élève sera inscrit."/></Card>
+    {d.students.length===0 ? <Card><EmptyState icon={<Wallet size={26}/>} title={t('Aucun élève')} sub={t("Les échéanciers de paiement apparaîtront ici dès qu'un élève sera inscrit.")}/></Card>
     : <Card className="p-4 overflow-x-auto scroll-thin">
       <table className="w-full text-sm">
-        <thead><tr className="text-[12px] uppercase text-muted"><th className="text-left px-2 py-2">Élève</th>{FEE_MONTHS.map(m=><th key={m} className="px-1 py-2">{m}</th>)}<th></th></tr></thead>
+        <thead><tr className="text-[12px] uppercase text-muted"><th className="text-left px-2 py-2">{t('Élève')}</th>{FEE_MONTHS.map(m=><th key={m} className="px-1 py-2">{m}</th>)}<th></th></tr></thead>
         <tbody className="divide-y divide-line">
           {d.students.map(s=>(
             <tr key={s.id}>

@@ -50,7 +50,7 @@ export default function Payments(){
     ? `${declarable.length} ${t('mois seront signalés comme versés')}${monthly!=null?` · ${t('total')} ${money(monthly*declarable.length)}`:''}`
     : confirm!=null&&months[confirm]?`${months[confirm].month}${monthly!=null?` · ${money(monthly)}`:''}`:''
 
-  if(!child) return <Card><EmptyState icon={<CreditCard size={26}/>} title="Aucun enfant associé" sub="Demandez à la direction de lier votre compte à votre enfant."/></Card>
+  if(!child) return <Card><EmptyState icon={<CreditCard size={26}/>} title={t('Aucun enfant associé')} sub={t('Demandez à la direction de lier votre compte à votre enfant.')}/></Card>
   return (<>
     <PageHead title={t('Mes paiements')} sub={`${child.name} · ${paid}/${months.length} ${t('mois confirmés')}${monthly!=null?` · ${t('mensualité')} ${money(monthly)}`:''}${monthly!=null&&declarable.length?` · ${t('reste à régler')} ${money(monthly*declarable.length)}`:''}`}
       action={<div className="flex items-center gap-2">
@@ -67,19 +67,19 @@ export default function Payments(){
 
     <div className="flex items-start gap-2.5 rounded-2xl px-4 py-3 mb-4 text-sm max-w-[680px]" style={{background:STATUS.infoSoft,color:'#0B5E86'}}>
       <Info size={16} className="mt-0.5 shrink-0"/>
-      <span>Signalez votre versement ici : l'administration le confirme après encaissement, et le mois passe alors en <b>Payé</b>. {awaiting>0 && <>Vous avez <b>{awaiting} mois</b> en attente de confirmation.</>}</span>
+      <span>{t("Signalez votre versement ici : l'administration le confirme après encaissement, et le mois passe alors en")} <b>{t('Payé')}</b>. {awaiting>0 && <>Vous avez <b>{awaiting} mois</b> {t('en attente de confirmation.')}</>}</span>
     </div>
 
     <Card className="p-6 max-w-[680px]">
-      <div className="flex items-center gap-3 mb-5"><Avatar name={child?.name} seed={child?.id||'x'} size={44}/><div><div className="font-bold">{child?.name}</div><div className="text-muted text-sm">Frais de scolarité · mensuels</div></div></div>
-      {months.length===0 && <EmptyState icon={<CreditCard size={26}/>} title="Aucune échéance" sub="L'échéancier de paiement apparaîtra ici dès qu'il sera établi."/>}
+      <div className="flex items-center gap-3 mb-5"><Avatar name={child?.name} seed={child?.id||'x'} size={44}/><div><div className="font-bold">{child?.name}</div><div className="text-muted text-sm">{t('Frais de scolarité · mensuels')}</div></div></div>
+      {months.length===0 && <EmptyState icon={<CreditCard size={26}/>} title={t('Aucune échéance')} sub={t("L'échéancier de paiement apparaîtra ici dès qu'il sera établi.")}/>}
       <div className="grid grid-cols-5 gap-2">
         {months.map((m,i)=>(
           <div key={m.month} className="rounded-xl border border-line p-2 text-center">
             <div className="text-xs font-semibold">{m.month}</div>
             <div className="mt-1 w-full h-1.5 rounded-full" style={{background:COL[m.status]}}/>
             <div className="text-[11px] text-muted mt-1">{FR[m.status]}</div>
-            {m.status==='paid' ? <div className="mt-1.5 text-[11px] text-muted inline-flex items-center gap-0.5"><Check size={11}/> Confirmé</div>
+            {m.status==='paid' ? <div className="mt-1.5 text-[11px] text-muted inline-flex items-center gap-0.5"><Check size={11}/> {t('Confirmé')}</div>
              : m.status==='pending' ? <div className="mt-1.5 text-[11px] inline-flex items-center gap-0.5" style={{color:STATUS.warn}}><Hourglass size={11}/> En attente</div>
              : <button onClick={()=>setConfirm(i)} className="mt-1.5 text-[11px] font-bold accent-text inline-flex items-center gap-0.5"><Send size={11}/> Signaler</button>}
           </div>

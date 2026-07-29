@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { t } from '@core/i18n.js'
 import { current } from '@core/auth.js'
 import { db, mutate, uid, userById } from '@core/db.js'
 import { ROLE } from '@core/theme.js'
@@ -25,12 +26,12 @@ export default function Messages(){
   // écrit à tout le monde.
   const STAFF=['schooladmin','admin','teacher','supervisor']
   const others=d.users.filter(u=>u.id!==me.id && u.role!=='owner' && (me.role!=='parent' || STAFF.includes(u.role)))
-  const lastWith=id=>{ const t=mine.filter(m=>m.from===id||m.to===id).sort((a,b)=>b.at-a.at)[0]; return t }
+  const lastWith=id=>{ const val=mine.filter(m=>m.from===id||m.to===id).sort((a,b)=>b.at-a.at)[0]; return val }
   return (<>
-    <PageHead title="Messages" sub="Échangez avec le personnel et les parents." action={<Btn onClick={()=>setNewOpen(true)}><Plus size={16}/> Nouveau message</Btn>}/>
+    <PageHead title="Messages" sub={t('Échangez avec le personnel et les parents.')} action={<Btn onClick={()=>setNewOpen(true)}><Plus size={16}/> Nouveau message</Btn>}/>
     <div className="grid lg:grid-cols-[300px_1fr] gap-4">
       <Card className="p-2 h-fit">
-        {partnerIds.length===0 && <EmptyState icon={<MessageSquare size={26}/>} title="Aucune conversation" sub="Démarrez une nouvelle conversation pour la voir ici."/>}
+        {partnerIds.length===0 && <EmptyState icon={<MessageSquare size={26}/>} title={t('Aucune conversation')} sub={t('Démarrez une nouvelle conversation pour la voir ici.')}/>}
         {partnerIds.map(pid=>{ const u=userById(pid); const last=lastWith(pid); return (
           <button key={pid} onClick={()=>setActive(pid)} className={`w-full flex items-center gap-3 p-3 rounded-xl ${active===pid?'accent-soft':''}`}>
             <Avatar name={u?.name} seed={pid}/>
@@ -43,13 +44,13 @@ export default function Messages(){
           <div className="flex-1 overflow-y-auto scroll-thin p-4 space-y-2">
             {thread.length? thread.map(m=>{ const mineMsg=m.from===me.id; return (
               <div key={m.id} className={`flex ${mineMsg?'justify-end':'justify-start'}`}><div className={`max-w-[75%] px-3.5 py-2 rounded-2xl text-sm ${mineMsg?'text-white accent-bg':'bg-canvas'}`}><div>{m.text}</div><div className={`text-[11px] mt-0.5 ${mineMsg?'text-white/70':'text-muted'}`}>{formatDistanceToNow(m.at,{addSuffix:true,locale: df()})}</div></div></div>) })
-             : <EmptyState icon={<MessageSquare size={26}/>} title="Aucun message" sub="Envoyez le premier message pour démarrer la conversation."/>}
+             : <EmptyState icon={<MessageSquare size={26}/>} title={t('Aucun message')} sub={t('Envoyez le premier message pour démarrer la conversation.')}/>}
           </div>
-          <div className="p-3 border-t border-line flex gap-2"><Input value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()} placeholder="Écrivez un message…"/><Btn onClick={()=>send()}><Send size={16}/></Btn></div>
-        </>) : <div className="flex-1 grid place-items-center"><EmptyState icon={<MessageSquare size={26}/>} title="Aucune conversation sélectionnée" sub="Choisissez une conversation ou démarrez-en une nouvelle."/></div>}
+          <div className="p-3 border-t border-line flex gap-2"><Input value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()} placeholder={t('Écrivez un message…')}/><Btn onClick={()=>send()}><Send size={16}/></Btn></div>
+        </>) : <div className="flex-1 grid place-items-center"><EmptyState icon={<MessageSquare size={26}/>} title={t('Aucune conversation sélectionnée')} sub={t('Choisissez une conversation ou démarrez-en une nouvelle.')}/></div>}
       </Card>
     </div>
-    <Modal open={newOpen} onClose={()=>setNewOpen(false)} title="Nouveau message" footer={<><Btn variant="ghost" onClick={()=>setNewOpen(false)}>Annuler</Btn><Btn onClick={startNew}>Démarrer</Btn></>}>
+    <Modal open={newOpen} onClose={()=>setNewOpen(false)} title="Nouveau message" footer={<><Btn variant="ghost" onClick={()=>setNewOpen(false)}>Annuler</Btn><Btn onClick={startNew}>{t('Démarrer')}</Btn></>}>
       <Field label="Destinataire"><Select value={to} onChange={e=>setTo(e.target.value)}><option value="">choisir</option>{others.map(u=><option key={u.id} value={u.id}>{u.name} · {ROLE[u.role]?.label}</option>)}</Select></Field>
     </Modal>
   </>)

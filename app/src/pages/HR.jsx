@@ -25,12 +25,12 @@ const day = d => new Date(d).toLocaleDateString(dateLocale(), { day: '2-digit', 
 function useStaff() {
   const d = db()
   return useMemo(() => {
-    const t = (d.teachers || []).map(x => ({ id: x.id, name: x.name, role: x.designation || 'Enseignant', salary: x.salary }))
+    const val = (d.teachers || []).map(x => ({ id: x.id, name: x.name, role: x.designation || 'Enseignant', salary: x.salary }))
     const LABELS = { admin: 'Administration', supervisor: 'Surveillant', security: 'Sécurité', schooladmin: 'Direction', hr: 'Ressources humaines', accountant: 'Comptabilité' }
     const u = (d.users || [])
       .filter(x => ['admin', 'supervisor', 'security', 'schooladmin', 'hr', 'accountant'].includes(x.role))
       .map(x => ({ id: x.id, name: x.name, role: x.position || LABELS[x.role] }))
-    return [...t, ...u]
+    return [...val, ...u]
   }, [d])
 }
 
@@ -43,7 +43,7 @@ export default function HR() {
 
   return (
     <>
-      <PageHead title="Ressources humaines" sub="Contrats, congés, paie · sans surprise." />
+      <PageHead title="Ressources humaines" sub={t('Contrats, congés, paie · sans surprise.')} />
       <Tabs value={tab} onChange={setTab} tabs={[
         { value: 'equipe', label: 'Équipe' },
         { value: 'conges', label: 'Congés' },
@@ -99,10 +99,10 @@ function Team({ staff, refresh }) {
                 ? <>
                     <Badge label={CONTRACTS[c.kind]?.label} tone="info" />
                     <span className="text-sm font-extrabold tabular-nums">{money(contractGross(c))}</span>
-                    {bal && <span className="text-xs text-muted font-semibold tabular-nums">{bal.left}/{bal.quota} j de congé</span>}
+                    {bal && <span className="text-xs text-muted font-semibold tabular-nums">{bal.left}/{bal.quota} {t('j de congé')}</span>}
                   </>
                 : <span className="text-xs font-bold" style={{ color: STATUS.warn }}>
-                    <Ic n="TriangleAlert" size={13} className="inline mr-1 align-[-2px]" />Aucun contrat
+                    <Ic n="TriangleAlert" size={13} className="inline mr-1 align-[-2px]" />{t('Aucun contrat')}
                   </span>}
               <Btn size="sm" variant="soft" onClick={() => open(s)}>{c ? 'Modifier' : 'Créer le contrat'}</Btn>
             </Card>
@@ -113,13 +113,13 @@ function Team({ staff, refresh }) {
       <Modal open={!!edit} onClose={() => setEdit(null)} title={edit ? `Contrat · ${edit.name}` : ''}
         footer={<><Btn variant="ghost" onClick={() => setEdit(null)}>Annuler</Btn><Btn onClick={saveIt}>Enregistrer</Btn></>}>
         <div className="grid gap-4">
-          <Field label="Type de contrat">
+          <Field label={t('Type de contrat')}>
             <Select value={f.kind} onChange={e => setF({ ...f, kind: e.target.value })}>
               {Object.values(CONTRACTS).map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
             </Select>
           </Field>
           <div className="grid sm:grid-cols-3 gap-3">
-            <Field label={`${EARNINGS.base.label} (${currency()}) *`} hint="Référence de la gratuité.">
+            <Field label={`${EARNINGS.base.label} (${currency()}) *`} hint={t('Référence de la gratuité.')}>
               <Input type="number" value={f.base} onChange={e => setF({ ...f, base: e.target.value })} />
             </Field>
             <Field label={`${EARNINGS.housing.label}`}>
@@ -133,7 +133,7 @@ function Team({ staff, refresh }) {
             <span>Salaire mensuel brut</span>
             <span className="tabular-nums font-extrabold">{money(fGross)}</span>
           </div>
-          <Field label="Date d’entrée">
+          <Field label={t('Date d’entrée')}>
             <Input type="date" value={f.start} onChange={e => setF({ ...f, start: e.target.value })} />
           </Field>
         </div>
@@ -154,8 +154,8 @@ function Leaves({ staff, me, refresh }) {
     refresh()
   }
 
-  if (!all.length) return <EmptyState icon="CalendarOff" title="Aucune demande de congé."
-    sub="Les demandes déposées par l’équipe apparaissent ici." />
+  if (!all.length) return <EmptyState icon="CalendarOff" title={t('Aucune demande de congé.')}
+    sub={t('Les demandes déposées par l’équipe apparaissent ici.')} />
 
   return (
     <div className="grid gap-2">
@@ -171,7 +171,7 @@ function Leaves({ staff, me, refresh }) {
                 <div className="font-bold text-sm">{nameOf(l.staffId)}</div>
                 <div className="text-xs text-muted font-semibold">
                   {k?.label} · {day(l.from)} → {day(l.to)} · <b>{l.days} j</b>
-                  {!k?.paid && <span style={{ color: STATUS.warn }}> sans solde</span>}
+                  {!k?.paid && <span style={{ color: STATUS.warn }}> {t('sans solde')}</span>}
                 </div>
               </div>
               <span className="flex-1" />
@@ -181,7 +181,7 @@ function Leaves({ staff, me, refresh }) {
                   // RÈGLE : personne ne valide sa propre demande. Le cœur le refuse
                   // aussi — une règle qui ne vit que dans l'écran n'est pas une règle.
                   ? <span className="text-xs text-muted font-semibold flex items-center gap-1">
-                      <Ic n="Lock" size={12} /> Votre demande : un autre responsable doit décider
+                      <Ic n="Lock" size={12} /> {t('Votre demande : un autre responsable doit décider')}
                     </span>
                   : <>
                       <Btn size="sm" variant="ghost" onClick={() => decide(l, 'refuse')}>Refuser</Btn>
@@ -192,7 +192,7 @@ function Leaves({ staff, me, refresh }) {
             {l.reason && <p className="text-[13px] text-muted mt-2">{l.reason}</p>}
             {l.decidedBy && (
               <p className="text-[11px] text-muted mt-2">
-                {st?.label} par {l.decidedBy} le {day(l.decidedAt)}
+                {st?.label} {t('par')} {l.decidedBy} {t('le')} {day(l.decidedAt)}
               </p>
             )}
           </Card>
@@ -243,21 +243,21 @@ function Payroll({ staff, me, refresh }) {
         <span className="flex-1" />
         {p && <Badge label={st.label} tone={st.tone} />}
         {p && <span className="text-lg font-extrabold tabular-nums">{money(p.total)}</span>}
-        {!p && <Btn onClick={prepare}><Ic n="Calculator" size={15} /> Préparer la paie</Btn>}
+        {!p && <Btn onClick={prepare}><Ic n="Calculator" size={15} /> {t('Préparer la paie')}</Btn>}
         {p?.stage === 'brouillon' && <>
           <Btn variant="soft" onClick={prepare}>Recalculer</Btn>
           {iPrepared
             // MAKER-CHECKER : le préparateur ne valide pas sa propre paie.
             ? <span className="text-xs text-muted font-semibold flex items-center gap-1">
-                <Ic n="Lock" size={12} /> Vous avez préparé : une autre personne valide
+                <Ic n="Lock" size={12} /> {t('Vous avez préparé : une autre personne valide')}
               </span>
             : <Btn onClick={validate}><Ic n="Lock" size={15} /> Valider</Btn>}
         </>}
-        {p?.stage === 'valide' && <Btn onClick={pay}><Ic n="Check" size={15} /> Marquer payée</Btn>}
+        {p?.stage === 'valide' && <Btn onClick={pay}><Ic n="Check" size={15} /> {t('Marquer payée')}</Btn>}
       </Card>
 
       {!p && <EmptyState icon="Calculator" title={`Aucune paie pour ${monthLabel(month)}.`}
-        sub="La paie se calcule à partir des contrats et des absences sans solde : pas d’une saisie libre." />}
+        sub={t('La paie se calcule à partir des contrats et des absences sans solde : pas d’une saisie libre.')} />}
 
       {p && (
         <Card className="p-0 overflow-hidden">
@@ -265,25 +265,24 @@ function Payroll({ staff, me, refresh }) {
             <div className="px-5 py-3 flex items-center gap-2 text-[13px] font-semibold"
               style={{ background: STATUS.warnSoft, color: STATUS.warn }}>
               <Ic n="PencilLine" size={14} />
-              Brouillon préparé par {p.preparedBy} · la validation revient à une autre personne (séparation des tâches).
+              {t('Brouillon préparé par')} {p.preparedBy} {t('· la validation revient à une autre personne (séparation des tâches).')}
             </div>
           )}
           {locked && (
             <div className="px-5 py-3 flex items-center gap-2 text-[13px] font-semibold"
               style={{ background: STATUS.infoSoft, color: STATUS.info }}>
               <Ic n="Lock" size={14} />
-              Paie {p.preparedBy && `préparée par ${p.preparedBy}, `}validée par {p.validatedBy} · elle ne peut plus être modifiée.
-              Une correction se fait par un ajustement daté, jamais en réécrivant l’histoire.
+              Paie {p.preparedBy && `préparée par ${p.preparedBy}, `}{t('validée par')} {p.validatedBy} {t('· elle ne peut plus être modifiée. Une correction se fait par un ajustement daté, jamais en réécrivant l’histoire.')}
             </div>
           )}
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-xs font-bold text-muted border-b border-line">
-                  <th className="px-5 py-3">Employé</th>
+                  <th className="px-5 py-3">{t('Employé')}</th>
                   <th className="px-3 py-3">Contrat</th>
                   <th className="px-3 py-3 text-right">Brut</th>
-                  <th className="px-3 py-3 text-right">Sans solde</th>
+                  <th className="px-3 py-3 text-right">{t('Sans solde')}</th>
                   <th className="px-3 py-3 text-right">Retenue</th>
                   <th className="px-3 py-3 text-right">Prime</th>
                   <th className="px-3 py-3 text-right">Net</th>
@@ -300,7 +299,7 @@ function Payroll({ staff, me, refresh }) {
                     <td className="px-3 py-3">
                       {l.contract
                         ? <Badge label={CONTRACTS[l.contract]?.label} tone="neutral" />
-                        : <span className="text-xs font-bold" style={{ color: STATUS.warn }}>Aucun</span>}
+                        : <span className="text-xs font-bold" style={{ color: STATUS.warn }}>{t('Aucun')}</span>}
                     </td>
                     <td className="px-3 py-3 text-right tabular-nums">{money(l.gross)}</td>
                     <td className="px-3 py-3 text-right tabular-nums">{l.unpaidDays || '·'}</td>
@@ -317,7 +316,7 @@ function Payroll({ staff, me, refresh }) {
                     </td>
                     <td className="px-3 py-3 text-right font-extrabold tabular-nums">{money(l.net)}</td>
                     <td className="px-5 py-3 text-right">
-                      <Btn size="sm" variant="ghost" onClick={() => setSlip(l)} title="Ouvrir le bulletin de paie">
+                      <Btn size="sm" variant="ghost" onClick={() => setSlip(l)} title={t('Ouvrir le bulletin de paie')}>
                         <Ic n="FileText" size={14} /> Bulletin
                       </Btn>
                     </td>

@@ -1,4 +1,5 @@
 import { Dialog } from '@headlessui/react'
+import { t } from '@core/i18n.js'
 import { MARK_VIEWBOX, MARK_BODY, MARK_SPOUT, MARK_SPOUT_WIDTH } from '@core/mark.js'
 import { X, Search, RotateCw } from 'lucide-react'
 import { Ic } from '../icons.jsx'
@@ -178,7 +179,7 @@ export function Crescent({ size=20, color='var(--accent)', className='' }){
   </svg>
 }
 /** Attente en ligne, avec un mot. Jamais « Chargement… » tout seul sur une page. */
-export function Spinner({ label='Un instant…', className='' }){
+export function Spinner({ label=t('Un instant…'), className='' }){
   return <div role="status" aria-live="polite" className={`flex items-center gap-2 text-sm text-muted ${className}`}>
     <Crescent size={18}/><span>{label}</span></div>
 }
@@ -203,16 +204,16 @@ export function EmptyState({ icon = 'Inbox', title, sub, action, className='' })
   </div>
 }
 /** ERREUR — dire ce qui s'est passé et quoi faire ensuite. Jamais un code, jamais « Oups ». */
-export function ErrorState({ title='La page n’a pas pu se charger.', sub='Vérifiez votre connexion, puis réessayez. Si cela recommence, prévenez la Direction.', onRetry, className='' }){
+export function ErrorState({ title=t('La page n’a pas pu se charger.'), sub=t('Vérifiez votre connexion, puis réessayez. Si cela recommence, prévenez la Direction.'), onRetry, className='' }){
   return <div role="alert" className={`flex flex-col items-center text-center py-12 px-6 ${className}`}>
     <div className="w-14 h-14 rounded-2xl grid place-items-center mb-3" style={{background:STATUS.dangerSoft,color:STATUS.danger}} aria-hidden="true"><X size={26}/></div>
     <div className="font-bold text-ink">{title}</div>
     <p className="text-sm text-muted mt-1 max-w-sm">{sub}</p>
-    {onRetry && <Btn className="mt-4" onClick={onRetry}><RotateCw size={15}/> Réessayer</Btn>}
+    {onRetry && <Btn className="mt-4" onClick={onRetry}><RotateCw size={15}/> {t('Réessayer')}</Btn>}
   </div>
 }
 /** SUCCÈS — bref, chaleureux, et il s'efface tout seul. */
-export function SuccessState({ title='C’est enregistré.', sub, action, className='' }){
+export function SuccessState({ title=t('C’est enregistré.'), sub, action, className='' }){
   return <div role="status" className={`flex flex-col items-center text-center py-12 px-6 ${className}`}>
     <div className="w-14 h-14 rounded-2xl grid place-items-center mb-3"
       style={{background:STATUS.okSoft,color:STATUS.ok}} aria-hidden="true"><Ic n="Check" size={26}/></div>
@@ -241,9 +242,9 @@ export function Tabs({ tabs, value, onChange, className='' }){
   // flex-wrap + max-w-full : cinq onglets (Poste de sécurité) débordaient de 33 px
   // sur un écran de 390 px et créaient un défilement horizontal de toute la page.
   return <div className={`inline-flex flex-wrap items-center gap-1 p-1 rounded-xl bg-canvas border border-line max-w-full ${className}`} role="tablist">
-    {tabs.map(t=>{ const on=t.value===value
-      return <button key={t.value} role="tab" aria-selected={on} onClick={()=>onChange(t.value)}
-        className={`px-3 py-1.5 rounded-lg text-[13px] font-semibold transition ${on?'bg-white shadow-sm text-ink':'text-muted hover:text-ink'}`}>{t.label}{t.count!=null&&<span className={`ml-1.5 ${on?'accent-text':'text-muted'}`}>{t.count}</span>}</button>
+    {tabs.map(v=>{ const on=v.value===value
+      return <button key={v.value} role="tab" aria-selected={on} onClick={()=>onChange(v.value)}
+        className={`px-3 py-1.5 rounded-lg text-[13px] font-semibold transition ${on?'bg-white shadow-sm text-ink':'text-muted hover:text-ink'}`}>{v.label}{v.count!=null&&<span className={`ml-1.5 ${on?'accent-text':'text-muted'}`}>{v.count}</span>}</button>
     })}
   </div>
 }

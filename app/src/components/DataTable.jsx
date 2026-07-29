@@ -11,6 +11,7 @@
 //  - `hide: true` = colonne masquée par défaut (réactivable par l'utilisateur)
 // ════════════════════════════════════════════════════════════════════════════
 import { useMemo, useState } from 'react'
+import { t } from '@core/i18n.js'
 import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Download, Columns3, Search, CheckSquare } from 'lucide-react'
 import { EmptyState } from './ui.jsx'
 
@@ -85,7 +86,7 @@ export default function DataTable({
               <CheckSquare size={14} /> {a.label} ({selected.size})
             </button>))}
           <div className="relative">
-            <button onClick={() => setCols(v => !v)} title="Colonnes affichées"
+            <button onClick={() => setCols(v => !v)} title={t('Colonnes affichées')}
               className="inline-flex items-center gap-1.5 text-[13px] font-semibold px-3 py-2 rounded-xl border border-line bg-white hover:bg-canvas">
               <Columns3 size={14} /> Colonnes
             </button>
@@ -111,7 +112,7 @@ export default function DataTable({
           <table className="w-full text-sm">
             <thead><tr className="text-start text-[11px] uppercase tracking-wide text-muted bg-canvas select-none">
               {hasBulk && <th className="px-3 py-2.5 w-8">
-                <input type="checkbox" aria-label="Tout sélectionner" checked={selected.size === slice.length && slice.length > 0} onChange={toggleAll} /></th>}
+                <input type="checkbox" aria-label={t('Tout sélectionner')} checked={selected.size === slice.length && slice.length > 0} onChange={toggleAll} /></th>}
               {visible.map(c => (
                 <th key={c.key} style={c.width ? { width: c.width } : {}}
                   className="px-3 py-2.5 font-semibold cursor-pointer hover:text-ink whitespace-nowrap" onClick={() => clickSort(c.key)}>
@@ -126,7 +127,7 @@ export default function DataTable({
                   <tr key={id} onClick={onRow ? () => onRow(r) : undefined}
                     className={onRow ? 'hover:bg-canvas cursor-pointer' : ''}>
                     {hasBulk && <td className="px-3 py-2" onClick={e => e.stopPropagation()}>
-                      <input type="checkbox" aria-label="Sélectionner la ligne" checked={selected.has(id)} onChange={() => toggle(id)} /></td>}
+                      <input type="checkbox" aria-label={t('Sélectionner la ligne')} checked={selected.has(id)} onChange={() => toggle(id)} /></td>}
                     {visible.map(c => (
                       <td key={c.key} className="px-3 py-2 whitespace-nowrap">{c.render ? c.render(r) : String(valOf(c, r) ?? '·')}</td>))}
                   </tr>)
@@ -139,11 +140,11 @@ export default function DataTable({
       <div className="flex items-center justify-between gap-3 px-3 py-2.5 border-t border-line text-[13px] text-muted flex-wrap">
         <span>{filtered.length} ligne{filtered.length > 1 ? 's' : ''}{q && ` (filtrées sur ${rows.length})`}</span>
         <div className="flex items-center gap-2">
-          <select aria-label="Lignes par page" value={pageSize} onChange={e => { setPageSize(+e.target.value); setPage(0) }}
+          <select aria-label={t('Lignes par page')} value={pageSize} onChange={e => { setPageSize(+e.target.value); setPage(0) }}
             className="rounded-lg border border-line bg-white px-2 py-1 text-[12px]">
             {PAGE_SIZES.map(n => <option key={n} value={n}>{n} / page</option>)}
           </select>
-          <button aria-label="Page précédente" disabled={cur === 0} onClick={() => setPage(p => p - 1)}
+          <button aria-label={t('Page précédente')} disabled={cur === 0} onClick={() => setPage(p => p - 1)}
             className="w-7 h-7 grid place-items-center rounded-lg border border-line bg-white disabled:opacity-40"><ChevronLeft size={14} /></button>
           <span className="tabular-nums">{cur + 1} / {pages}</span>
           <button aria-label="Page suivante" disabled={cur >= pages - 1} onClick={() => setPage(p => p + 1)}

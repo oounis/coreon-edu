@@ -44,7 +44,7 @@ function StaffBehavior({ u }) {
   const climate = classId ? classClimate(classId) : null
 
   return (<>
-    <PageHead title={t('Suivi du comportement')} sub="On encourage d'abord. On observe un enfant : on ne le compare à personne."
+    <PageHead title={t('Suivi du comportement')} sub={t("On encourage d'abord. On observe un enfant : on ne le compare à personne.")}
       action={<Select value={classId} onChange={e => setClassId(e.target.value)} className="w-auto">
         {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</Select>} />
 
@@ -80,7 +80,7 @@ function StaffBehavior({ u }) {
           </button>
         )
       })}
-      {!students.length && <Card className="sm:col-span-2 lg:col-span-3"><EmptyState icon="Users" title="Aucun élève dans cette classe" /></Card>}
+      {!students.length && <Card className="sm:col-span-2 lg:col-span-3"><EmptyState icon="Users" title={t('Aucun élève dans cette classe')} /></Card>}
     </div>
 
     {target && <ObserveModal student={target} u={u} onClose={() => { setTarget(null); refresh() }} />}
@@ -115,20 +115,20 @@ function ObserveModal({ student, u, onClose }) {
       footer={<><Btn variant="ghost" onClick={onClose}>Fermer</Btn><Btn onClick={submit}>Enregistrer</Btn></>}>
       <div className="space-y-5">
         <div>
-          <div className="text-sm font-bold mb-2" style={{ color: STATUS.ok }}>👏 Un encouragement</div>
+          <div className="text-sm font-bold mb-2" style={{ color: STATUS.ok }}>{t('👏 Un encouragement')}</div>
           <div className="flex flex-wrap gap-2">{positiveTraits().map(tr => <Trait key={tr.key} tr={tr} />)}</div>
         </div>
         <div>
-          <div className="text-sm font-bold mb-2 text-muted">À suivre · pour aider, jamais pour punir</div>
+          <div className="text-sm font-bold mb-2 text-muted">{t('À suivre · pour aider, jamais pour punir')}</div>
           <div className="flex flex-wrap gap-2">{toImproveTraits().map(tr => <Trait key={tr.key} tr={tr} />)}</div>
         </div>
-        <Field label="Un mot (facultatif) : c'est ce que le parent lira">
-          <Textarea value={note} onChange={e => setNote(e.target.value)} className="h-16" placeholder="A aidé un camarade à ranger la classe…" />
+        <Field label={t("Un mot (facultatif) : c'est ce que le parent lira")}>
+          <Textarea value={note} onChange={e => setNote(e.target.value)} className="h-16" placeholder={t('A aidé un camarade à ranger la classe…')} />
         </Field>
 
         {entries.length > 0 && (
           <div>
-            <div className="text-xs font-bold uppercase text-muted mb-2">Le parcours de {student.name.split(' ')[0]}</div>
+            <div className="text-xs font-bold uppercase text-muted mb-2">{t('Le parcours de')} {student.name.split(' ')[0]}</div>
             <div className="space-y-1.5 max-h-56 overflow-y-auto scroll-thin">
               {entries.map(e => { const tr = traitOf(e.trait); if (!tr) return null
                 return (
@@ -136,7 +136,7 @@ function ObserveModal({ student, u, onClose }) {
                     <span className="w-7 h-7 grid place-items-center rounded-lg shrink-0" style={{ background: TONE[tr.tone] + '20', color: TONE[tr.tone] }}><Ic n={tr.icon} size={14} /></span>
                     <span className="min-w-0 flex-1"><span className="block font-semibold truncate">{tr.label}{e.note && <span className="font-normal text-muted"> {e.note}</span>}</span>
                       <span className="block text-[11px] text-muted">{e.byName} · {ago(e.at)}</span></span>
-                    <button onClick={() => { removeEntry(e.id, u.name); force(x => x + 1) }} title="Retirer (tracé)" className="text-muted hover:text-ink shrink-0"><X size={14} /></button>
+                    <button onClick={() => { removeEntry(e.id, u.name); force(x => x + 1) }} title={t('Retirer (tracé)')} className="text-muted hover:text-ink shrink-0"><X size={14} /></button>
                   </div>
                 )
               })}
@@ -153,7 +153,7 @@ function ParentBehavior({ u }) {
   const kids = (u.childIds || []).map(studentById).filter(Boolean)
   const [pickedId, setPickedId] = useState(kids[0]?.id)
   const child = kids.find(k => k.id === pickedId) || kids[0]
-  if (!child) return <Card><EmptyState icon="Users" title="Aucun enfant associé" /></Card>
+  if (!child) return <Card><EmptyState icon="Users" title={t('Aucun enfant associé')} /></Card>
   const sum = studentSummary(child.id)
   const entries = entriesFor(child.id).filter(e => !e.removed)
 
@@ -165,20 +165,20 @@ function ParentBehavior({ u }) {
     <div className="grid grid-cols-3 gap-3 mb-4">
       <Card className="p-4 text-center"><div className="text-3xl font-extrabold" style={{ color: STATUS.ok }}>{sum.positives}</div><div className="text-xs text-muted mt-0.5">encouragements</div></Card>
       <Card className="p-4 text-center"><div className="text-3xl font-extrabold" style={{ color: sum.score >= 0 ? STATUS.ok : STATUS.warn }}>{sum.score > 0 ? '+' : ''}{sum.score}</div><div className="text-xs text-muted mt-0.5">solde d'encouragement</div></Card>
-      <Card className="p-4 text-center"><div className="text-3xl font-extrabold text-muted">{sum.toImprove}</div><div className="text-xs text-muted mt-0.5">à suivre ensemble</div></Card>
+      <Card className="p-4 text-center"><div className="text-3xl font-extrabold text-muted">{sum.toImprove}</div><div className="text-xs text-muted mt-0.5">{t('à suivre ensemble')}</div></Card>
     </div>
 
     {sum.topTrait && traitOf(sum.topTrait) && (
       <Card className="p-4 mb-4 flex items-center gap-3" style={{ background: STATUS.ok + '0E' }}>
         <span className="w-11 h-11 grid place-items-center rounded-xl" style={{ background: STATUS.ok + '20', color: STATUS.ok }}><Ic n={traitOf(sum.topTrait).icon} size={20} /></span>
-        <div><div className="text-xs text-muted">Ce pour quoi l'école le félicite le plus</div>
+        <div><div className="text-xs text-muted">{t("Ce pour quoi l'école le félicite le plus")}</div>
           <div className="font-extrabold">{traitOf(sum.topTrait).label}</div></div>
       </Card>
     )}
 
     <Card className="p-5">
       <h3 className="font-bold mb-3">Son parcours</h3>
-      {entries.length === 0 ? <EmptyState icon="Sparkles" title="Rien encore" sub="Les observations des enseignants apparaîtront ici." />
+      {entries.length === 0 ? <EmptyState icon="Sparkles" title="Rien encore" sub={t('Les observations des enseignants apparaîtront ici.')} />
         : <div className="space-y-2">
           {entries.map(e => { const tr = traitOf(e.trait); if (!tr) return null
             return (

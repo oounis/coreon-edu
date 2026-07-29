@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { t } from '@core/i18n.js'
 import { useNavigate } from 'react-router-dom'
 import { current } from '@core/auth.js'
 import { inboxFor, markRead, markAllRead } from '@core/notify.js'
@@ -16,7 +17,7 @@ export default function Notifications(){
   return (<>
     <PageHead title="Notifications" sub={`${inboxFor(u).filter(n=>!n.read).length} non lues`} action={<Btn variant="ghost" onClick={()=>{markAllRead(u);force(x=>x+1)}}><CheckCheck size={15}/> Tout marquer comme lu</Btn>}/>
     <Tabs className="mb-4" tabs={[{value:'all',label:'Toutes'},{value:'unread',label:'Non lues',count:inboxFor(u).filter(n=>!n.read).length}]} value={tab} onChange={setTab}/>
-    {all.length===0 && <Card><EmptyState icon={<Bell size={26}/>} title="Vous êtes à jour" sub={tab==='unread'?'Aucune notification non lue.':'Aucune notification pour le moment.'}/></Card>}
-    <Group title="Aujourd'hui" items={today}/><Group title="Cette semaine" items={week}/><Group title="Plus tôt" items={older}/>
+    {all.length===0 && <Card><EmptyState icon={<Bell size={26}/>} title={t('Vous êtes à jour')} sub={tab==='unread'?'Aucune notification non lue.':'Aucune notification pour le moment.'}/></Card>}
+    <Group title="Aujourd'hui" items={today}/><Group title={t('Cette semaine')} items={week}/><Group title={t('Plus tôt')} items={older}/>
   </>)
 }

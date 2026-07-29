@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { t } from '@core/i18n.js'
 import { STATUS } from '../components/ui.jsx'
 import { db } from '@core/db.js'
 import { current } from '@core/auth.js'
@@ -46,11 +47,11 @@ function RouteCard({ r, mine }){
   const nextStop=seq[idx], eta=Math.max(1, Math.round((idx/(n-1)-prog)*42))
   const statusPill = live
     ? <span className="flex items-center gap-1.5 text-[12px] font-bold px-2.5 py-1 rounded-full text-white" style={{background:STATUS.live}}><span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"/>EN DIRECT</span>
-    : <span className="text-[12px] font-bold px-2.5 py-1 rounded-full bg-canvas text-muted">Aperçu</span>
+    : <span className="text-[12px] font-bold px-2.5 py-1 rounded-full bg-canvas text-muted">{t('Aperçu')}</span>
   return (
     <SectionCard icon={<Bus size={16}/>} tint="butter" title={r.name} sub={`Bus ${r.bus} · ${r.students} élèves`} action={statusPill}
       className={mine?'ring-2 ring-[var(--accent)]':''}>
-      {mine && <div className="mb-3 -mt-1 inline-flex items-center gap-1.5 text-xs font-bold accent-text accent-soft px-2.5 py-1 rounded-full">Circuit de votre enfant</div>}
+      {mine && <div className="mb-3 -mt-1 inline-flex items-center gap-1.5 text-xs font-bold accent-text accent-soft px-2.5 py-1 rounded-full">{t('Circuit de votre enfant')}</div>}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2.5">
           <Avatar name={r.driver} size={40}/>
@@ -63,7 +64,7 @@ function RouteCard({ r, mine }){
             ? <a href={`tel:${r.phone}`} aria-label={`Appeler ${r.driver} au ${r.phone}`}
                 className="inline-flex items-center justify-center gap-1.5 rounded-xl font-semibold transition text-xs px-3 py-2 bg-canvas border border-line hover:bg-white active:scale-[.98]">
                 <Phone size={14}/> Appeler</a>
-            : <Btn variant="soft" size="sm" disabled title="Aucun numéro enregistré pour ce chauffeur"><Phone size={14}/> Appeler</Btn>}
+            : <Btn variant="soft" size="sm" disabled title={t('Aucun numéro enregistré pour ce chauffeur')}><Phone size={14}/> Appeler</Btn>}
         </div>
       </div>
       <Journey seq={seq} prog={prog} live={live}/>
@@ -88,8 +89,8 @@ export default function Transport(){
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
       <StatCard tint="brand"  icon={<Route size={20}/>}  value={routes.length} label="Circuits" onClick={()=>setTile('routes')}/>
       <StatCard tint="butter" icon={<Bus size={20}/>}    value={buses}         label="Bus en service" onClick={()=>setTile('buses')}/>
-      <StatCard tint="sky"    icon={<Users size={20}/>}  value={totalKids}     label="Élèves transportés" onClick={()=>setTile('kids')}/>
-      <StatCard tint="mint"   icon={<MapPin size={20}/>} value={stops}         label="Arrêts desservis" onClick={()=>setTile('stops')}/>
+      <StatCard tint="sky"    icon={<Users size={20}/>}  value={totalKids}     label={t('Élèves transportés')} onClick={()=>setTile('kids')}/>
+      <StatCard tint="mint"   icon={<MapPin size={20}/>} value={stops}         label={t('Arrêts desservis')} onClick={()=>setTile('stops')}/>
     </div>
 
     {tile && (()=>{
@@ -97,7 +98,7 @@ export default function Transport(){
       return (
       <Modal open onClose={()=>setTile(null)} title={TITLE[tile]} size="xl"
         footer={<Btn variant="ghost" onClick={()=>setTile(null)}>Fermer</Btn>}>
-        {routes.length===0 ? <EmptyState icon={<Bus size={24}/>} title="Aucun circuit de transport" sub="Ajoutez un circuit pour commencer."/>
+        {routes.length===0 ? <EmptyState icon={<Bus size={24}/>} title={t('Aucun circuit de transport')} sub={t('Ajoutez un circuit pour commencer.')}/>
         : <div className="space-y-1.5">
           {routes.map(r=>(
             <div key={r.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
@@ -106,7 +107,7 @@ export default function Transport(){
                 <span className="block text-sm font-semibold truncate">{r.name} <span className="text-muted font-normal"> bus {r.bus}</span></span>
                 {tile==='stops'
                   ? <span className="flex flex-wrap gap-1 mt-0.5">{(r.stops||[]).map(s=><span key={s} className="text-[11px] font-semibold px-1.5 py-0.5 rounded-full bg-canvas text-muted">{s}</span>)}</span>
-                  : <span className="block text-[12px] text-muted truncate">{r.driver} · {(r.stops||[]).length} arrêts · {r.students} élèves</span>}
+                  : <span className="block text-[12px] text-muted truncate">{r.driver} · {(r.stops||[]).length} {t('arrêts ·')} {r.students} {t('élèves')}</span>}
               </span>
               {tile==='kids' && <span className="text-sm font-extrabold accent-text">{r.students}</span>}
               {tile==='buses' && r.phone && <a href={`tel:${r.phone}`} className="text-xs font-semibold inline-flex items-center gap-1 accent-text"><Phone size={13}/> Appeler</a>}
@@ -114,7 +115,7 @@ export default function Transport(){
         </div>}
       </Modal>) })()}
     {routes.length===0
-      ? <SectionCard headless><EmptyState icon={<Bus size={26}/>} title="Aucun circuit de transport" sub="Ajoutez un circuit pour commencer à suivre les bus et informer les parents."/></SectionCard>
+      ? <SectionCard headless><EmptyState icon={<Bus size={26}/>} title={t('Aucun circuit de transport')} sub={t('Ajoutez un circuit pour commencer à suivre les bus et informer les parents.')}/></SectionCard>
       : <div className="grid lg:grid-cols-2 gap-4">{ordered.map(r=><RouteCard key={r.id} r={r} mine={r.id===mineId}/>)}</div>}
   </>)
 }

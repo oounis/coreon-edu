@@ -5,6 +5,7 @@
 // accidents. Chaque chiffre du bandeau mène à sa section (règle produit).
 // ════════════════════════════════════════════════════════════════════════════
 import { useMemo, useState } from 'react'
+import { t } from '@core/i18n.js'
 import { useParams, useNavigate } from 'react-router-dom'
 import { current } from '@core/auth.js'
 import { db, classById, userById, attParts } from '@core/db.js'
@@ -64,7 +65,7 @@ export default function StudentProfile() {
     }
   }, [d, s])
 
-  if (!s) return <Card><EmptyState icon={<Users size={26} />} title="Élève introuvable" sub="Le dossier n'existe pas ou a été archivé sous un autre identifiant." /></Card>
+  if (!s) return <Card><EmptyState icon={<Users size={26} />} title={t('Élève introuvable')} sub={t("Le dossier n'existe pas ou a été archivé sous un autre identifiant.")} /></Card>
 
   const cls = classById(s.classId)
   const parent = userById(s.parentId)
@@ -94,7 +95,7 @@ export default function StudentProfile() {
           <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-2xl font-extrabold">{s.name}</h1>
             {s.ref && <code className="text-[12px] font-semibold tabular-nums text-muted bg-canvas px-2 py-0.5 rounded-lg">{s.ref}</code>}
-            {s.archived && <Badge tone="neutral" label="Dossier archivé" status="archived" />}
+            {s.archived && <Badge tone="neutral" label={t('Dossier archivé')} status="archived" />}
             {allergic && <Badge tone="warn" label={`Allergie : ${s.allergies}`} status="allergy" />}
           </div>
           <div className="text-sm text-muted mt-0.5">
@@ -102,9 +103,9 @@ export default function StudentProfile() {
           </div>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <Btn variant="soft" onClick={tellParent}><BellRing size={15} /> Prévenir le parent</Btn>
+          <Btn variant="soft" onClick={tellParent}><BellRing size={15} /> {t('Prévenir le parent')}</Btn>
           <Btn variant="soft" onClick={() => setBulletin(true)}><Printer size={15} /> Bulletin</Btn>
-          {['schooladmin', 'admin'].includes(u.role) && <Btn onClick={() => nav('/app/documents')}><ScrollText size={15} /> Délivrer un document</Btn>}
+          {['schooladmin', 'admin'].includes(u.role) && <Btn onClick={() => nav('/app/documents')}><ScrollText size={15} /> {t('Délivrer un document')}</Btn>}
         </div>
       </div>
     </Card>
@@ -112,8 +113,8 @@ export default function StudentProfile() {
     {/* ── Les quatre chiffres — chacun mène à sa section ── */}
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
       <Tile icon={<CalendarCheck size={19} />} value={stats.rate != null ? `${stats.rate}%` : '·'} label={`Présence · 30 j (${stats.totalMarks} appels)`} tone={STATUS.ok} anchor="sec-presence" />
-      <Tile icon={<Gauge size={19} />} value={stats.avg != null ? `${stats.avg}/100` : '·'} label="Moyenne de l'année" anchor="sec-resultats" />
-      <Tile icon={<Wallet size={19} />} value={stats.unpaid.length} label="Mois impayés" tone={stats.unpaid.length ? STATUS.danger : STATUS.ok} anchor="sec-paiements" />
+      <Tile icon={<Gauge size={19} />} value={stats.avg != null ? `${stats.avg}/100` : '·'} label={t("Moyenne de l'année")} anchor="sec-resultats" />
+      <Tile icon={<Wallet size={19} />} value={stats.unpaid.length} label={t('Mois impayés')} tone={stats.unpaid.length ? STATUS.danger : STATUS.ok} anchor="sec-paiements" />
       <Tile icon={<Smile size={19} />} value={stats.encouragements} label={`Encouragements (${stats.behavior.length} obs.)`} tone={STATUS.ok} anchor="sec-comportement" />
     </div>
 
@@ -132,22 +133,22 @@ export default function StudentProfile() {
       </SectionCard>
 
       {/* Présence */}
-      <SectionCard icon={<CalendarCheck size={16} />} tint="mint" title="Présence" sub="30 derniers jours + dernières anomalies" bodyClass="p-4">
+      <SectionCard icon={<CalendarCheck size={16} />} tint="mint" title={t('Présence')} sub={t('30 derniers jours + dernières anomalies')} bodyClass="p-4">
         <div id="sec-presence" className="text-3xl font-extrabold" style={{ color: stats.rate >= 90 ? STATUS.ok : STATUS.warn }}>{stats.rate != null ? `${stats.rate}%` : 'Aucun appel'}</div>
         {stats.anomalies.length === 0
-          ? <p className="text-sm text-muted mt-2">Aucune absence ni retard enregistrés.</p>
+          ? <p className="text-sm text-muted mt-2">{t('Aucune absence ni retard enregistrés.')}</p>
           : <div className="mt-2 space-y-1">{stats.anomalies.map((a, i) => (
             <div key={i} className="flex justify-between text-sm border-b border-line py-1 last:border-0">
               <span className="text-muted">{a.iso}</span><Badge status={a.st} /></div>))}</div>}
       </SectionCard>
 
       {/* Résultats */}
-      <SectionCard icon={<Gauge size={16} />} tint="grape" title="Résultats" sub="Moyenne de l'année et mention" bodyClass="p-4">
+      <SectionCard icon={<Gauge size={16} />} tint="grape" title={t('Résultats')} sub={t("Moyenne de l'année et mention")} bodyClass="p-4">
         <div id="sec-resultats" className="flex items-end gap-3">
           <span className="text-3xl font-extrabold" style={{ color: stats.avg != null ? mentionFor(stats.avg).color : undefined }}>{stats.avg != null ? `${stats.avg}/100` : '·'}</span>
           {stats.avg != null && <span className="text-sm font-bold px-2 py-0.5 rounded-full mb-1" style={{ background: mentionFor(stats.avg).color + '1E', color: mentionFor(stats.avg).color }}>{mentionFor(stats.avg).label}</span>}
         </div>
-        <div className="mt-3"><Btn size="sm" variant="soft" onClick={() => setBulletin(true)}><FileText size={14} /> Voir le bulletin complet</Btn></div>
+        <div className="mt-3"><Btn size="sm" variant="soft" onClick={() => setBulletin(true)}><FileText size={14} /> {t('Voir le bulletin complet')}</Btn></div>
       </SectionCard>
 
       {/* Paiements */}
@@ -157,34 +158,34 @@ export default function StudentProfile() {
             const col = { paid: STATUS.ok, pending: STATUS.warn, overdue: STATUS.danger, due: STATUS.neutral }[m.status]
             return <span key={i} title={m.status} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: col + '1E', color: col }}>{m.month}</span>})}
         </div>
-        {stats.invoices.length > 0 && <p className="text-[12px] text-muted mt-2">{stats.invoices.length} facture(s) émise(s) · détail dans Comptabilité.</p>}
+        {stats.invoices.length > 0 && <p className="text-[12px] text-muted mt-2">{stats.invoices.length} {t('facture(s) émise(s) · détail dans Comptabilité.')}</p>}
       </SectionCard>
 
       {/* Santé & sécurité */}
-      <SectionCard icon={<HeartPulse size={16} />} tint="coral" title="Santé & sécurité" bodyClass="p-4">
+      <SectionCard icon={<HeartPulse size={16} />} tint="coral" title={t('Santé & sécurité')} bodyClass="p-4">
         <div className="space-y-1.5 text-sm">
           <div className="flex justify-between border-b border-line py-1.5"><span className="text-muted">Allergies</span>
             <span className="font-bold" style={allergic ? { color: STATUS.warn } : {}}>{s.allergies || 'Aucune'}</span></div>
-          <div className="flex justify-between border-b border-line py-1.5"><span className="text-muted">Suivi médical</span><span className="font-medium">{s.medical || 'Aucun'}</span></div>
+          <div className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{t('Suivi médical')}</span><span className="font-medium">{s.medical || 'Aucun'}</span></div>
           <div className="flex justify-between border-b border-line py-1.5"><span className="text-muted">Vaccins</span>
             <span className="font-medium" style={stats.vaccines.due?.length ? { color: STATUS.warn } : {}}>
               {stats.vaccines.unknown ? '·' : `${stats.vaccines.done.length} faits${stats.vaccines.due.length ? ` · ${stats.vaccines.due.length} en retard` : ' · à jour'}`}</span></div>
-          <div className="flex justify-between py-1.5"><span className="text-muted flex items-center gap-1"><ShieldCheck size={13} /> Personnes autorisées</span>
+          <div className="flex justify-between py-1.5"><span className="text-muted flex items-center gap-1"><ShieldCheck size={13} /> {t('Personnes autorisées')}</span>
             <span className="font-medium">{stats.pickups.length ? stats.pickups.map(p => p.name.split(' ')[0]).join(', ') : 'Aucune · à compléter !'}</span></div>
         </div>
       </SectionCard>
 
       {/* Comportement */}
-      <SectionCard icon={<Smile size={16} />} tint="mint" title="Comportement" sub="On observe pour encourager : jamais pour classer" bodyClass="p-4">
+      <SectionCard icon={<Smile size={16} />} tint="mint" title="Comportement" sub={t('On observe pour encourager : jamais pour classer')} bodyClass="p-4">
         <div id="sec-comportement">
-          {stats.behavior.length === 0 ? <p className="text-sm text-muted">Aucune observation.</p>
+          {stats.behavior.length === 0 ? <p className="text-sm text-muted">{t('Aucune observation.')}</p>
             : stats.behavior.slice(0, 5).map(e => {
-              const t = traitOf(e.trait)
+              const trait = traitOf(e.trait)
               return (
                 <div key={e.id} className="flex items-center gap-2.5 py-1.5 border-b border-line last:border-0 text-sm">
-                  <span className="w-7 h-7 rounded-lg grid place-items-center shrink-0" style={{ background: (t?.positive ? STATUS.ok : STATUS.warn) + '1E', color: t?.positive ? STATUS.ok : STATUS.warn }}>
+                  <span className="w-7 h-7 rounded-lg grid place-items-center shrink-0" style={{ background: (trait?.positive ? STATUS.ok : STATUS.warn) + '1E', color: trait?.positive ? STATUS.ok : STATUS.warn }}>
                     <Smile size={14} /></span>
-                  <span className="flex-1 min-w-0 truncate font-medium">{t?.label || e.trait}</span>
+                  <span className="flex-1 min-w-0 truncate font-medium">{trait?.label || e.trait}</span>
                   <span className="text-[12px] text-muted shrink-0">{format(new Date(e.at), 'd MMM', { locale: df() })}</span>
                 </div>)})}
         </div>
@@ -192,7 +193,7 @@ export default function StudentProfile() {
 
       {/* Documents & accidents */}
       <SectionCard icon={<ScrollText size={16} />} tint="sky" title="Documents & accidents" bodyClass="p-4">
-        {stats.docs.length === 0 && stats.accidents.length === 0 && <p className="text-sm text-muted">Aucun document délivré, aucun accident déclaré.</p>}
+        {stats.docs.length === 0 && stats.accidents.length === 0 && <p className="text-sm text-muted">{t('Aucun document délivré, aucun accident déclaré.')}</p>}
         {stats.docs.map(x => (
           <div key={x.id} className="flex justify-between gap-3 text-sm border-b border-line py-1.5">
             <span className="truncate">{docTypeOf(x.type)?.label}</span>

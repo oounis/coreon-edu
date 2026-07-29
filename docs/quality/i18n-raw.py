@@ -24,6 +24,10 @@ SKIP = {'i18n.js', 'i18n.ar.js', 'i18n.en.js'}
 FR_HINT = re.compile(r'[àâäéèêëîïôöùûüçÀÂÄÉÈÊËÎÏÔÖÙÛÜÇ]|\b(le|la|les|un|une|des|du|de|et|ou|pour|par|sur|dans|avec|sans|aucun|aucune|tous|toutes|votre|vos|ce|cette|qui|que|est|sont|pas|plus|jamais|déjà)\b', re.I)
 # Ce qu'on ne considère jamais comme du texte d'interface.
 IGNORE = re.compile(r'^[\s\d\W]*$|^(https?:|/|#|@|\.|[A-Z_]+$)')
+# …ni du CODE attrapé entre un « > » arithmétique et un « < » plus loin. Le
+# détecteur travaille au motif, pas à l'arbre : ces marqueurs lèvent les faux
+# positifs (constatés dans Live.jsx : `i.type==='Santé'&&i.status==='open'`).
+CODEISH = re.compile(r'===|!==|&&|\|\||=>|\breturn\b|\bconst\b|\.\w+\(|\)\s*$')
 
 def strip_comments(s):
     s = re.sub(r'/\*.*?\*/', '', s, flags=re.S)
@@ -35,7 +39,7 @@ def findings(path):
     # 1) TEXTE JSX entre balises : >  Bonjour tout le monde  <
     for m in re.finditer(r'>([^<>{}\n]{4,120})<', src):
         txt = m.group(1).strip()
-        if not txt or IGNORE.match(txt) or not FR_HINT.search(txt):
+        if not txt or IGNORE.match(txt) or CODEISH.search(txt) or not FR_HINT.search(txt):
             continue
         out.append((src[:m.start()].count('\n') + 1, txt))
     # 2) PROPS de texte : title="…", sub='…', label=…, placeholder=…

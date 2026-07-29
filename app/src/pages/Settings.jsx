@@ -124,7 +124,7 @@ export default function Settings() {
           <Card className="p-6">
             <h3 className="font-bold flex items-center gap-2 mb-4"><Building2 size={18} className="accent-text" /> {t('Identité de l’établissement')}</h3>
             <div className="grid sm:grid-cols-2 gap-3">
-              <Field label={t('Nom de l’école *')}><Input value={f.schoolName} onChange={e => set('schoolName', e.target.value)} placeholder="École Al-Nour" /></Field>
+              <Field label={t('Nom de l’école *')}><Input value={f.schoolName} onChange={e => set('schoolName', e.target.value)} placeholder={t('École Al-Nour')} /></Field>
               <Field label={t('Nom court (sidebar)')}><Input value={f.shortName} onChange={e => set('shortName', e.target.value)} placeholder="Al-Nour" /></Field>
               {/* CR-023 : Pays → Ville. On choisit dans la liste du pays, jamais
                   au clavier. Changer de pays recharge SES villes. */}
@@ -225,7 +225,7 @@ export default function Settings() {
               </Field>
               <Field label={t('Langue par défaut')} hint={t('La langue d’un nouvel appareil. Chacun peut la changer.')}>
                 <Select disabled={u.role !== 'owner'} value={f.locale || 'fr'} onChange={e => set('locale', e.target.value)}>
-                  <option value="fr">Français</option>
+                  <option value="fr">{t('Français')}</option>
                   <option value="ar">العربية</option>
                   <option value="en">English</option>
                 </Select>

@@ -23,8 +23,8 @@ export default function ScrollToTop() {
   useEffect(() => {
     toTop()
     const r = requestAnimationFrame(toTop)
-    const t = setTimeout(toTop, 80)
-    return () => { cancelAnimationFrame(r); clearTimeout(t) }
+    const setTimeout2 = setTimeout(toTop, 80)
+    return () => { cancelAnimationFrame(r); clearTimeout(setTimeout2) }
   }, [pathname])
   return null
 }

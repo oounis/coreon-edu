@@ -27,7 +27,7 @@ export default function Academic() {
   const refresh = () => force(n => n + 1)
   return (
     <>
-      <PageHead title="Bulletins & passage" sub="Les acquis, les moyennes : et le passage d’une année à l’autre." />
+      <PageHead title="Bulletins & passage" sub={t('Les acquis, les moyennes : et le passage d’une année à l’autre.')} />
       <Tabs value={tab} onChange={setTab} tabs={[
         { value: 'bulletins', label: 'Bulletins' },
         { value: 'passage',   label: 'Passage de classe' },
@@ -66,9 +66,9 @@ function Bulletins({ refresh }) {
   return (
     <>
       <div className="flex items-center gap-3 flex-wrap mb-4">
-        <Tabs value={term} onChange={setTerm} tabs={TERMS.map(t => ({ value: t.key, label: t.label }))} />
+        <Tabs value={term} onChange={setTerm} tabs={TERMS.map(v => ({ value: v.key, label: v.label }))} />
         <span className="flex-1" />
-        <SearchInput value={q} onChange={setQ} placeholder="Chercher un élève…" />
+        <SearchInput value={q} onChange={setQ} placeholder={t('Chercher un élève…')} />
       </div>
 
       {/* CR-022 : noter la classe entière d'un coup. Saisir élève par élève est
@@ -76,8 +76,8 @@ function Bulletins({ refresh }) {
           gagner du temps, ou en fait perdre. */}
       <Card className="p-4 mb-4">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-sm font-bold">Noter toute une classe</span>
-          <span className="text-xs text-muted">une grille, au clavier, sans ouvrir chaque élève</span>
+          <span className="text-sm font-bold">{t('Noter toute une classe')}</span>
+          <span className="text-xs text-muted">{t('une grille, au clavier, sans ouvrir chaque élève')}</span>
           <span className="flex-1" />
           {classes.map(c => (
             <Btn key={c.id} size="sm" variant="soft" onClick={() => setGrid({ classId: c.id })}>
@@ -113,7 +113,7 @@ function Bulletins({ refresh }) {
                       style={{ color: avg >= PASS_MARK ? STATUS.ok : STATUS.danger }}>
                       {avg ?? '·'}<span className="text-xs text-muted">/{MARK_MAX}</span>
                     </span>
-                : <span className="text-xs font-bold" style={{ color: STATUS.warn }}>Pas de bulletin</span>}
+                : <span className="text-xs font-bold" style={{ color: STATUS.warn }}>{t('Pas de bulletin')}</span>}
               <Btn size="sm" variant="soft" onClick={() => setOpen({ s, cls, early, r })}>
                 {r ? 'Modifier' : 'Saisir'}
               </Btn>
@@ -171,23 +171,23 @@ function ClassGrid({ classId, term, me, onClose }) {
     <>
       <div className="flex items-center gap-3 flex-wrap mb-4">
         <Btn variant="ghost" size="sm" onClick={onClose}>
-          <Ic n="ArrowLeft" size={15} className="rtl:-scale-x-100" /> Tous les élèves
+          <Ic n="ArrowLeft" size={15} className="rtl:-scale-x-100" /> {t('Tous les élèves')}
         </Btn>
         <div>
           <div className="font-extrabold">{cls?.name}</div>
           <div className="text-xs text-muted">
-            {TERMS.find(t => t.key === term)?.label} · {g.students.length} élèves
+            {TERMS.find(v => v.key === term)?.label} · {g.students.length} {t('élèves')}
           </div>
         </div>
         <span className="flex-1" />
-        <Btn onClick={save} disabled={!dirty}>Enregistrer la classe</Btn>
+        <Btn onClick={save} disabled={!dirty}>{t('Enregistrer la classe')}</Btn>
       </div>
 
       <Card className="p-0 overflow-x-auto">
         <table className="w-full text-sm border-collapse">
           <thead>
             <tr className="bg-canvas">
-              <th className="text-start p-3 font-bold sticky start-0 bg-canvas z-10 min-w-[180px]">Élève</th>
+              <th className="text-start p-3 font-bold sticky start-0 bg-canvas z-10 min-w-[180px]">{t('Élève')}</th>
               {g.columns.map(c => (
                 <th key={c.key} className="p-3 font-bold text-center whitespace-nowrap">
                   {c.label}
@@ -240,7 +240,7 @@ function ClassGrid({ classId, term, me, onClose }) {
           {!g.early && (
             <tfoot>
               <tr className="border-t-2 border-line bg-canvas">
-                <td className="p-3 font-bold sticky start-0 bg-canvas">Moyenne de la classe</td>
+                <td className="p-3 font-bold sticky start-0 bg-canvas">{t('Moyenne de la classe')}</td>
                 {g.columns.map(c => {
                   const a = columnAverage(rows, c.key)
                   return (
@@ -258,8 +258,7 @@ function ClassGrid({ classId, term, me, onClose }) {
       </Card>
 
       <p className="text-xs text-muted mt-3">
-        Entrée ou ↓ descend la colonne : on note une matière pour toute la classe sans lâcher le clavier.
-        Une case laissée vide n’efface jamais une note déjà enregistrée.
+        {t('Entrée ou ↓ descend la colonne : on note une matière pour toute la classe sans lâcher le clavier. Une case laissée vide n’efface jamais une note déjà enregistrée.')}
       </p>
     </>
   )
@@ -283,7 +282,7 @@ function ReportModal({ open, term, me, onClose, onSaved }) {
         // ── PETITE ENFANCE : des acquis observés, jamais une note ──────────────
         <div className="grid gap-2">
           <p className="text-xs text-muted mb-1">
-            En petite enfance, on n’attribue pas de note : on observe des acquis.
+            {t('En petite enfance, on n’attribue pas de note : on observe des acquis.')}
           </p>
           {DOMAINS.map(dm => (
             <div key={dm.key} className="flex items-center gap-2 flex-wrap">
@@ -324,9 +323,9 @@ function ReportModal({ open, term, me, onClose, onSaved }) {
         </div>
       )}
       <div className="mt-4">
-        <div className="text-xs font-semibold text-muted mb-1">Appréciation</div>
+        <div className="text-xs font-semibold text-muted mb-1">{t('Appréciation')}</div>
         <textarea rows={3} value={comment} onChange={e => setComment(e.target.value)}
-          placeholder="Un trimestre appliqué. Continue ainsi."
+          placeholder={t('Un trimestre appliqué. Continue ainsi.')}
           className="w-full rounded-xl border border-line px-3 py-2 text-sm accent-ring" />
       </div>
     </Modal>
@@ -353,9 +352,7 @@ function Passage({ refresh }) {
         <div className="flex items-start gap-3">
           <Ic n="Info" size={18} style={{ color: STATUS.info }} />
           <div className="text-[13px]">
-            <b>Un passage de classe est irréversible et touche à l’argent.</b> Le niveau change,
-            donc le barème change, donc la facture de l’an prochain change. Vous voyez tout
-            ci-dessous <b>avant</b> que quoi que ce soit ne bouge.
+            <b>{t('Un passage de classe est irréversible et touche à l’argent.')}</b> {t('Le niveau change, donc le barème change, donc la facture de l’an prochain change. Vous voyez tout ci-dessous')} <b>avant</b> {t('que quoi que ce soit ne bouge.')}
           </div>
         </div>
       </Card>
@@ -375,15 +372,15 @@ function Passage({ refresh }) {
           <div className="flex items-start gap-3">
             <Ic n="TriangleAlert" size={18} style={{ color: STATUS.danger }} />
             <div className="text-[13px]">
-              <b>{p.summary.bloque} élève(s) n’ont pas de place dans le niveau supérieur.</b>
-              <div className="mt-1">Ouvrez une classe, ou confirmez pour les laisser où ils sont : mais le produit ne les fera pas disparaître en silence.</div>
+              <b>{p.summary.bloque} {t('élève(s) n’ont pas de place dans le niveau supérieur.')}</b>
+              <div className="mt-1">{t('Ouvrez une classe, ou confirmez pour les laisser où ils sont : mais le produit ne les fera pas disparaître en silence.')}</div>
             </div>
           </div>
         </Card>
       )}
 
       <div className="flex justify-end mb-3">
-        <Btn onClick={() => setConfirm(true)}><Ic n="ArrowRightLeft" size={15} /> Exécuter le passage</Btn>
+        <Btn onClick={() => setConfirm(true)}><Ic n="ArrowRightLeft" size={15} /> {t('Exécuter le passage')}</Btn>
       </div>
 
       <Card className="p-0 overflow-hidden">
@@ -391,12 +388,12 @@ function Passage({ refresh }) {
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs font-bold text-muted border-b border-line">
-                <th className="px-5 py-3">Élève</th>
+                <th className="px-5 py-3">{t('Élève')}</th>
                 <th className="px-3 py-3">Niveau</th>
                 <th className="px-3 py-3 text-right">Moyenne</th>
-                <th className="px-3 py-3">Décision</th>
+                <th className="px-3 py-3">{t('Décision')}</th>
                 <th className="px-3 py-3">Vers</th>
-                <th className="px-5 py-3 text-right">Effet sur les frais</th>
+                <th className="px-5 py-3 text-right">{t('Effet sur les frais')}</th>
               </tr>
             </thead>
             <tbody>
@@ -431,29 +428,29 @@ function Passage({ refresh }) {
 
       {!!past.length && (
         <Card className="p-5 mt-4">
-          <div className="text-sm font-bold mb-2">Passages précédents</div>
+          <div className="text-sm font-bold mb-2">{t('Passages précédents')}</div>
           {past.map(x => (
             <div key={x.id} className="text-[13px] text-muted">
-              {new Date(x.at).toLocaleDateString(dateLocale())} · par {x.by} · {x.summary.passe} passés,
-              {' '}{x.summary.redouble} redoublants, {x.summary.diplome} diplômés
+              {new Date(x.at).toLocaleDateString(dateLocale())} {t('· par')} {x.by} · {x.summary.passe} {t('passés,')}
+              {' '}{x.summary.redouble} redoublants, {x.summary.diplome} {t('diplômés')}
             </div>
           ))}
         </Card>
       )}
 
-      <Modal open={confirm} onClose={() => setConfirm(false)} title="Exécuter le passage de classe"
+      <Modal open={confirm} onClose={() => setConfirm(false)} title={t('Exécuter le passage de classe')}
         footer={<>
           <Btn variant="ghost" onClick={() => setConfirm(false)}>Annuler</Btn>
-          {p.summary.bloque > 0 && <Btn variant="soft" onClick={() => run(true)}>Exécuter quand même</Btn>}
+          {p.summary.bloque > 0 && <Btn variant="soft" onClick={() => run(true)}>{t('Exécuter quand même')}</Btn>}
           <Btn onClick={() => run(false)}>Confirmer</Btn>
         </>}>
         <p className="text-sm">
-          <b>{p.summary.passe}</b> élèves passeront au niveau supérieur,
+          <b>{p.summary.passe}</b> {t('élèves passeront au niveau supérieur,')}
           {' '}<b>{p.summary.redouble}</b> redoubleront,
-          {' '}<b>{p.summary.diplome}</b> quitteront l’école (leur dossier sera <b>archivé</b>, jamais supprimé).
+          {' '}<b>{p.summary.diplome}</b> {t('quitteront l’école (leur dossier sera')} <b>{t('archivé')}</b>{t(', jamais supprimé).')}
         </p>
         <p className="text-sm text-muted mt-3">
-          Cette opération est datée et signée à votre nom. Elle ne s’annule pas d’un clic.
+          {t('Cette opération est datée et signée à votre nom. Elle ne s’annule pas d’un clic.')}
         </p>
       </Modal>
     </>
@@ -463,8 +460,8 @@ function Passage({ refresh }) {
 // ── ARCHIVES ────────────────────────────────────────────────────────────────
 function Archives() {
   const rows = archivedStudents()
-  if (!rows.length) return <EmptyState icon="Archive" title="Aucun dossier archivé."
-    sub="Les élèves diplômés ou partis restent ici : un dossier scolaire ne se supprime jamais." />
+  if (!rows.length) return <EmptyState icon="Archive" title={t('Aucun dossier archivé.')}
+    sub={t('Les élèves diplômés ou partis restent ici : un dossier scolaire ne se supprime jamais.')} />
   return (
     <div className="grid gap-2">
       {rows.map(s => (

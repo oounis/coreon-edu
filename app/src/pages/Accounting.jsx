@@ -18,7 +18,7 @@ import {
 import { Ic } from '../icons.jsx'
 import toast from 'react-hot-toast'
 
-const day = t => new Date(t).toLocaleDateString(dateLocale(), { day: '2-digit', month: 'short', year: '2-digit' })
+const day = v => new Date(v).toLocaleDateString(dateLocale(), { day: '2-digit', month: 'short', year: '2-digit' })
 
 export default function Accounting() {
   const [tab, setTab] = useState('etat')
@@ -26,7 +26,7 @@ export default function Accounting() {
   const refresh = () => force(n => n + 1)
   return (
     <>
-      <PageHead title="Comptabilité" sub="Barème, remises, factures, reçus : et ce que l’école a réellement encaissé." />
+      <PageHead title={t('Comptabilité')} sub={t('Barème, remises, factures, reçus : et ce que l’école a réellement encaissé.')} />
       <Tabs value={tab} onChange={setTab} tabs={[
         { value: 'etat',     label: 'État financier' },
         { value: 'factures', label: 'Factures' },
@@ -66,13 +66,13 @@ function Etat() {
       </div>
 
       <Card className="p-5 mt-4">
-        <div className="text-sm font-bold mb-3">Le taux de recouvrement</div>
+        <div className="text-sm font-bold mb-3">{t('Le taux de recouvrement')}</div>
         <div className="h-3 rounded-full bg-canvas overflow-hidden">
           <div className="h-full rounded-full" style={{ width: `${f.rate}%`, background: STATUS.ok }} />
         </div>
         <div className="flex justify-between text-xs font-semibold text-muted mt-2 tabular-nums">
-          <span>{money(f.collected)} encaissés</span>
-          <span>{f.rate}% de {money(f.invoiced)} facturés</span>
+          <span>{money(f.collected)} {t('encaissés')}</span>
+          <span>{f.rate}{t('% de')} {money(f.invoiced)} {t('facturés')}</span>
         </div>
       </Card>
 
@@ -81,11 +81,9 @@ function Etat() {
           <div className="flex items-start gap-3">
             <Ic n="FileWarning" size={20} style={{ color: STATUS.danger }} />
             <div>
-              <div className="font-bold">{money(f.notInvoiced)} ne sont pas encore facturés.</div>
+              <div className="font-bold">{money(f.notInvoiced)} {t('ne sont pas encore facturés.')}</div>
               <p className="text-[13px] mt-1">
-                Des élèves inscrits n’ont aucune facture. Ce n’est pas un détail comptable :
-                c’est de l’argent que l’école ne réclamera jamais si personne ne le voit.
-                Onglet <b>Factures</b> → « Facturer tous les élèves ».
+                {t('Des élèves inscrits n’ont aucune facture. Ce n’est pas un détail comptable : c’est de l’argent que l’école ne réclamera jamais si personne ne le voit. Onglet')} <b>Factures</b> {t('→ « Facturer tous les élèves ».')}
               </p>
             </div>
           </div>
@@ -93,10 +91,10 @@ function Etat() {
       )}
 
       <Card className="p-5 mt-4">
-        <div className="text-sm font-bold mb-1">Solde de trésorerie (indicatif)</div>
+        <div className="text-sm font-bold mb-1">{t('Solde de trésorerie (indicatif)')}</div>
         <div className="text-3xl font-extrabold tabular-nums"
           style={{ color: f.balance >= 0 ? STATUS.ok : STATUS.danger }}>{money(f.balance)}</div>
-        <p className="text-xs text-muted mt-1">Encaissements − masse salariale payée. Les autres charges viendront.</p>
+        <p className="text-xs text-muted mt-1">{t('Encaissements − masse salariale payée. Les autres charges viendront.')}</p>
       </Card>
     </>
   )
@@ -144,11 +142,11 @@ function Factures({ refresh }) {
   return (
     <>
       <div className="flex justify-end mb-3">
-        <Btn onClick={issueAll}><Ic n="FilePlus2" size={15} /> Facturer tous les élèves</Btn>
+        <Btn onClick={issueAll}><Ic n="FilePlus2" size={15} /> {t('Facturer tous les élèves')}</Btn>
       </div>
 
-      {!all.length && <EmptyState icon="FileText" title="Aucune facture."
-        sub="Le montant se calcule à partir du barème et des remises : il ne se saisit pas." />}
+      {!all.length && <EmptyState icon="FileText" title={t('Aucune facture.')}
+        sub={t('Le montant se calcule à partir du barème et des remises : il ne se saisit pas.')} />}
 
       <div className="grid gap-2">
         {all.map(i => {
@@ -161,7 +159,7 @@ function Factures({ refresh }) {
                 <div className="min-w-0">
                   <div className="font-bold text-sm">{nameOf(i.studentId)}</div>
                   <div className="text-xs text-muted font-semibold tabular-nums">
-                    {i.number} · émise le {day(i.issuedAt)}
+                    {i.number} {t('· émise le')} {day(i.issuedAt)}
                     {i.creditNote && <span style={{ color: STATUS.danger }}> avoir {i.creditNote}</span>}
                   </div>
                 </div>
@@ -177,7 +175,7 @@ function Factures({ refresh }) {
               </div>
               {i.stage === 'annulee' && (
                 <p className="text-[12px] mt-2" style={{ color: STATUS.danger }}>
-                  Annulée par {i.cancelledBy} le {day(i.cancelledAt)} · {i.cancelReason}
+                  {t('Annulée par')} {i.cancelledBy} {t('le')} {day(i.cancelledAt)} · {i.cancelReason}
                 </p>
               )}
             </Card>
@@ -187,31 +185,30 @@ function Factures({ refresh }) {
 
       {/* Encaisser → un reçu numéroté. Pas d'encaissement sans reçu. */}
       <Modal open={!!pay} onClose={() => setPay(null)} title={pay ? `Encaisser · ${pay.number}` : ''}
-        footer={<><Btn variant="ghost" onClick={() => setPay(null)}>Annuler</Btn><Btn onClick={doCollect}>Encaisser & éditer le reçu</Btn></>}>
+        footer={<><Btn variant="ghost" onClick={() => setPay(null)}>Annuler</Btn><Btn onClick={doCollect}>{t('Encaisser & éditer le reçu')}</Btn></>}>
         {pay && (
           <div className="grid gap-4">
             <Field label={`Montant (${currency()})`} hint={`Reste dû : ${money(pay.total - pay.paid)}`}>
               <Input type="number" value={amt} onChange={e => setAmt(e.target.value)} />
             </Field>
-            <Field label="Moyen de paiement">
+            <Field label={t('Moyen de paiement')}>
               <Select value={method} onChange={e => setMethod(e.target.value)}>
                 {Object.entries(METHODS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </Select>
             </Field>
-            <p className="text-xs text-muted">Un reçu numéroté sera édité : c’est la seule preuve pour la famille.</p>
+            <p className="text-xs text-muted">{t('Un reçu numéroté sera édité : c’est la seule preuve pour la famille.')}</p>
           </div>
         )}
       </Modal>
 
       {/* Annuler → un avoir, avec motif OBLIGATOIRE. On ne réécrit pas l'histoire. */}
-      <Modal open={!!cancel} onClose={() => setCancel(null)} title="Annuler la facture"
-        footer={<><Btn variant="ghost" onClick={() => setCancel(null)}>Retour</Btn><Btn variant="danger" onClick={doCancel}>Annuler par avoir</Btn></>}>
+      <Modal open={!!cancel} onClose={() => setCancel(null)} title={t('Annuler la facture')}
+        footer={<><Btn variant="ghost" onClick={() => setCancel(null)}>Retour</Btn><Btn variant="danger" onClick={doCancel}>{t('Annuler par avoir')}</Btn></>}>
         <p className="text-sm text-muted mb-3">
-          Une facture émise ne se modifie pas : elle s’annule par un <b>avoir</b>, daté et motivé.
-          C’est ce qui rend la comptabilité défendable devant un audit.
+          {t('Une facture émise ne se modifie pas : elle s’annule par un')} <b>avoir</b>{t(', daté et motivé. C’est ce qui rend la comptabilité défendable devant un audit.')}
         </p>
-        <Field label="Motif de l’annulation *">
-          <Input value={reason} onChange={e => setReason(e.target.value)} placeholder="Erreur de niveau, départ de l’élève…" />
+        <Field label={t('Motif de l’annulation *')}>
+          <Input value={reason} onChange={e => setReason(e.target.value)} placeholder={t('Erreur de niveau, départ de l’élève…')} />
         </Field>
       </Modal>
     </>
@@ -283,8 +280,8 @@ function Eleves({ refresh }) {
               <Input type="number" value={amount} onChange={e => setAmount(e.target.value)} />
             </Field>
           )}
-          <Field label="Motif *" hint="Qui, quand, pourquoi : sinon ce n’est pas une remise, c’est un trou.">
-            <Input value={reason} onChange={e => setReason(e.target.value)} placeholder="Deuxième enfant inscrit." />
+          <Field label="Motif *" hint={t('Qui, quand, pourquoi : sinon ce n’est pas une remise, c’est un trou.')}>
+            <Input value={reason} onChange={e => setReason(e.target.value)} placeholder={t('Deuxième enfant inscrit.')} />
           </Field>
         </div>
       </Modal>
@@ -298,8 +295,7 @@ function Bareme({ refresh }) {
   return (
     <div className="grid gap-3">
       <p className="text-sm text-muted">
-        Ce que coûte une année, par niveau. <b>Sans barème, on ne facture pas</b>et le produit le dit
-        au lieu de facturer zéro en silence.
+        {t('Ce que coûte une année, par niveau.')} <b>{t('Sans barème, on ne facture pas')}</b>{t('et le produit le dit au lieu de facturer zéro en silence.')}
       </p>
       {LEVELS.filter(l => levels.includes(l.key)).map(l => {
         const f = feesOf(l.key) || {}

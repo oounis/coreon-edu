@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { t } from '@core/i18n.js'
 import { current } from '@core/auth.js'
 import { db, studentById, setTimetableCell, TT_SUBJECTS } from '@core/db.js'
 import { DAYS, PERIODS, timetableFor, teacherTimetable } from '@core/data.js'
@@ -18,7 +19,7 @@ export default function Timetable(){
   const canEdit=['schooladmin','admin'].includes(u.role)
   const [,force]=useState(0); const bump=()=>force(x=>x+1)
   let classes=d.classes, teacher=null
-  if(u.role==='teacher'){ teacher=d.teachers.find(t=>t.id===(u.teacherId||u.id)); classes=d.classes.filter(c=>(teacher?.classes||[]).includes(c.id)) }
+  if(u.role==='teacher'){ teacher=d.teachers.find(v=>v.id===(u.teacherId||u.id)); classes=d.classes.filter(c=>(teacher?.classes||[]).includes(c.id)) }
   if(u.role==='parent'){ const kids=(u.childIds||[]).map(studentById).filter(Boolean); classes=d.classes.filter(c=>kids.some(k=>k.classId===c.id)) }
 
   const [mode,setMode]=useState(u.role==='teacher'?'me':'class')
@@ -39,20 +40,20 @@ export default function Timetable(){
   const clearCell=()=>{ setTimetableCell(classId, edit.pi, edit.di, null); toast.success('Case libérée'); setEdit(null); bump() }
 
   return (<>
-    <PageHead title="Emploi du temps"
+    <PageHead title={t('Emploi du temps')}
       sub={<span className="inline-flex items-center gap-2 flex-wrap">
         {mode==='me'&&teacher ? <>{teacher.name} · {teacher.subject}</> : <>Classe {clsName}</>}
-        <span className="text-line">|</span>{sessions} séances · {DAYS[0].slice(0,3)}–{DAYS[4].slice(0,3)} · 6 périodes
-        {editable && <span className="inline-flex items-center gap-1 text-[12px] font-bold accent-soft accent-text px-2 py-0.5 rounded-full"><Pencil size={11}/> mode édition · cliquez sur une case</span>}
+        <span className="text-line">|</span>{sessions} {t('séances ·')} {DAYS[0].slice(0,3)}–{DAYS[4].slice(0,3)} {t('· 6 périodes')}
+        {editable && <span className="inline-flex items-center gap-1 text-[12px] font-bold accent-soft accent-text px-2 py-0.5 rounded-full"><Pencil size={11}/> {t('mode édition · cliquez sur une case')}</span>}
       </span>}
       action={
         <div className="flex items-end gap-3">
-          {u.role==='teacher' && <Field label="Vue"><Select value={mode} onChange={e=>setMode(e.target.value)}><option value="me">Mon emploi du temps</option><option value="class">Par classe</option></Select></Field>}
+          {u.role==='teacher' && <Field label="Vue"><Select value={mode} onChange={e=>setMode(e.target.value)}><option value="me">{t('Mon emploi du temps')}</option><option value="class">{t('Par classe')}</option></Select></Field>}
           {(mode==='class') && <Field label="Classe"><Select value={classId} onChange={e=>setClassId(e.target.value)}>{classes.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</Select></Field>}
         </div>
       }/>
 
-    {isSummer()&&<div className="flex items-center gap-2.5 rounded-2xl px-4 py-3 mb-3 text-sm font-semibold" style={{background:'linear-gradient(90deg,#FEF3C7,#FDE68A55)',color:'#92400E'}}><Sun size={16}/> Vacances d'été · voici l'emploi du temps type ; les cours reprennent le {rentreeLabel()}.</div>}
+    {isSummer()&&<div className="flex items-center gap-2.5 rounded-2xl px-4 py-3 mb-3 text-sm font-semibold" style={{background:'linear-gradient(90deg,#FEF3C7,#FDE68A55)',color:'#92400E'}}><Sun size={16}/> {t("Vacances d'été · voici l'emploi du temps type ; les cours reprennent le")} {rentreeLabel()}.</div>}
     <div className="card p-3 overflow-x-auto scroll-thin" style={{height:isSummer()?'max(440px, calc(100vh - 260px))':'max(480px, calc(100vh - 205px))'}}>
       <div className="h-full min-w-[680px] grid gap-1.5" style={{gridTemplateColumns:'56px repeat(5,1fr)', gridTemplateRows:'34px repeat(6,1fr)'}}>
         <div/>
@@ -67,10 +68,10 @@ export default function Timetable(){
       </div>
     </div>
 
-    <Modal open={!!edit} onClose={()=>setEdit(null)} title="Modifier la séance"
-      footer={<><Btn variant="danger" onClick={clearCell}><Trash2 size={15}/> Libérer</Btn><div className="flex-1"/><Btn variant="ghost" onClick={()=>setEdit(null)}>Annuler</Btn><Btn onClick={saveCell}>Enregistrer</Btn></>}>
+    <Modal open={!!edit} onClose={()=>setEdit(null)} title={t('Modifier la séance')}
+      footer={<><Btn variant="danger" onClick={clearCell}><Trash2 size={15}/> {t('Libérer')}</Btn><div className="flex-1"/><Btn variant="ghost" onClick={()=>setEdit(null)}>Annuler</Btn><Btn onClick={saveCell}>Enregistrer</Btn></>}>
       {edit&&<div className="grid sm:grid-cols-2 gap-3">
-        <Field label="Matière"><Select value={edit.subject} onChange={e=>setEdit({...edit,subject:e.target.value})}><option value="">Libre</option>{TT_SUBJECTS.map(([n])=><option key={n}>{n}</option>)}</Select></Field>
+        <Field label={t('Matière')}><Select value={edit.subject} onChange={e=>setEdit({...edit,subject:e.target.value})}><option value="">Libre</option>{TT_SUBJECTS.map(([n])=><option key={n}>{n}</option>)}</Select></Field>
         <Field label="Salle"><Select value={edit.room} onChange={e=>setEdit({...edit,room:e.target.value})}>{ROOMS.map(r=><option key={r}>{r}</option>)}</Select></Field>
         <div className="sm:col-span-2 text-xs text-muted">{DAYS[edit.di]} · {PERIODS[edit.pi][0]}–{PERIODS[edit.pi][1]}</div>
       </div>}

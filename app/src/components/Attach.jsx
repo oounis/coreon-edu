@@ -71,10 +71,10 @@ const human = n =>
  */
 export default function Attach({ types, value = [], onChange, readOnly = false }) {
   const [busy, setBusy] = useState(null)
-  const norm = types.map(t => typeof t === 'string' ? { key: t, label: t } : t)
+  const norm = types.map(v => typeof v === 'string' ? { key: v, label: v } : v)
   const has = k => value.find(a => a.type === k)
 
-  const pick = t => async e => {
+  const pick = v => async e => {
     const f = e.target.files?.[0]
     if (!f) return
     const isImg = String(f.type || '').startsWith('image/')
@@ -88,7 +88,7 @@ export default function Attach({ types, value = [], onChange, readOnly = false }
       e.target.value = ''
       return
     }
-    setBusy(t)
+    setBusy(v)
     try {
       // une image est RÉDUITE avant stockage ; un PDF passe tel quel
       const stored = isImg
@@ -99,10 +99,10 @@ export default function Attach({ types, value = [], onChange, readOnly = false }
         return
       }
       onChange([
-        ...value.filter(a => a.type !== t),
-        { type: t, name: f.name, size: stored.size, mime: stored.mime, data: stored.data, at: Date.now() },
+        ...value.filter(a => a.type !== v),
+        { type: v, name: f.name, size: stored.size, mime: stored.mime, data: stored.data, at: Date.now() },
       ])
-      toast.success(`${t} · reçu.`)
+      toast.success(`${v} · reçu.`)
     } catch {
       toast.error('Ce fichier n’a pas pu être lu. Réessayez.')
     } finally {
@@ -130,10 +130,10 @@ export default function Attach({ types, value = [], onChange, readOnly = false }
 
   return (
     <div className="space-y-1.5">
-      {norm.map(({ key: t, label }) => {
-        const a = has(t)
+      {norm.map(({ key: v, label }) => {
+        const a = has(v)
         return (
-          <div key={t} className="flex items-center justify-between gap-2 border border-line rounded-xl px-3 py-2 text-sm">
+          <div key={v} className="flex items-center justify-between gap-2 border border-line rounded-xl px-3 py-2 text-sm">
             <span className="flex items-center gap-2 min-w-0">
               {a
                 ? <Check size={15} style={{ color: '#12946F' }} />
@@ -150,14 +150,14 @@ export default function Attach({ types, value = [], onChange, readOnly = false }
                 </button>
               )}
               {a && !readOnly && (
-                <button type="button" title="Retirer" onClick={() => onChange(value.filter(x => x.type !== t))}
+                <button type="button" title="Retirer" onClick={() => onChange(value.filter(x => x.type !== v))}
                   className="text-muted hover:text-ink"><X size={13} /></button>
               )}
               {!readOnly && (
                 <label className="cursor-pointer text-xs font-semibold accent-text inline-flex items-center gap-1">
-                  <Upload size={13} /> {busy === t ? tr('Lecture…') : a ? tr('Remplacer') : tr('Joindre')}
+                  <Upload size={13} /> {busy === v ? tr('Lecture…') : a ? tr('Remplacer') : tr('Joindre')}
                   <input type="file" className="hidden" accept="image/*,.pdf"
-                    onChange={pick(t)} disabled={busy === t} />
+                    onChange={pick(v)} disabled={busy === v} />
                 </label>
               )}
             </span>

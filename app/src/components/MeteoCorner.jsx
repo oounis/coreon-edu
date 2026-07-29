@@ -19,8 +19,8 @@ export default function MeteoCorner(){
   useEffect(()=>{ let alive=true
     const load=()=>fetchWeather(...coordsOf(city)).then(x=>{ if(!alive)return; setW(x); try{localStorage.setItem(cacheKey,JSON.stringify({w:x,at:Date.now()}))}catch{} })
       .catch(()=>{ if(alive) setTimeout(load,120000) })   // hors-ligne → on réessaie dans 2 min
-    load(); const t=setInterval(load,600000)
-    return ()=>{alive=false;clearInterval(t)} },[city,cacheKey])
+    load(); const setInterval2=setInterval(load,600000)
+    return ()=>{alive=false;clearInterval(setInterval2)} },[city,cacheKey])
   if(!w) return <div className="hidden md:flex items-center gap-1.5 text-[11px] text-muted px-2.5 py-1 rounded-xl bg-canvas animate-pulse">{t('Météo…')}</div>
   const [c1,c2]=GRAD[w.mode]||GRAD.cloudy; const ink=w.mode==='clear'?INK.clear:INK.default
   return (

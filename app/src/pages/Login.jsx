@@ -137,7 +137,7 @@ export default function Login() {
           </div>
         </div>
 
-        <div className="relative text-muted text-sm">par Kogia Group · © 2026</div>
+        <div className="relative text-muted text-sm">{t('par Kogia Group · © 2026')}</div>
       </div>
     </div>
   )

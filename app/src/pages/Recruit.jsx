@@ -3,6 +3,7 @@
 // Le cœur (recruit.js) tient le parcours ; cet écran fait avancer les gens.
 // ════════════════════════════════════════════════════════════════════════════
 import { useState } from 'react'
+import { t } from '@core/i18n.js'
 import { current } from '@core/auth.js'
 import { posts, openPost, closePost, candidates, candidatesOf, addCandidate, advanceCandidate, R_STAGES, POST_TYPES } from '@core/recruit.js'
 import { PageHead, Card, SectionCard, Btn, Modal, Field, Input, Select, Textarea, Badge, Avatar, EmptyState } from '../components/ui.jsx'
@@ -41,11 +42,11 @@ export default function Recruit() {
   const candPost = cand ? posts().find(p => p.id === cand.postId) : null
 
   return (<>
-    <PageHead title="Recrutement" sub="Reçue → entretien → offre → embauchée. Personne ne passe à l'offre sans entretien."
-      action={<Btn onClick={() => setOpenP(true)}><Plus size={15} /> Ouvrir un poste</Btn>} />
+    <PageHead title="Recrutement" sub={t("Reçue → entretien → offre → embauchée. Personne ne passe à l'offre sans entretien.")}
+      action={<Btn onClick={() => setOpenP(true)}><Plus size={15} /> {t('Ouvrir un poste')}</Btn>} />
 
     {posts().length === 0
-      ? <Card><EmptyState icon={<UserPlus size={26} />} title="Aucun poste ouvert" sub="Ouvrez un poste pour commencer à recevoir des candidatures." /></Card>
+      ? <Card><EmptyState icon={<UserPlus size={26} />} title={t('Aucun poste ouvert')} sub={t('Ouvrez un poste pour commencer à recevoir des candidatures.')} /></Card>
       : posts().map(p => {
         const list = candidatesOf(p.id)
         const open = p.status === 'ouvert'
@@ -57,7 +58,7 @@ export default function Recruit() {
               <Btn size="sm" variant="ghost" onClick={() => { closePost(p.id, u.name); refresh() }}>{open ? 'Fermer le poste' : 'Rouvrir'}</Btn>
             </div>} bodyClass="p-3">
             {list.length === 0
-              ? <EmptyState title="Aucune candidature" sub={open ? 'Ajoutez la première candidature reçue.' : 'Poste fermé.'} />
+              ? <EmptyState title={t('Aucune candidature')} sub={open ? 'Ajoutez la première candidature reçue.' : 'Poste fermé.'} />
               : <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
                 {list.map(c => (
                   <button key={c.id} onClick={() => { setNote(''); setView(c.id) }} className="flex items-center gap-2.5 p-2.5 rounded-xl border border-line hover:bg-canvas text-left">
@@ -98,27 +99,27 @@ export default function Recruit() {
             {h.note && <span className="text-muted"> {h.note}</span>}
           </div>))}
         {!R_STAGES[cand.stage].terminal && <div className="mt-3">
-          <Field label="Note (obligatoire pour un refus)"><Textarea value={note} onChange={e => setNote(e.target.value)} className="h-16" placeholder="Compte rendu d'entretien, motif de refus…" /></Field>
+          <Field label={t('Note (obligatoire pour un refus)')}><Textarea value={note} onChange={e => setNote(e.target.value)} className="h-16" placeholder={t("Compte rendu d'entretien, motif de refus…")} /></Field>
         </div>}
-        {cand.stage === 'embauchee' && <p className="text-[12px] text-muted mt-3">Embauchée ✓ : créez maintenant son contrat dans <b>RH & Paie</b> et son compte dans <b>Comptes</b>.</p>}
+        {cand.stage === 'embauchee' && <p className="text-[12px] text-muted mt-3">{t('Embauchée ✓ : créez maintenant son contrat dans')} <b>RH & Paie</b> {t('et son compte dans')} <b>Comptes</b>.</p>}
       </>}
     </Modal>
 
-    <Modal open={openP} onClose={() => setOpenP(false)} title="Ouvrir un poste"
+    <Modal open={openP} onClose={() => setOpenP(false)} title={t('Ouvrir un poste')}
       footer={<><Btn variant="ghost" onClick={() => setOpenP(false)}>Annuler</Btn><Btn onClick={submitPost}>Ouvrir</Btn></>}>
       <div className="grid sm:grid-cols-2 gap-3">
-        <Field label="Intitulé *"><Input value={fp.title} onChange={e => setFp({ ...fp, title: e.target.value })} placeholder="Éducatrice petite enfance" /></Field>
-        <Field label="Type"><Select value={fp.type} onChange={e => setFp({ ...fp, type: e.target.value })}>{POST_TYPES.map(t => <option key={t}>{t}</option>)}</Select></Field>
+        <Field label={t('Intitulé *')}><Input value={fp.title} onChange={e => setFp({ ...fp, title: e.target.value })} placeholder={t('Éducatrice petite enfance')} /></Field>
+        <Field label="Type"><Select value={fp.type} onChange={e => setFp({ ...fp, type: e.target.value })}>{POST_TYPES.map(v => <option key={v}>{v}</option>)}</Select></Field>
       </div>
     </Modal>
 
     <Modal open={!!openC} onClose={() => setOpenC(null)} title="Nouvelle candidature"
       footer={<><Btn variant="ghost" onClick={() => setOpenC(null)}>Annuler</Btn><Btn onClick={submitCand}>Enregistrer</Btn></>}>
       <div className="grid sm:grid-cols-2 gap-3">
-        <Field label="Nom & prénom *"><Input value={fc.name} onChange={e => setFc({ ...fc, name: e.target.value })} /></Field>
-        <Field label="Téléphone"><Input value={fc.phone} onChange={e => setFc({ ...fc, phone: e.target.value })} placeholder="+216 …" /></Field>
+        <Field label={t('Nom & prénom *')}><Input value={fc.name} onChange={e => setFc({ ...fc, name: e.target.value })} /></Field>
+        <Field label={t('Téléphone')}><Input value={fc.phone} onChange={e => setFc({ ...fc, phone: e.target.value })} placeholder="+216 …" /></Field>
         <Field label="E-mail"><Input value={fc.email} onChange={e => setFc({ ...fc, email: e.target.value })} /></Field>
-        <div className="sm:col-span-2"><Field label="Note"><Textarea value={fc.note} onChange={e => setFc({ ...fc, note: e.target.value })} className="h-16" placeholder="Expérience, diplômes, disponibilité…" /></Field></div>
+        <div className="sm:col-span-2"><Field label="Note"><Textarea value={fc.note} onChange={e => setFc({ ...fc, note: e.target.value })} className="h-16" placeholder={t('Expérience, diplômes, disponibilité…')} /></Field></div>
       </div>
     </Modal>
   </>)

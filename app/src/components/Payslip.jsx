@@ -4,6 +4,7 @@
 // dans la plupart des pays (le Golfe l'impose). Même patron d'impression que le
 // bulletin scolaire (Bulletin.jsx).
 import { settings } from '@core/db.js'
+import { t } from '@core/i18n.js'
 import { currency, money } from '@core/currency.js'
 import { EARNINGS, CONTRACTS, monthLabel } from '@core/hr.js'
 import { Btn, Avatar, STATUS } from './ui.jsx'
@@ -33,7 +34,7 @@ export default function Payslip({ line, month, stage, validatedBy, onClose }) {
       <div className="fixed inset-0 grid place-items-start sm:place-items-center p-0 sm:p-4 overflow-y-auto print:p-0 print:static print:overflow-visible">
         <Dialog.Panel className="bg-white w-full max-w-xl sm:rounded-2xl pop my-0 sm:my-4 print:max-w-none print:my-0 print:shadow-none">
           <div className="flex items-center justify-between p-4 border-b border-line print:hidden">
-            <Dialog.Title className="text-lg font-bold">Bulletin de paie</Dialog.Title>
+            <Dialog.Title className="text-lg font-bold">{t('Bulletin de paie')}</Dialog.Title>
             <div className="flex items-center gap-2">
               <Btn onClick={() => window.print()}><Printer size={16} /> Imprimer</Btn>
               <button onClick={onClose} className="text-muted hover:text-ink" aria-label="Fermer"><X size={18} /></button>
@@ -45,11 +46,11 @@ export default function Payslip({ line, month, stage, validatedBy, onClose }) {
             <div className="flex items-start justify-between gap-4 border-b-2 border-ink pb-4 mb-5">
               <div>
                 <div className="text-2xl font-extrabold">{sc.schoolName}</div>
-                <div className="text-sm text-muted">{sc.city}{sc.city && ' · '}Bulletin de paie</div>
+                <div className="text-sm text-muted">{sc.city}{sc.city && ' · '}{t('Bulletin de paie')}</div>
               </div>
               <div className="text-right">
                 <div className="text-xs uppercase tracking-wide text-muted font-bold">{monthLabel(month)}</div>
-                <div className="text-sm text-muted mt-1">Édité le {format(new Date(), 'dd MMMM yyyy', { locale: df() })}</div>
+                <div className="text-sm text-muted mt-1">{t('Édité le')} {format(new Date(), 'dd MMMM yyyy', { locale: df() })}</div>
               </div>
             </div>
 
@@ -100,17 +101,17 @@ export default function Payslip({ line, month, stage, validatedBy, onClose }) {
               <tbody>
                 {line.deduction
                   ? <tr className="border-b border-line/60">
-                      <td className="py-2">Absences sans solde ({line.unpaidDays} j)</td>
+                      <td className="py-2">{t('Absences sans solde (')}{line.unpaidDays} j)</td>
                       <td className="py-2 text-right tabular-nums" style={{ color: STATUS.danger }}>− {money(line.deduction)}</td>
                     </tr>
-                  : <tr><td className="py-2 text-muted" colSpan={2}>Aucune retenue ce mois.</td></tr>}
+                  : <tr><td className="py-2 text-muted" colSpan={2}>{t('Aucune retenue ce mois.')}</td></tr>}
               </tbody>
             </table>
 
             {/* net */}
             <div className="flex items-center justify-between rounded-xl px-5 py-4 mb-5"
               style={{ background: STATUS.okSoft }}>
-              <span className="font-bold">Net à payer</span>
+              <span className="font-bold">{t('Net à payer')}</span>
               <span className="text-2xl font-extrabold tabular-nums" style={{ color: STATUS.ok }}>{money(line.net)}</span>
             </div>
 
@@ -118,8 +119,8 @@ export default function Payslip({ line, month, stage, validatedBy, onClose }) {
             <div className="text-[11px] text-muted border-t border-line pt-3 flex items-center gap-2">
               <Lock size={12} />
               {validated
-                ? <span>Paie validée{validatedBy ? ` par ${validatedBy}` : ''} · un bulletin validé ne se modifie plus.</span>
-                : <span>Brouillon — non validé. La validation revient à une autre personne que le préparateur (séparation des tâches).</span>}
+                ? <span>{t('Paie validée')}{validatedBy ? ` par ${validatedBy}` : ''} {t('· un bulletin validé ne se modifie plus.')}</span>
+                : <span>{t('Brouillon — non validé. La validation revient à une autre personne que le préparateur (séparation des tâches).')}</span>}
             </div>
           </div>
         </Dialog.Panel>

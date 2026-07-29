@@ -32,11 +32,11 @@ export default function Live(){
   const exploring = !liveNow && min!==defMin
   const simulated = exploring && (phase==='vacances'||phase==='weekend'||phase==='before')   // journée type, pas la réalité
   const replay = exploring && phase==='after'                                               // revoir la vraie journée
-  useEffect(()=>{ if(!liveNow) return; const t=setInterval(()=>{const n=appNow();setMin(n.getHours()*60+n.getMinutes())},20000); return ()=>clearInterval(t) },[liveNow])
+  useEffect(()=>{ if(!liveNow) return; const setInterval2=setInterval(()=>{const n=appNow();setMin(n.getHours()*60+n.getMinutes())},20000); return ()=>clearInterval(setInterval2) },[liveNow])
 
   const sick=useMemo(()=>d.incidents.some(i=>i.studentId===kid?.id&&i.type==='Santé'&&i.status==='open'&&(Date.now()-i.at)<86400000),[d,kid])
   const st=useMemo(()=>kid?statusAt(kid.classId,dayIdx,min,sick&&phase==='live'):null,[kid,dayIdx,min,sick,phase])
-  if(!kid) return <Card><EmptyState icon={<Radio size={26}/>} title="Aucun enfant associé" sub="Demandez à la direction de lier votre compte à votre enfant pour activer le suivi en direct."/></Card>
+  if(!kid) return <Card><EmptyState icon={<Radio size={26}/>} title={t('Aucun enfant associé')} sub={t('Demandez à la direction de lier votre compte à votre enfant pour activer le suivi en direct.')}/></Card>
 
   const area=AREAS[st.place]
   const segLen=Math.max(1,st.seg.end-st.seg.start); const done=Math.min(1,Math.max(0,(min-st.seg.start)/segLen)); const remain=Math.max(0,st.seg.end-min)
@@ -73,7 +73,7 @@ export default function Live(){
           <div className="flex items-center gap-2.5">
             <span className="flex items-center gap-1.5 text-[12px] font-bold px-2.5 py-1.5 rounded-full text-white shadow" style={{background:pill.bg}}>
               {pill.pulse&&<motion.span animate={{opacity:[1,.3,1]}} transition={{repeat:Infinity,duration:1.4}}><Radio size={12}/></motion.span>}{pill.txt}</span>
-            <span className="text-sm font-bold text-muted hidden sm:inline">Journée de {first} · {day}</span>
+            <span className="text-sm font-bold text-muted hidden sm:inline">{t('Journée de')} {first} · {day}</span>
           </div>
           <span className="text-sm font-extrabold px-3 py-1 rounded-full" style={{background:area.color+'16',color:area.color}}>{(liveNow||replay)?st.title:phase==='after'?'Journée terminée':phase==='before'?"Avant l'école":'Journée type'}</span>
         </div>
@@ -89,7 +89,7 @@ export default function Live(){
         <Card className="p-5">
           <div className="flex items-center gap-3">
             <Avatar name={kid.name} seed={kid.id} size={56}/>
-            <div><div className="font-bold">{kid.name}</div><div className="text-xs text-muted">{cls?.name} · École primaire</div></div>
+            <div><div className="font-bold">{kid.name}</div><div className="text-xs text-muted">{cls?.name} {t('· École primaire')}</div></div>
           </div>
 
           {(phase==='live'||replay) && <div className="mt-4 rounded-2xl p-4" style={{background:area.color+'12'}}>
@@ -98,22 +98,22 @@ export default function Live(){
             <div className="text-sm text-muted">{st.sub}</div>
             {remain>0 && st.title!=='Journée terminée' && st.title!=='Avant l’école' && <>
               <div className="mt-3 h-2 rounded-full bg-white/70 overflow-hidden"><motion.div className="h-full rounded-full" style={{background:area.color}} animate={{width:`${Math.round(done*100)}%`}} transition={{type:'spring',stiffness:80,damping:18}}/></div>
-              <div className="flex items-center justify-between mt-1.5 text-xs"><span className="flex items-center gap-1 text-muted"><Clock size={12}/> Se termine à {fmt(st.seg.end)}</span><span className="font-bold" style={{color:area.color}}>{remain} min restantes</span></div>
+              <div className="flex items-center justify-between mt-1.5 text-xs"><span className="flex items-center gap-1 text-muted"><Clock size={12}/> {t('Se termine à')} {fmt(st.seg.end)}</span><span className="font-bold" style={{color:area.color}}>{remain} min restantes</span></div>
             </>}
           </div>}
 
           {phase==='after' && !exploring && <div className="mt-4 space-y-3">
             <div className="rounded-2xl p-4" style={{background:'#8B5CF612'}}>
-              <div className="flex items-center gap-2 text-sm font-bold" style={{color:'#8B5CF6'}}><Moon size={15}/> Journée terminée à {fmt(close)}</div>
-              <div className="text-sm text-muted mt-1">{lessons} séances au programme aujourd'hui.</div>
+              <div className="flex items-center gap-2 text-sm font-bold" style={{color:'#8B5CF6'}}><Moon size={15}/> {t('Journée terminée à')} {fmt(close)}</div>
+              <div className="text-sm text-muted mt-1">{lessons} {t("séances au programme aujourd'hui.")}</div>
             </div>
             <div className="flex items-center justify-between text-sm rounded-xl border border-line px-3 py-2.5">
-              <span className="flex items-center gap-2 text-muted"><CalendarCheck size={15}/> Présence du jour</span>
-              {att?<Badge status={att}/>:<span className="text-xs text-muted">non pointée</span>}
+              <span className="flex items-center gap-2 text-muted"><CalendarCheck size={15}/> {t('Présence du jour')}</span>
+              {att?<Badge status={att}/>:<span className="text-xs text-muted">{t('non pointée')}</span>}
             </div>
             <div className="rounded-xl border border-line px-3 py-2.5">
-              <div className="flex items-center gap-2 text-sm text-muted mb-1.5"><ClipboardCheck size={15}/> Évaluations reçues aujourd'hui</div>
-              {evToday.length===0 ? <div className="text-xs text-muted">Aucune évaluation aujourd'hui.</div>
+              <div className="flex items-center gap-2 text-sm text-muted mb-1.5"><ClipboardCheck size={15}/> {t("Évaluations reçues aujourd'hui")}</div>
+              {evToday.length===0 ? <div className="text-xs text-muted">{t("Aucune évaluation aujourd'hui.")}</div>
               : evToday.map(e=>{ const m=mentionFor(e.score); return (
                 <div key={e.id} className="flex items-center justify-between text-sm py-1">
                   <span className="font-medium truncate">{e.subject}{e.lesson?<span className="text-muted"> {e.lesson}</span>:''}</span>
@@ -123,13 +123,13 @@ export default function Live(){
           </div>}
 
           {phase==='before' && !exploring && <div className="mt-4 rounded-2xl p-4" style={{background:STATUS.info+'12'}}>
-            <div className="flex items-center gap-2 text-sm font-bold" style={{color:STATUS.info}}><Sun size={15}/> L'école ouvre à {fmt(open)}</div>
-            <div className="text-sm text-muted mt-1">Le suivi en direct démarrera automatiquement à l'arrivée de {first}.</div>
+            <div className="flex items-center gap-2 text-sm font-bold" style={{color:STATUS.info}}><Sun size={15}/> {t("L'école ouvre à")} {fmt(open)}</div>
+            <div className="text-sm text-muted mt-1">{t("Le suivi en direct démarrera automatiquement à l'arrivée de")} {first}.</div>
           </div>}
 
           {phase==='weekend' && <div className="mt-4 rounded-2xl p-4 bg-canvas">
-            <div className="flex items-center gap-2 text-sm font-bold text-muted"><Sun size={15}/> Pas d'école aujourd'hui</div>
-            <div className="text-sm text-muted mt-1">Bon week-end ! Le suivi reprendra lundi à {fmt(open)}.</div>
+            <div className="flex items-center gap-2 text-sm font-bold text-muted"><Sun size={15}/> {t("Pas d'école aujourd'hui")}</div>
+            <div className="text-sm text-muted mt-1">{t('Bon week-end ! Le suivi reprendra lundi à')} {fmt(open)}.</div>
           </div>}
 
           {simulated && <div className="mt-4 rounded-2xl p-4 border-2 border-dashed" style={{borderColor:area.color+'55',background:area.color+'0A'}}>
@@ -137,13 +137,13 @@ export default function Live(){
               <span className="flex items-center gap-2 text-sm font-bold" style={{color:area.color}}><MapPin size={15}/> {area.label}</span>
               <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{background:'#F59E0B22',color:'#B45309'}}>SIMULATION</span>
             </div>
-            <div className="text-lg font-extrabold mt-1">À {fmt(min)}, un jour d'école : {st.title==='En classe'?st.sub?.split(' · ')[0]:st.title}</div>
+            <div className="text-lg font-extrabold mt-1">À {fmt(min)}{t(", un jour d'école :")} {st.title==='En classe'?st.sub?.split(' · ')[0]:st.title}</div>
             <div className="text-sm text-muted">{st.seg?.end>st.seg?.start?`Séance de ${fmt(st.seg.start)} à ${fmt(st.seg.end)} (${st.seg.end-st.seg.start} min)`:st.sub}</div>
           </div>}
 
           {phase==='vacances' && <div className="mt-4 rounded-2xl p-4" style={{background:'#F59E0B14'}}>
-            <div className="flex items-center gap-2 text-sm font-bold" style={{color:'#B45309'}}><Sun size={15}/> Vacances d'été</div>
-            <div className="text-sm text-muted mt-1">L'école reprend le <b>{rentreeLabel()}</b>. Le suivi en direct redémarrera automatiquement à la rentrée · bel été à {first} !</div>
+            <div className="flex items-center gap-2 text-sm font-bold" style={{color:'#B45309'}}><Sun size={15}/> {t("Vacances d'été")}</div>
+            <div className="text-sm text-muted mt-1">{t("L'école reprend le")} <b>{rentreeLabel()}</b>. Le suivi en direct redémarrera automatiquement à la rentrée · bel été à {first} !</div>
           </div>}
         </Card>
 
@@ -151,7 +151,7 @@ export default function Live(){
           <div className="flex items-center justify-between mb-1"><div className="font-bold text-sm">{phase==='after'?'Revoir la journée':phase==='live'?'Explorer la journée':'Explorer une journée type'}</div>
             <button onClick={()=>{setMin(defMin);setLiveNow(phase==='live')}} className="text-xs font-semibold accent-text">{phase==='live'?'Revenir à maintenant':'Réinitialiser'}</button></div>
           <p className="text-[12px] text-muted mb-2">{phase==='live'?'Faites glisser pour revoir un moment de la journée : puis revenez au direct.':phase==='after'?"Rejouez la journée heure par heure sur le plan.":"Faites glisser le curseur pour voir comment se déroule une journée d'école, heure par heure (simple aperçu)."}</p>
-          <input type="range" min={480} max={900} step={5} value={min} onChange={e=>{setMin(+e.target.value);setLiveNow(false)}} className="w-full accent-[var(--accent)]" aria-label="Explorer la journée"/>
+          <input type="range" min={480} max={900} step={5} value={min} onChange={e=>{setMin(+e.target.value);setLiveNow(false)}} className="w-full accent-[var(--accent)]" aria-label={t('Explorer la journée')}/>
           <div className="flex justify-between text-[11px] text-muted mt-1"><span>{fmt(open)}</span><span className="font-bold text-ink">{fmt(min)}</span><span>{fmt(close)}</span></div>
         </Card>
       </div>

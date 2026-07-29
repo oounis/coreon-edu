@@ -2,7 +2,7 @@
 // Les murs de l'école sont vides le soir et le week-end. Les louer, c'est une
 // seconde ligne de revenus. Et on ne réserve JAMAIS deux fois le même créneau.
 import { useState } from 'react'
-import { dateLocale } from '@core/i18n.js'
+import { dateLocale, t } from '@core/i18n.js'
 import { current } from '@core/auth.js'
 import {
   FACILITY_KINDS, AUDIENCE, BOOKING_STAGES,
@@ -25,7 +25,7 @@ export default function Facilities() {
   const refresh = () => force(n => n + 1)
   return (
     <>
-      <PageHead title="Installations" sub="Piscine, terrain, gymnase, salles : occupés au lieu de rester vides." />
+      <PageHead title="Installations" sub={t('Piscine, terrain, gymnase, salles : occupés au lieu de rester vides.')} />
       <Tabs value={tab} onChange={setTab} tabs={[
         { value: 'planning', label: 'Planning' },
         { value: 'resas',    label: 'Réservations' },
@@ -48,8 +48,8 @@ function Planning({ refresh }) {
   const [date, setDate] = useState(todayStr())
   const [open, setOpen] = useState(null)   // { from, to }
 
-  if (!fs.length) return <EmptyState icon="Waves" title="Aucune installation."
-    sub="Ajoutez la piscine, le terrain, le gymnase : et commencez à les louer." />
+  if (!fs.length) return <EmptyState icon="Waves" title={t('Aucune installation.')}
+    sub={t('Ajoutez la piscine, le terrain, le gymnase : et commencez à les louer.')} />
 
   const f = facilityOf(fid)
   const slots = availability(fid, date)
@@ -80,8 +80,7 @@ function Planning({ refresh }) {
         </div>
         <span className="flex-1" />
         <div className="text-xs text-muted max-w-xs">
-          Les créneaux <b>scolaires</b> sont bloqués : un cours d’EPS ne se fait pas
-          déloger par un club qui paie.
+          {t('Les créneaux')} <b>scolaires</b> {t('sont bloqués : un cours d’EPS ne se fait pas déloger par un club qui paie.')}
         </div>
       </Card>
 
@@ -136,7 +135,7 @@ function BookModal({ facility, date, slot, me, onClose, onDone }) {
 
   return (
     <Modal open onClose={onClose} title={`Réserver · ${facility.name}`}
-      footer={<><Btn variant="ghost" onClick={onClose}>Annuler</Btn><Btn onClick={go}>Réserver</Btn></>}>
+      footer={<><Btn variant="ghost" onClick={onClose}>Annuler</Btn><Btn onClick={go}>{t('Réserver')}</Btn></>}>
       <div className="grid gap-4">
         <div className="text-sm">
           <b>{day(date)}</b> {slot.from} · {slot.to} ({hours} h)
@@ -156,16 +155,16 @@ function BookModal({ facility, date, slot, me, onClose, onDone }) {
           </div>
         </div>
 
-        <Field label="Au nom de *">
+        <Field label={t('Au nom de *')}>
           <Input value={who} onChange={e => setWho(e.target.value)}
             placeholder={audience === 'externe' ? 'Club Nautique de Tunis' : 'Classe 5ème A'} />
         </Field>
-        <Field label="Téléphone">
+        <Field label={t('Téléphone')}>
           <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+216 20 000 000" />
         </Field>
 
-        <Field label="Répéter chaque semaine"
-          hint="Un club veut « tous les samedis pendant 8 semaines » : pas cliquer huit fois.">
+        <Field label={t('Répéter chaque semaine')}
+          hint={t('Un club veut « tous les samedis pendant 8 semaines » : pas cliquer huit fois.')}>
           <Select value={weeks} onChange={e => setWeeks(e.target.value)}>
             {[1, 4, 8, 12, 16].map(w => <option key={w} value={w}>{w === 1 ? 'Une seule fois' : `${w} semaines`}</option>)}
           </Select>
@@ -189,8 +188,8 @@ function Resas({ refresh }) {
   const [reason, setReason] = useState('')
   const all = bookings()
 
-  if (!all.length) return <EmptyState icon="CalendarPlus" title="Aucune réservation."
-    sub="Le planning montre les créneaux libres : et les créneaux scolaires, qui ne se louent pas." />
+  if (!all.length) return <EmptyState icon="CalendarPlus" title={t('Aucune réservation.')}
+    sub={t('Le planning montre les créneaux libres : et les créneaux scolaires, qui ne se louent pas.')} />
 
   const doCancel = () => {
     const r = cancelBooking(cancel.id, reason)
@@ -229,10 +228,10 @@ function Resas({ refresh }) {
         })}
       </div>
 
-      <Modal open={!!cancel} onClose={() => setCancel(null)} title="Annuler la réservation"
+      <Modal open={!!cancel} onClose={() => setCancel(null)} title={t('Annuler la réservation')}
         footer={<><Btn variant="ghost" onClick={() => setCancel(null)}>Retour</Btn><Btn variant="danger" onClick={doCancel}>Annuler</Btn></>}>
-        <p className="text-sm text-muted mb-3">Le créneau redeviendra immédiatement disponible.</p>
-        <Field label="Motif *"><Input value={reason} onChange={e => setReason(e.target.value)} placeholder="Désistement du club." /></Field>
+        <p className="text-sm text-muted mb-3">{t('Le créneau redeviendra immédiatement disponible.')}</p>
+        <Field label="Motif *"><Input value={reason} onChange={e => setReason(e.target.value)} placeholder={t('Désistement du club.')} /></Field>
       </Modal>
     </>
   )
@@ -261,7 +260,7 @@ function Revenus() {
       </div>
 
       <Card className="p-5 mt-4">
-        <div className="text-sm font-bold mb-3">Par installation</div>
+        <div className="text-sm font-bold mb-3">{t('Par installation')}</div>
         {fs.map(f => {
           const v = r.byFacility[f.id] || 0
           const pct = r.collected ? Math.round(v / r.collected * 100) : 0
@@ -283,11 +282,10 @@ function Revenus() {
         <div className="flex items-start gap-3">
           <Ic n="Lightbulb" size={18} style={{ color: STATUS.info }} />
           <div className="text-[13px]">
-            <b>Une piscine vide ne coûte pas moins cher qu’une piscine pleine.</b>
+            <b>{t('Une piscine vide ne coûte pas moins cher qu’une piscine pleine.')}</b>
             <div className="mt-1">
-              L’école a loué <b>{r.hoursBooked} h</b> sur cette période, dont{' '}
-              <b>{money(r.external)}</b> auprès de clients externes : de l’argent qui ne
-              venait d’aucune famille.
+              {t('L’école a loué')} <b>{r.hoursBooked} h</b> {t('sur cette période, dont')}{' '}
+              <b>{money(r.external)}</b> {t('auprès de clients externes : de l’argent qui ne venait d’aucune famille.')}
             </div>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { db } from '@core/db.js'
+import { t } from '@core/i18n.js'
 import { evaluationHistory, mentionFor } from '@core/results.js'
 import { format } from 'date-fns'
 import { df } from '../datefns.js'
@@ -22,7 +23,7 @@ export default function GradeHistory({ studentId }){
   att.sort((a,b)=>b.date.localeCompare(a.date))
   return (
     <div>
-      <h3 className="text-sm font-bold uppercase tracking-wide accent-text mb-2 flex items-center gap-1.5"><ClipboardList size={14}/> Évaluations enregistrées · {hist.length}</h3>
+      <h3 className="text-sm font-bold uppercase tracking-wide accent-text mb-2 flex items-center gap-1.5"><ClipboardList size={14}/> {t('Évaluations enregistrées ·')} {hist.length}</h3>
       {hist.length? (
         <div className="space-y-2 mb-5">
           {hist.slice(0,12).map(ev=>{ const m=ev.mention||mentionFor(ev.score); return (
@@ -38,17 +39,17 @@ export default function GradeHistory({ studentId }){
               </div>
               {ev.note&&<div className="text-xs text-muted mt-1.5 italic">« {ev.note} »</div>}
             </div>) })}
-          {hist.length>12 && <p className="text-xs text-muted text-center pt-1">+ {hist.length-12} évaluations plus anciennes (agrégées dans le bulletin)</p>}
+          {hist.length>12 && <p className="text-xs text-muted text-center pt-1">+ {hist.length-12} {t('évaluations plus anciennes (agrégées dans le bulletin)')}</p>}
         </div>
-      ) : <p className="text-sm text-muted mb-5">Aucune évaluation enregistrée pour cet élève.</p>}
+      ) : <p className="text-sm text-muted mb-5">{t('Aucune évaluation enregistrée pour cet élève.')}</p>}
 
-      <h3 className="text-sm font-bold uppercase tracking-wide accent-text mb-2 flex items-center gap-1.5"><CalendarCheck size={14}/> Historique de présence · {att.length}</h3>
+      <h3 className="text-sm font-bold uppercase tracking-wide accent-text mb-2 flex items-center gap-1.5"><CalendarCheck size={14}/> {t('Historique de présence ·')} {att.length}</h3>
       {att.length? (
         <div className="flex flex-wrap gap-2">
           {att.slice(0,30).map((a,i)=>(<span key={i} className="text-xs px-2.5 py-1 rounded-full border border-line inline-flex items-center gap-1.5">
             <i className="w-2 h-2 rounded-full" style={{background:COLATT[a.status]}}/>{a.date} · {FRATT[a.status]}</span>))}
         </div>
-      ) : <p className="text-sm text-muted">Aucun relevé de présence enregistré.</p>}
+      ) : <p className="text-sm text-muted">{t('Aucun relevé de présence enregistré.')}</p>}
     </div>
   )
 }

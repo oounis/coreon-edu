@@ -33,7 +33,7 @@ function StaffCanteen({ u }) {
   const sum = summary()
 
   return (<>
-    <PageHead title={t('Cantine')} sub="Le menu de la semaine : et qui, parmi les inscrits, ne peut pas le manger."
+    <PageHead title={t('Cantine')} sub={t('Le menu de la semaine : et qui, parmi les inscrits, ne peut pas le manger.')}
       action={<Btn variant="soft" onClick={() => setManageSubs(true)}><Ic n="Users" size={16} /> Inscrits ({sum.subscribers})</Btn>} />
 
     {/* La bannière sécurité : le total des alertes de la semaine */}
@@ -42,7 +42,7 @@ function StaffCanteen({ u }) {
         {sum.alerts ? <AlertTriangle size={20} /> : <ShieldCheck size={20} />}
       </span>
       <div><div className="font-extrabold">{sum.alerts ? `${sum.alerts} alerte${sum.alerts > 1 ? 's' : ''} allergie cette semaine` : 'Aucune allergie en conflit cette semaine'}</div>
-        <div className="text-xs text-muted">Croisé automatiquement avec le dossier de chaque enfant inscrit.</div></div>
+        <div className="text-xs text-muted">{t('Croisé automatiquement avec le dossier de chaque enfant inscrit.')}</div></div>
     </Card>
 
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -56,7 +56,7 @@ function StaffCanteen({ u }) {
               <button onClick={() => setEditDay(day.key)} className="text-xs font-semibold accent-text">Modifier</button>
             </div>
             {dishes.length === 0
-              ? <div className="text-sm text-muted py-3">Aucun plat prévu.</div>
+              ? <div className="text-sm text-muted py-3">{t('Aucun plat prévu.')}</div>
               : <div className="space-y-1.5 flex-1">
                 {dishes.map((dish, i) => (
                   <div key={i} className="flex items-center gap-2 text-sm">
@@ -68,7 +68,7 @@ function StaffCanteen({ u }) {
               </div>}
             {risk.length > 0 && (
               <div className="mt-3 pt-3 border-t border-line">
-                <div className="flex items-center gap-1.5 text-xs font-bold mb-1.5" style={{ color: STATUS.warn }}><AlertTriangle size={13} /> À NE PAS SERVIR À</div>
+                <div className="flex items-center gap-1.5 text-xs font-bold mb-1.5" style={{ color: STATUS.warn }}><AlertTriangle size={13} /> {t('À NE PAS SERVIR À')}</div>
                 <div className="space-y-1">
                   {risk.map(r => (
                     <div key={r.student.id} className="flex items-center gap-2 text-[13px]">
@@ -116,7 +116,7 @@ function EditDayModal({ day, onClose }) {
         {dishes.map((dish, i) => (
           <div key={i} className="rounded-xl border border-line p-3">
             <div className="flex items-center gap-2 mb-2">
-              <Input value={dish.name} onChange={e => setName(i, e.target.value)} placeholder="Nom du plat" />
+              <Input value={dish.name} onChange={e => setName(i, e.target.value)} placeholder={t('Nom du plat')} />
               <button onClick={() => remove(i)} className="text-muted hover:text-ink shrink-0"><X size={16} /></button>
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -129,8 +129,8 @@ function EditDayModal({ day, onClose }) {
             </div>
           </div>
         ))}
-        <Btn variant="soft" onClick={add}><Plus size={15} /> Ajouter un plat</Btn>
-        <p className="text-[11px] text-muted">Cochez les allergènes de chaque plat : l'école sera prévenue automatiquement pour chaque enfant concerné.</p>
+        <Btn variant="soft" onClick={add}><Plus size={15} /> {t('Ajouter un plat')}</Btn>
+        <p className="text-[11px] text-muted">{t("Cochez les allergènes de chaque plat : l'école sera prévenue automatiquement pour chaque enfant concerné.")}</p>
       </div>
     </Modal>
   )
@@ -141,8 +141,8 @@ function SubsModal({ onClose }) {
   const [, force] = useState(0)
   const classes = d.classes.filter(c => studentsOfClass(c.id).length)
   return (
-    <Modal open onClose={onClose} size="xl" title="Enfants inscrits à la cantine"
-      footer={<Btn onClick={onClose}>Terminé</Btn>}>
+    <Modal open onClose={onClose} size="xl" title={t('Enfants inscrits à la cantine')}
+      footer={<Btn onClick={onClose}>{t('Terminé')}</Btn>}>
       <div className="space-y-4">
         {classes.map(c => (
           <div key={c.id}>
@@ -159,7 +159,7 @@ function SubsModal({ onClose }) {
             </div>
           </div>
         ))}
-        <p className="text-[11px] text-muted flex items-center gap-1"><AlertTriangle size={11} style={{ color: STATUS.warn }} /> = l'enfant porte une allergie connue.</p>
+        <p className="text-[11px] text-muted flex items-center gap-1"><AlertTriangle size={11} style={{ color: STATUS.warn }} /> {t("= l'enfant porte une allergie connue.")}</p>
       </div>
     </Modal>
   )
@@ -170,7 +170,7 @@ function ParentCanteen({ u }) {
   const kids = (u.childIds || []).map(studentById).filter(Boolean)
   const [pickedId, setPickedId] = useState(kids[0]?.id)
   const child = kids.find(k => k.id === pickedId) || kids[0]
-  if (!child) return <Card><EmptyState icon="Users" title="Aucun enfant associé" /></Card>
+  if (!child) return <Card><EmptyState icon="Users" title={t('Aucun enfant associé')} /></Card>
   const week = weekForChild(child.id)
   const subscribed = week[0]?.subscribed
 
@@ -178,13 +178,13 @@ function ParentCanteen({ u }) {
     <PageHead title={t('Cantine')} sub={`Le menu de la semaine de ${child.name.split(' ')[0]}.`}
       action={kids.length > 1 && <select aria-label="Choisir l'enfant" value={child.id} onChange={e => setPickedId(e.target.value)} className="rounded-xl border border-line bg-white px-3 py-2 text-sm font-semibold">{kids.map(k => <option key={k.id} value={k.id}>{k.name}</option>)}</select>} />
 
-    {!subscribed && <Card className="p-4 mb-4 text-sm text-muted">{child.name.split(' ')[0]} n'est pas inscrit(e) à la cantine. Voici tout de même le menu de la semaine.</Card>}
+    {!subscribed && <Card className="p-4 mb-4 text-sm text-muted">{child.name.split(' ')[0]} {t("n'est pas inscrit(e) à la cantine. Voici tout de même le menu de la semaine.")}</Card>}
 
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {week.map(day => (
         <Card key={day.key} className="p-4" style={day.risks.length ? { borderColor: STATUS.warn + '55' } : {}}>
           <h3 className="font-bold mb-2">{day.label}</h3>
-          {day.dishes.length === 0 ? <div className="text-sm text-muted">Menu à venir.</div>
+          {day.dishes.length === 0 ? <div className="text-sm text-muted">{t('Menu à venir.')}</div>
             : <div className="space-y-1 text-sm">{day.dishes.map((dish, i) => <div key={i} className="flex items-center gap-2"><UtensilsCrossed size={13} className="text-muted" />{dish.name}</div>)}</div>}
           {day.risks.length > 0 && (
             <div className="mt-3 pt-3 border-t rounded-b-xl -mx-4 -mb-4 px-4 py-2.5" style={{ background: STATUS.warn + '12', borderColor: STATUS.warn + '30' }}>

@@ -62,7 +62,7 @@ export default function Admissions() {
 
   return (
     <>
-      <PageHead title="Inscriptions" sub="De la candidature en ligne à l’élève inscrit : sans jamais ressaisir." />
+      <PageHead title="Inscriptions" sub={t('De la candidature en ligne à l’élève inscrit : sans jamais ressaisir.')} />
 
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-5">
         {[
@@ -89,8 +89,8 @@ export default function Admissions() {
         ))}
       </div>
 
-      {!rows.length && <EmptyState icon="Inbox" title="Aucune candidature ici."
-        sub="Les candidatures déposées en ligne par les parents apparaissent dans cette liste." />}
+      {!rows.length && <EmptyState icon="Inbox" title={t('Aucune candidature ici.')}
+        sub={t('Les candidatures déposées en ligne par les parents apparaissent dans cette liste.')} />}
 
       {/* Des LIGNES, pas des pavés : tout tient à l'écran, et TOUTE la ligne
           s'ouvre — le dossier complet vit dans la fiche, les actions aussi.
@@ -141,32 +141,32 @@ export default function Admissions() {
             {/* L'identité et le contact — ce que la direction cherche en premier. */}
             <div className="flex items-center gap-2 flex-wrap">
               <Badge status={a.stage} label={STAGES[a.stage]?.label} tone={STAGES[a.stage]?.tone} />
-              <span className="text-xs text-muted">déposée le {fmt(a.createdAt)}</span>
-              <span className="ml-auto text-xs font-bold tabular-nums rounded-lg border border-line px-2 py-1">Réf. {a.id.toUpperCase()}</span>
+              <span className="text-xs text-muted">{t('déposée le')} {fmt(a.createdAt)}</span>
+              <span className="ml-auto text-xs font-bold tabular-nums rounded-lg border border-line px-2 py-1">{t('Réf.')} {a.id.toUpperCase()}</span>
             </div>
             <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
               <Info label="Enfant" value={a.childName} />
               <Info label="Naissance" value={a.dob ? `${a.dob}${ageOf(a.dob) != null ? ` · ${ageOf(a.dob)} ans` : ''}` : '·'} />
-              <Info label="Niveau demandé" value={t(labelOf(a.level))} />
+              <Info label={t('Niveau demandé')} value={t(labelOf(a.level))} />
               <Info label="Parent / tuteur" value={a.parentName} />
-              <Info label="Téléphone" value={a.parentPhone
+              <Info label={t('Téléphone')} value={a.parentPhone
                 ? <a href={`tel:${a.parentPhone}`} className="accent-text font-bold">{a.parentPhone}</a> : '·'} />
               <Info label="E-mail" value={a.parentEmail
                 ? <a href={`mailto:${a.parentEmail}`} className="accent-text font-bold">{a.parentEmail}</a> : '·'} />
             </div>
             {a.note && (
               <div className="rounded-xl border border-line bg-canvas px-4 py-3">
-                <div className="text-[11px] font-extrabold uppercase tracking-wide text-muted mb-1">Mot du parent</div>
+                <div className="text-[11px] font-extrabold uppercase tracking-wide text-muted mb-1">{t('Mot du parent')}</div>
                 <p className="text-sm">{a.note}</p>
               </div>
             )}
 
             <div>
-              <div className="text-sm font-bold mb-1">Pièces</div>
+              <div className="text-sm font-bold mb-1">{t('Pièces')}</div>
               {/* On OUVRE le document. Avant, on cochait une case alors qu'AUCUN
                   fichier n'existait : l'école croyait détenir la pièce. */}
               <p className="text-xs text-muted mb-2">
-                Ce que le parent a joint. L’administration peut compléter ce qui arrive au guichet.
+                {t('Ce que le parent a joint. L’administration peut compléter ce qui arrive au guichet.')}
               </p>
               <Attach
                 types={docsFor(a.level)}
@@ -182,11 +182,9 @@ export default function Admissions() {
             {/* Inscrire : la capacité décide. Une classe pleine bascule en attente. */}
             {['accepte', 'attente'].includes(a.stage) && (
               <div>
-                <div className="text-sm font-bold mb-1">Inscrire dans une classe</div>
+                <div className="text-sm font-bold mb-1">{t('Inscrire dans une classe')}</div>
                 <p className="text-xs text-muted mb-2">
-                  La place est vérifiée au moment de l’inscription. Si la classe est pleine,
-                  la candidature passe en liste d’attente : nous ne promettons pas une place
-                  qui n’existe pas.
+                  {t('La place est vérifiée au moment de l’inscription. Si la classe est pleine, la candidature passe en liste d’attente : nous ne promettons pas une place qui n’existe pas.')}
                 </p>
                 <div className="grid gap-1.5">
                   {openClasses(a.level).map(c => (
@@ -210,7 +208,7 @@ export default function Admissions() {
                     </div>
                   ))}
                   {!openClasses(a.level).length && (
-                    <p className="text-[13px] text-muted">Aucune classe pour ce niveau.</p>
+                    <p className="text-[13px] text-muted">{t('Aucune classe pour ce niveau.')}</p>
                   )}
                 </div>
               </div>
@@ -247,12 +245,12 @@ export default function Admissions() {
                       </div>
                     ))}
                     <div className="text-[11px] text-muted mt-1">
-                      Envoyés à <b>{a.parentEmail}</b>{a.emails.some(e => e.status === 'préparé') && ' · « préparé » = prêt à partir dès qu’un serveur mail est branché.'}
+                      {t('Envoyés à')} <b>{a.parentEmail}</b>{a.emails.some(e => e.status === 'préparé') && ' · « préparé » = prêt à partir dès qu’un serveur mail est branché.'}
                     </div>
                   </div>
-                ) : <div className="text-[12px] text-muted">Aucun email pour l’instant.</div>)
+                ) : <div className="text-[12px] text-muted">{t('Aucun email pour l’instant.')}</div>)
               ) : (
-                <div className="text-[12px] text-muted">Ce candidat n’a pas laissé d’email : suivi par téléphone.</div>
+                <div className="text-[12px] text-muted">{t('Ce candidat n’a pas laissé d’email : suivi par téléphone.')}</div>
               )}
             </div>
           </div>

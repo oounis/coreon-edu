@@ -3,6 +3,7 @@
 // qu'authentifié. En mode démo (pas de `coreon_api`), ce composant n'est
 // jamais monté : la démo publique ne change pas d'un pixel.
 import { useState, useEffect } from 'react'
+import { t } from '@core/i18n.js'
 import App from './App.jsx'
 import { hasSession, remoteLogin, startSync } from './remote.js'
 
@@ -31,14 +32,14 @@ function RemoteLogin({ onDone }) {
     <div className="min-h-screen grid place-items-center bg-canvas p-4">
       <form onSubmit={submit} className="card w-full max-w-sm p-7">
         <div className="text-2xl font-extrabold mb-1">Coreon Edu</div>
-        <p className="text-sm text-muted mb-5">L'école de votre établissement : connectez-vous.</p>
+        <p className="text-sm text-muted mb-5">{t("L'école de votre établissement : connectez-vous.")}</p>
         <label className="block mb-3">
           <span className="text-xs font-semibold text-muted">E-mail</span>
           <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
             className="mt-1 w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm" />
         </label>
         <label className="block mb-4">
-          <span className="text-xs font-semibold text-muted">Mot de passe</span>
+          <span className="text-xs font-semibold text-muted">{t('Mot de passe')}</span>
           <input type="password" required value={pw} onChange={e => setPw(e.target.value)}
             className="mt-1 w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm" />
         </label>
@@ -46,7 +47,7 @@ function RemoteLogin({ onDone }) {
         <button disabled={busy} className="w-full rounded-xl accent-bg text-white font-bold py-2.5 disabled:opacity-50">
           {busy ? 'Connexion…' : 'Se connecter'}
         </button>
-        <p className="text-[11px] text-muted mt-4">Session de 8 heures · les données restent sur le serveur de l'école.</p>
+        <p className="text-[11px] text-muted mt-4">{t("Session de 8 heures · les données restent sur le serveur de l'école.")}</p>
       </form>
     </div>
   )

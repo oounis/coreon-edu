@@ -2,7 +2,7 @@
 // La règle la plus grave du métier : un enfant ne part JAMAIS avec quelqu'un qui
 // n'est pas sur la liste.
 import { useState } from 'react'
-import { dateLocale } from '@core/i18n.js'
+import { dateLocale, t } from '@core/i18n.js'
 import { current } from '@core/auth.js'
 import { db } from '@core/db.js'
 import { idLabelFor } from '@core/locales.js'
@@ -19,7 +19,7 @@ import {
 import { Ic } from '../icons.jsx'
 import toast from 'react-hot-toast'
 
-const hhmm = t => new Date(t).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' })
+const hhmm = v => new Date(v).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' })
 
 export default function ChildFile() {
   const d = db()
@@ -36,12 +36,12 @@ export default function ChildFile() {
   const [tab, setTab] = useState('depart')
   const child = kids.find(k => k.id === sel)
 
-  if (!kids.length) return <EmptyState icon="Baby" title="Aucun enfant en petite enfance."
-    sub="Le dossier de l’enfant concerne la crèche et la maternelle." />
+  if (!kids.length) return <EmptyState icon="Baby" title={t('Aucun enfant en petite enfance.')}
+    sub={t('Le dossier de l’enfant concerne la crèche et la maternelle.')} />
 
   return (
     <>
-      <PageHead title="Dossier de l’enfant" sub="Santé, personnes autorisées, jalons : ce qu’un ERP scolaire n’a jamais." />
+      <PageHead title={t('Dossier de l’enfant')} sub={t('Santé, personnes autorisées, jalons : ce qu’un ERP scolaire n’a jamais.')} />
 
       <div className="flex flex-wrap gap-2 mb-4">
         {kids.map(k => (
@@ -97,11 +97,9 @@ function Departs({ child, refresh }) {
         <div className="flex items-start gap-3">
           <Ic n="ShieldAlert" size={18} style={{ color: STATUS.danger }} />
           <div className="text-[13px]">
-            <b>Un enfant ne part jamais avec quelqu’un qui n’est pas sur cette liste.</b>
+            <b>{t('Un enfant ne part jamais avec quelqu’un qui n’est pas sur cette liste.')}</b>
             <div className="mt-1">
-              La pièce d’identité est <b>obligatoire</b> : c’est ce que l’agent vérifie au portail.
-              Dans une séparation conflictuelle, cette liste est ce qui sépare une école
-              d’un enlèvement parental.
+              {t('La pièce d’identité est')} <b>obligatoire</b> {t(': c’est ce que l’agent vérifie au portail. Dans une séparation conflictuelle, cette liste est ce qui sépare une école d’un enlèvement parental.')}
             </div>
           </div>
         </div>
@@ -111,17 +109,17 @@ function Departs({ child, refresh }) {
         <Card className="p-4 mb-4" style={{ background: STATUS.okSoft }}>
           <div className="text-[13px] font-bold flex items-center gap-2" style={{ color: STATUS.ok }}>
             <Ic n="CheckCheck" size={15} />
-            Parti aujourd’hui à {hhmm(gone[0].at)} avec {gone[0].personName} ({gone[0].relation}) · remis par {gone[0].by}
+            {t('Parti aujourd’hui à')} {hhmm(gone[0].at)} {t('avec')} {gone[0].personName} ({gone[0].relation}{t(') · remis par')} {gone[0].by}
           </div>
         </Card>
       )}
 
       <div className="flex justify-end mb-3">
-        <Btn onClick={() => setOpen(true)}><Ic n="UserPlus" size={15} /> Autoriser quelqu’un</Btn>
+        <Btn onClick={() => setOpen(true)}><Ic n="UserPlus" size={15} /> {t('Autoriser quelqu’un')}</Btn>
       </div>
 
-      {!active.length && <EmptyState icon="ShieldAlert" title="Personne n’est autorisé."
-        sub="Tant que la liste est vide, cet enfant ne peut être remis à personne." />}
+      {!active.length && <EmptyState icon="ShieldAlert" title={t('Personne n’est autorisé.')}
+        sub={t('Tant que la liste est vide, cet enfant ne peut être remis à personne.')} />}
 
       <div className="grid gap-2">
         {list.map(p => (
@@ -143,7 +141,7 @@ function Departs({ child, refresh }) {
                 }}>Retirer</Btn>
               </>
             ) : (
-              <Badge label="Autorisation retirée" tone="danger" />
+              <Badge label={t('Autorisation retirée')} tone="danger" />
             )}
           </Card>
         ))}
@@ -152,16 +150,16 @@ function Departs({ child, refresh }) {
       <Modal open={open} onClose={() => setOpen(false)} title={`Autoriser une personne · ${child.name}`}
         footer={<><Btn variant="ghost" onClick={() => setOpen(false)}>Annuler</Btn><Btn onClick={add}>Autoriser</Btn></>}>
         <div className="grid gap-4">
-          <Field label="Nom et prénom *"><Input value={f.name} onChange={e => setF({ ...f, name: e.target.value })} /></Field>
+          <Field label={t('Nom et prénom *')}><Input value={f.name} onChange={e => setF({ ...f, name: e.target.value })} /></Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Lien avec l’enfant">
+            <Field label={t('Lien avec l’enfant')}>
               <Select value={f.relation} onChange={e => setF({ ...f, relation: e.target.value })}>
                 {RELATIONS.map(r => <option key={r} value={r}>{r}</option>)}
               </Select>
             </Field>
-            <Field label="Téléphone"><Input value={f.phone} onChange={e => setF({ ...f, phone: e.target.value })} /></Field>
+            <Field label={t('Téléphone')}><Input value={f.phone} onChange={e => setF({ ...f, phone: e.target.value })} /></Field>
           </div>
-          <Field label={`Pièce d’identité (${idLabelFor('parent')}) *`} hint="Obligatoire. C’est ce que l’agent vérifie au portail.">
+          <Field label={`Pièce d’identité (${idLabelFor('parent')}) *`} hint={t('Obligatoire. C’est ce que l’agent vérifie au portail.')}>
             <Input value={f.cin} onChange={e => setF({ ...f, cin: e.target.value })} />
           </Field>
         </div>
@@ -187,16 +185,16 @@ function Sante({ child, refresh }) {
           <div className="flex items-start gap-3">
             <Ic n="Syringe" size={18} style={{ color: STATUS.warn }} />
             <div className="text-[13px]">
-              <b>{v.due.length} vaccin(s) dus et non enregistrés</b> pour l’âge de {child.name.split(' ')[0]}
+              <b>{v.due.length} {t('vaccin(s) dus et non enregistrés')}</b> {t('pour l’âge de')} {child.name.split(' ')[0]}
               {' '}({v.ageMonths} mois) : {v.due.map(x => x.label).join(', ')}.
-              <div className="mt-1 text-muted">Une crèche a l’obligation de le savoir : et de le dire aux parents.</div>
+              <div className="mt-1 text-muted">{t('Une crèche a l’obligation de le savoir : et de le dire aux parents.')}</div>
             </div>
           </div>
         </Card>
       )}
 
       <Card className="p-5 mb-4">
-        <div className="text-sm font-bold mb-3">Carnet de vaccination</div>
+        <div className="text-sm font-bold mb-3">{t('Carnet de vaccination')}</div>
         <div className="grid sm:grid-cols-2 gap-1.5">
           {VACCINES.map(x => {
             const done = !!h.vaccines?.[x.key]
@@ -220,18 +218,18 @@ function Sante({ child, refresh }) {
       </Card>
 
       <Card className="p-5">
-        <div className="text-sm font-bold mb-3">Santé</div>
+        <div className="text-sm font-bold mb-3">{t('Santé')}</div>
         <div className="grid sm:grid-cols-2 gap-4">
-          <Field label="Allergies" hint="Elles remontent sur la carte de l’enfant, dans le journal du jour.">
+          <Field label="Allergies" hint={t('Elles remontent sur la carte de l’enfant, dans le journal du jour.')}>
             <Input defaultValue={child.allergies} onBlur={e => { saveHealth(child.id, { allergies: e.target.value }); refresh() }} />
           </Field>
           <Field label="Traitement en cours">
             <Input defaultValue={h.meds} onBlur={e => { saveHealth(child.id, { meds: e.target.value }); refresh() }} />
           </Field>
-          <Field label="Médecin traitant">
+          <Field label={t('Médecin traitant')}>
             <Input defaultValue={h.doctor} onBlur={e => { saveHealth(child.id, { doctor: e.target.value }); refresh() }} />
           </Field>
-          <Field label="À savoir">
+          <Field label={t('À savoir')}>
             <Input defaultValue={h.notes} onBlur={e => { saveHealth(child.id, { notes: e.target.value }); refresh() }} />
           </Field>
         </div>
@@ -252,10 +250,9 @@ function Jalons({ child, refresh }) {
         <div className="flex items-start gap-3">
           <Ic n="Sparkles" size={18} style={{ color: STATUS.info }} />
           <div className="text-[13px]">
-            <b>On observe. On ne note pas un enfant, et on ne le compare à personne.</b>
+            <b>{t('On observe. On ne note pas un enfant, et on ne le compare à personne.')}</b>
             <div className="mt-1">
-              S’il y a quelque chose qu’on devrait voir à cet âge et qu’on ne voit pas,
-              ce n’est pas un diagnostic : c’est une <b>conversation à avoir</b> avec les parents.
+              {t('S’il y a quelque chose qu’on devrait voir à cet âge et qu’on ne voit pas, ce n’est pas un diagnostic : c’est une')} <b>{t('conversation à avoir')}</b> {t('avec les parents.')}
             </div>
           </div>
         </div>
@@ -264,7 +261,7 @@ function Jalons({ child, refresh }) {
       {!!st.watch?.length && (
         <Card className="p-4 mb-4" style={{ background: STATUS.warnSoft }}>
           <div className="text-[13px]">
-            <b>À surveiller</b> ({child.name.split(' ')[0]}, {st.ageMonths} mois) :
+            <b>{t('À surveiller')}</b> ({child.name.split(' ')[0]}, {st.ageMonths} mois) :
             {' '}{st.watch.map(m => m.label).join(' · ')}
           </div>
         </Card>
@@ -285,7 +282,7 @@ function Jalons({ child, refresh }) {
               </span>
               <span className="text-[11px] font-bold text-muted">
                 {on
-                  ? <span style={{ color: STATUS.ok }}>Observé par {seen[m.key].by}</span>
+                  ? <span style={{ color: STATUS.ok }}>{t('Observé par')} {seen[m.key].by}</span>
                   : `vers ${m.months} mois`}
               </span>
             </button>

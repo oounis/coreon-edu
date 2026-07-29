@@ -1,4 +1,5 @@
 import { db, classById, settings } from '@core/db.js'
+import { t } from '@core/i18n.js'
 import { pack, regionLabel } from '@core/locales.js'
 import { bulletinFor, mentionFor } from '@core/results.js'
 import { Btn, Avatar, STATUS } from './ui.jsx'
@@ -37,11 +38,11 @@ export default function Bulletin({ student, onClose }){
               <div>
                 <div className="text-xs font-semibold text-muted">{pack().label} · Bulletin scolaire</div>
                 <div className="text-2xl font-extrabold mt-1">{sc.schoolName}</div>
-                <div className="text-sm text-muted">{sc.city} · Année scolaire {sc.year}</div>
+                <div className="text-sm text-muted">{sc.city} {t('· Année scolaire')} {sc.year}</div>
               </div>
               <div className="text-right">
                 <div className="text-xs uppercase tracking-wide text-muted font-bold">Bulletin</div>
-                <div className="text-sm text-muted mt-1">Édité le {format(new Date(),'dd MMMM yyyy',{locale: df()})}</div>
+                <div className="text-sm text-muted mt-1">{t('Édité le')} {format(new Date(),'dd MMMM yyyy',{locale: df()})}</div>
               </div>
             </div>
 
@@ -59,20 +60,20 @@ export default function Bulletin({ student, onClose }){
 
             {/* synthèse */}
             <div className="grid grid-cols-3 gap-3 mb-6">
-              <SummaryBox label="Moyenne générale" value={b.overall!=null?`${b.overall}/100`:'·'} accent/>
+              <SummaryBox label={t('Moyenne générale')} value={b.overall!=null?`${b.overall}/100`:'·'} accent/>
               <SummaryBox label="Mention" value={b.mention.label} color={b.mention.color}/>
-              <SummaryBox label="Taux de présence" value={b.attRate!=null?`${b.attRate}%`:'·'}/>
+              <SummaryBox label={t('Taux de présence')} value={b.attRate!=null?`${b.attRate}%`:'·'}/>
             </div>
 
             {/* moyennes par matière */}
-            <h3 className="text-sm font-bold uppercase tracking-wide text-muted mb-2">Résultats par matière</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wide text-muted mb-2">{t('Résultats par matière')}</h3>
             {b.subjects.length? (
               <table className="w-full text-sm border border-line rounded-lg overflow-hidden mb-6">
                 <thead><tr className="bg-canvas text-left text-[12px] uppercase tracking-wide text-muted">
-                  <th className="px-3 py-2 font-semibold">Matière</th>
-                  <th className="px-3 py-2 font-semibold text-center">Évaluations</th>
+                  <th className="px-3 py-2 font-semibold">{t('Matière')}</th>
+                  <th className="px-3 py-2 font-semibold text-center">{t('Évaluations')}</th>
                   <th className="px-3 py-2 font-semibold text-center">Moyenne</th>
-                  <th className="px-3 py-2 font-semibold">Appréciation</th>
+                  <th className="px-3 py-2 font-semibold">{t('Appréciation')}</th>
                 </tr></thead>
                 <tbody className="divide-y divide-line">
                   {b.subjects.map(s=>{ const m=mentionFor(s.avg); return (
@@ -84,15 +85,15 @@ export default function Bulletin({ student, onClose }){
                     </tr>) })}
                 </tbody>
               </table>
-            ) : <p className="text-sm text-muted mb-6">Aucune évaluation enregistrée pour cet élève.</p>}
+            ) : <p className="text-sm text-muted mb-6">{t('Aucune évaluation enregistrée pour cet élève.')}</p>}
 
             {/* présence détaillée */}
-            <h3 className="text-sm font-bold uppercase tracking-wide text-muted mb-2 flex items-center gap-1.5"><CalendarCheck size={14}/> Assiduité</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wide text-muted mb-2 flex items-center gap-1.5"><CalendarCheck size={14}/> {t('Assiduité')}</h3>
             <div className="flex flex-wrap gap-3 mb-6 text-sm">
-              <Pill color={STATUS.ok} label="Présences" value={b.att.present}/>
+              <Pill color={STATUS.ok} label={t('Présences')} value={b.att.present}/>
               <Pill color={STATUS.danger} label="Absences" value={b.att.absent}/>
               <Pill color={STATUS.warn} label="Retards" value={b.att.late}/>
-              {b.attTotal===0 && <span className="text-muted">Aucun relevé de présence disponible.</span>}
+              {b.attTotal===0 && <span className="text-muted">{t('Aucun relevé de présence disponible.')}</span>}
             </div>
 
             {/* badges / distinctions */}
@@ -105,7 +106,7 @@ export default function Bulletin({ student, onClose }){
 
             {/* dernières observations */}
             {b.sessions.some(s=>s.note) && (<>
-              <h3 className="text-sm font-bold uppercase tracking-wide text-muted mb-2">Observations des enseignants</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wide text-muted mb-2">{t('Observations des enseignants')}</h3>
               <div className="space-y-2 mb-6">
                 {b.sessions.filter(s=>s.note).slice(-3).reverse().map((s,i)=>(
                   <div key={i} className="text-sm border-l-2 border-line pl-3">
@@ -118,10 +119,10 @@ export default function Bulletin({ student, onClose }){
 
             {/* pied / signatures */}
             <div className="grid grid-cols-2 gap-8 pt-6 mt-6 border-t border-line text-sm">
-              <div><div className="text-muted text-xs">Signature de la Direction</div><div className="h-12 border-b border-line"/></div>
-              <div><div className="text-muted text-xs">Signature du Parent / Tuteur</div><div className="h-12 border-b border-line"/></div>
+              <div><div className="text-muted text-xs">{t('Signature de la Direction')}</div><div className="h-12 border-b border-line"/></div>
+              <div><div className="text-muted text-xs">{t('Signature du Parent / Tuteur')}</div><div className="h-12 border-b border-line"/></div>
             </div>
-            <div className="text-[11px] text-muted text-center mt-6">Document généré par Coreon Edu : bulletin indicatif, sans valeur officielle.</div>
+            <div className="text-[11px] text-muted text-center mt-6">{t('Document généré par Coreon Edu : bulletin indicatif, sans valeur officielle.')}</div>
           </div>
         </Dialog.Panel>
       </div>
