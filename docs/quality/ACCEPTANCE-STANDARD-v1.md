@@ -27,8 +27,23 @@ et l'état au 2026-07-26 (après les 5 rapports FAT exploratoires et 6 vagues de
 
 ### D1 · Intégrité fonctionnelle
 **Critère.** Aucun écran ne casse ; aucune action irréversible sans confirmation ; aucune donnée inventée par le système.
-**Mesure.** `cd core && npm test` (108 tests) · `cd e2e && npm run all` (18 parcours) · `node e2e/fat.mjs`
-**État : ✅ conforme.** 108/108 · 18/18 · FAT 0 constat bloquant. Corrigés en vagues QA : crash de /app/finance à la première inscription réelle, envoi accident/journal sans confirmation, groupe sanguin « O+ » inventé et enregistré.
+**Mesure.** `cd core && npm test` (108 tests) · `cd e2e && npm run all` (20 parcours) · `node e2e/fat.mjs` · `cd app && npx oxlint` (`no-undef` bloquant)
+**État : ✅ conforme.** 108/108 · 20/20 · oxlint 0 erreur. Corrigés en vagues QA : crash de /app/finance à la première inscription réelle, envoi accident/journal sans confirmation, groupe sanguin « O+ » inventé et enregistré.
+**⚠️ RÉGRESSION GRAVE DU 2026-07-29 — deux pages MORTES en production.**
+`/app/accidents` et `/app/journal` appelaient `t()` sans l'importer ; la seconde
+portait en plus sa fenêtre de confirmation d'envoi dans la MAUVAISE vue
+(`ParentJournal` lisait `confirmSend` de `TeacherJournal`). Donc : la page du
+parent plantait, **et l'éducatrice ne pouvait plus envoyer la journée** — la
+boucle quotidienne de la crèche était morte, silencieusement.
+**Pourquoi rien ne l'a vu :** la frontière d'erreur qui se réarme par route
+ATTRAPE le plantage — il ne remonte donc jamais comme erreur non capturée — et
+son écran de repli est un texte long qui passe le seuil « page quasi vide ». Le
+smoke a parcouru les deux pages mortes et les a déclarées saines.
+**Les trois barrières posées :** `no-undef` en erreur (oxlint tournait déjà mais
+la règle est éteinte par défaut — elle rattrape les DEUX défauts sans navigateur) ;
+le smoke écoute `[boundary]` et refuse un `role=alert` d'erreur ;
+`parcours.journal.mjs` vérifie que le métier se BOUCLE (l'éducatrice envoie, le
+parent reçoit). **Règle : une page qui CHARGE n'est pas une page qui MARCHE.**
 
 ### D2 · Vérité de l'interface (le produit ne ment pas)
 **Critère.** Ce que l'écran affirme est vrai : un bouton qui dit « suspendre » suspend ; un identifiant affiché existe ; un état affiché est mesuré.
@@ -43,10 +58,19 @@ et l'état au 2026-07-26 (après les 5 rapports FAT exploratoires et 6 vagues de
 
 ### D4 · Langue (FR · EN · AR)
 **Critère.** Aucune phrase d'une autre langue sur un écran. Mesuré, pas jugé.
-**Mesure.** `python3 docs/quality/i18n-audit.py` (barrière CI `--gate N`)
-**État : 🟡 partiel — EN 62 % · AR 63 %** (823 clés). L'écorce, le tableau de bord, les réglages, les élèves, les comptes, l'import, la connexion et le parcours parent sont traduits. Restent ~310 clés : poste de sécurité, vitrine publique, quelques écrans métier.
-**Règle posée :** la barrière CI ne redescend jamais (40 → 60 % ce jour).
-**Seuil d'acceptation client : 95 % EN et AR.**
+**Mesure.** `python3 docs/quality/i18n-audit.py` (barrière CI `--gate N`) · `node e2e/parcours.langues.mjs` (on LIT l'écran) · `python3 docs/quality/i18n-audit.py --dates`
+**État : ✅ conforme — EN 100 % · AR 100 %** (823/823, le 2026-07-29). Le reliquat était CONCENTRÉ : 86 % des clés manquantes vivaient dans deux fichiers (`site/shared.jsx` la vitrine, `Security.jsx` le poste de sécurité) — traduits en un lot, plus le reliquat de 44/36 clés.
+**Règle posée :** la barrière CI ne redescend jamais (40 → 60 → **95 %**, le seuil d'acceptation client).
+**⚠️ LEÇON DU 2026-07-29 — un compteur à 100 % ne prouve pas un écran monolingue.**
+L'audit ne mesure que les clés `t()` ; **une date n'en est pas une**. Le produit
+affichait alors 62 % d'anglais et **100 % de dates françaises** : 51 appels
+`{ locale: fr }` (date-fns) et 12 `toLocaleDateString('fr-FR')` répartis dans
+28 fichiers, invisibles à la mesure. Un seul endroit décide désormais —
+`app/src/datefns.js` (`df()`) et `dateLocale()` du cœur — et la langue donne la
+famille tandis que le **pays** départage l'arabe (« جويلية » à Tunis,
+« يوليو » à Manama). Deux barrières neuves : `--dates` (avec son test négatif)
+et `parcours.langues.mjs`, qui ouvre les deux pages les plus verbeuses dans les
+deux langues et refuse toute phrase — ou date — française résiduelle.
 **⚠️ Leçon du 2026-07-28 — traduire ne doit RIEN peser aux autres langues.** Le lot 2
 a fait échouer la livraison v1.5.0 sur la barrière de poids (452 KB gzip pour 450 de
 budget) : les dictionnaires vivaient dans `i18n.js`, que tout le produit importe pour
@@ -98,7 +122,7 @@ La marche vers 95 % (≈310 clés) ne peut donc plus rebloquer une livraison.
 | D1 Fonctionnel | ✅ | — |
 | D2 Vérité de l'interface | ✅ | — |
 | D3 Pays | 🟡 | TVA/NBR · GOSI/EOSB · reporting MOE |
-| D4 Langue | 🟡 | EN/AR de 62 % → 95 % (~310 clés) |
+| D4 Langue | ✅ | — (EN 100 % · AR 100 %, barrière CI à 95 %) |
 | D5 Argent | 🟡 | unifier les deux modèles · reçus location/activités |
 | D6 Sécurité | 🟡 | journal d'audit · sortir du mode démo |
 | D7 Données client | ✅ | (ZIP d'export : confort) |
@@ -113,11 +137,13 @@ La marche vers 95 % (≈310 clés) ne peut donc plus rebloquer une livraison.
 > juridique (factures fiscales, paie légale) tant que D3/D5/D6/D9 portent des
 > réserves.
 
-**Les trois portes d'entrée vers « livraison autonome » (dans cet ordre) :**
+**Les portes d'entrée vers « livraison autonome » (dans cet ordre) :**
 1. **D9 — hébergement du serveur** (≈1 h avec Othman) : c'est la porte qui ferme
    aussi la moitié de D6 (mots de passe hachés, sessions, sauvegardes).
-2. **D4 — langue à 95 %** : mécanique, mesurée, sans risque.
+2. ~~**D4 — langue à 95 %**~~ ✅ **FERMÉE le 2026-07-29** : EN et AR à 100 %.
 3. **D5/D3 — argent et conformité** : modèle unique + TVA/NBR.
+4. **D6 — journal d'audit** (CR-039, réserve A) : qui a lu/modifié un dossier
+   médical. Exigence PDPL/INPDP, désormais le plus gros reste après D9.
 
 ---
 
@@ -140,4 +166,5 @@ SERVI** (`curl` sur un marqueur de la livraison). « Fusionné » n'est pas « e
 | Date | Version | Prononcé | Par |
 |---|---|---|---|
 | 2026-07-26 | v1.5.0 | Pilote accompagné ✅ · livraison autonome ❌ (D3/D4/D5/D6/D9 en réserve) | Kogia Group |
+| 2026-07-29 | v1.6.0 | **D4 FERMÉ — EN et AR à 100 %** (823/823) : la vitrine et le poste de sécurité traduits, barrière CI portée à 95 %. Mais la soirée a d'abord trouvé **deux pages MORTES en production** (`/app/accidents`, `/app/journal`) qu'aucune barrière ne voyait, la frontière d'erreur les rendant invisibles au smoke. Trois barrières posées (`no-undef`, détection de l'écran d'erreur, parcours métier du journal) + deux sur les dates. **Leçon : une page qui CHARGE n'est pas une page qui MARCHE ; un compteur de traduction à 100 % ne prouve pas un écran monolingue.** | Kogia Group |
 | 2026-07-28 | v1.5.1 | **v1.5.0 n'était jamais montée en ligne** — sa chaîne `main` avait échoué sur la barrière de poids et le déploiement fut *sauté*, la production restant à v1.4.1 pendant deux jours. Rappel de la règle §4 : « fusionné » n'est pas « en ligne », et un tag n'est pas une preuve — **seul le bundle SERVI l'est.** | Kogia Group |

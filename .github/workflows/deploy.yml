@@ -48,7 +48,11 @@ jobs:
         run: |
           python3 docs/quality/i18n-audit.py
           # La barrière monte à mesure qu'on traduit : jamais en arrière.
-          python3 docs/quality/i18n-audit.py --gate 60
+          # 2026-07-29 : EN et AR atteignent 100 % (823/823). La barrière se
+          # cale sur le SEUIL D'ACCEPTATION CLIENT de la norme (95 %) — assez
+          # haut pour interdire tout retour en arrière, assez souple pour qu'un
+          # correctif urgent qui ajoute une phrase ne bloque pas la livraison.
+          python3 docs/quality/i18n-audit.py --gate 95
       - name: Repère de dates — le français ne revient pas en dur
         # 2026-07-29 : la couverture ne voit pas les dates (ce ne sont pas des
         # clés t()). Le produit affichait 62 % d'anglais et 100 % de dates
