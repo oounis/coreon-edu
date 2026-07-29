@@ -13,6 +13,7 @@
 // enregistrement se fait en UN geste, jamais en remplissant un formulaire.
 // ════════════════════════════════════════════════════════════════════════════
 import { useState } from 'react'
+import { t, dateLocale } from '@core/i18n.js'
 import { current } from '@core/auth.js'
 import { db } from '@core/db.js'
 import { todayIso } from '@core/clock.js'
@@ -26,7 +27,7 @@ import { PageHead, Card, Btn, EmptyState, Avatar, STATUS, Modal } from '../compo
 import { Ic } from '../icons.jsx'
 import toast from 'react-hot-toast'
 
-const hhmm = ts => new Date(ts).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+const hhmm = ts => new Date(ts).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' })
 
 /** Une pastille de choix. Un geste, pas un formulaire. */
 function Pick({ label, icon, on, tone = 'brand', onClick }) {
@@ -186,6 +187,17 @@ function TeacherJournal({ classes }) {
           )
         })}
       </div>
+
+      {/* La confirmation d'envoi appartient À CETTE VUE : c'est elle qui tient
+          `confirmSend` et `send`. Elle avait été posée par erreur à la fin de
+          ParentJournal (QA vague 4) — d'où DEUX pannes en production le
+          2026-07-29 : la page du parent plantait, et l'enseignante ne pouvait
+          plus envoyer la journée (l'état se posait, aucune fenêtre ne s'ouvrait). */}
+      <Modal open={!!confirmSend} onClose={() => setConfirmSend(null)} title={t('Envoyer la journée ?')} size="sm"
+        footer={<><Btn variant="ghost" onClick={() => setConfirmSend(null)}>{t('Annuler')}</Btn>
+          <Btn onClick={() => { const c = confirmSend; setConfirmSend(null); send(c) }}><Ic n="Send" size={14}/> {t('Envoyer')}</Btn></>}>
+        <p className="text-sm text-muted">{t('Les parents recevront la journée telle quelle — elle ne pourra plus être modifiée ensuite.')}</p>
+      </Modal>
     </>
   )
 }
@@ -281,11 +293,6 @@ function ParentJournal({ children }) {
           )
         })}
       </div>
-      <Modal open={!!confirmSend} onClose={() => setConfirmSend(null)} title={t('Envoyer la journée ?')} size="sm"
-      footer={<><Btn variant="ghost" onClick={() => setConfirmSend(null)}>{t('Annuler')}</Btn>
-        <Btn onClick={() => { const c = confirmSend; setConfirmSend(null); send(c) }}><Ic n="Send" size={14}/> {t('Envoyer')}</Btn></>}>
-      <p className="text-sm text-muted">{t('Les parents recevront la journée telle quelle — elle ne pourra plus être modifiée ensuite.')}</p>
-    </Modal>
     </>
   )
 }

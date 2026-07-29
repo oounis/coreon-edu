@@ -12,7 +12,7 @@ import { todayIso } from '@core/clock.js'
 import { PageHead, Card, Btn, Modal, Field, Input, Select, Textarea, Badge, EmptyState, STATUS, Mark } from '../components/ui.jsx'
 import { FileText, Plus, Printer, Check, X, ChevronRight, Paperclip, Eye, Download, Info, MessageSquare, UserCog, Hammer, BarChart3, AlarmClock } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import toast from 'react-hot-toast'
 
 const defaults=type=>{ const o={}; (REQUEST_DEFS[type]?.fields||[]).forEach(f=>{ o[f.k]= f.t==='checkbox'?false : (f.def||'') }); return o }
@@ -78,7 +78,7 @@ export default function Requests(){
         <div className="min-w-0"><div className="font-semibold flex items-center gap-2 flex-wrap"><FileText size={16} className="accent-text"/> {r.type}
             <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-canvas text-muted">{categoryOf(r)}</span>
             <Badge status={r.status}/></div>
-          <div className="text-xs text-muted mt-0.5">par {r.byName} · {formatDistanceToNow(r.at,{addSuffix:true,locale:fr})}</div>
+          <div className="text-xs text-muted mt-0.5">par {r.byName} · {formatDistanceToNow(r.at,{addSuffix:true,locale: df()})}</div>
           {/* le travail qui suit la signature : à qui, pour quand, où ça en est */}
           {r.assigneeId&&r.status==='approved'&&<div className="text-xs mt-1 font-semibold flex items-center gap-1.5" style={{color:overdue?STATUS.danger:STATUS.info}}>
             <Hammer size={12}/> confié à {r.assigneeName}{r.deadline&&<> échéance {r.deadline}{overdue&&'DÉPASSÉE'}</>}</div>}

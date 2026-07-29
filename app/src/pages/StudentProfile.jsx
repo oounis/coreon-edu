@@ -20,7 +20,7 @@ import { PageHead, Card, Avatar, Btn, Badge, SectionCard, EmptyState, STATUS } f
 import Bulletin from '../components/Bulletin.jsx'
 import { ArrowLeft, BellRing, ScrollText, Users, CalendarCheck, Gauge, Wallet, Smile, HeartPulse, ShieldCheck, FileText, Printer } from 'lucide-react'
 import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import toast from 'react-hot-toast'
 
 const FR_ATT = { present: 'Présent', absent: 'Absent', late: 'Retard' }
@@ -185,7 +185,7 @@ export default function StudentProfile() {
                   <span className="w-7 h-7 rounded-lg grid place-items-center shrink-0" style={{ background: (t?.positive ? STATUS.ok : STATUS.warn) + '1E', color: t?.positive ? STATUS.ok : STATUS.warn }}>
                     <Smile size={14} /></span>
                   <span className="flex-1 min-w-0 truncate font-medium">{t?.label || e.trait}</span>
-                  <span className="text-[12px] text-muted shrink-0">{format(new Date(e.at), 'd MMM', { locale: fr })}</span>
+                  <span className="text-[12px] text-muted shrink-0">{format(new Date(e.at), 'd MMM', { locale: df() })}</span>
                 </div>)})}
         </div>
       </SectionCard>
@@ -199,7 +199,7 @@ export default function StudentProfile() {
             <span className="text-muted shrink-0 tabular-nums">{x.number}</span></div>))}
         {stats.accidents.map(a => (
           <div key={a.id} className="flex items-center justify-between gap-3 text-sm border-b border-line py-1.5 last:border-0">
-            <span className="truncate">{SEVERITY[a.severity]?.label} · {format(new Date(a.at), 'd MMM yyyy', { locale: fr })}</span>
+            <span className="truncate">{SEVERITY[a.severity]?.label} · {format(new Date(a.at), 'd MMM yyyy', { locale: df() })}</span>
             <Badge tone={ACC_STAGES[a.stage]?.tone} label={ACC_STAGES[a.stage]?.label} status={a.stage} /></div>))}
       </SectionCard>
     </div>

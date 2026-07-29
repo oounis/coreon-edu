@@ -14,7 +14,7 @@ import { pack } from '@core/locales.js'
 import { PageHead, Card, Btn, Modal, Field, Input, Select, Avatar, EmptyState, SectionCard } from '../components/ui.jsx'
 import { ScrollText, Download, Printer, Check } from 'lucide-react'
 import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import toast from 'react-hot-toast'
 
 /* ---------- le contenu du document (partagé aperçu + PDF) ---------- */
@@ -147,7 +147,7 @@ export default function Documents() {
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-semibold truncate">{rec.studentName}</span>
                 <span className="block text-[12px] text-muted">{docTypeOf(rec.type)?.label}{rec.addressedTo ? ` · ${rec.addressedTo}` : ''}</span></span>
-              <span className="text-[12px] text-muted shrink-0">{format(new Date(rec.at), 'd MMM yyyy', { locale: fr })} · {rec.by}</span>
+              <span className="text-[12px] text-muted shrink-0">{format(new Date(rec.at), 'd MMM yyyy', { locale: df() })} · {rec.by}</span>
             </button>))}
         </div>}
     </SectionCard>

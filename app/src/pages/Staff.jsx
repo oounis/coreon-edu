@@ -9,7 +9,7 @@ import { BriefcaseBusiness, Clock, UserX, Plane, Save, Download, ChevronLeft, Ch
 import { SoftArea } from '../components/charts.jsx'
 import { format, addMonths, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns'
 import { isWeekend } from '@core/clock.js'   // B-2 : le week-end du PAYS (ven-sam au Golfe)
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import toast from 'react-hot-toast'
 
 /* ── Personnel : le module RH de présence, propriété de la Direction ────── */
@@ -58,7 +58,7 @@ function DayTab({ d, staff, refresh }){
     for(const [id,st] of Object.entries(sa[iso])){ const h=hist[id]=hist[id]||{absent:0,late:0,conge:0}; if(h[st]!=null)h[st]++ } }
   const save=()=>{ mutate(db=>{ db.staffAttendance=db.staffAttendance||{}; db.staffAttendance[today]={...marks} })
     toast.success('Présence du personnel enregistrée'); refresh() }
-  const dayLabel=format(new Date(),'EEEE d MMMM',{locale:fr})
+  const dayLabel=format(new Date(),'EEEE d MMMM',{locale: df()})
   // Chaque tuile s'ouvre : derrière « 2 absents » il y a des noms.
   const [tile,setTile]=useState(null) // present | late | absent | conge
   return (<>
@@ -143,7 +143,7 @@ function MonthTab({ d, staff }){
     const total=c.present+c.late+c.absent+c.conge
     return {...x,cells,c,rate:total?Math.round((c.present+c.late)/total*100):null}
   })
-  const monthLabel=format(month,'MMMM yyyy',{locale:fr})
+  const monthLabel=format(month,'MMMM yyyy',{locale: df()})
   const exportCSV=()=>{
     const head=['Employé','Fonction','Jours travaillés','Présents','Retards','Absents','Congés','Taux de présence']
     const lines=rows.map(r=>[r.name,r.sub.replace(/;/g,','),r.cells.filter(Boolean).length,r.c.present,r.c.late,r.c.absent,r.c.conge,r.rate!=null?r.rate+'%':'·'])
@@ -175,7 +175,7 @@ function MonthTab({ d, staff }){
                 <span className="min-w-0"><span className="block font-semibold truncate leading-tight">{r.name}</span><span className="block text-[11px] text-muted truncate">{r.sub}</span></span></span></td>
               <td className="px-2 py-2.5"><span className="flex gap-[3px] flex-wrap max-w-[340px]">
                 {r.cells.map((st,i)=>{ const col=st?ST[st][1]:'#E2E8F0'
-                  return <i key={i} title={`${format(days[i],'EEE d MMM',{locale:fr})} · ${st?ST[st][0]:'non pointé'}`}
+                  return <i key={i} title={`${format(days[i],'EEE d MMM',{locale: df()})} · ${st?ST[st][0]:'non pointé'}`}
                     className="w-3 h-3 rounded-[4px] inline-block" style={{background:st?col:'#EEF1F6',outline:st?'none':'1px dashed #D8DEE9'}}/>})}
               </span></td>
               <td className="px-2 py-2.5 text-center font-bold" style={{color:STATUS.ok}}>{r.c.present}</td>
@@ -316,7 +316,7 @@ function AnalyseTab({ d, staff }){
     const dates=Object.keys(sa).sort()
     const trend=dates.slice(-20).map(iso=>{ const rec=sa[iso]; let p=0,t=0
       Object.values(rec).forEach(st=>{ t++; if(st==='present'||st==='late')p++ })
-      return {name:format(new Date(iso),'d MMM',{locale:fr}), taux:t?Math.round(p/t*100):100} })
+      return {name:format(new Date(iso),'d MMM',{locale: df()}), taux:t?Math.round(p/t*100):100} })
     const cutoff=isoOf(new Date(Date.now()-30*86400000))
     const per={}
     for(const iso in sa){ if(iso<cutoff) continue

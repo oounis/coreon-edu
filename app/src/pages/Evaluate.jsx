@@ -10,7 +10,7 @@ import { notify } from '@core/notify.js'
 import { studentSummary, mentionFor } from '@core/results.js'
 import { now, nowMs } from '@core/clock.js'
 import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import toast from 'react-hot-toast'
 import { isSummer, SummerFreeze } from '../components/Summer.jsx'
 import { Ic } from '../icons.jsx'
@@ -90,7 +90,7 @@ export default function Evaluate(){
   /* ---------- 1) SCHEDULE PICKER (entry screen) ---------- */
   if(!slot) return (<>
     <PageHead title="Mon emploi du temps" sub="Choisissez la classe à évaluer : la séance en cours est mise en avant. Les élèves se chargent automatiquement."/>
-    <div className="flex items-center gap-2 text-sm text-muted mb-4"><CalendarDays size={16} className="accent-text"/> {format(now(),'EEEE d MMMM yyyy',{locale:fr})}</div>
+    <div className="flex items-center gap-2 text-sm text-muted mb-4"><CalendarDays size={16} className="accent-text"/> {format(now(),'EEEE d MMMM yyyy',{locale: df()})}</div>
     <div className="grid sm:grid-cols-2 gap-4">
       {sched.map((s,i)=>(
         <button key={i} onClick={()=>{reset();setSlot(s)}} className="card p-5 text-left hover:shadow-lg transition relative" style={s.isLive?{boxShadow:'0 0 0 2px var(--accent)'}:{}}>
@@ -135,7 +135,7 @@ export default function Evaluate(){
         <div className="space-y-1.5">
           {classHistory.slice(0,6).map(e=>(<div key={e.id} className="flex items-center justify-between text-sm">
             <span>{e.subject}</span>
-            <span className="text-muted text-xs">{format(new Date(e.at),'dd MMM yyyy · HH:mm',{locale:fr})}</span>
+            <span className="text-muted text-xs">{format(new Date(e.at),'dd MMM yyyy · HH:mm',{locale: df()})}</span>
           </div>))}
         </div>
       </div>

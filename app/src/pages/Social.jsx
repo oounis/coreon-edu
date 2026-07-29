@@ -20,7 +20,7 @@ import {
 } from '@core/social.js'
 import { now as appNow } from '@core/clock.js'
 import { format, formatDistanceToNowStrict, parseISO } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import toast from 'react-hot-toast'
 
 const catOf = k => CATEGORIES.find(c => c.k === k) || CATEGORIES[0]
@@ -119,7 +119,7 @@ export default function Social() {
     ev.participants.push({ userId: u.id, name: u.name, rsvp: 'oui', adults: 1, children: 0, priceAgreedPerPerson: price, amountAgreed: price, agreedAt: at })
     mutate(db => { db.socialEvents = db.socialEvents || []; db.socialEvents.unshift(ev) })
     SPACES[mySpace].roles.forEach(r => notify({ role: r, kind: 'notice', actor: u.name, title: `Nouvelle activité · ${SPACES[mySpace].label}`,
-      body: `${ev.title} · ${format(parseISO(ev.date), 'd MMM', { locale: fr })}${price ? ` · ${money(price)}/pers.` : ' · gratuit'}`, link: '/app/social' }))
+      body: `${ev.title} · ${format(parseISO(ev.date), 'd MMM', { locale: df() })}${price ? ` · ${money(price)}/pers.` : ' · gratuit'}`, link: '/app/social' }))
     toast.success(`Proposition publiée : ${RSVP_WINDOW_H} h pour réunir ${min} participants`)
     setOpen(false); setF(BLANK(mySpace)); refresh()
   }
@@ -204,7 +204,7 @@ export default function Social() {
       const reasons = securityNeeds(ev)
       if (reasons.length) {
         notify({ role: 'security', kind: 'notice', actor: 'Direction', title: 'Événement à couvrir',
-          body: `« ${ev.title} » · ${format(parseISO(ev.date), 'EEEE d MMMM', { locale: fr })} à ${ev.time} · ${ev.place}. ${reasons[0]}`, link: '/app/security' })
+          body: `« ${ev.title} » · ${format(parseISO(ev.date), 'EEEE d MMMM', { locale: df() })} à ${ev.time} · ${ev.place}. ${reasons[0]}`, link: '/app/security' })
         const notice = securityNotice({ ...ev, securityNotifiedAt: Date.now() })
         if (notice.short) notify({ role: 'schooladmin', kind: 'info', actor: 'Sécurité', title: 'Préavis court pour la sécurité',
           body: `« ${ev.title} » : l'agent est prévenu ${notice.hours} h avant (minimum ${SECURITY_NOTICE_H} h).`, link: '/app/security' })
@@ -215,7 +215,7 @@ export default function Social() {
       to: p.userId, kind: approved ? 'notice' : 'info', actor: roleLabel,
       title: approved ? 'Activité confirmée' : 'Activité refusée',
       body: approved
-        ? `« ${ev.title} » est confirmée · ${ev.place} · ${format(parseISO(ev.date), 'EEEE d MMMM', { locale: fr })}${ev.pricePerPerson ? ` · ${money(amountFor(ev, p.adults, p.children))} à régler auprès de l'administration` : ' · gratuit'}`
+        ? `« ${ev.title} » est confirmée · ${ev.place} · ${format(parseISO(ev.date), 'EEEE d MMMM', { locale: df() })}${ev.pricePerPerson ? ` · ${money(amountFor(ev, p.adults, p.children))} à régler auprès de l'administration` : ' · gratuit'}`
         : `« ${ev.title} » n'a pas été retenue : ${note.trim()} Vous n'avez rien à payer.`,
       link: '/app/social',
     }))
@@ -261,7 +261,7 @@ export default function Social() {
                   <span className="accent-text shrink-0"><Ic n={catOf(ev.cat).icon} size={20} /></span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-semibold truncate">{ev.title}</span>
-                    <span className="block text-[12px] text-muted truncate">{format(parseISO(ev.date), 'EEEE d MMMM', { locale: fr })} · {ev.time} · {ev.place} · proposé par {ev.byName}</span></span>
+                    <span className="block text-[12px] text-muted truncate">{format(parseISO(ev.date), 'EEEE d MMMM', { locale: df() })} · {ev.time} · {ev.place} · proposé par {ev.byName}</span></span>
                   <span className="text-[12px] text-muted shrink-0">{goingCount(ev)} inscrit(s)</span>
                 </div>))}
             </div>}
@@ -278,7 +278,7 @@ export default function Social() {
               <div className="min-w-0 flex-1">
                 <div className="font-semibold text-sm">{ev.title}</div>
                 <div className="text-[12px] text-muted mt-0.5">
-                  {format(parseISO(ev.date), 'EEEE d MMMM', { locale: fr })} · {ev.time} · {ev.place} · proposé par {ev.byName}
+                  {format(parseISO(ev.date), 'EEEE d MMMM', { locale: df() })} · {ev.time} · {ev.place} · proposé par {ev.byName}
                 </div>
                 <div className="text-[12px] text-muted mt-0.5">
                   {plural(adultCount(ev), 'adulte', 'adultes')}{childCount(ev) > 0 && ` · ${plural(childCount(ev), 'enfant', 'enfants')}`} · {audienceOf(ev.audience).short} · {ev.pricePerPerson ? `${money(ev.pricePerPerson)}/pers.` : 'gratuit'}
@@ -341,7 +341,7 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
       </div>
 
       <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
-        <span className="inline-flex items-center gap-1"><CalendarDays size={12} />{format(parseISO(ev.date), 'EEE d MMM', { locale: fr })} · {ev.time}</span>
+        <span className="inline-flex items-center gap-1"><CalendarDays size={12} />{format(parseISO(ev.date), 'EEE d MMM', { locale: df() })} · {ev.time}</span>
         <span className="inline-flex items-center gap-1"><MapPin size={12} />{ev.place}</span>
         <span className="inline-flex items-center gap-1"><Users size={12} />{aud.short}</span>
         <span className="inline-flex items-center gap-1"><Baby size={12} />{kid.label}</span>
@@ -371,7 +371,7 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
           </div>
           <div className="flex items-center justify-between text-[12px] text-muted mt-1.5">
             <span className="inline-flex items-center gap-1"><Clock size={11} />
-              {deadlinePassed(ev) ? 'Inscriptions closes' : `Clôture ${formatDistanceToNowStrict(new Date(deadline), { addSuffix: true, locale: fr })}`}</span>
+              {deadlinePassed(ev) ? 'Inscriptions closes' : `Clôture ${formatDistanceToNowStrict(new Date(deadline), { addSuffix: true, locale: df() })}`}</span>
             {left != null && <span>{plural(left, 'place restante', 'places restantes')}</span>}
           </div>
         </div>
@@ -579,7 +579,7 @@ function DecideModal({ ev, clash, onClose, onSettle, role }) {
         <div className="font-extrabold text-base flex items-center gap-2"><Ic n={catOf(ev.cat).icon} size={17} className="accent-text" />{ev.title}</div>
         <div className="text-muted">{ev.desc}</div>
         <div className="grid sm:grid-cols-2 gap-2 pt-2">
-          {[['Quand', `${format(parseISO(ev.date), 'EEEE d MMMM', { locale: fr })} · ${ev.time}`],
+          {[['Quand', `${format(parseISO(ev.date), 'EEEE d MMMM', { locale: df() })} · ${ev.time}`],
             ['Lieu', ev.place],
             ['Organisateur', ev.byName],
             ['Public', aud.label],

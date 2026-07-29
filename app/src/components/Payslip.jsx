@@ -10,7 +10,7 @@ import { Btn, Avatar, STATUS } from './ui.jsx'
 import { Dialog } from '@headlessui/react'
 import { X, Printer, Lock } from 'lucide-react'
 import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 
 // audit FAT 2026-07-26 : money() du cœur — les millièmes du BHD comptent
 
@@ -49,7 +49,7 @@ export default function Payslip({ line, month, stage, validatedBy, onClose }) {
               </div>
               <div className="text-right">
                 <div className="text-xs uppercase tracking-wide text-muted font-bold">{monthLabel(month)}</div>
-                <div className="text-sm text-muted mt-1">Édité le {format(new Date(), 'dd MMMM yyyy', { locale: fr })}</div>
+                <div className="text-sm text-muted mt-1">Édité le {format(new Date(), 'dd MMMM yyyy', { locale: df() })}</div>
               </div>
             </div>
 

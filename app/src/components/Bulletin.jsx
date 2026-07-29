@@ -5,7 +5,7 @@ import { Btn, Avatar, STATUS } from './ui.jsx'
 import { Dialog } from '@headlessui/react'
 import { X, Printer, Award, CalendarCheck } from 'lucide-react'
 import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import { Ic } from '../icons.jsx'
 
 export default function Bulletin({ student, onClose }){
@@ -41,7 +41,7 @@ export default function Bulletin({ student, onClose }){
               </div>
               <div className="text-right">
                 <div className="text-xs uppercase tracking-wide text-muted font-bold">Bulletin</div>
-                <div className="text-sm text-muted mt-1">Édité le {format(new Date(),'dd MMMM yyyy',{locale:fr})}</div>
+                <div className="text-sm text-muted mt-1">Édité le {format(new Date(),'dd MMMM yyyy',{locale: df()})}</div>
               </div>
             </div>
 

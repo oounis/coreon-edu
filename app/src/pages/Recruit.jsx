@@ -8,7 +8,7 @@ import { posts, openPost, closePost, candidates, candidatesOf, addCandidate, adv
 import { PageHead, Card, SectionCard, Btn, Modal, Field, Input, Select, Textarea, Badge, Avatar, EmptyState } from '../components/ui.jsx'
 import { UserPlus, Plus, Check, X, ChevronRight, Phone, Mail } from 'lucide-react'
 import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import toast from 'react-hot-toast'
 
 export default function Recruit() {
@@ -64,7 +64,7 @@ export default function Recruit() {
                     <Avatar name={c.name} seed={c.id} size={32} />
                     <span className="min-w-0 flex-1">
                       <span className="block text-sm font-semibold truncate">{c.name}</span>
-                      <span className="block text-[12px] text-muted">{format(new Date(c.at), 'd MMM', { locale: fr })}</span></span>
+                      <span className="block text-[12px] text-muted">{format(new Date(c.at), 'd MMM', { locale: df() })}</span></span>
                     <Badge tone={R_STAGES[c.stage].tone} label={R_STAGES[c.stage].label} status={c.stage} />
                     <ChevronRight size={14} className="text-muted shrink-0" />
                   </button>))}
@@ -94,7 +94,7 @@ export default function Recruit() {
         <div className="text-xs font-bold uppercase text-muted mb-1">Parcours</div>
         {cand.history.map((h, i) => (
           <div key={i} className="text-xs py-1 border-b border-line last:border-0">
-            <b>{R_STAGES[h.stage]?.label}</b> {h.by} · {format(new Date(h.at), 'd MMM yyyy HH:mm', { locale: fr })}
+            <b>{R_STAGES[h.stage]?.label}</b> {h.by} · {format(new Date(h.at), 'd MMM yyyy HH:mm', { locale: df() })}
             {h.note && <span className="text-muted"> {h.note}</span>}
           </div>))}
         {!R_STAGES[cand.stage].terminal && <div className="mt-3">

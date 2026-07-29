@@ -1,6 +1,6 @@
 import { FileText, ShieldAlert, CreditCard, Megaphone, MessageSquare, Star, Bell, CalendarCheck } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import { Avatar, STATUS } from './ui.jsx'
 export const KIND={
   request:{tint:STATUS.info,Icon:FileText}, incident:{tint:STATUS.danger,Icon:ShieldAlert},
@@ -8,7 +8,7 @@ export const KIND={
   message:{tint:STATUS.ok,Icon:MessageSquare}, evaluation:{tint:'#8B5CF6',Icon:Star},
   info:{tint:STATUS.neutral,Icon:CalendarCheck},
 }
-export const ago=at=>formatDistanceToNow(at,{addSuffix:true,locale:fr})
+export const ago=at=>formatDistanceToNow(at,{addSuffix:true,locale: df()})
 export function NotifRow({ n, onClick, compact }){
   const k=KIND[n.kind]||KIND.info; const Icon=k.Icon
   return (

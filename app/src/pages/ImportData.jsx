@@ -13,7 +13,7 @@ import { useMemo, useState } from 'react'
 import { current } from '@core/auth.js'
 import { parseCSV, TARGETS, autoMap, applyMapping, buildPlan, applyPlan, undoLastImport, importJournal } from '@core/importer.js'
 import { db } from '@core/db.js'
-import { t } from '@core/i18n.js'
+import { t, dateLocale } from '@core/i18n.js'
 import { PageHead, SectionCard, Btn, Field, Select, Textarea, EmptyState } from '../components/ui.jsx'
 import { Undo2, KeyRound, Download, FileUp, CheckCircle2 } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -194,7 +194,7 @@ export default function ImportData() {
             </tr></thead>
             <tbody>{journal.slice(0, 20).map(j => (
               <tr key={j.id} className="border-t border-line">
-                <td className="px-2 py-1.5">{new Date(j.at).toLocaleString('fr-FR')}</td>
+                <td className="px-2 py-1.5">{new Date(j.at).toLocaleString(dateLocale())}</td>
                 <td className="px-2 py-1.5">{j.byName}</td>
                 <td className="px-2 py-1.5">{j.file}</td>
                 <td className="px-2 py-1.5">{t(TARGETS[j.target]?.label || j.target)}</td>

@@ -5,7 +5,7 @@ import { notify } from '@core/notify.js'
 import { PageHead, Card, Btn, Modal, Field, Input, Select, Badge, IconTile, EmptyState } from '../components/ui.jsx'
 import { ShieldAlert, Plus } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import toast from 'react-hot-toast'
 const TYPES=['Bagarre','Santé','Comportement','Sécurité','Autre']
 const SEV_TINT={low:'sky',medium:'butter',high:'coral'}
@@ -35,7 +35,7 @@ export default function Incidents(){
           <div className="flex-1">
             <div className="flex items-center gap-2 flex-wrap"><b>{i.title}</b><span className="text-[12px] font-bold px-2 py-0.5 rounded-full accent-soft accent-text">{i.type}</span><Badge status={i.status}/></div>
             <div className="text-sm text-muted">{i.body}</div>
-            <div className="text-[12px] text-muted mt-1">par {i.by}{s&&` · ${s.name}`} · {formatDistanceToNow(i.at,{addSuffix:true,locale:fr})}</div>
+            <div className="text-[12px] text-muted mt-1">par {i.by}{s&&` · ${s.name}`} · {formatDistanceToNow(i.at,{addSuffix:true,locale: df()})}</div>
           </div>
           {canResolve&&i.status==='open'&&<Btn variant="soft" onClick={()=>resolve(i.id)}>Résoudre</Btn>}
         </Card>) }) : <Card><EmptyState icon={<ShieldAlert size={26}/>} title="Aucun incident" sub="Aucun incident signalé pour le moment."/></Card>}

@@ -5,7 +5,7 @@ import { ROLE } from '@core/theme.js'
 import { notify } from '@core/notify.js'
 import { PageHead, Card, Avatar, Btn, Modal, Field, Select, Input, EmptyState } from '../components/ui.jsx'
 import { formatDistanceToNow } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import { Send, Plus, MessageSquare } from 'lucide-react'
 export default function Messages(){
   const me=current(); const [,force]=useState(0); const refresh=()=>force(x=>x+1)
@@ -42,7 +42,7 @@ export default function Messages(){
           <div className="p-4 border-b border-line flex items-center gap-3"><Avatar name={userById(active)?.name} seed={active}/><div><div className="font-semibold">{userById(active)?.name}</div><div className="text-xs text-muted">{ROLE[userById(active)?.role]?.label}</div></div></div>
           <div className="flex-1 overflow-y-auto scroll-thin p-4 space-y-2">
             {thread.length? thread.map(m=>{ const mineMsg=m.from===me.id; return (
-              <div key={m.id} className={`flex ${mineMsg?'justify-end':'justify-start'}`}><div className={`max-w-[75%] px-3.5 py-2 rounded-2xl text-sm ${mineMsg?'text-white accent-bg':'bg-canvas'}`}><div>{m.text}</div><div className={`text-[11px] mt-0.5 ${mineMsg?'text-white/70':'text-muted'}`}>{formatDistanceToNow(m.at,{addSuffix:true,locale:fr})}</div></div></div>) })
+              <div key={m.id} className={`flex ${mineMsg?'justify-end':'justify-start'}`}><div className={`max-w-[75%] px-3.5 py-2 rounded-2xl text-sm ${mineMsg?'text-white accent-bg':'bg-canvas'}`}><div>{m.text}</div><div className={`text-[11px] mt-0.5 ${mineMsg?'text-white/70':'text-muted'}`}>{formatDistanceToNow(m.at,{addSuffix:true,locale: df()})}</div></div></div>) })
              : <EmptyState icon={<MessageSquare size={26}/>} title="Aucun message" sub="Envoyez le premier message pour démarrer la conversation."/>}
           </div>
           <div className="p-3 border-t border-line flex gap-2"><Input value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()} placeholder="Écrivez un message…"/><Btn onClick={()=>send()}><Send size={16}/></Btn></div>

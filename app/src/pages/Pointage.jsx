@@ -6,7 +6,7 @@ import { notify } from '@core/notify.js'
 import { PageHead, Card, StatCard, SectionCard, Btn, Modal, Field, Input, Select, Textarea, EmptyState, Whale, STATUS } from '../components/ui.jsx'
 import { LogIn, LogOut, Clock, CalendarCheck, Plane, Plus, Hourglass, Timer } from 'lucide-react'
 import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import toast from 'react-hot-toast'
 import { isSummer, rentreeLabel } from '../components/Summer.jsx'
 
@@ -80,7 +80,7 @@ export default function Pointage(){
           <p className="text-sm text-muted mt-1">Le pointage reprend le <b>{rentreeLabel()}</b>. Vos heures et votre historique restent consultables ci-contre : bel été !</p>
         </> : !clock ? <>
           <div className="text-lg font-extrabold">Prêt pour la journée ?</div>
-          <p className="text-sm text-muted mt-1 capitalize">{format(now,'EEEE d MMMM · HH:mm',{locale:fr})}</p>
+          <p className="text-sm text-muted mt-1 capitalize">{format(now,'EEEE d MMMM · HH:mm',{locale: df()})}</p>
           <Btn size="lg" className="mt-4 w-full" onClick={checkIn}><LogIn size={17}/> Pointer l'arrivée</Btn>
           <p className="text-[12px] text-muted mt-2">Après {LATE}, l'arrivée est comptée en retard.</p></> : null}
         {!isSummer() && working && <>
@@ -95,7 +95,7 @@ export default function Pointage(){
       </Card>
       <div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-          <StatCard tint="mint"  icon={<CalendarCheck size={20}/>} value={days} label="Jours pointés" sub={format(now,'MMMM',{locale:fr})} onClick={()=>setTile('days')}/>
+          <StatCard tint="mint"  icon={<CalendarCheck size={20}/>} value={days} label="Jours pointés" sub={format(now,'MMMM',{locale: df()})} onClick={()=>setTile('days')}/>
           <StatCard tint="sky"   icon={<Timer size={20}/>}        value={fmtH(minutes)} label="Heures travaillées" onClick={()=>setTile('hours')}/>
           <StatCard tint="butter" icon={<Clock size={20}/>}       value={lates} label="Retards" onClick={()=>setTile('lates')}/>
           <StatCard tint="grape" icon={<Plane size={20}/>}        value={`${Math.max(0,QUOTA-used)} j`} label="Congé annuel restant" onClick={()=>setTile('leave')}/>
@@ -104,7 +104,7 @@ export default function Pointage(){
           {history.length===0 ? <EmptyState title="Aucun pointage" sub="Votre historique apparaîtra ici dès votre première arrivée."/>
           : <div className="grid sm:grid-cols-2 gap-1.5">{history.map(h=>(
             <div key={h.iso} className="flex items-center justify-between px-3 py-2 rounded-xl border border-line text-sm">
-              <span className="text-muted capitalize">{format(new Date(h.iso),'EEE d MMM',{locale:fr})}</span>
+              <span className="text-muted capitalize">{format(new Date(h.iso),'EEE d MMM',{locale: df()})}</span>
               <span className="font-semibold">{h.in} → {h.out||'·'}</span>
               <span className="font-bold" style={{color:h.in>LATE?STATUS.warn:STATUS.ok}}>{h.mins?fmtH(h.mins):'en cours'}</span>
             </div>))}</div>}
@@ -125,10 +125,10 @@ export default function Pointage(){
     </SectionCard>
 
     {tile && (()=>{
-      const monthLabel=format(now,'MMMM yyyy',{locale:fr})
+      const monthLabel=format(now,'MMMM yyyy',{locale: df()})
       const DayRow=h=>(
         <div key={h.iso} className="flex items-center justify-between px-3 py-2 rounded-xl border border-line text-sm">
-          <span className="text-muted capitalize">{format(new Date(h.iso),'EEEE d MMMM',{locale:fr})}</span>
+          <span className="text-muted capitalize">{format(new Date(h.iso),'EEEE d MMMM',{locale: df()})}</span>
           <span className="font-semibold tabular-nums">{h.in} → {h.out||'·'}</span>
           <span className="font-bold" style={{color:h.in>LATE?STATUS.warn:STATUS.ok}}>{h.mins?fmtH(h.mins):'en cours'}</span>
         </div>)

@@ -13,7 +13,7 @@ import { PageHead, Card, StatCard, SectionCard, Btn, Modal, Field, Input, Select
 import { Wallet, BriefcaseBusiness, ReceiptText, Scale, Plus, TrendingUp, Download, X } from 'lucide-react'
 import { SoftArea } from '../components/charts.jsx'
 import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import toast from 'react-hot-toast'
 
 const Row = ({ left, sub, right, tone }) => (
@@ -33,8 +33,8 @@ export default function Budget() {
   const [f, setF] = useState({ date: todayIso(), category: 'fournitures', label: '', amount: '' })
   const R = monthlyReport(month)
   const year = month.slice(0, 4)
-  const series = yearSeries(year).map(x => ({ name: format(new Date(x.month + '-15'), 'MMM', { locale: fr }), solde: x.balance }))
-  const monthLabel = format(new Date(month + '-15'), 'MMMM yyyy', { locale: fr })
+  const series = yearSeries(year).map(x => ({ name: format(new Date(x.month + '-15'), 'MMM', { locale: df() }), solde: x.balance }))
+  const monthLabel = format(new Date(month + '-15'), 'MMMM yyyy', { locale: df() })
 
   const submit = () => {
     const r = addExpense({ ...f, by: u.name })
@@ -88,7 +88,7 @@ export default function Budget() {
           title: `Encaissé · ${monthLabel}`, body: (R.receipts.length + R.rentals.length) === 0
             ? <EmptyState icon={<Wallet size={24} />} title="Rien d'encaissé ce mois-ci" sub="Les reçus de scolarité et les locations payées apparaîtront ici." />
             : <>
-              {R.receipts.map(r => <Row key={r.id} left={studentById(r.studentId)?.name || 'Élève'} sub={`Reçu ${r.number} · ${format(new Date(r.at), 'd MMM', { locale: fr })}`} right={money(r.amount)} tone={STATUS.ok} />)}
+              {R.receipts.map(r => <Row key={r.id} left={studentById(r.studentId)?.name || 'Élève'} sub={`Reçu ${r.number} · ${format(new Date(r.at), 'd MMM', { locale: df() })}`} right={money(r.amount)} tone={STATUS.ok} />)}
               {R.rentals.map(b => <Row key={b.id} left={b.who} sub={`Location · ${b.date} · ${b.from}–${b.to}`} right={money(b.price)} tone={STATUS.ok} />)}
             </>
         },

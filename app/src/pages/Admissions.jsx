@@ -8,7 +8,7 @@
 // pleine ne fait pas échouer le clic : elle bascule en liste d'attente. Le
 // système ne ment jamais sur une place qu'il n'a pas.
 import { useState } from 'react'
-import { t } from '@core/i18n.js'
+import { t, dateLocale } from '@core/i18n.js'
 import { current } from '@core/auth.js'
 import {
   applications, appById, STAGES, docsFor, docsComplete, hasDoc, setFiles, advance,
@@ -20,7 +20,7 @@ import { PageHead, Card, Btn, Badge, EmptyState, Avatar, Modal, STATUS, Textarea
 import { Ic } from '../icons.jsx'
 import toast from 'react-hot-toast'
 
-const fmt = ts => new Date(ts).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
+const fmt = ts => new Date(ts).toLocaleDateString(dateLocale(), { day: '2-digit', month: 'short' })
 const ageOf = dob => {
   const d = new Date(dob); if (isNaN(d)) return null
   const n = new Date(); let a = n.getFullYear() - d.getFullYear()

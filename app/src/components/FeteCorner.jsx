@@ -4,15 +4,16 @@
 // Un clic ouvre l'agenda des fêtes à venir (règle produit : tout s'ouvre).
 import { Menu } from '@headlessui/react'
 import { format } from 'date-fns'
-import { fr, arTN } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import { todayIso, now as appNow } from '@core/clock.js'
 import { feteOfDay, nextFerie, upcoming, hijriOf } from '@core/fetes.js'
 import { showsHijri } from '@core/locales.js'
-import { t, locale } from '@core/i18n.js'
+import { t, dateLocale } from '@core/i18n.js'
 import { ChevronDown } from 'lucide-react'
 
-// Le calendrier suit la langue : dates en arabe (ar-TN) en mode AR.
-const dfLocale = () => (locale() === 'ar' ? arTN : fr)
+// Le calendrier suit le lecteur — langue ET pays. Ce coin avait sa propre
+// version de la règle (`ar → arTN`), qui donnait « جويلية » à Bahreïn ; elle
+// vit désormais dans app/src/datefns.js, une seule fois pour tout le produit.
 const inLabel = n => n === 0 ? t("aujourd'hui") : n === 1 ? t('demain') : `${t('dans')} ${n} ${t('j')}`
 
 export default function FeteCorner() {
@@ -49,12 +50,12 @@ export default function FeteCorner() {
           <div className="text-sm font-extrabold mt-1">{t(head.label)}</div>
           <div className="text-xs text-muted mt-0.5 capitalize">
             {head.kind === 'prochain'
-              ? `${format(new Date(head.d), 'EEEE d MMMM', { locale: dfLocale() })} · ${inLabel(head.inDays)}`
-              : format(appNow(), 'EEEE d MMMM yyyy', { locale: dfLocale() })}
+              ? `${format(new Date(head.d), 'EEEE d MMMM', { locale: df() })} · ${inLabel(head.inDays)}`
+              : format(appNow(), 'EEEE d MMMM yyyy', { locale: df() })}
           </div>
           {showsHijri() && (
             <div className="text-[11px] text-muted mt-0.5">
-              {hijriOf(head.kind === 'prochain' ? head.d : today, locale() === 'ar' ? 'ar-TN' : 'fr')}
+              {hijriOf(head.kind === 'prochain' ? head.d : today, dateLocale())}
             </div>)}
         </div>
         <div className="p-3">
@@ -65,7 +66,7 @@ export default function FeteCorner() {
               <span className="min-w-0 flex-1">
                 <span className="block text-[13px] font-semibold truncate">{t(x.label)}</span>
                 <span className="block text-[11px] text-muted capitalize">
-                  {format(new Date(x.d), 'EEE d MMM', { locale: dfLocale() })} · {inLabel(x.inDays)}{x.lune ? ` · ${t('selon la lune')}` : ''}
+                  {format(new Date(x.d), 'EEE d MMM', { locale: df() })} · {inLabel(x.inDays)}{x.lune ? ` · ${t('selon la lune')}` : ''}
                 </span></span>
               {x.kind === 'ferie' && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full accent-soft accent-text shrink-0">{t('FÉRIÉ')}</span>}
             </div>))}

@@ -25,6 +25,17 @@ await scenario(8971, async ({ page, ok, login, base }) => {
       const errs = []
       const h = e => errs.push(e.message.slice(0, 90))
       page.on('pageerror', h)
+      // ⚠️ LEÇON DU 2026-07-29 — `pageerror` NE SUFFIT PLUS.
+      // Depuis que l'App porte une frontière d'erreur qui se réarme à chaque
+      // route (174b068), un plantage de rendu est ATTRAPÉ par React : il ne
+      // remonte jamais comme erreur non capturée, et l'écran de repli est un
+      // texte LONG qui passe le seuil « page quasi vide ». Deux pages sont
+      // ainsi parties en production complètement cassées (/app/accidents et
+      // /app/journal appelaient `t()` sans l'importer) sans qu'aucune barrière
+      // ne bronche. La frontière journalise `[boundary]` : on l'écoute.
+      const boundary = []
+      const c = m => { if (m.type() === 'error' && /\[boundary\]|is not defined|ReferenceError/.test(m.text())) boundary.push(m.text().slice(0, 90)) }
+      page.on('console', c)
       await page.goto(`${base}/#${r.slice(4) ? r : r}`.replace('/#/app','/#/app'))
       await page.goto(`${base}/#${r}`)
       // On ATTEND le contenu (jusqu'à 3 s) au lieu d'un sommeil fixe : le smoke
@@ -37,8 +48,14 @@ await scenario(8971, async ({ page, ok, login, base }) => {
         if (txt.trim().length >= 40) break
       }
       page.off('pageerror', h)
+      page.off('console', c)
       const flags = []
       if (errs.length) flags.push('JS:' + errs[0])
+      if (boundary.length) flags.push('ÉCRAN D’ERREUR (frontière) : ' + boundary[0])
+      // le repli de la frontière porte role=alert : une page de l'app ne doit
+      // jamais s'ouvrir dessus.
+      if (await page.locator('[role=alert]').count() > 0
+          && /n’a pas pu se charger|n'a pas pu se charger/.test(txt)) flags.push('ÉCRAN D’ERREUR affiché')
       if (txt.trim().length < 40) flags.push('PAGE QUASI VIDE')
       if (/\bundefined\b/.test(txt)) flags.push('« undefined » visible')
       if (/\bNaN\b/.test(txt)) flags.push('« NaN » visible')

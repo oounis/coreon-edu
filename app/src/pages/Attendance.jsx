@@ -9,7 +9,7 @@ import { todayIso, isoOf } from '@core/clock.js'
 import { Check, CalendarCheck, UserX, Clock, AlertTriangle, BellRing, TrendingUp, Users, BriefcaseBusiness } from 'lucide-react'
 import { SoftArea } from '../components/charts.jsx'
 import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import toast from 'react-hot-toast'
 import { isSummer, SummerFreeze } from '../components/Summer.jsx'
 
@@ -79,7 +79,7 @@ function StudentsInsights(){
       .filter(x=>x.s&&x.absent>=4)
       .sort((a,b)=>b.absent-a.absent)
     const trend=dates.slice(-20).map(iso=>{ const x=days[iso]; const t=x.present+x.absent+x.late
-      return {name:format(new Date(iso),'d MMM',{locale:fr}), taux:t?Math.round(x.present/t*100):100} })
+      return {name:format(new Date(iso),'d MMM',{locale: df()}), taux:t?Math.round(x.present/t*100):100} })
     return {days,latest,chronic,perClass,trend}
   },[d])
 
@@ -101,7 +101,7 @@ function StudentsInsights(){
   const today=A.days[A.latest]
   const total=today.present+today.absent+today.late
   const rate=total?Math.round(today.present/total*100):100
-  const dayLabel=format(new Date(A.latest),'EEEE d MMMM',{locale:fr})
+  const dayLabel=format(new Date(A.latest),'EEEE d MMMM',{locale: df()})
 
   const notifyParent=(s,body)=>{
     const parent=d.users.find(x=>x.id===s.parentId)
@@ -123,7 +123,7 @@ function StudentsInsights(){
         <SoftArea data={A.trend} dataKey="taux" color={STATUS.ok} id="gAtt" unit="%" domain={[60,100]} height={208}/>
       </SectionCard>
 
-      <SectionCard icon={<UserX size={16}/>} tint="coral" title={`Absents & retards · ${format(new Date(A.latest),'d MMM',{locale:fr})}`} sub="Un clic pour prévenir le parent" bodyClass="p-3 max-h-72 overflow-y-auto scroll-thin">
+      <SectionCard icon={<UserX size={16}/>} tint="coral" title={`Absents & retards · ${format(new Date(A.latest),'d MMM',{locale: df()})}`} sub="Un clic pour prévenir le parent" bodyClass="p-3 max-h-72 overflow-y-auto scroll-thin">
         {today.absents.length===0 ? <EmptyState icon={<Check size={22}/>} title="Personne ne manque" sub="Tous les élèves sont présents."/>
         : today.absents.map(({sid,classId,status})=>{ const s=studentById(sid); if(!s) return null
           return (

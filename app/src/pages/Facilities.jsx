@@ -2,6 +2,7 @@
 // Les murs de l'école sont vides le soir et le week-end. Les louer, c'est une
 // seconde ligne de revenus. Et on ne réserve JAMAIS deux fois le même créneau.
 import { useState } from 'react'
+import { dateLocale } from '@core/i18n.js'
 import { current } from '@core/auth.js'
 import {
   FACILITY_KINDS, AUDIENCE, BOOKING_STAGES,
@@ -16,7 +17,7 @@ import {
 import { Ic } from '../icons.jsx'
 import toast from 'react-hot-toast'
 
-const day = d => new Date(d).toLocaleDateString('fr-FR', { weekday: 'short', day: '2-digit', month: 'short' })
+const day = d => new Date(d).toLocaleDateString(dateLocale(), { weekday: 'short', day: '2-digit', month: 'short' })
 
 export default function Facilities() {
   const [tab, setTab] = useState('planning')

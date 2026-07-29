@@ -1,7 +1,7 @@
 import { db } from '@core/db.js'
 import { evaluationHistory, mentionFor } from '@core/results.js'
 import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import { ClipboardList, CalendarCheck } from 'lucide-react'
 import { STATUS } from './ui.jsx'
 import { Ic } from '../icons.jsx'
@@ -32,7 +32,7 @@ export default function GradeHistory({ studentId }){
                 <div className="text-right"><span className="font-bold" style={{color:m.color}}>{ev.score}/100</span>
                   <span className="ml-2 text-[12px] font-bold px-2 py-0.5 rounded-full" style={{background:m.color+'22',color:m.color}}>{m.label}</span></div>
               </div>
-              <div className="text-[12px] text-muted mb-1.5">{format(new Date(ev.at),'EEEE dd MMMM yyyy · HH:mm',{locale:fr})} · {ev.teacher}{ev.className?` · ${ev.className}`:''}</div>
+              <div className="text-[12px] text-muted mb-1.5">{format(new Date(ev.at),'EEEE dd MMMM yyyy · HH:mm',{locale: df()})} · {ev.teacher}{ev.className?` · ${ev.className}`:''}</div>
               <div className="flex flex-wrap gap-1.5">
                 {ev.perQ.map((x,i)=>(<span key={i} className="text-[11px] px-2 py-0.5 rounded-full inline-flex items-center gap-1" style={{background:(x.bucket?.color||STATUS.neutral)+'22',color:x.bucket?.color||STATUS.neutral}} title={x.q}>{x.bucket?.icon&&<Ic n={x.bucket.icon} size={10}/>}{x.bucket?.label}</span>))}
               </div>

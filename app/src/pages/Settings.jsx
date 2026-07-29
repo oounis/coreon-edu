@@ -9,8 +9,7 @@ import { OPTIONAL_MODULES, moduleActive, setModuleOverrides } from '@core/featur
 import { setCurrency } from '@core/currency.js'
 import { applyCurriculum } from '@core/academic.js'
 import { setLocalePack, PACK_LIST, PACKS, citiesOf, regionLabel } from '@core/locales.js'
-import { LOCALES } from '@core/i18n.js'
-import { t } from '@core/i18n.js'
+import { LOCALES, t, dateLocale } from '@core/i18n.js'
 import { N, SERIES, BRAND } from '@core/tokens.js'
 import { Building2, Layers, Boxes, Globe, Palette, Database, Save, Check, Download, ShieldCheck, AlertTriangle } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -100,7 +99,7 @@ export default function Settings() {
   const doReset = () => { resetDb(); location.reload() }
 
   const activeMods = OPTIONAL_MODULES.filter(m => mods[m]).length
-  const money = n => `${n.toLocaleString('fr-FR')} ${f.currency || 'DT'}`
+  const money = n => `${n.toLocaleString(dateLocale())} ${f.currency || 'DT'}`
 
   return (<>
     <PageHead title={t('Paramètres de l’école')} sub={t('Configurez votre établissement : appliqué partout dans l’application.')}

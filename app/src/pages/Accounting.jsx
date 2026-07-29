@@ -1,7 +1,7 @@
 // COMPTABILITÉ — barème, remises & bourses, factures, reçus, état financier.
 // Une facture émise ne se modifie pas : on l'annule par un avoir, daté et motivé.
 import { useState } from 'react'
-import { t } from '@core/i18n.js'
+import { t, dateLocale } from '@core/i18n.js'
 import { current } from '@core/auth.js'
 import { db } from '@core/db.js'
 import { LEVELS, schoolLevels, labelOf } from '@core/levels.js'
@@ -18,7 +18,7 @@ import {
 import { Ic } from '../icons.jsx'
 import toast from 'react-hot-toast'
 
-const day = t => new Date(t).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: '2-digit' })
+const day = t => new Date(t).toLocaleDateString(dateLocale(), { day: '2-digit', month: 'short', year: '2-digit' })
 
 export default function Accounting() {
   const [tab, setTab] = useState('etat')

@@ -1,6 +1,7 @@
 // DÉCLARATION D'ACCIDENT — la chaîne de confiance entre l'école et le parent.
 // Deux paires d'yeux, un accusé de réception, et rien qui s'efface.
 import { useState } from 'react'
+import { t, dateLocale } from '@core/i18n.js'
 import { current } from '@core/auth.js'
 import { db } from '@core/db.js'
 import {
@@ -16,7 +17,7 @@ import { Ic } from '../icons.jsx'
 import toast from 'react-hot-toast'
 import { isRemote, remoteOp } from '../remote.js'
 
-const when = t => new Date(t).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+const when = t => new Date(t).toLocaleString(dateLocale(), { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
 
 // ── LE SCHÉMA CORPOREL ──────────────────────────────────────────────────────
 // Un adulte qui vient de ramasser un enfant qui saigne ne remplit pas un menu

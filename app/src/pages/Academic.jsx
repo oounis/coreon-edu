@@ -2,7 +2,7 @@
 // Le passage n'est pas « grade + 1 » : c'est un processus daté, irréversible, et
 // qui touche à l'argent. On le montre AVANT de l'exécuter.
 import { useState } from 'react'
-import { t } from '@core/i18n.js'
+import { t, dateLocale } from '@core/i18n.js'
 import { current } from '@core/auth.js'
 import { db } from '@core/db.js'
 import {
@@ -434,7 +434,7 @@ function Passage({ refresh }) {
           <div className="text-sm font-bold mb-2">Passages précédents</div>
           {past.map(x => (
             <div key={x.id} className="text-[13px] text-muted">
-              {new Date(x.at).toLocaleDateString('fr-FR')} · par {x.by} · {x.summary.passe} passés,
+              {new Date(x.at).toLocaleDateString(dateLocale())} · par {x.by} · {x.summary.passe} passés,
               {' '}{x.summary.redouble} redoublants, {x.summary.diplome} diplômés
             </div>
           ))}
@@ -473,7 +473,7 @@ function Archives() {
           <div>
             <div className="font-bold text-sm">{s.name}</div>
             <div className="text-xs text-muted">
-              {s.archivedReason} · {new Date(s.archivedAt).toLocaleDateString('fr-FR')}
+              {s.archivedReason} · {new Date(s.archivedAt).toLocaleDateString(dateLocale())}
             </div>
           </div>
         </Card>

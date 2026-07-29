@@ -10,7 +10,7 @@ import {
   format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval,
   addMonths, subMonths, isSameMonth, isToday, parseISO
 } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import toast from 'react-hot-toast'
 
 const TYPES=[
@@ -48,7 +48,7 @@ export default function Events(){
     const ev={id:uid('e'),date:f.date,time:f.time,title:f.title.trim(),type:f.type,desc:f.desc.trim(),place:f.place.trim(),audience:f.audience,by:u.name}
     mutate(d=>{ d.events.push(ev) })
     const roles = f.audience==='all' ? ['parent','teacher','supervisor'] : [f.audience]
-    roles.forEach(r=>notify({role:r,kind:'notice',actor:u.name,title:'Nouvel événement · '+f.title.trim(),body:`${format(parseISO(f.date),'d MMM',{locale:fr})}${f.time?' à '+f.time:''}`,link:'/app/events'}))
+    roles.forEach(r=>notify({role:r,kind:'notice',actor:u.name,title:'Nouvel événement · '+f.title.trim(),body:`${format(parseISO(f.date),'d MMM',{locale: df()})}${f.time?' à '+f.time:''}`,link:'/app/events'}))
     toast.success('Événement ajouté au calendrier'); setOpen(false); setSel(f.date); setCursor(startOfMonth(parseISO(f.date))); bump()
   }
   const del=(ev)=>{
@@ -67,7 +67,7 @@ export default function Events(){
       {/* Calendar */}
       <Card className="p-4">
         <div className="flex items-center justify-between mb-3">
-          <div className="text-lg font-extrabold capitalize">{format(cursor,'MMMM yyyy',{locale:fr})}</div>
+          <div className="text-lg font-extrabold capitalize">{format(cursor,'MMMM yyyy',{locale: df()})}</div>
           <div className="flex items-center gap-1">
             <button onClick={()=>setCursor(subMonths(cursor,1))} className="w-9 h-9 grid place-items-center rounded-lg hover:bg-canvas"><ChevronLeft size={18}/></button>
             <button onClick={()=>{setCursor(startOfMonth(new Date()));setSel(format(new Date(),'yyyy-MM-dd'))}} className="px-3 h-9 rounded-lg text-sm font-semibold hover:bg-canvas">Aujourd’hui</button>
@@ -103,7 +103,7 @@ export default function Events(){
       <div className="space-y-5">
         <Card className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <div className="font-bold capitalize">{format(parseISO(sel),'EEEE d MMMM',{locale:fr})}</div>
+            <div className="font-bold capitalize">{format(parseISO(sel),'EEEE d MMMM',{locale: df()})}</div>
             {canAdd&&<button onClick={()=>openCreate(sel)} className="w-8 h-8 grid place-items-center rounded-lg accent-soft accent-text"><Plus size={16}/></button>}
           </div>
           {selList.length? <div className="space-y-2">
@@ -132,7 +132,7 @@ export default function Events(){
           <div className="space-y-2">
             {upcoming.length? upcoming.map(e=>(
               <button key={e.id} onClick={()=>{setSel(e.date);setCursor(startOfMonth(parseISO(e.date)))}} className="w-full flex items-center gap-3 text-left rounded-lg p-2 hover:bg-canvas">
-                <div className="w-11 text-center shrink-0"><div className="text-lg font-extrabold" style={{color:tint(e.type)}}>{e.date.slice(8,10)}</div><div className="text-[11px] text-muted uppercase">{format(parseISO(e.date),'MMM',{locale:fr})}</div></div>
+                <div className="w-11 text-center shrink-0"><div className="text-lg font-extrabold" style={{color:tint(e.type)}}>{e.date.slice(8,10)}</div><div className="text-[11px] text-muted uppercase">{format(parseISO(e.date),'MMM',{locale: df()})}</div></div>
                 <div className="min-w-0"><div className="text-sm font-semibold truncate">{e.title}</div><div className="text-[12px] text-muted">{e.type}{e.time?' · '+e.time:''}</div></div>
               </button>
             )) : <EmptyState icon={<CalendarDays size={22}/>} title="Rien de prévu" sub="Les prochains événements apparaîtront ici."/>}

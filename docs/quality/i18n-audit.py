@@ -63,8 +63,52 @@ def dict_keys():
         return out
     return {'ar': parse(DICT_AR), 'en': parse(DICT_EN)}
 
+# ── LA BARRIÈRE DES DATES (2026-07-29) ──────────────────────────────────────
+# Une date n'est pas une clé `t()` : la couverture ci-dessus ne la voit pas.
+# Le produit pouvait donc afficher 95 % d'anglais et 100 % de dates FRANÇAISES.
+# C'était le cas : 51 appels `{ locale: fr }` (date-fns) et 12 `toLocaleDateString
+# ('fr-FR')` répartis dans 28 fichiers. Un seul endroit décide désormais —
+# `app/src/datefns.js` (df(), pour date-fns) et `dateLocale()` du cœur (pour Intl).
+# Cette barrière refuse que le français revienne en dur.
+DATE_LEAKS = [
+    (re.compile(r"locale:\s*fr\b"),                        "date-fns « { locale: fr } » → { locale: df() }"),
+    (re.compile(r"toLocale(?:Date|Time)?String\(\s*'fr-FR'"), "Intl « 'fr-FR' » en dur → dateLocale()"),
+    (re.compile(r"from 'date-fns/locale'"),                 "import direct d'un repère date-fns → app/src/datefns.js"),
+]
+# Les deux seuls fichiers autorisés : celui qui DÉCIDE, et un courriel en français.
+DATE_ALLOW = {'app/src/datefns.js', 'app/src/pages/MotDePasseOublie.jsx'}
+
+def date_leaks():
+    out = []
+    for f in sorted(glob.glob(os.path.join(ROOT, 'app/src/**/*.jsx'), recursive=True)
+                    + glob.glob(os.path.join(ROOT, 'app/src/**/*.js'), recursive=True)):
+        rel = os.path.relpath(f, ROOT)
+        if rel in DATE_ALLOW:
+            continue
+        src = open(f, encoding='utf-8').read()
+        for pat, why in DATE_LEAKS:
+            for m in pat.finditer(src):
+                if src[:m.start()].rstrip().endswith('//'):   # une ligne de commentaire
+                    continue
+                out.append((rel, src[:m.start()].count('\n') + 1, why))
+    return out
+
+
 def main():
     args = sys.argv[1:]
+
+    if '--dates' in args:
+        leaks = date_leaks()
+        if leaks:
+            print(f'✗ BARRIÈRE DES DATES : {len(leaks)} repère(s) français EN DUR.')
+            for rel, line, why in leaks:
+                print(f'  {rel}:{line} — {why}')
+            print('\n  Le repère de dates suit le LECTEUR, pas le développeur :')
+            print('  web → import { df } from \'…/datefns.js\'  ·  Intl → dateLocale() du cœur')
+            sys.exit(1)
+        print('✓ Barrière des dates : aucun repère français en dur.')
+        return
+
     used, dicts = used_keys(), dict_keys()
     total = len(used)
     cover = {l: len([k for k in used if k in dicts[l]]) for l in ('en', 'ar')}

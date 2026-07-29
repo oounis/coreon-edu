@@ -2,6 +2,7 @@
 // La règle la plus grave du métier : un enfant ne part JAMAIS avec quelqu'un qui
 // n'est pas sur la liste.
 import { useState } from 'react'
+import { dateLocale } from '@core/i18n.js'
 import { current } from '@core/auth.js'
 import { db } from '@core/db.js'
 import { idLabelFor } from '@core/locales.js'
@@ -18,7 +19,7 @@ import {
 import { Ic } from '../icons.jsx'
 import toast from 'react-hot-toast'
 
-const hhmm = t => new Date(t).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+const hhmm = t => new Date(t).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' })
 
 export default function ChildFile() {
   const d = db()

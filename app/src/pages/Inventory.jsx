@@ -8,7 +8,7 @@ import { items, addItem, adjust, lowStock, INV_CATS, invCatOf, itemById } from '
 import { PageHead, Card, SectionCard, Btn, Modal, Field, Input, Select, EmptyState, STATUS } from '../components/ui.jsx'
 import { Boxes, Plus, Minus, AlertTriangle, History, PackageCheck } from 'lucide-react'
 import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import toast from 'react-hot-toast'
 
 export default function Inventory() {
@@ -83,7 +83,7 @@ export default function Inventory() {
           <History size={13} className="text-muted shrink-0" />
           <span className="flex-1 min-w-0 truncate">{m.note || (m.delta > 0 ? 'Entrée' : 'Sortie')} <span className="text-muted"> {m.by}</span></span>
           <span className="font-bold tabular-nums" style={{ color: m.delta > 0 ? STATUS.ok : STATUS.warn }}>{m.delta > 0 ? '+' : ''}{m.delta}</span>
-          <span className="text-[12px] text-muted shrink-0">{format(new Date(m.at), 'd MMM HH:mm', { locale: fr })}</span>
+          <span className="text-[12px] text-muted shrink-0">{format(new Date(m.at), 'd MMM HH:mm', { locale: df() })}</span>
         </div>))}
     </Modal>
 

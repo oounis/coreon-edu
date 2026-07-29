@@ -4,7 +4,7 @@ import { db } from '@core/db.js'
 import { notify } from '@core/notify.js'
 import { PageHead, Card, Btn, Field, Input, Select, IconTile, EmptyState } from '../components/ui.jsx'
 import { formatDistanceToNow } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import { Megaphone } from 'lucide-react'
 import toast from 'react-hot-toast'
 export default function Notices(){
@@ -23,7 +23,7 @@ export default function Notices(){
       </div><div className="mt-3"><Btn onClick={post}>Publier</Btn></div></Card>}
     <div className="space-y-3">
       {feed.length? feed.map(n=>(<Card key={n.id} className="p-4 flex items-start gap-3"><IconTile icon={<Megaphone size={18}/>} tint="brand" size={40} radius="rounded-xl"/>
-        <div><div className="font-semibold">{n.title}</div><div className="text-sm text-muted">{n.body}</div><div className="text-[12px] text-muted mt-0.5">{formatDistanceToNow(n.at,{addSuffix:true,locale:fr})} · {audFR[n.role]||'à vous'}</div></div></Card>))
+        <div><div className="font-semibold">{n.title}</div><div className="text-sm text-muted">{n.body}</div><div className="text-[12px] text-muted mt-0.5">{formatDistanceToNow(n.at,{addSuffix:true,locale: df()})} · {audFR[n.role]||'à vous'}</div></div></Card>))
        : <Card><EmptyState icon={<Megaphone size={26}/>} title="Aucune annonce" sub="Les communications de l'école apparaîtront ici."/></Card>}
     </div>
   </>)

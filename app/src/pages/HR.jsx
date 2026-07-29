@@ -1,7 +1,7 @@
 // RH & PAIE — le module ennuyeux qu'il faut faire parfaitement.
 // On ne gagne pas un client avec la paie ; on le PERD sans elle.
 import { useMemo, useState } from 'react'
-import { t } from '@core/i18n.js'
+import { t, dateLocale } from '@core/i18n.js'
 import { current } from '@core/auth.js'
 import { db } from '@core/db.js'
 import { currency, money } from '@core/currency.js'
@@ -19,7 +19,7 @@ import { Ic } from '../icons.jsx'
 import toast from 'react-hot-toast'
 
 // audit FAT 2026-07-26 : money() du cœur — les millièmes du BHD comptent
-const day = d => new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
+const day = d => new Date(d).toLocaleDateString(dateLocale(), { day: '2-digit', month: 'short' })
 
 /** Le personnel de l'école : enseignants + administration. Une seule liste. */
 function useStaff() {

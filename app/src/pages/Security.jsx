@@ -24,7 +24,7 @@ import {
 } from '@core/social.js'
 import { now as appNow, todayIso, isoOf } from '@core/clock.js'
 import { format, parseISO } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import toast from 'react-hot-toast'
 
 // Le formulaire promet « jamais affiché en entier » — on tient parole à l'écran.
@@ -106,7 +106,7 @@ export default function Security() {
             <div key={i.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-semibold truncate">{i.title}</span>
-                <span className="block text-[12px] text-muted truncate">{i.type} · {t('signalé par')} {i.by} · {format(new Date(i.at), 'EEEE d MMMM', { locale: fr })}</span></span>
+                <span className="block text-[12px] text-muted truncate">{i.type} · {t('signalé par')} {i.by} · {format(new Date(i.at), 'EEEE d MMMM', { locale: df() })}</span></span>
               <Badge tone={i.severity === 'high' ? 'danger' : 'warn'} label={i.severity === 'high' ? t('Grave') : t('À suivre')} status={i.severity} />
             </div>)) },
       }[tile]
@@ -145,7 +145,7 @@ function EventsTab({ u, d, toCover, refresh }) {
                 <Ic n={night ? 'Moon' : 'Sun'} size={18} /></span>
               <div className="min-w-0 flex-1">
                 <div className="font-extrabold truncate">{ev.title}</div>
-                <div className="text-[12px] text-muted">{format(parseISO(ev.date), 'EEEE d MMMM', { locale: fr })} · {ev.time} · {ev.place}</div>
+                <div className="text-[12px] text-muted">{format(parseISO(ev.date), 'EEEE d MMMM', { locale: df() })} · {ev.time} · {ev.place}</div>
               </div>
               {night && <span className="text-[11px] font-bold px-2 py-1 rounded-full" style={{ background: '#EEF1F6', color: '#334155' }}>{t('SOIRÉE')}</span>}
             </div>
@@ -219,7 +219,7 @@ function ChecklistModal({ ev, u, onClose, refresh }) {
         <Btn onClick={finish} disabled={!checklistComplete(checks)}>
           <Check size={15} /> {checklistComplete(checks) ? t('Clore la check-list') : `${t('Encore')} ${checklistTotal() - checklistDone(checks)} ${t('point(s)')}`}</Btn></>}>
       <div className="text-[12px] text-muted mb-4">
-        {format(parseISO(ev.date), 'EEEE d MMMM', { locale: fr })} · {ev.time} · {ev.place} · {adultCount(ev)} {t('adultes attendus')}
+        {format(parseISO(ev.date), 'EEEE d MMMM', { locale: df() })} · {ev.time} · {ev.place} · {adultCount(ev)} {t('adultes attendus')}
       </div>
       <div className="space-y-4">
         {CHECK_PHASES.map(ph => (
@@ -440,7 +440,7 @@ function LogTab({ u, d, refresh }) {
                   </div>
                   <div className="text-right shrink-0 text-[11px] text-muted">
                     <div className="tabular-nums font-bold">{hm(new Date(l.at))}</div>
-                    <div>{format(new Date(l.at), 'd MMM', { locale: fr })}</div>
+                    <div>{format(new Date(l.at), 'd MMM', { locale: df() })}</div>
                     <div className="truncate max-w-[90px]">{l.agentName}</div>
                   </div>
                 </div>) })}

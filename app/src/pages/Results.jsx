@@ -11,7 +11,7 @@ import { ClipboardCheck, Gauge, Users, LifeBuoy, Trophy, TrendingUp, TrendingDow
 import { SoftArea, DistributionBar } from '../components/charts.jsx'
 import { SERIES } from '@core/charts.js'
 import { format, startOfDay, startOfWeek } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { df } from '../datefns.js'
 import { Ic } from '../icons.jsx'
 
 const PERIODS=[{value:'day',label:'Jour'},{value:'week',label:'Semaine'},{value:'month',label:'Mois'},{value:'year',label:'Année'}]
@@ -20,9 +20,9 @@ const DAY=86400000
 
 // group evaluations into chart points depending on the period granularity
 function trendPoints(evals, period){
-  const bucket = period==='year' ? at=>format(new Date(at),'MMM',{locale:fr})
-    : period==='month' ? at=>format(startOfWeek(new Date(at),{weekStartsOn:weekStart()}),'d MMM',{locale:fr})
-    : at=>format(new Date(at),'EEE d',{locale:fr})
+  const bucket = period==='year' ? at=>format(new Date(at),'MMM',{locale: df()})
+    : period==='month' ? at=>format(startOfWeek(new Date(at),{weekStartsOn:weekStart()}),'d MMM',{locale: df()})
+    : at=>format(new Date(at),'EEE d',{locale: df()})
   const order={}, acc={}
   ;[...evals].sort((a,b)=>a.at-b.at).forEach(e=>{ const key=bucket(e.at)
     if(!(key in acc)){ acc[key]=[]; order[key]=e.at }
@@ -116,7 +116,7 @@ export default function Results(){
                 <div key={e.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-semibold truncate">{e.subject}{e.lesson?` · ${e.lesson}`:''}</span>
-                    <span className="block text-[12px] text-muted">{classById(e.classId)?.name} · {format(new Date(e.at),'EEEE d MMMM',{locale:fr})} · {e.scores.length} élèves</span></span>
+                    <span className="block text-[12px] text-muted">{classById(e.classId)?.name} · {format(new Date(e.at),'EEEE d MMMM',{locale: df()})} · {e.scores.length} élèves</span></span>
                   <span className="text-sm font-extrabold" style={{color:m.color}}>{e.avg}/100</span>
                 </div>)})}
             </div>)},

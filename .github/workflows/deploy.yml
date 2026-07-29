@@ -49,6 +49,11 @@ jobs:
           python3 docs/quality/i18n-audit.py
           # La barrière monte à mesure qu'on traduit : jamais en arrière.
           python3 docs/quality/i18n-audit.py --gate 60
+      - name: Repère de dates — le français ne revient pas en dur
+        # 2026-07-29 : la couverture ne voit pas les dates (ce ne sont pas des
+        # clés t()). Le produit affichait 62 % d'anglais et 100 % de dates
+        # françaises. Un seul endroit décide : app/src/datefns.js + dateLocale().
+        run: python3 docs/quality/i18n-audit.py --dates
       - name: Audit des dépendances — CRITIQUE bloque, HAUTE avertit
         working-directory: app
         run: |
