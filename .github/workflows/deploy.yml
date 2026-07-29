@@ -129,19 +129,39 @@ jobs:
             sleep 15
           done
           test "$ok" = "1" || { echo "::error::Le site n'a pas répondu 200 avec la coquille après ~5 min."; exit 1; }
-          # PREUVE que le bundle servi est bien le nôtre. L'arabe vit désormais
-          # dans SON PROPRE chunk (i18n-*.js) depuis le découpage de code : on ne
-          # peut plus le chercher dans index-*.js. On balaie donc TOUS les
-          # bundles JS référencés et on exige d'y trouver le cœur ET l'arabe —
-          # robuste au (re)découpage des chunks, quel que soit leur nom.
+          # PREUVE que le bundle servi est bien le nôtre.
+          #
+          # ⚠️ LEÇON DU 2026-07-29. Cette étape a fait ROUGIR le chaînon `main`
+          # de v1.5.0 alors que le déploiement était SAIN : depuis que chaque
+          # langue est un morceau chargé à la demande, `i18n.ar-*.js` n'est plus
+          # référencé par index.html — il n'est nommé QUE DANS le morceau de
+          # mécanique qui l'importe dynamiquement. Chercher l'arabe dans les
+          # seuls bundles cités par la page revenait à le chercher là où il ne
+          # peut plus être. On suit donc les morceaux SUR DEUX NIVEAUX : ceux
+          # que la page cite, puis ceux que ces morceaux-là citent à leur tour.
           assets=$(grep -oE 'assets/[^"]+\.js' page.html | sort -u)
           test -n "$assets"
-          found_core=0; found_ar=0
-          for a in $assets; do
-            curl -s -o chunk.js "$URL$a" || continue
-            grep -q "coreon_db" chunk.js && found_core=1
-            grep -q "لوحة المتابعة" chunk.js && found_ar=1
+          mkdir -p .chunks
+          fetch_all() {
+            for a in $1; do
+              n=$(echo "$a" | tr '/' '_')
+              [ -f ".chunks/$n" ] || curl -s -o ".chunks/$n" "$URL$a" || true
+            done
+          }
+          fetch_all "$assets"
+          # 2ᵉ niveau : les imports dynamiques nommés à l'intérieur des morceaux.
+          # Rolldown les écrit RELATIFS — « ./i18n.ar-CTAhwYjB.js », sans le
+          # préfixe « assets/ » : on les capte tels quels et on les y raccroche.
+          nested=$(cat .chunks/* 2>/dev/null \
+            | grep -oE '\./[A-Za-z0-9._-]+\.js' | sed 's#^\./#assets/#' | sort -u)
+          fetch_all "$nested"
+          found_core=0; found_ar=0; found_en=0
+          for f in .chunks/*; do
+            grep -q "coreon_db" "$f" && found_core=1
+            grep -q "لوحة المتابعة" "$f" && found_ar=1
+            grep -q "Report cards & promotion" "$f" && found_en=1
           done
           test "$found_core" = "1" || { echo "::error::cœur (coreon_db) absent des bundles servis"; exit 1; }
           test "$found_ar"   = "1" || { echo "::error::arabe (لوحة المتابعة) absent des bundles servis"; exit 1; }
-          echo "✅ Production saine : page, cœur et arabe servis."
+          test "$found_en"   = "1" || { echo "::error::anglais (dictionnaire EN) absent des bundles servis"; exit 1; }
+          echo "✅ Production saine : page, cœur, arabe et anglais servis."
