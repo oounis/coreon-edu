@@ -1212,6 +1212,18 @@ Object.assign(AR, {
   'total': 'الإجمالي',
   'Élève': 'تلميذ',
   '€ / mois': '€ / شهريًا',
+
+  // ── أسباب الوجود الأمني المحسوبة (social.js) — CR-036
+  'Événement en soirée : ouverture et fermeture du portail, éclairage': 'فعالية مسائية: فتح البوابة وإغلاقها، والإنارة',
+  'Affluence :': 'الحضور:',
+  'personnes attendues': 'شخصًا متوقّعين',
+  'Activité hors de l’école : sortie et retour du groupe': 'نشاط خارج المدرسة: خروج المجموعة وعودتها',
+  'Accueil de personnes extérieures au personnel (parents)': 'استقبال أشخاص من خارج الطاقم (أولياء أمور)',
+
+  // ── تسميات تُمرَّر كمتغيّر (قائمة الواجهة، النموذج)
+  'Accueil': 'الرئيسية',
+  'FAQ': 'الأسئلة الشائعة',
+  '5ème A · Mathématiques': 'الصف الخامس أ · الرياضيات',
 })
 
 export default AR

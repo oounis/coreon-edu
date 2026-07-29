@@ -935,6 +935,18 @@ const EN = {
   'Vent': 'Wind',
   'reprise le': 'back on',
   '€ / mois': '€ / month',
+
+  // ── Motifs de présence calculés (social.js) — CR-036
+  'Événement en soirée : ouverture et fermeture du portail, éclairage': 'Evening event: opening and closing the gate, lighting',
+  'Affluence :': 'Attendance:',
+  'personnes attendues': 'people expected',
+  'Activité hors de l’école : sortie et retour du groupe': 'Activity off site: the group leaves and returns',
+  'Accueil de personnes extérieures au personnel (parents)': 'Outside visitors received, not staff (parents)',
+
+  // ── Libellés passés par variable (nav vitrine, maquette)
+  'Accueil': 'Home',
+  'FAQ': 'FAQ',
+  '5ème A · Mathématiques': 'Grade 5A · Mathematics',
 }
 
 export default EN

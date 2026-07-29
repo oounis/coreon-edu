@@ -312,11 +312,14 @@ export function Cta(){
 
 // --- la maquette produit (évaluation par glisser-déposer) ---
 export function EvalMock({ compact }){
-  const buckets=[['Excellent',STATUS.ok,STATUS.okSoft,['AB','YT']],['Bien',STATUS.info,STATUS.infoSoft,['LK','SM']],['Moyen',STATUS.warn,STATUS.warnSoft,['HB']],['Insuffisant',STATUS.danger,STATUS.dangerSoft,['NJ']]]
+  // La maquette est la PREMIÈRE chose qu'on voit de la vitrine : ses étiquettes
+  // se traduisent comme le reste. Elles restaient françaises sur la page
+  // anglaise (constaté à l'écran le 2026-07-29).
+  const buckets=[[t('Excellent'),STATUS.ok,STATUS.okSoft,['AB','YT']],[t('Bien'),STATUS.info,STATUS.infoSoft,['LK','SM']],[t('Moyen'),STATUS.warn,STATUS.warnSoft,['HB']],[t('Insuffisant'),STATUS.danger,STATUS.dangerSoft,['NJ']]]
   return (
     <div className="card p-4 shadow-2xl" style={{boxShadow:'0 30px 60px -25px rgba(117,57,228,.45)'}}>
       <div className="flex items-center justify-between px-1 pb-3 border-b border-line">
-        <div><div className="font-bold text-sm">5ème A · Mathématiques</div><div className="text-[12px] text-muted">{t('Participation en classe · maintenant')}</div></div>
+        <div><div className="font-bold text-sm">{t('5ème A · Mathématiques')}</div><div className="text-[12px] text-muted">{t('Participation en classe · maintenant')}</div></div>
         <span className="text-[11px] font-bold px-2 py-1 rounded-full text-white" style={{background:STATUS.live}}>● {t('EN DIRECT')}</span>
       </div>
       <div className={`grid grid-cols-2 gap-2.5 mt-3 ${compact?'':'sm:grid-cols-4'}`}>

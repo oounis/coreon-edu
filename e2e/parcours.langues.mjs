@@ -15,7 +15,18 @@
 // ════════════════════════════════════════════════════════════════════════════
 import { scenario } from './lib.mjs'
 
-const FRENCH = /Poste de sécurité|Registre des visiteurs|Main courante|Prise de service|De la crèche|Vos données sont à vous|Questions fréquentes|Tarifs|Les modules d’un vrai ERP|Un portail par rôle/
+// Les phrases françaises qui ne doivent JAMAIS survivre à un changement de langue.
+// Les trois dernières sont des motifs CALCULÉS par le cœur (`securityNeeds`) :
+// ils s'affichaient en français au milieu d'un écran arabe, et seule une CAPTURE
+// D'ÉCRAN l'a révélé — ni l'audit (ce n'étaient pas des clés `t()`), ni la
+// première version de ce parcours ne les regardaient.
+// Les phrases françaises qui ne doivent JAMAIS survivre à un changement de langue.
+// Trois familles, toutes trouvées LE MÊME SOIR et toutes invisibles à l'audit :
+//  · les motifs CALCULÉS par le cœur (`securityNeeds`) — pas des clés `t()` ;
+//  · les libellés passés à `t()` PAR VARIABLE (la nav de la vitrine : « Accueil »)
+//    — l'audit ne voit que `t('littéral')`, donc ils n'ont jamais été comptés ;
+//  · les étiquettes de la MAQUETTE du héros (« 5ème A », « Insuffisant »).
+const FRENCH = /Poste de sécurité|Registre des visiteurs|Main courante|Prise de service|De la crèche|Vos données sont à vous|Questions fréquentes|Les modules d’un vrai ERP|Un portail par rôle|Événement en soirée|personnes attendues|Accueil|Activité hors de l’école|5ème A|Mathématiques|Insuffisant/
 
 await scenario(8975, async ({ page, ok, base }) => {
   const setLang = async l => {

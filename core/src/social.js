@@ -29,6 +29,7 @@
 
 import { STATUS, BRAND } from './tokens.js'
 import { currency } from './currency.js'
+import { t } from './i18n.js'
 export const MIN_LEAD_DAYS = 3        // délai minimum entre la proposition et l'événement
 export const RSVP_WINDOW_H = 24       // fenêtre d'inscription
 export const DEFAULT_MIN = 8          // quorum par défaut (un match de foot : 8 joueurs)
@@ -280,12 +281,16 @@ export function securityNeeds(ev) {
   // Ce qui déclenche vraiment une présence : la nuit, la foule, la sortie du site.
   // En pleine journée, l'agent est déjà au portail — un café des parents à 9 h ne
   // demande pas de vacation. On ne crie pas au loup, sinon plus personne n'écoute.
+  // Ces motifs sont CALCULÉS, pas saisis : ils s'affichent donc dans la langue
+  // du lecteur. Sans `t()`, l'agent de Manama lisait les raisons en français au
+  // milieu d'un écran arabe (constaté à l'écran le 2026-07-29) — un défaut que
+  // l'audit de couverture ne pouvait pas voir, faute d'être une clé `t()`.
   const reasons = []
-  if (isNightEvent(ev)) reasons.push('Événement en soirée : ouverture et fermeture du portail, éclairage')
-  if (goingCount(ev) >= CROWD_THRESHOLD) reasons.push(`Affluence : ${goingCount(ev)} personnes attendues`)
-  if (ev.place && ev.place.startsWith('Extérieur')) reasons.push('Activité hors de l’école : sortie et retour du groupe')
+  if (isNightEvent(ev)) reasons.push(t('Événement en soirée : ouverture et fermeture du portail, éclairage'))
+  if (goingCount(ev) >= CROWD_THRESHOLD) reasons.push(`${t('Affluence :')} ${goingCount(ev)} ${t('personnes attendues')}`)
+  if (ev.place && ev.place.startsWith('Extérieur')) reasons.push(t('Activité hors de l’école : sortie et retour du groupe'))
   // La présence de personnes extérieures aggrave, mais ne suffit pas à elle seule.
-  if (reasons.length && ev.space === 'parent') reasons.push('Accueil de personnes extérieures au personnel (parents)')
+  if (reasons.length && ev.space === 'parent') reasons.push(t('Accueil de personnes extérieures au personnel (parents)'))
   return reasons
 }
 export const needsSecurity = ev => securityNeeds(ev).length > 0
