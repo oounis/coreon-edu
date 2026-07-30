@@ -65,17 +65,17 @@ export default function Schools(){
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
       <StatCard label={t('Écoles clientes')} value={schools.filter(s=>s.status!=='suspended').length} tint="brand" icon={<Building2/>} onClick={()=>setTile('schools')}/>
       <StatCard label={t('Élèves gérés')} value={totalStudents} tint="sky" icon={<Users/>} onClick={()=>setTile('students')}/>
-      <StatCard label="Revenu mensuel" value={`${mrr} €`} sub="abonnements actifs" tint="mint" icon={<Wallet/>} onClick={()=>setTile('mrr')}/>
-      <StatCard label="En essai" value={trials} tint="butter" icon={<Hourglass/>} onClick={()=>setTile('trials')}/>
+      <StatCard label={t('Revenu mensuel')} value={`${mrr} €`} sub={t('abonnements actifs')} tint="mint" icon={<Wallet/>} onClick={()=>setTile('mrr')}/>
+      <StatCard label={t('En essai')} value={trials} tint="butter" icon={<Hourglass/>} onClick={()=>setTile('trials')}/>
     </div>
 
     {tile && (()=>{
       const list={schools:schools.filter(s=>s.status!=='suspended'),students:schools.filter(s=>s.status!=='suspended'),
         mrr:schools.filter(s=>s.status==='active'),trials:schools.filter(s=>s.status==='trial')}[tile]
-      const TITLE={schools:'Écoles clientes',students:`Élèves gérés · ${totalStudents}`,mrr:`Revenu mensuel · ${mrr} €`,trials:"En période d'essai"}
+      const TITLE={schools:t('Écoles clientes'),students:`Élèves gérés · ${totalStudents}`,mrr:`Revenu mensuel · ${mrr} €`,trials:"En période d'essai"}
       return (
       <Modal open onClose={()=>setTile(null)} title={TITLE[tile]} size="xl"
-        footer={<Btn variant="ghost" onClick={()=>setTile(null)}>Fermer</Btn>}>
+        footer={<Btn variant="ghost" onClick={()=>setTile(null)}>{t('Fermer')}</Btn>}>
         {list.length===0 ? <EmptyState icon={<Building2 size={24}/>} title={t('Aucune école dans cet état')} sub={t('Rien à afficher pour le moment.')}/>
         : <div className="space-y-1.5">
           {list.map(sc=>{ const st=ST[sc.status]||ST.active
@@ -106,15 +106,15 @@ export default function Schools(){
               </div>
               <div className="text-sm text-muted flex items-center gap-1.5"><MapPin size={13}/>{sc.city} · cliente depuis {sc.since}</div>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
-                <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:pbg,color:pfg}}>Plan {sc.plan} · {sc.price} €/mois</span>
+                <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:pbg,color:pfg}}>{t('Plan')} {sc.plan} · {sc.price} €/mois</span>
                 <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:st.bg,color:st.fg}}>{st.label}</span>
                 <span className="text-xs text-muted">{count(sc)} {t('élèves')}</span>
               </div>
             </div>
             <div className="flex flex-col gap-2 shrink-0">
-              <Btn size="sm" variant="soft" onClick={()=>setTech(sc)}><Server size={14}/> Fiche technique</Btn>
+              <Btn size="sm" variant="soft" onClick={()=>setTech(sc)}><Server size={14}/> {t('Fiche technique')}</Btn>
               <Btn size="sm" variant={sc.status==='suspended'?'primary':'danger'} onClick={()=>toggle(sc)}>
-                {sc.status==='suspended'?<><Check size={14}/> {t('Réactiver')}</>:<><Ban size={14}/> Suspendre</>}</Btn>
+                {sc.status==='suspended'?<><Check size={14}/> {t('Réactiver')}</>:<><Ban size={14}/> {t('Suspendre')}</>}</Btn>
             </div>
           </div>
           <div className="mt-4 rounded-2xl bg-canvas p-3.5">
@@ -130,7 +130,7 @@ export default function Schools(){
 
     <Card className="p-5 mt-5 border-coral/40">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div><h3 className="font-bold flex items-center gap-2 text-coral"><ShieldAlert size={17}/> Zone sensible</h3>
+        <div><h3 className="font-bold flex items-center gap-2 text-coral"><ShieldAlert size={17}/> {t('Zone sensible')}</h3>
           <p className="text-sm text-muted mt-0.5">{t('Réinitialiser remet toutes les données de l’école d’exemple à zéro.')}</p></div>
         <Btn variant="danger" onClick={()=>setConfirmReset(true)}>{t('Réinitialiser l’école d’exemple')}</Btn>
       </div>
@@ -139,7 +139,7 @@ export default function Schools(){
     {/* CR-014 : la fiche technique. Ce qu'on A aujourd'hui, et — franchement —
         ce qu'on n'a PAS encore, marqué « à collecter » plutôt qu'inventé. */}
     <Modal open={!!tech} onClose={()=>setTech(null)} title={tech?`Fiche technique · ${tech.name}`:''} size="lg"
-      footer={<Btn variant="ghost" onClick={()=>setTech(null)}>Fermer</Btn>}>
+      footer={<Btn variant="ghost" onClick={()=>setTech(null)}>{t('Fermer')}</Btn>}>
       {tech && (()=>{ const prof=techProfile(tech,d); const missing=missingCount(prof)
         const Section=({title,rows,icon})=>(
           <div className="mb-4">
@@ -170,23 +170,23 @@ export default function Schools(){
             </div>
           )}
           <Section title={t('Identité')} icon={<Building2 size={13}/>} rows={prof.identite}/>
-          <Section title="Contact" icon={<KeyRound size={13}/>} rows={prof.contact}/>
-          <Section title="Infrastructure" icon={<Server size={13}/>} rows={prof.infra}/>
-          <Section title="Diagnostic" icon={<ShieldAlert size={13}/>} rows={prof.diagnostic}/>
+          <Section title={t('Contact')} icon={<KeyRound size={13}/>} rows={prof.contact}/>
+          <Section title={t('Infrastructure')} icon={<Server size={13}/>} rows={prof.infra}/>
+          <Section title={t('Diagnostic')} icon={<ShieldAlert size={13}/>} rows={prof.diagnostic}/>
         </>)
       })()}
     </Modal>
 
     <Modal open={open} onClose={()=>setOpen(false)} title={t('Ajouter une école cliente')}
-      footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={add}>{t("Créer l'école & le compte Direction")}</Btn></>}>
+      footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>{t('Annuler')}</Btn><Btn onClick={add}>{t("Créer l'école & le compte Direction")}</Btn></>}>
       <div className="grid sm:grid-cols-2 gap-3">
         <Field label={t("Nom de l'école *")}><Input value={f.name} onChange={e=>setF({...f,name:e.target.value})} placeholder={t('École Les Oliviers')}/></Field>
-        <Field label="Pays (contrat)" hint={t("Fixe devise, pièces d'identité, semaine et cadre légal — l'école ne peut pas le changer.")}>
+        <Field label={t('Pays (contrat)')} hint={t("Fixe devise, pièces d'identité, semaine et cadre légal — l'école ne peut pas le changer.")}>
           <Select value={f.country} onChange={e=>setF({...f,country:e.target.value})}>
             {PACK_LIST.map(p=><option key={p.key} value={p.key}>{p.label}</option>)}
           </Select></Field>
-        <Field label="Ville"><Input value={f.city} onChange={e=>setF({...f,city:e.target.value})}/></Field>
-        <Field label="Plan"><Select value={f.plan} onChange={e=>setF({...f,plan:e.target.value})}><option>Essentiel</option><option>Pro</option></Select></Field>
+        <Field label={t('Ville')}><Input value={f.city} onChange={e=>setF({...f,city:e.target.value})}/></Field>
+        <Field label={t('Plan')}><Select value={f.plan} onChange={e=>setF({...f,plan:e.target.value})}><option>{t('Essentiel')}</option><option>{t('Pro')}</option></Select></Field>
         <Field label="Directeur / Directrice *"><Input value={f.director} onChange={e=>setF({...f,director:e.target.value})}/></Field>
         <Field label={t('E-mail du compte Direction *')}><Input value={f.email} onChange={e=>setF({...f,email:e.target.value})} placeholder="direction@ecole.tn"/></Field>
       </div>
@@ -197,19 +197,19 @@ export default function Schools(){
       footer={<Btn onClick={()=>setCreds(null)}>{t("J'ai transmis les identifiants")}</Btn>}>
       <p className="text-sm text-muted mb-3">{t('Pour')} <b>{creds?.school}</b> {t('— à remettre en main propre. Ils ne seront')} <b>{t('plus jamais affichés')}</b>.</p>
       <div className="rounded-xl border border-line p-3 text-sm space-y-1">
-        <div className="flex justify-between"><span className="text-muted">E-mail</span><code>{creds?.email}</code></div>
+        <div className="flex justify-between"><span className="text-muted">{t('E-mail')}</span><code>{creds?.email}</code></div>
         <div className="flex justify-between"><span className="text-muted">{t('Mot de passe provisoire')}</span><code>{creds?.pw}</code></div>
       </div>
     </Modal>
 
     <Modal open={!!confirmSuspend} onClose={()=>setConfirmSuspend(null)} title={t('Suspendre cette école ?')} size="sm"
-      footer={<><Btn variant="ghost" onClick={()=>setConfirmSuspend(null)}>Annuler</Btn>
-        <Btn variant="danger" onClick={()=>doSuspend(confirmSuspend)}><Ban size={15}/> Suspendre</Btn></>}>
+      footer={<><Btn variant="ghost" onClick={()=>setConfirmSuspend(null)}>{t('Annuler')}</Btn>
+        <Btn variant="danger" onClick={()=>doSuspend(confirmSuspend)}><Ban size={15}/> {t('Suspendre')}</Btn></>}>
       <p className="text-sm text-muted">{t("L'accès de")} <b>{confirmSuspend?.name}</b> {t("sera gelé : la direction, les enseignants et les parents ne pourront plus se connecter. Vous pourrez réactiver l'école à tout moment.")}</p>
     </Modal>
 
     <Modal open={confirmReset} onClose={()=>setConfirmReset(false)} title={t('Réinitialiser les données ?')}
-      footer={<><Btn variant="ghost" onClick={()=>setConfirmReset(false)}>Annuler</Btn>
+      footer={<><Btn variant="ghost" onClick={()=>setConfirmReset(false)}>{t('Annuler')}</Btn>
         <Btn variant="danger" onClick={()=>{resetDb();location.reload()}}>{t('Réinitialiser')}</Btn></>}>
       <p className="text-sm text-muted">{t('Toutes les données de l’école d’exemple (élèves, évaluations, paiements, écoles clientes…) seront remises à zéro. Cette action est irréversible.')}</p>
     </Modal>

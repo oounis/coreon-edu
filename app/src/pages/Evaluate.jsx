@@ -165,7 +165,7 @@ export default function Evaluate(){
     {step<5 ? (
       <DndContext sensors={sensors} accessibility={{announcements:dndAnnouncements(BUCKETS)}} collisionDetection={closestCenter} onDragStart={({active})=>setActive(active.data.current.student)} onDragEnd={onDragEnd} onDragCancel={()=>setActive(null)}>
         <div className="flex items-center justify-between mb-3">
-          <div><div className="text-xs font-bold uppercase accent-text">Question {step+1} {t('sur 5')}</div><h2 className="text-xl font-bold">{q.text}</h2></div>
+          <div><div className="text-xs font-bold uppercase accent-text">{t('Question')} {step+1} {t('sur 5')}</div><h2 className="text-xl font-bold">{q.text}</h2></div>
           <div className="text-sm text-muted">{Object.keys(place).length}/{students.length} {t('placés')}</div>
         </div>
         <p className="sr-only">{t("Glissez chaque élève vers une réponse. Au clavier : tabulez jusqu'à un élève, appuyez sur espace pour le saisir, utilisez les flèches pour choisir une réponse, puis espace pour le déposer.")}</p>
@@ -182,7 +182,7 @@ export default function Evaluate(){
             </DropZone>) })}
         </div>
         <div className="flex items-center justify-between mt-6">
-          <Btn variant="ghost" onClick={()=>step>0&&setStep(step-1)} disabled={step===0}><ChevronLeft size={16}/> Retour</Btn>
+          <Btn variant="ghost" onClick={()=>step>0&&setStep(step-1)} disabled={step===0}><ChevronLeft size={16}/> {t('Retour')}</Btn>
           <button onClick={()=>setPlacements(p=>({...p,[q.id]:{}}))} className="text-sm text-muted hover:text-ink inline-flex items-center gap-1"><RotateCcw size={14}/> {t('réinitialiser')}</button>
           <Btn onClick={()=>setStep(step+1)}>{step<4?'Suivant':'Badges & note'} <ChevronRight size={16}/></Btn>
         </div>
@@ -194,7 +194,7 @@ export default function Evaluate(){
         <p className="text-muted text-sm mb-4">{t('Facultatif : touchez un élève, puis un badge.')}</p>
         <BadgePicker students={students} badges={badges} setBadges={setBadges}/>
         <Textarea value={note} onChange={e=>setNote(e.target.value)} placeholder={t("Note facultative pour les parents / l'administration…")} className="mt-4 h-24"/>
-        <div className="flex items-center justify-between mt-6"><Btn variant="ghost" onClick={()=>setStep(4)}><ChevronLeft size={16}/> Retour</Btn><Btn onClick={submit} disabled={saving}><Zap size={17}/> {saving?'Enregistrement…':'Enregistrer & partager'}</Btn></div>
+        <div className="flex items-center justify-between mt-6"><Btn variant="ghost" onClick={()=>setStep(4)}><ChevronLeft size={16}/> {t('Retour')}</Btn><Btn onClick={submit} disabled={saving}><Zap size={17}/> {saving?'Enregistrement…':'Enregistrer & partager'}</Btn></div>
       </div>
     )}
   </>)
@@ -206,6 +206,6 @@ function BadgePicker({students,badges,setBadges}){
       <button key={s.id} onClick={()=>setSel(sel===s.id?null:s.id)} className={`flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border bg-white text-sm ${sel===s.id?'accent-text':'border-line'}`} style={sel===s.id?{borderColor:'var(--accent)'}:{}}>
         <Avatar name={s.name} seed={s.id} size={24}/>{s.name}{badges[s.id]&&(()=>{const B=BADGES.find(b=>b.key===badges[s.id]);return B?<span className="accent-text" title={B.label}><Ic n={B.icon} size={14}/></span>:null})()}</button>))}</div>
     {sel&&<div className="flex flex-wrap gap-2 pop">{BADGES.map(b=><button key={b.key} onClick={()=>{setBadges(p=>({...p,[sel]:b.key}));setSel(null)}} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-line bg-white text-sm hover:accent-soft"><Ic n={b.icon} size={14} className="accent-text"/> {b.label}</button>)}
-      <button onClick={()=>{setBadges(p=>{const n={...p};delete n[sel];return n});setSel(null)}} className="px-3 py-1.5 rounded-full text-sm text-muted">retirer</button></div>}
+      <button onClick={()=>{setBadges(p=>{const n={...p};delete n[sel];return n});setSel(null)}} className="px-3 py-1.5 rounded-full text-sm text-muted">{t('retirer')}</button></div>}
   </div>)
 }

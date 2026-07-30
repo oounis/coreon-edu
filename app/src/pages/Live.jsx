@@ -57,14 +57,14 @@ export default function Live(){
   const pill = liveNow ? {txt:`${isDemoLive()?t('JOURNÉE TYPE'):t('EN DIRECT')} · ${fmt(min)}`,bg:STATUS.live,pulse:!isDemoLive()}
     : simulated ? {txt:`Journée type · ${fmt(min)}`,bg:'#F59E0B'}
     : exploring ? {txt:`Aperçu · ${fmt(min)}`,bg:STATUS.neutral}
-    : phase==='after' ? {txt:'Journée terminée',bg:'#8B5CF6'}
+    : phase==='after' ? {txt:t('Journée terminée'),bg:'#8B5CF6'}
     : phase==='before' ? {txt:`Ouvre à ${fmt(open)}`,bg:STATUS.info}
-    : phase==='weekend' ? {txt:'Week-end · journée type',bg:STATUS.neutral}
-    : phase==='vacances' ? {txt:"Vacances d'été",bg:'#F59E0B'}
+    : phase==='weekend' ? {txt:t('Week-end · journée type'),bg:STATUS.neutral}
+    : phase==='vacances' ? {txt:t("Vacances d'été"),bg:'#F59E0B'}
     : {txt:`Aperçu · ${fmt(min)}`,bg:STATUS.neutral}
 
   return (<>
-    <PageHead title="Suivi en direct" sub={phase==='live'?`Le parcours de ${first}, en ce moment.`:phase==='after'?`La journée de ${first} est terminée : voici son récapitulatif.`:phase==='before'?`L'école n'a pas encore ouvert · aperçu de la journée de ${first}.`:phase==='vacances'?`C'est les vacances d'été · aperçu d'une journée type de ${first}.`:`Pas d'école aujourd'hui · aperçu d'une journée type de ${first}.`}
+    <PageHead title={t('Suivi en direct')} sub={phase==='live'?`Le parcours de ${first}, en ce moment.`:phase==='after'?`La journée de ${first} est terminée : voici son récapitulatif.`:phase==='before'?`L'école n'a pas encore ouvert · aperçu de la journée de ${first}.`:phase==='vacances'?`C'est les vacances d'été · aperçu d'une journée type de ${first}.`:`Pas d'école aujourd'hui · aperçu d'une journée type de ${first}.`}
       action={kids.length>1&&<Select value={kidId} onChange={e=>setKidId(e.target.value)}>{kids.map(k=><option key={k.id} value={k.id}>{k.name}</option>)}</Select>}/>
 
     <div className="grid lg:grid-cols-[1fr_340px] gap-5">
@@ -78,7 +78,7 @@ export default function Live(){
           <span className="text-sm font-extrabold px-3 py-1 rounded-full" style={{background:area.color+'16',color:area.color}}>{(liveNow||replay)?st.title:phase==='after'?'Journée terminée':phase==='before'?"Avant l'école":'Journée type'}</span>
         </div>
         <RouteMap stops={[
-          { kind:'entree', label:'Arrivée', time:fmt(open) },
+          { kind:'entree', label:t('Arrivée'), time:fmt(open) },
           ...segs.map(s=>({ kind:s.kind==='free'?'class':s.kind, label:stopLabel(s), sub:s.cell?.room, time:fmt(s.start) })),
           { kind:'entree', label:'Sortie', time:fmt(close) },
         ]} curIndex={min<open?0:min>=close?segs.length+1:(()=>{const j=segs.findIndex(s=>min>=s.start&&min<s.end);return (j<0?segs.length-1:j)+1})()}
@@ -98,7 +98,7 @@ export default function Live(){
             <div className="text-sm text-muted">{st.sub}</div>
             {remain>0 && st.title!=='Journée terminée' && st.title!=='Avant l’école' && <>
               <div className="mt-3 h-2 rounded-full bg-white/70 overflow-hidden"><motion.div className="h-full rounded-full" style={{background:area.color}} animate={{width:`${Math.round(done*100)}%`}} transition={{type:'spring',stiffness:80,damping:18}}/></div>
-              <div className="flex items-center justify-between mt-1.5 text-xs"><span className="flex items-center gap-1 text-muted"><Clock size={12}/> {t('Se termine à')} {fmt(st.seg.end)}</span><span className="font-bold" style={{color:area.color}}>{remain} min restantes</span></div>
+              <div className="flex items-center justify-between mt-1.5 text-xs"><span className="flex items-center gap-1 text-muted"><Clock size={12}/> {t('Se termine à')} {fmt(st.seg.end)}</span><span className="font-bold" style={{color:area.color}}>{remain} {t('min restantes')}</span></div>
             </>}
           </div>}
 
@@ -135,7 +135,7 @@ export default function Live(){
           {simulated && <div className="mt-4 rounded-2xl p-4 border-2 border-dashed" style={{borderColor:area.color+'55',background:area.color+'0A'}}>
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-2 text-sm font-bold" style={{color:area.color}}><MapPin size={15}/> {area.label}</span>
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{background:'#F59E0B22',color:'#B45309'}}>SIMULATION</span>
+              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{background:'#F59E0B22',color:'#B45309'}}>{t('SIMULATION')}</span>
             </div>
             <div className="text-lg font-extrabold mt-1">À {fmt(min)}{t(", un jour d'école :")} {st.title==='En classe'?st.sub?.split(' · ')[0]:st.title}</div>
             <div className="text-sm text-muted">{st.seg?.end>st.seg?.start?`Séance de ${fmt(st.seg.start)} à ${fmt(st.seg.end)} (${st.seg.end-st.seg.start} min)`:st.sub}</div>

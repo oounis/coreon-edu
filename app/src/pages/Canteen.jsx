@@ -34,7 +34,7 @@ function StaffCanteen({ u }) {
 
   return (<>
     <PageHead title={t('Cantine')} sub={t('Le menu de la semaine : et qui, parmi les inscrits, ne peut pas le manger.')}
-      action={<Btn variant="soft" onClick={() => setManageSubs(true)}><Ic n="Users" size={16} /> Inscrits ({sum.subscribers})</Btn>} />
+      action={<Btn variant="soft" onClick={() => setManageSubs(true)}><Ic n="Users" size={16} /> {t('Inscrits (')}{sum.subscribers})</Btn>} />
 
     {/* La bannière sécurité : le total des alertes de la semaine */}
     <Card className="p-4 mb-4 flex items-center gap-3" style={{ background: sum.alerts ? STATUS.warn + '10' : STATUS.ok + '0E' }}>
@@ -53,7 +53,7 @@ function StaffCanteen({ u }) {
           <Card key={day.key} className="p-4 flex flex-col">
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-bold">{day.label}</h3>
-              <button onClick={() => setEditDay(day.key)} className="text-xs font-semibold accent-text">Modifier</button>
+              <button onClick={() => setEditDay(day.key)} className="text-xs font-semibold accent-text">{t('Modifier')}</button>
             </div>
             {dishes.length === 0
               ? <div className="text-sm text-muted py-3">{t('Aucun plat prévu.')}</div>
@@ -111,7 +111,7 @@ function EditDayModal({ day, onClose }) {
 
   return (
     <Modal open onClose={onClose} size="xl" title={`Menu · ${label}`}
-      footer={<><Btn variant="ghost" onClick={onClose}>Annuler</Btn><Btn onClick={save}>Enregistrer</Btn></>}>
+      footer={<><Btn variant="ghost" onClick={onClose}>{t('Annuler')}</Btn><Btn onClick={save}>{t('Enregistrer')}</Btn></>}>
       <div className="space-y-3">
         {dishes.map((dish, i) => (
           <div key={i} className="rounded-xl border border-line p-3">
@@ -176,7 +176,7 @@ function ParentCanteen({ u }) {
 
   return (<>
     <PageHead title={t('Cantine')} sub={`Le menu de la semaine de ${child.name.split(' ')[0]}.`}
-      action={kids.length > 1 && <select aria-label="Choisir l'enfant" value={child.id} onChange={e => setPickedId(e.target.value)} className="rounded-xl border border-line bg-white px-3 py-2 text-sm font-semibold">{kids.map(k => <option key={k.id} value={k.id}>{k.name}</option>)}</select>} />
+      action={kids.length > 1 && <select aria-label={t("Choisir l'enfant")} value={child.id} onChange={e => setPickedId(e.target.value)} className="rounded-xl border border-line bg-white px-3 py-2 text-sm font-semibold">{kids.map(k => <option key={k.id} value={k.id}>{k.name}</option>)}</select>} />
 
     {!subscribed && <Card className="p-4 mb-4 text-sm text-muted">{child.name.split(' ')[0]} {t("n'est pas inscrit(e) à la cantine. Voici tout de même le menu de la semaine.")}</Card>}
 

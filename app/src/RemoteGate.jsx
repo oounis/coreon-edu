@@ -34,7 +34,7 @@ function RemoteLogin({ onDone }) {
         <div className="text-2xl font-extrabold mb-1">Coreon Edu</div>
         <p className="text-sm text-muted mb-5">{t("L'école de votre établissement : connectez-vous.")}</p>
         <label className="block mb-3">
-          <span className="text-xs font-semibold text-muted">E-mail</span>
+          <span className="text-xs font-semibold text-muted">{t('E-mail')}</span>
           <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
             className="mt-1 w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm" />
         </label>

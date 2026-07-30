@@ -54,9 +54,9 @@ export default function ChildFile() {
       </div>
 
       <Tabs value={tab} onChange={setTab} tabs={[
-        { value: 'depart',  label: 'Qui peut le récupérer' },
-        { value: 'sante',   label: 'Santé & vaccins' },
-        { value: 'jalons',  label: 'Jalons' },
+        { value: 'depart',  label: t('Qui peut le récupérer') },
+        { value: 'sante',   label: t('Santé & vaccins') },
+        { value: 'jalons',  label: t('Jalons') },
       ]} />
 
       <div className="mt-5">
@@ -99,7 +99,7 @@ function Departs({ child, refresh }) {
           <div className="text-[13px]">
             <b>{t('Un enfant ne part jamais avec quelqu’un qui n’est pas sur cette liste.')}</b>
             <div className="mt-1">
-              {t('La pièce d’identité est')} <b>obligatoire</b> {t(': c’est ce que l’agent vérifie au portail. Dans une séparation conflictuelle, cette liste est ce qui sépare une école d’un enlèvement parental.')}
+              {t('La pièce d’identité est')} <b>{t('obligatoire')}</b> {t(': c’est ce que l’agent vérifie au portail. Dans une séparation conflictuelle, cette liste est ce qui sépare une école d’un enlèvement parental.')}
             </div>
           </div>
         </div>
@@ -135,10 +135,10 @@ function Departs({ child, refresh }) {
             <span className="flex-1" />
             {p.active ? (
               <>
-                <Btn size="sm" onClick={() => give(p)}><Ic n="LogOut" size={14} /> Remettre l’enfant</Btn>
+                <Btn size="sm" onClick={() => give(p)}><Ic n="LogOut" size={14} /> {t('Remettre l’enfant')}</Btn>
                 <Btn size="sm" variant="ghost" onClick={() => {
                   revokePickup(child.id, p.id, me.name, 'Retirée par la direction'); refresh()
-                }}>Retirer</Btn>
+                }}>{t('Retirer')}</Btn>
               </>
             ) : (
               <Badge label={t('Autorisation retirée')} tone="danger" />
@@ -148,7 +148,7 @@ function Departs({ child, refresh }) {
       </div>
 
       <Modal open={open} onClose={() => setOpen(false)} title={`Autoriser une personne · ${child.name}`}
-        footer={<><Btn variant="ghost" onClick={() => setOpen(false)}>Annuler</Btn><Btn onClick={add}>Autoriser</Btn></>}>
+        footer={<><Btn variant="ghost" onClick={() => setOpen(false)}>{t('Annuler')}</Btn><Btn onClick={add}>{t('Autoriser')}</Btn></>}>
         <div className="grid gap-4">
           <Field label={t('Nom et prénom *')}><Input value={f.name} onChange={e => setF({ ...f, name: e.target.value })} /></Field>
           <div className="grid grid-cols-2 gap-3">
@@ -220,10 +220,10 @@ function Sante({ child, refresh }) {
       <Card className="p-5">
         <div className="text-sm font-bold mb-3">{t('Santé')}</div>
         <div className="grid sm:grid-cols-2 gap-4">
-          <Field label="Allergies" hint={t('Elles remontent sur la carte de l’enfant, dans le journal du jour.')}>
+          <Field label={t('Allergies')} hint={t('Elles remontent sur la carte de l’enfant, dans le journal du jour.')}>
             <Input defaultValue={child.allergies} onBlur={e => { saveHealth(child.id, { allergies: e.target.value }); refresh() }} />
           </Field>
-          <Field label="Traitement en cours">
+          <Field label={t('Traitement en cours')}>
             <Input defaultValue={h.meds} onBlur={e => { saveHealth(child.id, { meds: e.target.value }); refresh() }} />
           </Field>
           <Field label={t('Médecin traitant')}>

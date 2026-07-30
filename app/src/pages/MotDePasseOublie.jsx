@@ -46,7 +46,7 @@ export default function MotDePasseOublie() {
         // l'adresse de support reste visible à l'écran juste en dessous.
         await sendViaWorker({
           to: SUPPORT,
-          subject: 'Coreon EDU : demande de réinitialisation de mot de passe',
+          subject: t('Coreon EDU : demande de réinitialisation de mot de passe'),
           text: `Demande de réinitialisation.\n\nAdresse concernée : ${addr}\nReçue le : ${new Date().toLocaleString('fr-FR')}\n\nCoreon EDU (aucun serveur connecté, aucun jeton n'a été créé)`,
         }).catch(() => {})
       }

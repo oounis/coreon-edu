@@ -59,7 +59,7 @@ export default function Interop() {
           <Card key={e.key} className="p-4">
             <div className="text-xs font-bold text-muted">{e.label}</div>
             <div className="text-2xl font-extrabold mt-0.5 tabular-nums">{s[e.key]}</div>
-            <div className="text-[11px] text-muted mt-0.5">{e.what}</div>
+            <div className="text-[11px] text-muted mt-0.5">{t(e.what)}</div>
           </Card>
         ))}
       </div>
@@ -79,7 +79,7 @@ export default function Interop() {
         <div className="text-sm font-bold mb-2">{t('Ce que la norme nous a obligés à corriger')}</div>
         <ul className="text-[13px] text-muted grid gap-1.5">
           <li>
-            <b className="text-ink">{t('Un cours n’est pas une classe.')}</b> {t('« Mathématiques : 5ème année » est ce qui est')} <i>{t('enseigné')}</i> {t('; « 5ème A » est le groupe qui l’')}<i>apprend</i>.
+            <b className="text-ink">{t('Un cours n’est pas une classe.')}</b> {t('« Mathématiques : 5ème année » est ce qui est')} <i>{t('enseigné')}</i> {t('; « 5ème A » est le groupe qui l’')}<i>{t('apprend')}</i>.
             Nous confondions les deux.
           </li>
           <li>

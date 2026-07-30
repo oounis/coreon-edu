@@ -36,8 +36,8 @@ export default function Payslip({ line, month, stage, validatedBy, onClose }) {
           <div className="flex items-center justify-between p-4 border-b border-line print:hidden">
             <Dialog.Title className="text-lg font-bold">{t('Bulletin de paie')}</Dialog.Title>
             <div className="flex items-center gap-2">
-              <Btn onClick={() => window.print()}><Printer size={16} /> Imprimer</Btn>
-              <button onClick={onClose} className="text-muted hover:text-ink" aria-label="Fermer"><X size={18} /></button>
+              <Btn onClick={() => window.print()}><Printer size={16} /> {t('Imprimer')}</Btn>
+              <button onClick={onClose} className="text-muted hover:text-ink" aria-label={t('Fermer')}><X size={18} /></button>
             </div>
           </div>
 
@@ -65,7 +65,7 @@ export default function Payslip({ line, month, stage, validatedBy, onClose }) {
               </div>
               {!validated && (
                 <span className="text-[11px] font-bold px-2 py-1 rounded" style={{ background: STATUS.warnSoft, color: STATUS.warn }}>
-                  BROUILLON
+                  {t('BROUILLON')}
                 </span>
               )}
             </div>
@@ -74,7 +74,7 @@ export default function Payslip({ line, month, stage, validatedBy, onClose }) {
             <table className="w-full text-sm mb-5">
               <thead>
                 <tr className="text-left text-xs font-bold text-muted border-b border-line">
-                  <th className="py-2">Gains</th><th className="py-2 text-right">Montant</th>
+                  <th className="py-2">{t('Gains')}</th><th className="py-2 text-right">{t('Montant')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -85,7 +85,7 @@ export default function Payslip({ line, month, stage, validatedBy, onClose }) {
                   </tr>
                 ))}
                 <tr className="font-bold">
-                  <td className="py-2">Total brut</td>
+                  <td className="py-2">{t('Total brut')}</td>
                   <td className="py-2 text-right tabular-nums">{money(gross)}</td>
                 </tr>
               </tbody>
@@ -95,13 +95,13 @@ export default function Payslip({ line, month, stage, validatedBy, onClose }) {
             <table className="w-full text-sm mb-5">
               <thead>
                 <tr className="text-left text-xs font-bold text-muted border-b border-line">
-                  <th className="py-2">Retenues</th><th className="py-2 text-right">Montant</th>
+                  <th className="py-2">{t('Retenues')}</th><th className="py-2 text-right">{t('Montant')}</th>
                 </tr>
               </thead>
               <tbody>
                 {line.deduction
                   ? <tr className="border-b border-line/60">
-                      <td className="py-2">{t('Absences sans solde (')}{line.unpaidDays} j)</td>
+                      <td className="py-2">{t('Absences sans solde (')}{line.unpaidDays} {t('j)')}</td>
                       <td className="py-2 text-right tabular-nums" style={{ color: STATUS.danger }}>− {money(line.deduction)}</td>
                     </tr>
                   : <tr><td className="py-2 text-muted" colSpan={2}>{t('Aucune retenue ce mois.')}</td></tr>}

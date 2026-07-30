@@ -25,11 +25,11 @@ export default function Facilities() {
   const refresh = () => force(n => n + 1)
   return (
     <>
-      <PageHead title="Installations" sub={t('Piscine, terrain, gymnase, salles : occupés au lieu de rester vides.')} />
+      <PageHead title={t('Installations')} sub={t('Piscine, terrain, gymnase, salles : occupés au lieu de rester vides.')} />
       <Tabs value={tab} onChange={setTab} tabs={[
-        { value: 'planning', label: 'Planning' },
-        { value: 'resas',    label: 'Réservations' },
-        { value: 'revenus',  label: 'Revenus' },
+        { value: 'planning', label: t('Planning') },
+        { value: 'resas',    label: t('Réservations') },
+        { value: 'revenus',  label: t('Revenus') },
       ]} />
       <div className="mt-5">
         {tab === 'planning' && <Planning refresh={refresh} />}
@@ -71,16 +71,16 @@ function Planning({ refresh }) {
       </div>
 
       <Card className="p-4 mb-4 flex items-center gap-4 flex-wrap">
-        <Field label="Date"><Input type="date" value={date} onChange={e => setDate(e.target.value)} /></Field>
+        <Field label={t('Date')}><Input type="date" value={date} onChange={e => setDate(e.target.value)} /></Field>
         <div className="text-[13px]">
-          <div className="text-muted font-semibold">Tarifs</div>
+          <div className="text-muted font-semibold">{t('Tarifs')}</div>
           <div className="font-bold">
-            Interne {money(f.rateInternal)}/h · <span className="accent-text">Externe {money(f.rateExternal)}/h</span>
+            {t('Interne')} {money(f.rateInternal)}/h · <span className="accent-text">{t('Externe')} {money(f.rateExternal)}/h</span>
           </div>
         </div>
         <span className="flex-1" />
         <div className="text-xs text-muted max-w-xs">
-          {t('Les créneaux')} <b>scolaires</b> {t('sont bloqués : un cours d’EPS ne se fait pas déloger par un club qui paie.')}
+          {t('Les créneaux')} <b>{t('scolaires')}</b> {t('sont bloqués : un cours d’EPS ne se fait pas déloger par un club qui paie.')}
         </div>
       </Card>
 
@@ -135,14 +135,14 @@ function BookModal({ facility, date, slot, me, onClose, onDone }) {
 
   return (
     <Modal open onClose={onClose} title={`Réserver · ${facility.name}`}
-      footer={<><Btn variant="ghost" onClick={onClose}>Annuler</Btn><Btn onClick={go}>{t('Réserver')}</Btn></>}>
+      footer={<><Btn variant="ghost" onClick={onClose}>{t('Annuler')}</Btn><Btn onClick={go}>{t('Réserver')}</Btn></>}>
       <div className="grid gap-4">
         <div className="text-sm">
-          <b>{day(date)}</b> {slot.from} · {slot.to} ({hours} h)
+          <b>{day(date)}</b> {slot.from} · {slot.to} ({hours} {t('h)')}
         </div>
 
         <div>
-          <div className="text-xs font-semibold text-muted mb-1.5">Public</div>
+          <div className="text-xs font-semibold text-muted mb-1.5">{t('Public')}</div>
           <div className="flex gap-2">
             {Object.values(AUDIENCE).map(a => (
               <button key={a.key} onClick={() => setAudience(a.key)}
@@ -213,23 +213,23 @@ function Resas({ refresh }) {
                 <div className="font-bold text-sm truncate">{b.who}</div>
                 <div className="text-xs text-muted font-semibold tabular-nums">
                   {f?.name} · {day(b.date)} · {b.from}–{b.to}
-                  {b.audience === 'externe' && <span className="accent-text"> externe</span>}
+                  {b.audience === 'externe' && <span className="accent-text"> {t('externe')}</span>}
                 </div>
               </div>
               <span className="flex-1" />
               <span className="text-sm font-extrabold tabular-nums">{money(b.price)}</span>
               <Badge label={st.label} tone={st.tone} />
-              {b.stage === 'demande' && <Btn size="sm" variant="soft" onClick={() => { confirmBooking(b.id); refresh() }}>Confirmer</Btn>}
+              {b.stage === 'demande' && <Btn size="sm" variant="soft" onClick={() => { confirmBooking(b.id); refresh() }}>{t('Confirmer')}</Btn>}
               {['demande', 'confirmee'].includes(b.stage) && b.price > 0 &&
-                <Btn size="sm" onClick={() => { payBooking(b.id, 'especes', me.name); toast.success('Encaissé.'); refresh() }}>Encaisser</Btn>}
-              {b.stage !== 'annulee' && <Btn size="sm" variant="ghost" onClick={() => setCancel(b)}>Annuler</Btn>}
+                <Btn size="sm" onClick={() => { payBooking(b.id, 'especes', me.name); toast.success('Encaissé.'); refresh() }}>{t('Encaisser')}</Btn>}
+              {b.stage !== 'annulee' && <Btn size="sm" variant="ghost" onClick={() => setCancel(b)}>{t('Annuler')}</Btn>}
             </Card>
           )
         })}
       </div>
 
       <Modal open={!!cancel} onClose={() => setCancel(null)} title={t('Annuler la réservation')}
-        footer={<><Btn variant="ghost" onClick={() => setCancel(null)}>Retour</Btn><Btn variant="danger" onClick={doCancel}>Annuler</Btn></>}>
+        footer={<><Btn variant="ghost" onClick={() => setCancel(null)}>{t('Retour')}</Btn><Btn variant="danger" onClick={doCancel}>{t('Annuler')}</Btn></>}>
         <p className="text-sm text-muted mb-3">{t('Le créneau redeviendra immédiatement disponible.')}</p>
         <Field label="Motif *"><Input value={reason} onChange={e => setReason(e.target.value)} placeholder={t('Désistement du club.')} /></Field>
       </Modal>

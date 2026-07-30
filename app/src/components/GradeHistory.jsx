@@ -47,7 +47,7 @@ export default function GradeHistory({ studentId }){
       {att.length? (
         <div className="flex flex-wrap gap-2">
           {att.slice(0,30).map((a,i)=>(<span key={i} className="text-xs px-2.5 py-1 rounded-full border border-line inline-flex items-center gap-1.5">
-            <i className="w-2 h-2 rounded-full" style={{background:COLATT[a.status]}}/>{a.date} · {FRATT[a.status]}</span>))}
+            <i className="w-2 h-2 rounded-full" style={{background:COLATT[a.status]}}/>{a.date} · {t(FRATT[a.status])}</span>))}
         </div>
       ) : <p className="text-sm text-muted">{t('Aucun relevé de présence enregistré.')}</p>}
     </div>

@@ -27,11 +27,11 @@ export default function Academic() {
   const refresh = () => force(n => n + 1)
   return (
     <>
-      <PageHead title="Bulletins & passage" sub={t('Les acquis, les moyennes : et le passage d’une année à l’autre.')} />
+      <PageHead title={t('Bulletins & passage')} sub={t('Les acquis, les moyennes : et le passage d’une année à l’autre.')} />
       <Tabs value={tab} onChange={setTab} tabs={[
-        { value: 'bulletins', label: 'Bulletins' },
-        { value: 'passage',   label: 'Passage de classe' },
-        { value: 'archives',  label: 'Archives' },
+        { value: 'bulletins', label: t('Bulletins') },
+        { value: 'passage',   label: t('Passage de classe') },
+        { value: 'archives',  label: t('Archives') },
       ]} />
       <div className="mt-5">
         {tab === 'bulletins' && <Bulletins refresh={refresh} />}
@@ -107,7 +107,7 @@ function Bulletins({ refresh }) {
                   // trois ans n'a pas une note sur 20 — il a des choses qu'il sait
                   // faire, et d'autres qu'il découvre.
                   ? <span className="text-xs font-bold" style={{ color: STATUS.ok }}>
-                      {Object.values(r.marks).filter(v => v === 'acquis').length}/{DOMAINS.length} acquis
+                      {Object.values(r.marks).filter(v => v === 'acquis').length}/{DOMAINS.length} {t('acquis')}
                     </span>
                   : <span className="text-lg font-extrabold tabular-nums"
                       style={{ color: avg >= PASS_MARK ? STATUS.ok : STATUS.danger }}>
@@ -194,7 +194,7 @@ function ClassGrid({ classId, term, me, onClose }) {
                   {!g.early && <div className="text-[10px] font-normal text-muted">/{MARK_MAX}</div>}
                 </th>
               ))}
-              {!g.early && <th className="p-3 font-bold text-center">Moyenne</th>}
+              {!g.early && <th className="p-3 font-bold text-center">{t('Moyenne')}</th>}
             </tr>
           </thead>
           <tbody>
@@ -277,7 +277,7 @@ function ReportModal({ open, term, me, onClose, onSaved }) {
 
   return (
     <Modal open onClose={onClose} title={`Bulletin · ${s.name}`} size="xl"
-      footer={<><Btn variant="ghost" onClick={onClose}>Annuler</Btn><Btn onClick={save}>Enregistrer</Btn></>}>
+      footer={<><Btn variant="ghost" onClick={onClose}>{t('Annuler')}</Btn><Btn onClick={save}>{t('Enregistrer')}</Btn></>}>
       {early ? (
         // ── PETITE ENFANCE : des acquis observés, jamais une note ──────────────
         <div className="grid gap-2">
@@ -352,7 +352,7 @@ function Passage({ refresh }) {
         <div className="flex items-start gap-3">
           <Ic n="Info" size={18} style={{ color: STATUS.info }} />
           <div className="text-[13px]">
-            <b>{t('Un passage de classe est irréversible et touche à l’argent.')}</b> {t('Le niveau change, donc le barème change, donc la facture de l’an prochain change. Vous voyez tout ci-dessous')} <b>avant</b> {t('que quoi que ce soit ne bouge.')}
+            <b>{t('Un passage de classe est irréversible et touche à l’argent.')}</b> {t('Le niveau change, donc le barème change, donc la facture de l’an prochain change. Vous voyez tout ci-dessous')} <b>{t('avant')}</b> {t('que quoi que ce soit ne bouge.')}
           </div>
         </div>
       </Card>
@@ -389,10 +389,10 @@ function Passage({ refresh }) {
             <thead>
               <tr className="text-left text-xs font-bold text-muted border-b border-line">
                 <th className="px-5 py-3">{t('Élève')}</th>
-                <th className="px-3 py-3">Niveau</th>
-                <th className="px-3 py-3 text-right">Moyenne</th>
+                <th className="px-3 py-3">{t('Niveau')}</th>
+                <th className="px-3 py-3 text-right">{t('Moyenne')}</th>
                 <th className="px-3 py-3">{t('Décision')}</th>
-                <th className="px-3 py-3">Vers</th>
+                <th className="px-3 py-3">{t('Vers')}</th>
                 <th className="px-5 py-3 text-right">{t('Effet sur les frais')}</th>
               </tr>
             </thead>
@@ -406,7 +406,7 @@ function Passage({ refresh }) {
                     <td className="px-3 py-2.5 text-right tabular-nums">
                       {r.average != null
                         ? <span style={{ color: r.average >= PASS_MARK ? STATUS.ok : STATUS.danger }}>{r.average}</span>
-                        : <span className="text-muted text-xs">acquis</span>}
+                        : <span className="text-muted text-xs">{t('acquis')}</span>}
                     </td>
                     <td className="px-3 py-2.5"><Badge label={dc.label} tone={dc.tone} /></td>
                     <td className="px-3 py-2.5 text-muted">
@@ -432,7 +432,7 @@ function Passage({ refresh }) {
           {past.map(x => (
             <div key={x.id} className="text-[13px] text-muted">
               {new Date(x.at).toLocaleDateString(dateLocale())} {t('· par')} {x.by} · {x.summary.passe} {t('passés,')}
-              {' '}{x.summary.redouble} redoublants, {x.summary.diplome} {t('diplômés')}
+              {' '}{x.summary.redouble} {t('redoublants,')} {x.summary.diplome} {t('diplômés')}
             </div>
           ))}
         </Card>
@@ -440,13 +440,13 @@ function Passage({ refresh }) {
 
       <Modal open={confirm} onClose={() => setConfirm(false)} title={t('Exécuter le passage de classe')}
         footer={<>
-          <Btn variant="ghost" onClick={() => setConfirm(false)}>Annuler</Btn>
+          <Btn variant="ghost" onClick={() => setConfirm(false)}>{t('Annuler')}</Btn>
           {p.summary.bloque > 0 && <Btn variant="soft" onClick={() => run(true)}>{t('Exécuter quand même')}</Btn>}
-          <Btn onClick={() => run(false)}>Confirmer</Btn>
+          <Btn onClick={() => run(false)}>{t('Confirmer')}</Btn>
         </>}>
         <p className="text-sm">
           <b>{p.summary.passe}</b> {t('élèves passeront au niveau supérieur,')}
-          {' '}<b>{p.summary.redouble}</b> redoubleront,
+          {' '}<b>{p.summary.redouble}</b> {t('redoubleront,')}
           {' '}<b>{p.summary.diplome}</b> {t('quitteront l’école (leur dossier sera')} <b>{t('archivé')}</b>{t(', jamais supprimé).')}
         </p>
         <p className="text-sm text-muted mt-3">

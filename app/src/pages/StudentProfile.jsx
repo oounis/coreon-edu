@@ -24,7 +24,6 @@ import { format } from 'date-fns'
 import { df } from '../datefns.js'
 import toast from 'react-hot-toast'
 
-const FR_ATT = { present: 'Présent', absent: 'Absent', late: 'Retard' }
 
 export default function StudentProfile() {
   const { id } = useParams()
@@ -73,7 +72,7 @@ export default function StudentProfile() {
   const go = anchor => document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   const tellParent = () => {
     if (!parent) return toast.error('Aucun compte parent lié')
-    notify({ to: parent.id, studentId: s.id, email: true, kind: 'info', actor: u.name, title: `Au sujet de ${s.name.split(' ')[0]}`, body: 'La direction souhaite vous parler : merci de passer ou d\'appeler l\'école.' })
+    notify({ to: parent.id, studentId: s.id, email: true, kind: 'info', actor: u.name, title: `Au sujet de ${s.name.split(' ')[0]}`, body: t('La direction souhaite vous parler : merci de passer ou d\'appeler l\'école.') })
     toast.success(`Parent de ${s.name.split(' ')[0]} prévenu${parent.email ? ' (in-app + email)' : ''}`)
   }
 
@@ -85,7 +84,7 @@ export default function StudentProfile() {
     </button>)
 
   return (<>
-    <button onClick={() => nav(-1)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-ink mb-3"><ArrowLeft size={15} /> Retour</button>
+    <button onClick={() => nav(-1)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-ink mb-3"><ArrowLeft size={15} /> {t('Retour')}</button>
 
     {/* ── Le bandeau d'identité ── */}
     <Card className="p-5 mb-4">
@@ -104,7 +103,7 @@ export default function StudentProfile() {
         </div>
         <div className="flex gap-2 flex-wrap">
           <Btn variant="soft" onClick={tellParent}><BellRing size={15} /> {t('Prévenir le parent')}</Btn>
-          <Btn variant="soft" onClick={() => setBulletin(true)}><Printer size={15} /> Bulletin</Btn>
+          <Btn variant="soft" onClick={() => setBulletin(true)}><Printer size={15} /> {t('Bulletin')}</Btn>
           {['schooladmin', 'admin'].includes(u.role) && <Btn onClick={() => nav('/app/documents')}><ScrollText size={15} /> {t('Délivrer un document')}</Btn>}
         </div>
       </div>
@@ -120,7 +119,7 @@ export default function StudentProfile() {
 
     <div className="grid lg:grid-cols-2 gap-4">
       {/* Famille & contact */}
-      <SectionCard icon={<Users size={16} />} tint="brand" title="Famille & contact" bodyClass="p-4">
+      <SectionCard icon={<Users size={16} />} tint="brand" title={t('Famille & contact')} bodyClass="p-4">
         <div className="space-y-1.5 text-sm">
           {[['Parent (compte)', parent ? parent.name : 'aucun compte lié'],
             ['Père', s.fatherName], ['Mère', s.motherName],
@@ -152,7 +151,7 @@ export default function StudentProfile() {
       </SectionCard>
 
       {/* Paiements */}
-      <SectionCard icon={<Wallet size={16} />} tint="butter" title="Paiements" sub={`${stats.months.length - stats.unpaid.length}/${stats.months.length} mois réglés`} bodyClass="p-4">
+      <SectionCard icon={<Wallet size={16} />} tint="butter" title={t('Paiements')} sub={`${stats.months.length - stats.unpaid.length}/${stats.months.length} mois réglés`} bodyClass="p-4">
         <div id="sec-paiements" className="flex flex-wrap gap-1.5">
           {stats.months.map((m, i) => {
             const col = { paid: STATUS.ok, pending: STATUS.warn, overdue: STATUS.danger, due: STATUS.neutral }[m.status]
@@ -164,10 +163,10 @@ export default function StudentProfile() {
       {/* Santé & sécurité */}
       <SectionCard icon={<HeartPulse size={16} />} tint="coral" title={t('Santé & sécurité')} bodyClass="p-4">
         <div className="space-y-1.5 text-sm">
-          <div className="flex justify-between border-b border-line py-1.5"><span className="text-muted">Allergies</span>
+          <div className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{t('Allergies')}</span>
             <span className="font-bold" style={allergic ? { color: STATUS.warn } : {}}>{s.allergies || 'Aucune'}</span></div>
           <div className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{t('Suivi médical')}</span><span className="font-medium">{s.medical || 'Aucun'}</span></div>
-          <div className="flex justify-between border-b border-line py-1.5"><span className="text-muted">Vaccins</span>
+          <div className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{t('Vaccins')}</span>
             <span className="font-medium" style={stats.vaccines.due?.length ? { color: STATUS.warn } : {}}>
               {stats.vaccines.unknown ? '·' : `${stats.vaccines.done.length} faits${stats.vaccines.due.length ? ` · ${stats.vaccines.due.length} en retard` : ' · à jour'}`}</span></div>
           <div className="flex justify-between py-1.5"><span className="text-muted flex items-center gap-1"><ShieldCheck size={13} /> {t('Personnes autorisées')}</span>
@@ -176,7 +175,7 @@ export default function StudentProfile() {
       </SectionCard>
 
       {/* Comportement */}
-      <SectionCard icon={<Smile size={16} />} tint="mint" title="Comportement" sub={t('On observe pour encourager : jamais pour classer')} bodyClass="p-4">
+      <SectionCard icon={<Smile size={16} />} tint="mint" title={t('Comportement')} sub={t('On observe pour encourager : jamais pour classer')} bodyClass="p-4">
         <div id="sec-comportement">
           {stats.behavior.length === 0 ? <p className="text-sm text-muted">{t('Aucune observation.')}</p>
             : stats.behavior.slice(0, 5).map(e => {
@@ -192,7 +191,7 @@ export default function StudentProfile() {
       </SectionCard>
 
       {/* Documents & accidents */}
-      <SectionCard icon={<ScrollText size={16} />} tint="sky" title="Documents & accidents" bodyClass="p-4">
+      <SectionCard icon={<ScrollText size={16} />} tint="sky" title={t('Documents & accidents')} bodyClass="p-4">
         {stats.docs.length === 0 && stats.accidents.length === 0 && <p className="text-sm text-muted">{t('Aucun document délivré, aucun accident déclaré.')}</p>}
         {stats.docs.map(x => (
           <div key={x.id} className="flex justify-between gap-3 text-sm border-b border-line py-1.5">

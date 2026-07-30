@@ -102,7 +102,7 @@ export default function Documents() {
   }
 
   return (<>
-    <PageHead title="Documents officiels" sub={t('Le guichet : certificats et attestations numérotés, chaque délivrance inscrite au registre.')} />
+    <PageHead title={t('Documents officiels')} sub={t('Le guichet : certificats et attestations numérotés, chaque délivrance inscrite au registre.')} />
 
     <div className="grid lg:grid-cols-[1fr_380px] gap-4 mb-4">
       <Card className="p-4">
@@ -118,12 +118,12 @@ export default function Documents() {
         <div className="grid sm:grid-cols-2 gap-3 items-end">
           <Field label={docType?.needs === 'archived' ? 'Élève (dossiers archivés)' : 'Élève'}>
             <Select value={sid} onChange={e => setSid(e.target.value)}>
-              <option value="">Choisir</option>
+              <option value="">{t('Choisir')}</option>
               {pool.map(s => <option key={s.id} value={s.id}>{s.name}{s.classId ? ` · ${classById(s.classId)?.name || ''}` : ''}</option>)}
             </Select>
           </Field>
           <Field label={t("À l'attention de (optionnel)")} hint={t('CNSS, banque, employeur, nouvelle école…')}>
-            <Input value={addressedTo} onChange={e => setAddressedTo(e.target.value)} placeholder="CNSS" />
+            <Input value={addressedTo} onChange={e => setAddressedTo(e.target.value)} placeholder={t('CNSS')} />
           </Field>
         </div>
         {pool.length === 0 && <p className="text-[12px] text-muted mt-2">{t('Aucun élève dans cet état')}{docType?.needs === 'archived' ? 'la radiation ne concerne que les dossiers archivés' : ''}.</p>}
@@ -132,7 +132,7 @@ export default function Documents() {
 
       <Card className="p-4">
         <div className="text-xs font-bold uppercase tracking-wide text-muted mb-2">{t('Le registre')}</div>
-        <div className="text-3xl font-extrabold">{sum.thisMonth}<span className="text-sm font-semibold text-muted ml-2">{t('ce mois-ci ·')} {sum.total} au total</span></div>
+        <div className="text-3xl font-extrabold">{sum.thisMonth}<span className="text-sm font-semibold text-muted ml-2">{t('ce mois-ci ·')} {sum.total} {t('au total')}</span></div>
         <p className="text-[12px] text-muted mt-2">{t("Chaque document porte un numéro de série par type et par année. Le registre ne s'efface jamais : une série qui saute est une remarque d'audit.")}</p>
       </Card>
     </div>
@@ -154,8 +154,8 @@ export default function Documents() {
     </SectionCard>
 
     <Modal open={!!view} onClose={() => setView(null)} title={view ? `Document ${view.number}` : ''} size="xl"
-      footer={<><Btn variant="ghost" onClick={() => setView(null)}>Fermer</Btn>
-        <Btn variant="soft" onClick={() => window.print()}><Printer size={15} /> Imprimer</Btn>
+      footer={<><Btn variant="ghost" onClick={() => setView(null)}>{t('Fermer')}</Btn>
+        <Btn variant="soft" onClick={() => window.print()}><Printer size={15} /> {t('Imprimer')}</Btn>
         <Btn onClick={() => downloadPDF(view)}><Download size={15} /> {t('Télécharger PDF')}</Btn></>}>
       {view && <PaperDoc rec={view} />}
     </Modal>

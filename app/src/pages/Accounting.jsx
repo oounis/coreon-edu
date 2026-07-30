@@ -28,10 +28,10 @@ export default function Accounting() {
     <>
       <PageHead title={t('Comptabilité')} sub={t('Barème, remises, factures, reçus : et ce que l’école a réellement encaissé.')} />
       <Tabs value={tab} onChange={setTab} tabs={[
-        { value: 'etat',     label: 'État financier' },
-        { value: 'factures', label: 'Factures' },
-        { value: 'eleves',   label: 'Élèves & remises' },
-        { value: 'bareme',   label: 'Barème' },
+        { value: 'etat',     label: t('État financier') },
+        { value: 'factures', label: t('Factures') },
+        { value: 'eleves',   label: t('Élèves & remises') },
+        { value: 'bareme',   label: t('Barème') },
       ]} />
       <div className="mt-5">
         {tab === 'etat'     && <Etat />}
@@ -83,7 +83,7 @@ function Etat() {
             <div>
               <div className="font-bold">{money(f.notInvoiced)} {t('ne sont pas encore facturés.')}</div>
               <p className="text-[13px] mt-1">
-                {t('Des élèves inscrits n’ont aucune facture. Ce n’est pas un détail comptable : c’est de l’argent que l’école ne réclamera jamais si personne ne le voit. Onglet')} <b>Factures</b> {t('→ « Facturer tous les élèves ».')}
+                {t('Des élèves inscrits n’ont aucune facture. Ce n’est pas un détail comptable : c’est de l’argent que l’école ne réclamera jamais si personne ne le voit. Onglet')} <b>{t('Factures')}</b> {t('→ « Facturer tous les élèves ».')}
               </p>
             </div>
           </div>
@@ -160,18 +160,18 @@ function Factures({ refresh }) {
                   <div className="font-bold text-sm">{nameOf(i.studentId)}</div>
                   <div className="text-xs text-muted font-semibold tabular-nums">
                     {i.number} {t('· émise le')} {day(i.issuedAt)}
-                    {i.creditNote && <span style={{ color: STATUS.danger }}> avoir {i.creditNote}</span>}
+                    {i.creditNote && <span style={{ color: STATUS.danger }}> {t('avoir')} {i.creditNote}</span>}
                   </div>
                 </div>
                 <span className="flex-1" />
                 <span className="text-sm font-extrabold tabular-nums">{money(i.total)}</span>
                 {i.stage !== 'annulee' && rest > 0 &&
-                  <span className="text-xs font-bold tabular-nums" style={{ color: STATUS.warn }}>reste {money(rest)}</span>}
+                  <span className="text-xs font-bold tabular-nums" style={{ color: STATUS.warn }}>{t('reste')} {money(rest)}</span>}
                 <Badge label={st.label} tone={st.tone} />
                 {i.stage !== 'annulee' && i.stage !== 'payee' &&
-                  <Btn size="sm" onClick={() => { setPay(i); setAmt(String(rest)) }}>Encaisser</Btn>}
+                  <Btn size="sm" onClick={() => { setPay(i); setAmt(String(rest)) }}>{t('Encaisser')}</Btn>}
                 {i.stage !== 'annulee' &&
-                  <Btn size="sm" variant="ghost" onClick={() => setCancel(i)}>Annuler</Btn>}
+                  <Btn size="sm" variant="ghost" onClick={() => setCancel(i)}>{t('Annuler')}</Btn>}
               </div>
               {i.stage === 'annulee' && (
                 <p className="text-[12px] mt-2" style={{ color: STATUS.danger }}>
@@ -185,7 +185,7 @@ function Factures({ refresh }) {
 
       {/* Encaisser → un reçu numéroté. Pas d'encaissement sans reçu. */}
       <Modal open={!!pay} onClose={() => setPay(null)} title={pay ? `Encaisser · ${pay.number}` : ''}
-        footer={<><Btn variant="ghost" onClick={() => setPay(null)}>Annuler</Btn><Btn onClick={doCollect}>{t('Encaisser & éditer le reçu')}</Btn></>}>
+        footer={<><Btn variant="ghost" onClick={() => setPay(null)}>{t('Annuler')}</Btn><Btn onClick={doCollect}>{t('Encaisser & éditer le reçu')}</Btn></>}>
         {pay && (
           <div className="grid gap-4">
             <Field label={`Montant (${currency()})`} hint={`Reste dû : ${money(pay.total - pay.paid)}`}>
@@ -203,9 +203,9 @@ function Factures({ refresh }) {
 
       {/* Annuler → un avoir, avec motif OBLIGATOIRE. On ne réécrit pas l'histoire. */}
       <Modal open={!!cancel} onClose={() => setCancel(null)} title={t('Annuler la facture')}
-        footer={<><Btn variant="ghost" onClick={() => setCancel(null)}>Retour</Btn><Btn variant="danger" onClick={doCancel}>{t('Annuler par avoir')}</Btn></>}>
+        footer={<><Btn variant="ghost" onClick={() => setCancel(null)}>{t('Retour')}</Btn><Btn variant="danger" onClick={doCancel}>{t('Annuler par avoir')}</Btn></>}>
         <p className="text-sm text-muted mb-3">
-          {t('Une facture émise ne se modifie pas : elle s’annule par un')} <b>avoir</b>{t(', daté et motivé. C’est ce qui rend la comptabilité défendable devant un audit.')}
+          {t('Une facture émise ne se modifie pas : elle s’annule par un')} <b>{t('avoir')}</b>{t(', daté et motivé. C’est ce qui rend la comptabilité défendable devant un audit.')}
         </p>
         <Field label={t('Motif de l’annulation *')}>
           <Input value={reason} onChange={e => setReason(e.target.value)} placeholder={t('Erreur de niveau, départ de l’élève…')} />
@@ -259,16 +259,16 @@ function Eleves({ refresh }) {
               {due?.error
                 ? <span className="text-xs font-bold" style={{ color: STATUS.warn }}>{due.error}</span>
                 : <span className="text-sm font-extrabold tabular-nums">{money(due.total)}</span>}
-              <Btn size="sm" variant="soft" onClick={() => setOpen(s)}>Remise</Btn>
+              <Btn size="sm" variant="soft" onClick={() => setOpen(s)}>{t('Remise')}</Btn>
             </Card>
           )
         })}
       </div>
 
       <Modal open={!!open} onClose={() => setOpen(null)} title={open ? `Remise · ${open.name}` : ''}
-        footer={<><Btn variant="ghost" onClick={() => setOpen(null)}>Annuler</Btn><Btn onClick={grant}>Accorder</Btn></>}>
+        footer={<><Btn variant="ghost" onClick={() => setOpen(null)}>{t('Annuler')}</Btn><Btn onClick={grant}>{t('Accorder')}</Btn></>}>
         <div className="grid gap-4">
-          <Field label="Type">
+          <Field label={t('Type')}>
             <Select value={kind} onChange={e => setKind(e.target.value)}>
               {Object.values(DISCOUNT_KINDS).map(k => (
                 <option key={k.key} value={k.key}>{k.label}{k.pct ? ` (−${k.pct}%)` : ' (montant libre)'}</option>

@@ -53,7 +53,7 @@ function StaffBehavior({ u }) {
       <Card className="p-5 mb-4">
         <div className="flex items-center gap-4 flex-wrap">
           <div><div className="text-xs text-muted font-bold uppercase">Ambiance · 30 jours</div>
-            <div className="text-3xl font-extrabold" style={{ color: STATUS.ok }}>{climate.positiveRate}%<span className="text-base font-semibold text-muted"> d'encouragements</span></div></div>
+            <div className="text-3xl font-extrabold" style={{ color: STATUS.ok }}>{climate.positiveRate}%<span className="text-base font-semibold text-muted"> {t("d'encouragements")}</span></div></div>
           <div className="h-10 w-px bg-line hidden sm:block" />
           <div className="flex gap-2 flex-wrap flex-1">
             {Object.entries(climate.byTrait).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([k, n]) => {
@@ -74,7 +74,7 @@ function StaffBehavior({ u }) {
             <Avatar name={s.name} seed={s.id} size={40} />
             <span className="min-w-0 flex-1">
               <span className="block font-bold truncate">{s.name}</span>
-              <span className="block text-xs text-muted">{sum.positives} encouragement{sum.positives > 1 ? 's' : ''}{sum.toImprove ? ` · ${sum.toImprove} à suivre` : ''}</span>
+              <span className="block text-xs text-muted">{sum.positives} {t('encouragement')}{sum.positives > 1 ? 's' : ''}{sum.toImprove ? ` · ${sum.toImprove} à suivre` : ''}</span>
             </span>
             <span className="text-lg font-extrabold tabular-nums" style={{ color: sum.score >= 0 ? STATUS.ok : STATUS.warn }}>{sum.score > 0 ? '+' : ''}{sum.score}</span>
           </button>
@@ -112,7 +112,7 @@ function ObserveModal({ student, u, onClose }) {
 
   return (
     <Modal open onClose={onClose} size="xl" title={`${student.name} · ${classById(student.classId)?.name || ''}`}
-      footer={<><Btn variant="ghost" onClick={onClose}>Fermer</Btn><Btn onClick={submit}>Enregistrer</Btn></>}>
+      footer={<><Btn variant="ghost" onClick={onClose}>{t('Fermer')}</Btn><Btn onClick={submit}>{t('Enregistrer')}</Btn></>}>
       <div className="space-y-5">
         <div>
           <div className="text-sm font-bold mb-2" style={{ color: STATUS.ok }}>{t('👏 Un encouragement')}</div>
@@ -163,8 +163,8 @@ function ParentBehavior({ u }) {
         {kids.map(k => <option key={k.id} value={k.id}>{k.name}</option>)}</Select>} />
 
     <div className="grid grid-cols-3 gap-3 mb-4">
-      <Card className="p-4 text-center"><div className="text-3xl font-extrabold" style={{ color: STATUS.ok }}>{sum.positives}</div><div className="text-xs text-muted mt-0.5">encouragements</div></Card>
-      <Card className="p-4 text-center"><div className="text-3xl font-extrabold" style={{ color: sum.score >= 0 ? STATUS.ok : STATUS.warn }}>{sum.score > 0 ? '+' : ''}{sum.score}</div><div className="text-xs text-muted mt-0.5">solde d'encouragement</div></Card>
+      <Card className="p-4 text-center"><div className="text-3xl font-extrabold" style={{ color: STATUS.ok }}>{sum.positives}</div><div className="text-xs text-muted mt-0.5">{t('encouragements')}</div></Card>
+      <Card className="p-4 text-center"><div className="text-3xl font-extrabold" style={{ color: sum.score >= 0 ? STATUS.ok : STATUS.warn }}>{sum.score > 0 ? '+' : ''}{sum.score}</div><div className="text-xs text-muted mt-0.5">{t("solde d'encouragement")}</div></Card>
       <Card className="p-4 text-center"><div className="text-3xl font-extrabold text-muted">{sum.toImprove}</div><div className="text-xs text-muted mt-0.5">{t('à suivre ensemble')}</div></Card>
     </div>
 
@@ -177,8 +177,8 @@ function ParentBehavior({ u }) {
     )}
 
     <Card className="p-5">
-      <h3 className="font-bold mb-3">Son parcours</h3>
-      {entries.length === 0 ? <EmptyState icon="Sparkles" title="Rien encore" sub={t('Les observations des enseignants apparaîtront ici.')} />
+      <h3 className="font-bold mb-3">{t('Son parcours')}</h3>
+      {entries.length === 0 ? <EmptyState icon="Sparkles" title={t('Rien encore')} sub={t('Les observations des enseignants apparaîtront ici.')} />
         : <div className="space-y-2">
           {entries.map(e => { const tr = traitOf(e.trait); if (!tr) return null
             return (

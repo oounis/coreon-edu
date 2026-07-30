@@ -51,7 +51,7 @@ export default function CommandPalette({ open, onClose, user }){
         <Dialog.Panel className="card w-full max-w-xl overflow-hidden pop flex flex-col max-h-[70vh]">
           <div className="flex items-center gap-2.5 px-4 border-b border-line shrink-0">
             <Search size={17} className="text-muted"/>
-            <input autoFocus value={q} onChange={e=>setQ(e.target.value)} onKeyDown={onKey} aria-label="Recherche globale"
+            <input autoFocus value={q} onChange={e=>setQ(e.target.value)} onKeyDown={onKey} aria-label={t('Recherche globale')}
               placeholder={t('Rechercher une page, un élève, un enseignant…')} className="flex-1 py-3.5 text-sm outline-none bg-transparent"/>
             <Kbd>esc</Kbd>
           </div>
@@ -59,7 +59,7 @@ export default function CommandPalette({ open, onClose, user }){
             {items.length===0 && <div className="px-3 py-10 text-center text-sm text-muted">{t('Aucun résultat pour')} « {q} »</div>}
             {items.map((it,i)=>{ const head=it.group!==lastGroup?it.group:null; lastGroup=it.group
               return (<div key={it.group+it.label}>
-                {head&&<div className="text-[11px] font-extrabold uppercase tracking-wide text-muted px-2.5 pt-2 pb-1">{head}</div>}
+                {head&&<div className="text-[11px] font-extrabold uppercase tracking-wide text-muted px-2.5 pt-2 pb-1">{t(head)}</div>}
                 <button onMouseEnter={()=>setIdx(i)} onClick={()=>go(it)}
                   className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left transition ${i===idx?'accent-soft':''}`}>
                   {it.seed!=null? <Avatar name={it.label} seed={it.seed} size={28}/>
@@ -71,8 +71,8 @@ export default function CommandPalette({ open, onClose, user }){
               </div>)})}
           </div>
           <div className="flex items-center gap-3 px-4 py-2.5 border-t border-line text-[12px] text-muted shrink-0">
-            <span className="flex items-center gap-1"><Kbd>↑</Kbd><Kbd>↓</Kbd> naviguer</span>
-            <span className="flex items-center gap-1"><Kbd>↵</Kbd> ouvrir</span>
+            <span className="flex items-center gap-1"><Kbd>↑</Kbd><Kbd>↓</Kbd> {t('naviguer')}</span>
+            <span className="flex items-center gap-1"><Kbd>↵</Kbd> {t('ouvrir')}</span>
             <span className="flex items-center gap-1 ml-auto"><Kbd>Ctrl</Kbd><Kbd>K</Kbd> {t("depuis n'importe où")}</span>
           </div>
         </Dialog.Panel>

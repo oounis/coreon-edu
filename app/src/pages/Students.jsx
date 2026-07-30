@@ -132,7 +132,7 @@ export default function Students(){
 
     <Modal open={open} onClose={()=>setOpen(false)} title={t('Inscrire un nouvel élève')} size="2xl" footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>{t('Annuler')}</Btn><Btn onClick={add}>{t('Inscrire')}</Btn></>}>
       <Section title={t('Informations personnelles')}>
-        <Field label={t('Nom complet *')}><Input value={f.name} onChange={e=>setF({...f,name:e.target.value})} placeholder="Amira Ben Salah"/></Field>
+        <Field label={t('Nom complet *')}><Input value={f.name} onChange={e=>setF({...f,name:e.target.value})} placeholder={t('Amira Ben Salah')}/></Field>
         <Field label={t('Genre')}><Select value={f.gender} onChange={e=>setF({...f,gender:e.target.value})}><option>{t('Garçon')}</option><option>{t('Fille')}</option></Select></Field>
         <Field label={t('Date de naissance')}><Input type="date" value={f.dob} onChange={e=>setF({...f,dob:e.target.value})}/></Field>
         <Field label={t('Groupe sanguin')}><Select value={f.bloodGroup} onChange={e=>setF({...f,bloodGroup:e.target.value})}><option value="">{t('Non renseigné')}</option>{['O+','O-','A+','A-','B+','B-','AB+','AB-'].map(b=><option key={b}>{b}</option>)}</Select></Field>
@@ -147,7 +147,7 @@ export default function Students(){
         <Field label={t('N° d\'inscription')}><Input value={f.rollNo} onChange={e=>setF({...f,rollNo:e.target.value})}/></Field>
         <Field label={t('Date d\'inscription')}><Input type="date" value={f.admissionDate} onChange={e=>setF({...f,admissionDate:e.target.value})}/></Field>
         <Field label={t('École précédente')}><Input value={f.prevSchool} onChange={e=>setF({...f,prevSchool:e.target.value})}/></Field>
-        <Field label={t('N° acte de naissance')}><Input value={f.cin} onChange={e=>setF({...f,cin:e.target.value})} placeholder="ACTE-..."/></Field>
+        <Field label={t('N° acte de naissance')}><Input value={f.cin} onChange={e=>setF({...f,cin:e.target.value})} placeholder={t('ACTE-...')}/></Field>
         <Field label={t(regionLabel())}><Select value={f.governorate} onChange={e=>setF({...f,governorate:e.target.value})}>{regionsOf().length?regionsOf().map(g=><option key={g}>{g}</option>):<option value="">{t('(saisie libre)')}</option>}</Select></Field>
       </Section>
       <Section title={t('Tuteur / parent')}>

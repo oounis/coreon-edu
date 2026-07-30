@@ -62,7 +62,7 @@ export default function Admissions() {
 
   return (
     <>
-      <PageHead title="Inscriptions" sub={t('De la candidature en ligne à l’élève inscrit : sans jamais ressaisir.')} />
+      <PageHead title={t('Inscriptions')} sub={t('De la candidature en ligne à l’élève inscrit : sans jamais ressaisir.')} />
 
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-5">
         {[
@@ -145,13 +145,13 @@ export default function Admissions() {
               <span className="ml-auto text-xs font-bold tabular-nums rounded-lg border border-line px-2 py-1">{t('Réf.')} {a.id.toUpperCase()}</span>
             </div>
             <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
-              <Info label="Enfant" value={a.childName} />
-              <Info label="Naissance" value={a.dob ? `${a.dob}${ageOf(a.dob) != null ? ` · ${ageOf(a.dob)} ans` : ''}` : '·'} />
+              <Info label={t('Enfant')} value={a.childName} />
+              <Info label={t('Naissance')} value={a.dob ? `${a.dob}${ageOf(a.dob) != null ? ` · ${ageOf(a.dob)} ans` : ''}` : '·'} />
               <Info label={t('Niveau demandé')} value={t(labelOf(a.level))} />
-              <Info label="Parent / tuteur" value={a.parentName} />
+              <Info label={t('Parent / tuteur')} value={a.parentName} />
               <Info label={t('Téléphone')} value={a.parentPhone
                 ? <a href={`tel:${a.parentPhone}`} className="accent-text font-bold">{a.parentPhone}</a> : '·'} />
-              <Info label="E-mail" value={a.parentEmail
+              <Info label={t('E-mail')} value={a.parentEmail
                 ? <a href={`mailto:${a.parentEmail}`} className="accent-text font-bold">{a.parentEmail}</a> : '·'} />
             </div>
             {a.note && (
@@ -215,7 +215,7 @@ export default function Admissions() {
             )}
 
             <div>
-              <div className="text-sm font-bold mb-2">Historique</div>
+              <div className="text-sm font-bold mb-2">{t('Historique')}</div>
               <div className="grid gap-1">
                 {a.history.map((h, i) => (
                   <div key={i} className="text-[12px] text-muted flex items-center gap-2">
@@ -231,7 +231,7 @@ export default function Admissions() {
                 compte n'est joignable QUE par email — on montre ce qui est parti. */}
             <div>
               <div className="text-sm font-bold mb-2 flex items-center gap-2">
-                <Ic n="Mail" size={15} /> Emails au candidat
+                <Ic n="Mail" size={15} /> {t('Emails au candidat')}
               </div>
               {a.parentEmail ? (
                 (a.emails?.length ? (

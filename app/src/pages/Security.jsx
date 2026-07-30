@@ -308,15 +308,15 @@ function VisitorsTab({ u, d, refresh }) {
     <Modal open={open} onClose={() => setOpen(false)} title={t("Entrée d'un visiteur")} size="xl"
       footer={<><Btn variant="ghost" onClick={() => setOpen(false)}>{t('Annuler')}</Btn><Btn onClick={checkIn}><LogIn size={15} /> {t("Enregistrer l'entrée")}</Btn></>}>
       <div className="grid sm:grid-cols-2 gap-3">
-        <Field label={t('Nom & prénom *')}><Input value={f.name} onChange={e => setF({ ...f, name: e.target.value })} placeholder="Nizar Ben Amor" /></Field>
-        <Field label={t('Société / organisme')}><Input value={f.org} onChange={e => setF({ ...f, org: e.target.value })} placeholder="Papeterie El Amel" /></Field>
+        <Field label={t('Nom & prénom *')}><Input value={f.name} onChange={e => setF({ ...f, name: e.target.value })} placeholder={t('Nizar Ben Amor')} /></Field>
+        <Field label={t('Société / organisme')}><Input value={f.org} onChange={e => setF({ ...f, org: e.target.value })} placeholder={t('Papeterie El Amel')} /></Field>
         <Field label={t("Pièce d'identité")}><Select value={f.idType} onChange={e => setF({ ...f, idType: e.target.value })}>{ID_TYPES.map(v => <option key={v}>{v}</option>)}</Select></Field>
         <Field label={t('Numéro *')} hint={t('Enregistré, jamais affiché en entier.')}><Input value={f.idNumber} onChange={e => setF({ ...f, idNumber: e.target.value })} placeholder="0912xxxx" /></Field>
         <Field label={t('Motif de la visite')}><Select value={f.purpose} onChange={e => setF({ ...f, purpose: e.target.value })}>{PURPOSES.map(p => <option key={p}>{p}</option>)}</Select></Field>
-        <Field label={t('Personne visitée *')}><Input value={f.hostName} onChange={e => setF({ ...f, hostName: e.target.value })} placeholder="Hela Morjane" /></Field>
+        <Field label={t('Personne visitée *')}><Input value={f.hostName} onChange={e => setF({ ...f, hostName: e.target.value })} placeholder={t('Hela Morjane')} /></Field>
         <Field label={t('Véhicule (immatriculation)')}><Input value={f.vehicle} onChange={e => setF({ ...f, vehicle: e.target.value })} placeholder="214 TU 3120" /></Field>
         {needsEscort(f.purpose) && <Field label={t('Accompagnateur *')} hint={t('Cette visite mène auprès des élèves.')}>
-          <Input value={f.escortName} onChange={e => setF({ ...f, escortName: e.target.value })} placeholder="Dali Brahmi" /></Field>}
+          <Input value={f.escortName} onChange={e => setF({ ...f, escortName: e.target.value })} placeholder={t('Dali Brahmi')} /></Field>}
       </div>
       {needsEscort(f.purpose) && <div className="mt-3 text-[12px] rounded-xl px-3 py-2.5 flex items-start gap-2" style={{ background: STATUS.warnSoft, color: '#8A5A12' }}>
         <AlertTriangle size={14} className="mt-0.5 shrink-0" />

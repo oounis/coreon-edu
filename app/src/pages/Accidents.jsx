@@ -163,9 +163,9 @@ export default function Accidents() {
                 {waiting.map(a => (
                   <div key={a.id} className="flex items-center gap-2 flex-wrap">
                     <span>{nameOf(a.childId)} · depuis <b>{a.waitingHours} h</b></span>
-                    {!!a.reminders.length && <span className="text-muted">({a.reminders.length} relance(s))</span>}
+                    {!!a.reminders.length && <span className="text-muted">({a.reminders.length} {t('relance(s))')}</span>}
                     <Btn size="sm" variant="soft" onClick={() => { remind(a.id, me.name); toast.success('Relance envoyée.'); refresh() }}>
-                      Relancer
+                      {t('Relancer')}
                     </Btn>
                   </div>
                 ))}
@@ -210,7 +210,7 @@ export default function Accidents() {
                 {a.ack && <span style={{ color: STATUS.ok }}>
                   <b>{t('Confirmé par')} {a.ack.by}</b> {when(a.ack.at)}
                 </span>}
-                {a.reminders.map((r, i) => <span key={i}>Relance {i + 1} · {when(r.at)}</span>)}
+                {a.reminders.map((r, i) => <span key={i}>{t('Relance')} {i + 1} · {when(r.at)}</span>)}
                 {a.notes.map((n, i) => <span key={i}>{t('Note de')} {n.by} ({when(n.at)}) : {n.text}</span>)}
               </div>
 
@@ -223,11 +223,11 @@ export default function Accidents() {
                     : <Btn size="sm" onClick={() => {
                         const r = approve(a.id, me.id, me.name)
                         r.error ? toast.error(r.error) : toast.success(t('Validée.')); refresh()
-                      }}><Ic n="UserCheck" size={14} /> Valider</Btn>
+                      }}><Ic n="UserCheck" size={14} /> {t('Valider')}</Btn>
                 )}
                 {a.stage === 'valide' && (
                   <Btn size="sm" onClick={() => setConfirmSend(a.id)}>
-                    <Ic n="Send" size={14} /> Envoyer au parent
+                    <Ic n="Send" size={14} /> {t('Envoyer au parent')}
                   </Btn>
                 )}
                 <span className="flex-1" />
@@ -238,7 +238,7 @@ export default function Accidents() {
                   const r = addNote(a.id, note[a.id], me.name)
                   if (r.error) return toast.error(r.error)
                   setNote({ ...note, [a.id]: '' }); refresh()
-                }}>Ajouter</Btn>
+                }}>{t('Ajouter')}</Btn>
               </div>
             </Card>
           )
@@ -275,7 +275,7 @@ function DeclareModal({ me, onClose, onDone }) {
 
   return (
     <Modal open onClose={onClose} title={t('Déclarer un accident')} size="2xl"
-      footer={<><Btn variant="ghost" onClick={onClose}>Annuler</Btn><Btn onClick={go}>{t('Rédiger la déclaration')}</Btn></>}>
+      footer={<><Btn variant="ghost" onClick={onClose}>{t('Annuler')}</Btn><Btn onClick={go}>{t('Rédiger la déclaration')}</Btn></>}>
       <div className="grid md:grid-cols-2 gap-6">
         <div>
           <div className="text-xs font-semibold text-muted mb-2">{t('Où l’enfant s’est-il fait mal ? *')}</div>
@@ -292,7 +292,7 @@ function DeclareModal({ me, onClose, onDone }) {
             </Select>
           </Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Nature">
+            <Field label={t('Nature')}>
               <Select value={kind} onChange={e => setKind(e.target.value)}>
                 {Object.values(INJURY_KINDS).map(k => <option key={k.key} value={k.key}>{k.label}</option>)}
               </Select>

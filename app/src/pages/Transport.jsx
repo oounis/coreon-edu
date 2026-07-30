@@ -46,7 +46,7 @@ function RouteCard({ r, mine }){
   const n=seq.length, idx=Math.min(n-1, Math.floor(prog*(n-1))+1)
   const nextStop=seq[idx], eta=Math.max(1, Math.round((idx/(n-1)-prog)*42))
   const statusPill = live
-    ? <span className="flex items-center gap-1.5 text-[12px] font-bold px-2.5 py-1 rounded-full text-white" style={{background:STATUS.live}}><span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"/>EN DIRECT</span>
+    ? <span className="flex items-center gap-1.5 text-[12px] font-bold px-2.5 py-1 rounded-full text-white" style={{background:STATUS.live}}><span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"/>{t('EN DIRECT')}</span>
     : <span className="text-[12px] font-bold px-2.5 py-1 rounded-full bg-canvas text-muted">{t('Aperçu')}</span>
   return (
     <SectionCard icon={<Bus size={16}/>} tint="butter" title={r.name} sub={`Bus ${r.bus} · ${r.students} élèves`} action={statusPill}
@@ -55,16 +55,16 @@ function RouteCard({ r, mine }){
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2.5">
           <Avatar name={r.driver} size={40}/>
-          <div><div className="font-bold leading-tight">{r.driver}</div><div className="text-xs text-muted">Chauffeur</div></div>
+          <div><div className="font-bold leading-tight">{r.driver}</div><div className="text-xs text-muted">{t('Chauffeur')}</div></div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="text-right"><div className="text-[12px] text-muted flex items-center gap-1 justify-end"><Clock size={11}/> {dir==='out'?'Dépose':'Arrivée'} à {nextStop}</div><div className="text-sm font-extrabold accent-text">≈ {eta} min</div></div>
+          <div className="text-right"><div className="text-[12px] text-muted flex items-center gap-1 justify-end"><Clock size={11}/> {dir==='out'?'Dépose':'Arrivée'} à {nextStop}</div><div className="text-sm font-extrabold accent-text">≈ {eta} {t('min')}</div></div>
           {/* le bouton n'avait aucun handler : il ouvre maintenant vraiment le téléphone */}
           {r.phone
             ? <a href={`tel:${r.phone}`} aria-label={`Appeler ${r.driver} au ${r.phone}`}
                 className="inline-flex items-center justify-center gap-1.5 rounded-xl font-semibold transition text-xs px-3 py-2 bg-canvas border border-line hover:bg-white active:scale-[.98]">
-                <Phone size={14}/> Appeler</a>
-            : <Btn variant="soft" size="sm" disabled title={t('Aucun numéro enregistré pour ce chauffeur')}><Phone size={14}/> Appeler</Btn>}
+                <Phone size={14}/> {t('Appeler')}</a>
+            : <Btn variant="soft" size="sm" disabled title={t('Aucun numéro enregistré pour ce chauffeur')}><Phone size={14}/> {t('Appeler')}</Btn>}
         </div>
       </div>
       <Journey seq={seq} prog={prog} live={live}/>
@@ -85,10 +85,10 @@ export default function Transport(){
   // Chaque tuile s'ouvre : le détail par circuit, pas seulement le total.
   const [tile,setTile]=useState(null) // routes | buses | kids | stops
   return (<>
-    <PageHead title="Transport scolaire" sub={u?.role==='parent'?'Suivez le bus de votre enfant en temps réel.':'Flotte, circuits et suivi en direct.'}/>
+    <PageHead title={t('Transport scolaire')} sub={u?.role==='parent'?'Suivez le bus de votre enfant en temps réel.':'Flotte, circuits et suivi en direct.'}/>
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
-      <StatCard tint="brand"  icon={<Route size={20}/>}  value={routes.length} label="Circuits" onClick={()=>setTile('routes')}/>
-      <StatCard tint="butter" icon={<Bus size={20}/>}    value={buses}         label="Bus en service" onClick={()=>setTile('buses')}/>
+      <StatCard tint="brand"  icon={<Route size={20}/>}  value={routes.length} label={t('Circuits')} onClick={()=>setTile('routes')}/>
+      <StatCard tint="butter" icon={<Bus size={20}/>}    value={buses}         label={t('Bus en service')} onClick={()=>setTile('buses')}/>
       <StatCard tint="sky"    icon={<Users size={20}/>}  value={totalKids}     label={t('Élèves transportés')} onClick={()=>setTile('kids')}/>
       <StatCard tint="mint"   icon={<MapPin size={20}/>} value={stops}         label={t('Arrêts desservis')} onClick={()=>setTile('stops')}/>
     </div>
@@ -97,20 +97,20 @@ export default function Transport(){
       const TITLE={routes:`Circuits · ${routes.length}`,buses:`Bus en service · ${buses}`,kids:`Élèves transportés · ${totalKids}`,stops:`Arrêts desservis · ${stops}`}
       return (
       <Modal open onClose={()=>setTile(null)} title={TITLE[tile]} size="xl"
-        footer={<Btn variant="ghost" onClick={()=>setTile(null)}>Fermer</Btn>}>
+        footer={<Btn variant="ghost" onClick={()=>setTile(null)}>{t('Fermer')}</Btn>}>
         {routes.length===0 ? <EmptyState icon={<Bus size={24}/>} title={t('Aucun circuit de transport')} sub={t('Ajoutez un circuit pour commencer.')}/>
         : <div className="space-y-1.5">
           {routes.map(r=>(
             <div key={r.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
               <Avatar name={r.driver} seed={r.id} size={32}/>
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold truncate">{r.name} <span className="text-muted font-normal"> bus {r.bus}</span></span>
+                <span className="block text-sm font-semibold truncate">{r.name} <span className="text-muted font-normal"> {t('bus')} {r.bus}</span></span>
                 {tile==='stops'
                   ? <span className="flex flex-wrap gap-1 mt-0.5">{(r.stops||[]).map(s=><span key={s} className="text-[11px] font-semibold px-1.5 py-0.5 rounded-full bg-canvas text-muted">{s}</span>)}</span>
                   : <span className="block text-[12px] text-muted truncate">{r.driver} · {(r.stops||[]).length} {t('arrêts ·')} {r.students} {t('élèves')}</span>}
               </span>
               {tile==='kids' && <span className="text-sm font-extrabold accent-text">{r.students}</span>}
-              {tile==='buses' && r.phone && <a href={`tel:${r.phone}`} className="text-xs font-semibold inline-flex items-center gap-1 accent-text"><Phone size={13}/> Appeler</a>}
+              {tile==='buses' && r.phone && <a href={`tel:${r.phone}`} className="text-xs font-semibold inline-flex items-center gap-1 accent-text"><Phone size={13}/> {t('Appeler')}</a>}
             </div>))}
         </div>}
       </Modal>) })()}

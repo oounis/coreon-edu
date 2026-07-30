@@ -116,7 +116,7 @@ function TeacherJournal({ classes }) {
 
               {/* Repas — ce que l'enfant a RÉELLEMENT mangé, pas ce qui a été servi. */}
               <div className="mb-3">
-                <div className="text-xs font-bold text-muted mb-1.5">Repas</div>
+                <div className="text-xs font-bold text-muted mb-1.5">{t('Repas')}</div>
                 <div className="grid gap-1.5">
                   {MEALS.map(m => (
                     <div key={m.key} className="flex items-center gap-2 flex-wrap">
@@ -135,23 +135,23 @@ function TeacherJournal({ classes }) {
 
               {/* Sieste — on note le début, puis la fin. Comme dans la vraie vie. */}
               <div className="mb-3">
-                <div className="text-xs font-bold text-muted mb-1.5">Sieste</div>
+                <div className="text-xs font-bold text-muted mb-1.5">{t('Sieste')}</div>
                 <div className="flex items-center gap-2 flex-wrap">
                   {napping
                     ? <Btn size="sm" variant="soft" onClick={() => { endNap(child.id, date); refresh() }}>
                         <Ic n="Sunrise" size={14} /> {t('Réveillé')}
                       </Btn>
                     : <Btn size="sm" variant="soft" onClick={() => { startNap(child.id, date); refresh() }}>
-                        <Ic n="Moon" size={14} /> S'endort
+                        <Ic n="Moon" size={14} /> {t("S'endort")}
                       </Btn>}
-                  {napping && <span className="text-xs font-bold" style={{ color: STATUS.info }}>Dort depuis {hhmm(j.naps.at(-1).from)}</span>}
-                  {mins > 0 && <span className="text-xs text-muted font-semibold tabular-nums">{mins} min au total</span>}
+                  {napping && <span className="text-xs font-bold" style={{ color: STATUS.info }}>{t('Dort depuis')} {hhmm(j.naps.at(-1).from)}</span>}
+                  {mins > 0 && <span className="text-xs text-muted font-semibold tabular-nums">{mins} {t('min au total')}</span>}
                 </div>
               </div>
 
               {/* Change — crèche et pré-maternelle uniquement. */}
               <div className="mb-3">
-                <div className="text-xs font-bold text-muted mb-1.5">Change</div>
+                <div className="text-xs font-bold text-muted mb-1.5">{t('Change')}</div>
                 <div className="flex items-center gap-2 flex-wrap">
                   {DIAPER.map(dp => (
                     <Pick key={dp.key} label={dp.label} tone={dp.tone}
@@ -167,7 +167,7 @@ function TeacherJournal({ classes }) {
 
               {/* Humeur — observée, jamais jugée. */}
               <div className="mb-3">
-                <div className="text-xs font-bold text-muted mb-1.5">Humeur</div>
+                <div className="text-xs font-bold text-muted mb-1.5">{t('Humeur')}</div>
                 <div className="flex items-center gap-2 flex-wrap">
                   {MOODS.map(m => (
                     <Pick key={m.key} label={m.label} icon={m.icon} on={j.mood === m.key}
@@ -251,7 +251,7 @@ function ParentJournal({ children }) {
               <div className="grid sm:grid-cols-3 gap-3">
                 <div className="rounded-xl p-3" style={{ background: STATUS.okSoft }}>
                   <div className="text-xs font-bold text-muted flex items-center gap-1.5 mb-1.5">
-                    <Ic n="UtensilsCrossed" size={13} /> Repas
+                    <Ic n="UtensilsCrossed" size={13} /> {t('Repas')}
                   </div>
                   {MEALS.filter(m => j.meals?.[m.key]).map(m => (
                     <div key={m.key} className="text-[13px] flex justify-between">
@@ -264,9 +264,9 @@ function ParentJournal({ children }) {
 
                 <div className="rounded-xl p-3" style={{ background: STATUS.infoSoft }}>
                   <div className="text-xs font-bold text-muted flex items-center gap-1.5 mb-1.5">
-                    <Ic n="Moon" size={13} /> Sieste
+                    <Ic n="Moon" size={13} /> {t('Sieste')}
                   </div>
-                  <div className="text-2xl font-extrabold tabular-nums">{mins}<span className="text-sm font-bold text-muted"> min</span></div>
+                  <div className="text-2xl font-extrabold tabular-nums">{mins}<span className="text-sm font-bold text-muted"> {t('min')}</span></div>
                   {j.naps?.filter(n => n.to).map((n, i) => (
                     <div key={i} className="text-[12px] text-muted">{hhmm(n.from)} → {hhmm(n.to)}</div>
                   ))}
@@ -274,7 +274,7 @@ function ParentJournal({ children }) {
 
                 <div className="rounded-xl p-3" style={{ background: STATUS.neutralSoft }}>
                   <div className="text-xs font-bold text-muted flex items-center gap-1.5 mb-1.5">
-                    <Ic n="Baby" size={13} /> Change
+                    <Ic n="Baby" size={13} /> {t('Change')}
                   </div>
                   <div className="text-2xl font-extrabold tabular-nums">{j.diapers?.length || 0}</div>
                   {!!j.diapers?.length && (

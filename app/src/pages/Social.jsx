@@ -58,12 +58,12 @@ export default function Social() {
       // n'écrit pas au nom de l'« Espace parents »
       const spaceLabel = SPACES[ev.space || 'parent'].label
       if (to === 'echoue') {
-        notify({ to: ev.by, kind: 'info', actor: spaceLabel, title: 'Activité annulée', body: `« ${ev.title} » n'a pas réuni ${ev.minParticipants} participants. Personne n'a été débité.`, link: '/app/social' })
-        ev.participants.forEach(p => p.userId !== ev.by && notify({ to: p.userId, kind: 'info', actor: spaceLabel, title: 'Activité annulée', body: `« ${ev.title} » est annulée faute de participants. Vous n'avez rien à payer.`, link: '/app/social' }))
+        notify({ to: ev.by, kind: 'info', actor: spaceLabel, title: t('Activité annulée'), body: `« ${ev.title} » n'a pas réuni ${ev.minParticipants} participants. Personne n'a été débité.`, link: '/app/social' })
+        ev.participants.forEach(p => p.userId !== ev.by && notify({ to: p.userId, kind: 'info', actor: spaceLabel, title: t('Activité annulée'), body: `« ${ev.title} » est annulée faute de participants. Vous n'avez rien à payer.`, link: '/app/social' }))
       }
       if (to === 'soumis') {
         // La chaîne commence à l'Administration ; la Direction tranchera ensuite.
-        notify({ role: 'admin', kind: 'request', actor: 'Espaces', title: 'Activité à instruire',
+        notify({ role: 'admin', kind: 'request', actor: t('Espaces'), title: t('Activité à instruire'),
           body: `« ${ev.title} » a atteint son quorum : vérifiez le lieu et la sécurité, puis visez.`, link: '/app/social' })
       }
     })
@@ -157,14 +157,14 @@ export default function Social() {
       promoted = promoteFromWaitlist(e)
       sweep([e])
     })
-    promoted.forEach(p => notify({ to: p.userId, kind: 'info', actor: SPACES[ev.space || 'parent'].label, title: 'Une place s\'est libérée', body: `Vous participez maintenant à « ${ev.title} ».`, link: '/app/social' }))
+    promoted.forEach(p => notify({ to: p.userId, kind: 'info', actor: SPACES[ev.space || 'parent'].label, title: t('Une place s\'est libérée'), body: `Vous participez maintenant à « ${ev.title} ».`, link: '/app/social' }))
     toast.success(late ? 'Désistement enregistré : pensez à prévenir l\'organisateur, c\'est tardif' : 'Vous ne participez plus')
     refresh()
   }
 
   const cancelOwn = ev => {
     mutate(db => { const e = db.socialEvents.find(x => x.id === ev.id); e.status = 'annule' })
-    ev.participants.forEach(p => p.userId !== u.id && notify({ to: p.userId, kind: 'info', actor: ev.byName, title: 'Activité annulée', body: `« ${ev.title} » a été annulée par l'organisateur. Vous n'avez rien à payer.`, link: '/app/social' }))
+    ev.participants.forEach(p => p.userId !== u.id && notify({ to: p.userId, kind: 'info', actor: ev.byName, title: t('Activité annulée'), body: `« ${ev.title} » a été annulée par l'organisateur. Vous n'avez rien à payer.`, link: '/app/social' }))
     toast.success('Activité annulée : les inscrits sont prévenus'); refresh()
   }
 
@@ -187,9 +187,9 @@ export default function Social() {
     })
 
     if (next === 'vise') {
-      notify({ role: 'schooladmin', kind: 'request', actor: u.name, title: 'Activité visée · décision attendue',
+      notify({ role: 'schooladmin', kind: 'request', actor: u.name, title: t('Activité visée · décision attendue'),
         body: `« ${ev.title} » a été visée par l'Administration. Votre approbation finale est requise.`, link: '/app/social' })
-      notify({ to: ev.by, kind: 'info', actor: roleLabel, title: 'Votre activité avance',
+      notify({ to: ev.by, kind: 'info', actor: roleLabel, title: t('Votre activité avance'),
         body: `« ${ev.title} » est visée par l'Administration ; la Direction doit encore l'approuver.`, link: '/app/social' })
       toast.success('Activité visée : transmise à la Direction pour approbation finale')
       setDecide(null); return refresh()
@@ -204,10 +204,10 @@ export default function Social() {
       // …et l'agent de sécurité est prévenu s'il doit couvrir la soirée.
       const reasons = securityNeeds(ev)
       if (reasons.length) {
-        notify({ role: 'security', kind: 'notice', actor: 'Direction', title: 'Événement à couvrir',
+        notify({ role: 'security', kind: 'notice', actor: t('Direction'), title: t('Événement à couvrir'),
           body: `« ${ev.title} » · ${format(parseISO(ev.date), 'EEEE d MMMM', { locale: df() })} à ${ev.time} · ${ev.place}. ${reasons[0]}`, link: '/app/security' })
         const notice = securityNotice({ ...ev, securityNotifiedAt: Date.now() })
-        if (notice.short) notify({ role: 'schooladmin', kind: 'info', actor: 'Sécurité', title: 'Préavis court pour la sécurité',
+        if (notice.short) notify({ role: 'schooladmin', kind: 'info', actor: t('Sécurité'), title: t('Préavis court pour la sécurité'),
           body: `« ${ev.title} » : l'agent est prévenu ${notice.hours} h avant (minimum ${SECURITY_NOTICE_H} h).`, link: '/app/security' })
       }
     }
@@ -240,12 +240,12 @@ export default function Social() {
       action={canPropose && <Btn onClick={() => { setF(BLANK(mySpace)); setOpen(true) }}><Plus size={16} /> {t('Proposer une activité')}</Btn>} />
 
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-      <StatCard tint="brand" icon={<Sparkles size={20} />} value={live.length} label={t('Activités ouvertes')} sub="inscriptions en cours" onClick={() => setTile('live')} />
+      <StatCard tint="brand" icon={<Sparkles size={20} />} value={live.length} label={t('Activités ouvertes')} sub={t('inscriptions en cours')} onClick={() => setTile('live')} />
       <StatCard tint="butter" icon={<Hourglass size={20} />} value={seesAll ? pendingAll.length : toDecide.length} label={seesAll ? "En cours de validation" : "En attente de l'école"} onClick={() => setTile('pending')} />
       <StatCard tint="mint" icon={<Check size={20} />} value={settled.length} label={t('Confirmées')} onClick={() => setTile('settled')} />
       {seesAll
-        ? <StatCard tint="grape" icon={<Users size={20} />} value={events.length} label="Propositions au total" onClick={() => setTile('last')} />
-        : <StatCard tint="grape" icon={<UserCheck size={20} />} value={myEvents.length} label="Mes participations" onClick={() => setTile('last')} />}
+        ? <StatCard tint="grape" icon={<Users size={20} />} value={events.length} label={t('Propositions au total')} onClick={() => setTile('last')} />
+        : <StatCard tint="grape" icon={<UserCheck size={20} />} value={myEvents.length} label={t('Mes participations')} onClick={() => setTile('last')} />}
     </div>
 
     {tile && (() => {
@@ -253,8 +253,8 @@ export default function Social() {
       const TITLE = { live: 'Activités ouvertes', pending: seesAll ? 'En cours de validation' : "En attente de l'école",
         settled: 'Activités confirmées', last: seesAll ? 'Toutes les propositions' : 'Mes participations' }
       return (
-        <Modal open onClose={() => setTile(null)} title={`${TITLE[tile]} · ${list.length}`} size="xl"
-          footer={<Btn variant="ghost" onClick={() => setTile(null)}>Fermer</Btn>}>
+        <Modal open onClose={() => setTile(null)} title={`${t(TITLE[tile])} · ${list.length}`} size="xl"
+          footer={<Btn variant="ghost" onClick={() => setTile(null)}>{t('Fermer')}</Btn>}>
           {list.length === 0 ? <EmptyState icon={<Sparkles size={24} />} title={t('Aucune activité dans cet état')} sub={t('Rien à afficher pour le moment.')} />
             : <div className="space-y-1.5">
               {list.map(ev => (
@@ -263,7 +263,7 @@ export default function Social() {
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-semibold truncate">{ev.title}</span>
                     <span className="block text-[12px] text-muted truncate">{format(parseISO(ev.date), 'EEEE d MMMM', { locale: df() })} · {ev.time} · {ev.place} {t('· proposé par')} {ev.byName}</span></span>
-                  <span className="text-[12px] text-muted shrink-0">{goingCount(ev)} inscrit(s)</span>
+                  <span className="text-[12px] text-muted shrink-0">{goingCount(ev)} {t('inscrit(s)')}</span>
                 </div>))}
             </div>}
         </Modal>) })()}
@@ -288,7 +288,7 @@ export default function Social() {
                   <AlertTriangle size={12} /> {ev.place} {t('est déjà pris ce jour-là : «')} {clash.title} »
                 </div>}
               </div>
-              <Btn size="sm" onClick={() => setDecide(ev)}>Examiner</Btn>
+              <Btn size="sm" onClick={() => setDecide(ev)}>{t('Examiner')}</Btn>
             </div>)
         })}
       </SectionCard>
@@ -357,7 +357,7 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
         <div className="text-xs">
           {ev.pricePerPerson
             ? <><b>{money(ev.pricePerPerson)} {t('par personne')}</b>{ev.priceCovers && `${ev.priceCovers}`}<div className="text-muted">{t("À régler auprès de l'administration, uniquement si l'école confirme l'activité.")}</div></>
-            : <b>Gratuit</b>}
+            : <b>{t('Gratuit')}</b>}
         </div>
       </div>
 
@@ -377,7 +377,7 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
           </div>
         </div>
         {maybeList(ev).length > 0 && <div className="text-[12px] text-muted">{maybeList(ev).length} {t('« peut-être » · ne comptent pas dans le quorum')}</div>}
-        {waitlist(ev).length > 0 && <div className="text-[12px] text-muted">{waitlist(ev).length} en liste d'attente</div>}
+        {waitlist(ev).length > 0 && <div className="text-[12px] text-muted">{waitlist(ev).length} {t("en liste d'attente")}</div>}
       </>}
 
       {ev.status === 'refuse' && ev.decision?.note && <div className="text-xs rounded-xl px-3 py-2" style={{ background: STATUS.dangerSoft, color: STATUS.danger }}>{t('Refusé par la Direction :')} {ev.decision.note}</div>}
@@ -412,14 +412,14 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
                 <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl" style={{ background: STATUS.okSoft, color: STATUS.ok }}>
                   <Check size={13} />{me.waitlisted ? "En liste d'attente" : me.rsvp === 'oui' ? 'Vous participez' : 'Peut-être'}</span>
                 {stale && <span className="text-[12px] font-bold" style={{ color: STATUS.warn }}>{t('Le prix a changé · reconfirmez')}</span>}
-                {stale && <Btn size="sm" onClick={onJoin}>Reconfirmer</Btn>}
+                {stale && <Btn size="sm" onClick={onJoin}>{t('Reconfirmer')}</Btn>}
                 <Btn size="sm" variant="ghost" onClick={onWithdraw}>{t('Se désister')}</Btn>
               </>
             : blocked
               ? <span className="inline-flex items-center gap-1.5 text-xs text-muted"><Ban size={13} />{blocked}</span>
               : <Btn size="sm" onClick={onJoin}>{isFull(ev) ? "Rejoindre la liste d'attente" : joinButtonLabel(ev)}</Btn>
         )}
-        {mine && isLive(ev.status) && <Btn size="sm" variant="danger" onClick={onCancel}><X size={13} /> Annuler</Btn>}
+        {mine && isLive(ev.status) && <Btn size="sm" variant="danger" onClick={onCancel}><X size={13} /> {t('Annuler')}</Btn>}
         {canDecide(ev, u) && <Btn size="sm" onClick={onDecide}><ShieldCheck size={14} /> {ev.status === 'vise' ? 'Approuver' : 'Instruire'}</Btn>}
       </div>
     </Card>
@@ -435,7 +435,7 @@ function ProposeModal({ open, onClose, f, setF, minDate, onSubmit, useIdea, spac
   const chosen = f.title && !f.custom
   return (
     <Modal open={open} onClose={onClose} title={t('Proposer une activité')} size="2xl"
-      footer={<><Btn variant="ghost" onClick={onClose}>Annuler</Btn><Btn onClick={onSubmit} disabled={!f.title.trim()}>{t('Publier la proposition')}</Btn></>}>
+      footer={<><Btn variant="ghost" onClick={onClose}>{t('Annuler')}</Btn><Btn onClick={onSubmit} disabled={!f.title.trim()}>{t('Publier la proposition')}</Btn></>}>
 
       {/* Le titre est un CHOIX, pas un champ vide : on prend une activité et la
           catégorie, le lieu, la mixité, les enfants, le quorum et le prix suivent. */}
@@ -479,30 +479,30 @@ function ProposeModal({ open, onClose, f, setF, minDate, onSubmit, useIdea, spac
         {chosen && <div className="sm:col-span-2 rounded-xl px-3 py-2.5 flex items-center gap-2.5 text-sm" style={{ background: 'var(--accent-soft)' }}>
           <span className="accent-text"><Ic n={catOf(f.cat).icon} size={18} /></span>
           <span className="font-bold flex-1">{f.title}</span>
-          <button onClick={() => setF({ ...f, custom: true })} className="text-[12px] font-bold accent-text">renommer</button>
+          <button onClick={() => setF({ ...f, custom: true })} className="text-[12px] font-bold accent-text">{t('renommer')}</button>
         </div>}
         <Field label={t('Catégorie')}><Select value={f.cat} onChange={e => setF({ ...f, cat: e.target.value })}>{cats.map(c => <option key={c.k} value={c.k}>{c.label}</option>)}</Select></Field>
-        <Field label="Lieu"><Select value={f.place} onChange={e => setF({ ...f, place: e.target.value })}>{PLACES.map(p => <option key={p}>{p}</option>)}</Select></Field>
+        <Field label={t('Lieu')}><Select value={f.place} onChange={e => setF({ ...f, place: e.target.value })}>{PLACES.map(p => <option key={p}>{p}</option>)}</Select></Field>
         <Field label={`Date * (au plus tôt le ${minDate})`} hint={`L'école a besoin de ${MIN_LEAD_DAYS} jours pour réserver le lieu.`}>
           <Input type="date" min={minDate} value={f.date} onChange={e => setF({ ...f, date: e.target.value })} /></Field>
-        <Field label="Heure"><Input type="time" value={f.time} onChange={e => setF({ ...f, time: e.target.value })} /></Field>
+        <Field label={t('Heure')}><Input type="time" value={f.time} onChange={e => setF({ ...f, time: e.target.value })} /></Field>
 
         <Field label={t('Qui peut participer ?')}><Select value={f.audience} onChange={e => setF({ ...f, audience: e.target.value })}>{AUDIENCES_OF[space].map(a => <option key={a.k} value={a.k}>{a.label}</option>)}</Select></Field>
         <Field label={t('Les enfants')}><Select value={f.kids} onChange={e => setF({ ...f, kids: e.target.value })}>{KIDS.map(k => <option key={k.k} value={k.k}>{k.label}</option>)}</Select></Field>
         {needsReason(f.audience) && <div className="sm:col-span-2"><Field label={t("Pourquoi cette activité n'est-elle pas ouverte à tous ? *")} hint={t('Les autres participants et la Direction liront ce motif.')}>
           <Input value={f.reason} onChange={e => setF({ ...f, reason: e.target.value })} placeholder={t("ex. cours de danse entre mamans, avec garde d'enfants")} /></Field></div>}
 
-        <Field label="Participants minimum" hint={t("En dessous, l'activité s'annule toute seule.")}><Input type="number" min={2} value={f.minParticipants} onChange={e => setF({ ...f, minParticipants: e.target.value })} /></Field>
+        <Field label={t('Participants minimum')} hint={t("En dessous, l'activité s'annule toute seule.")}><Input type="number" min={2} value={f.minParticipants} onChange={e => setF({ ...f, minParticipants: e.target.value })} /></Field>
         <Field label={t('Capacité maximum (optionnel)')} hint={t("Au-delà : liste d'attente.")}><Input type="number" min={1} value={f.maxParticipants} onChange={e => setF({ ...f, maxParticipants: e.target.value })} placeholder={t('illimité')} /></Field>
 
         <Field label={`Prix par personne (${currency()})`} hint="0 = gratuit."><Input type="number" min={0} value={f.pricePerPerson} onChange={e => setF({ ...f, pricePerPerson: e.target.value })} /></Field>
         {Number(f.pricePerPerson) > 0 && <Field label={t('Le prix couvre… *')}><Input value={f.priceCovers} onChange={e => setF({ ...f, priceCovers: e.target.value })} placeholder={t("ex. la location du terrain et l'arbitre")} /></Field>}
 
-        <div className="sm:col-span-2"><Field label="Description"><Textarea rows={3} value={f.desc} onChange={e => setF({ ...f, desc: e.target.value })} placeholder={t("Ce qui est prévu, ce qu'il faut apporter…")} /></Field></div>
+        <div className="sm:col-span-2"><Field label={t('Description')}><Textarea rows={3} value={f.desc} onChange={e => setF({ ...f, desc: e.target.value })} placeholder={t("Ce qui est prévu, ce qu'il faut apporter…")} /></Field></div>
       </div>
 
       <p className="text-[12px] text-muted mt-3">
-        {t('Votre proposition reste ouverte')} <b>{RSVP_WINDOW_H} h</b>. Si <b>{f.minParticipants || DEFAULT_MIN} personnes</b> {t("s'inscrivent, elle part à l'Administration, qui l'instruit, puis à la Direction, qui l'approuve et réserve le lieu. Sinon elle s'annule et")} <b>personne ne paie</b>. L'argent n'est jamais prélevé ici : il se règle auprès de l'administration, après confirmation.
+        {t('Votre proposition reste ouverte')} <b>{RSVP_WINDOW_H} h</b>. Si <b>{f.minParticipants || DEFAULT_MIN} {t('personnes')}</b> {t("s'inscrivent, elle part à l'Administration, qui l'instruit, puis à la Direction, qui l'approuve et réserve le lieu. Sinon elle s'annule et")} <b>{t('personne ne paie')}</b>. L'argent n'est jamais prélevé ici : il se règle auprès de l'administration, après confirmation.
       </p>
     </Modal>
   )
@@ -524,7 +524,7 @@ function JoinModal({ ev, u, onClose, onConfirm }) {
 
   return (
     <Modal open onClose={onClose} title={ev.title} size="lg"
-      footer={<><Btn variant="ghost" onClick={onClose}>Annuler</Btn>
+      footer={<><Btn variant="ghost" onClick={onClose}>{t('Annuler')}</Btn>
         <Btn disabled={needsConsent && !agreed} onClick={() => onConfirm(ev, { rsvp, adults, children: kidsAllowed ? children : 0 })}>
           {rsvp === 'peut-etre' ? 'Enregistrer « peut-être »' : wait ? "Rejoindre la liste d'attente" : joinButtonLabel(ev)}
         </Btn></>}>
@@ -538,14 +538,14 @@ function JoinModal({ ev, u, onClose, onConfirm }) {
       <p className="text-[12px] text-muted -mt-2 mb-4">{t("« Peut-être » ne compte pas dans le quorum : c'est un signal pour l'organisateur.")}</p>
 
       {rsvp === 'oui' && <div className="grid sm:grid-cols-2 gap-3 mb-4">
-        <Field label="Adultes"><Input type="number" min={1} max={4} value={adults} onChange={e => setAdults(Math.max(1, Number(e.target.value) || 1))} /></Field>
+        <Field label={t('Adultes')}><Input type="number" min={1} max={4} value={adults} onChange={e => setAdults(Math.max(1, Number(e.target.value) || 1))} /></Field>
         {kidsAllowed
-          ? <Field label="Enfants" hint={kid.hint}><Input type="number" min={0} max={6} value={children} onChange={e => setChildren(Math.max(0, Number(e.target.value) || 0))} /></Field>
-          : <Field label="Enfants"><div className="text-sm rounded-xl border border-line px-3 py-2.5 text-muted flex items-center gap-1.5"><Baby size={14} />{kid.label}</div></Field>}
+          ? <Field label={t('Enfants')} hint={kid.hint}><Input type="number" min={0} max={6} value={children} onChange={e => setChildren(Math.max(0, Number(e.target.value) || 0))} /></Field>
+          : <Field label={t('Enfants')}><div className="text-sm rounded-xl border border-line px-3 py-2.5 text-muted flex items-center gap-1.5"><Baby size={14} />{kid.label}</div></Field>}
       </div>}
 
       {wait && <div className="text-xs rounded-xl px-3 py-2.5 mb-4" style={{ background: STATUS.infoSoft, color: '#0B5E86' }}>
-        {t("L'activité est complète : vous serez placé en")} <b>liste d'attente</b> {t("et prévenu dès qu'une place se libère.")}</div>}
+        {t("L'activité est complète : vous serez placé en")} <b>{t("liste d'attente")}</b> {t("et prévenu dès qu'une place se libère.")}</div>}
 
       {/* Le prix, puis le consentement explicite. Case jamais pré-cochée. */}
       {rsvp === 'oui' && (price > 0
@@ -573,7 +573,7 @@ function DecideModal({ ev, clash, onClose, onSettle, role }) {
   const reasons = securityNeeds(ev)
   return (
     <Modal open onClose={onClose} title={isFinal ? "Approuver l'activité" : "Instruire l'activité"} size="lg"
-      footer={<><Btn variant="danger" onClick={() => onSettle(ev, false, note)}><X size={15} /> Refuser</Btn>
+      footer={<><Btn variant="danger" onClick={() => onSettle(ev, false, note)}><X size={15} /> {t('Refuser')}</Btn>
         <Btn onClick={() => onSettle(ev, true, note)}><Check size={15} /> {isFinal ? "Approuver & réserver" : "Viser & transmettre à la Direction"}</Btn></>}>
       <div className="space-y-2 text-sm">
         <div className="font-extrabold text-base flex items-center gap-2"><Ic n={catOf(ev.cat).icon} size={17} className="accent-text" />{ev.title}</div>
@@ -602,7 +602,7 @@ function DecideModal({ ev, clash, onClose, onSettle, role }) {
         </div>}
         <p className="text-[12px] text-muted">{isFinal
           ? `En approuvant, l'activité entre au calendrier de l'école, les ${adultCount(ev)} inscrits sont prévenus${ev.pricePerPerson ? ' du montant à régler' : ''}${reasons.length ? ", et l'agent de sécurité reçoit sa feuille de route" : ''}.`
-          : "En visant, vous transmettez à la Direction, qui décidera. Rien n'est confirmé aux participants tant qu'elle n'a pas approuvé."} En refusant, personne ne paie.</p>
+          : "En visant, vous transmettez à la Direction, qui décidera. Rien n'est confirmé aux participants tant qu'elle n'a pas approuvé."} {t('En refusant, personne ne paie.')}</p>
       </div>
     </Modal>
   )

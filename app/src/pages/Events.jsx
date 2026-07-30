@@ -48,7 +48,7 @@ export default function Events(){
     const ev={id:uid('e'),date:f.date,time:f.time,title:f.title.trim(),type:f.type,desc:f.desc.trim(),place:f.place.trim(),audience:f.audience,by:u.name}
     mutate(d=>{ d.events.push(ev) })
     const roles = f.audience==='all' ? ['parent','teacher','supervisor'] : [f.audience]
-    roles.forEach(r=>notify({role:r,kind:'notice',actor:u.name,title:'Nouvel événement · '+f.title.trim(),body:`${format(parseISO(f.date),'d MMM',{locale: df()})}${f.time?' à '+f.time:''}`,link:'/app/events'}))
+    roles.forEach(r=>notify({role:r,kind:'notice',actor:u.name,title:t('Nouvel événement · ')+f.title.trim(),body:`${format(parseISO(f.date),'d MMM',{locale: df()})}${f.time?' à '+f.time:''}`,link:'/app/events'}))
     toast.success('Événement ajouté au calendrier'); setOpen(false); setSel(f.date); setCursor(startOfMonth(parseISO(f.date))); bump()
   }
   const del=(ev)=>{
@@ -70,7 +70,7 @@ export default function Events(){
           <div className="text-lg font-extrabold capitalize">{format(cursor,'MMMM yyyy',{locale: df()})}</div>
           <div className="flex items-center gap-1">
             <button onClick={()=>setCursor(subMonths(cursor,1))} className="w-9 h-9 grid place-items-center rounded-lg hover:bg-canvas"><ChevronLeft size={18}/></button>
-            <button onClick={()=>{setCursor(startOfMonth(new Date()));setSel(format(new Date(),'yyyy-MM-dd'))}} className="px-3 h-9 rounded-lg text-sm font-semibold hover:bg-canvas">Aujourd’hui</button>
+            <button onClick={()=>{setCursor(startOfMonth(new Date()));setSel(format(new Date(),'yyyy-MM-dd'))}} className="px-3 h-9 rounded-lg text-sm font-semibold hover:bg-canvas">{t('Aujourd’hui')}</button>
             <button onClick={()=>setCursor(addMonths(cursor,1))} className="w-9 h-9 grid place-items-center rounded-lg hover:bg-canvas"><ChevronRight size={18}/></button>
           </div>
         </div>
@@ -116,7 +116,7 @@ export default function Events(){
                     <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[12px] text-muted mt-0.5">
                       {e.time&&<span className="flex items-center gap-1"><Clock size={11}/>{e.time}</span>}
                       {e.place&&<span className="flex items-center gap-1"><MapPin size={11}/>{e.place}</span>}
-                      <span className="flex items-center gap-1"><Users size={11}/>{AUD[e.audience]||'Toute l’école'}</span>
+                      <span className="flex items-center gap-1"><Users size={11}/>{t(AUD[e.audience])||'Toute l’école'}</span>
                     </div>
                     {e.desc&&<div className="text-xs text-muted mt-1">{e.desc}</div>}
                   </div>
@@ -142,20 +142,20 @@ export default function Events(){
     </div>
 
     <Modal open={open} onClose={()=>setOpen(false)} title={t('Nouvel événement')}
-      footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={add}>Ajouter au calendrier</Btn></>}>
+      footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>{t('Annuler')}</Btn><Btn onClick={add}>{t('Ajouter au calendrier')}</Btn></>}>
       <div className="grid sm:grid-cols-2 gap-3">
-        <Field label="Titre"><Input value={f.title} onChange={e=>setF({...f,title:e.target.value})} placeholder={t('ex. Réunion parents')}/></Field>
-        <Field label="Type"><Select value={f.type} onChange={e=>setF({...f,type:e.target.value})}>{TYPES.map(v=><option key={v.k}>{v.k}</option>)}</Select></Field>
-        <Field label="Date"><Input type="date" value={f.date} onChange={e=>setF({...f,date:e.target.value})}/></Field>
-        <Field label="Heure (optionnel)"><Input type="time" value={f.time} onChange={e=>setF({...f,time:e.target.value})}/></Field>
-        <Field label="Lieu (optionnel)"><Input value={f.place} onChange={e=>setF({...f,place:e.target.value})} placeholder={t('ex. Salle des fêtes')}/></Field>
-        <Field label="Destinataires"><Select value={f.audience} onChange={e=>setF({...f,audience:e.target.value})}>{Object.entries(AUD).map(([k,v])=><option key={k} value={k}>{v}</option>)}</Select></Field>
-        <div className="sm:col-span-2"><Field label="Description (optionnel)"><Textarea rows={3} value={f.desc} onChange={e=>setF({...f,desc:e.target.value})} placeholder={t('Détails de l’événement…')}/></Field></div>
+        <Field label={t('Titre')}><Input value={f.title} onChange={e=>setF({...f,title:e.target.value})} placeholder={t('ex. Réunion parents')}/></Field>
+        <Field label={t('Type')}><Select value={f.type} onChange={e=>setF({...f,type:e.target.value})}>{TYPES.map(v=><option key={v.k}>{v.k}</option>)}</Select></Field>
+        <Field label={t('Date')}><Input type="date" value={f.date} onChange={e=>setF({...f,date:e.target.value})}/></Field>
+        <Field label={t('Heure (optionnel)')}><Input type="time" value={f.time} onChange={e=>setF({...f,time:e.target.value})}/></Field>
+        <Field label={t('Lieu (optionnel)')}><Input value={f.place} onChange={e=>setF({...f,place:e.target.value})} placeholder={t('ex. Salle des fêtes')}/></Field>
+        <Field label={t('Destinataires')}><Select value={f.audience} onChange={e=>setF({...f,audience:e.target.value})}>{Object.entries(AUD).map(([k,v])=><option key={k} value={k}>{v}</option>)}</Select></Field>
+        <div className="sm:col-span-2"><Field label={t('Description (optionnel)')}><Textarea rows={3} value={f.desc} onChange={e=>setF({...f,desc:e.target.value})} placeholder={t('Détails de l’événement…')}/></Field></div>
       </div>
     </Modal>
 
     <Modal open={!!confirmDel} onClose={()=>setConfirmDel(null)} title={t('Supprimer cet événement ?')} size="sm"
-      footer={<><Btn variant="ghost" onClick={()=>setConfirmDel(null)}>Annuler</Btn><Btn onClick={()=>del(confirmDel)}><Trash2 size={15}/> Supprimer</Btn></>}>
+      footer={<><Btn variant="ghost" onClick={()=>setConfirmDel(null)}>{t('Annuler')}</Btn><Btn onClick={()=>del(confirmDel)}><Trash2 size={15}/> {t('Supprimer')}</Btn></>}>
       <p className="text-sm text-muted">« {confirmDel?.title} {t("» sera retiré du calendrier de l'école. Cette action est définitive.")}</p>
     </Modal>
   </>)

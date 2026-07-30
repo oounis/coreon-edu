@@ -29,7 +29,7 @@ function useStaff() {
     const LABELS = { admin: 'Administration', supervisor: 'Surveillant', security: 'Sécurité', schooladmin: 'Direction', hr: 'Ressources humaines', accountant: 'Comptabilité' }
     const u = (d.users || [])
       .filter(x => ['admin', 'supervisor', 'security', 'schooladmin', 'hr', 'accountant'].includes(x.role))
-      .map(x => ({ id: x.id, name: x.name, role: x.position || LABELS[x.role] }))
+      .map(x => ({ id: x.id, name: x.name, role: x.position || t(LABELS[x.role]) }))
     return [...val, ...u]
   }, [d])
 }
@@ -43,11 +43,11 @@ export default function HR() {
 
   return (
     <>
-      <PageHead title="Ressources humaines" sub={t('Contrats, congés, paie · sans surprise.')} />
+      <PageHead title={t('Ressources humaines')} sub={t('Contrats, congés, paie · sans surprise.')} />
       <Tabs value={tab} onChange={setTab} tabs={[
-        { value: 'equipe', label: 'Équipe' },
-        { value: 'conges', label: 'Congés' },
-        { value: 'paie',   label: 'Paie' },
+        { value: 'equipe', label: t('Équipe') },
+        { value: 'conges', label: t('Congés') },
+        { value: 'paie',   label: t('Paie') },
       ]} />
       <div className="mt-5">
         {tab === 'equipe' && <Team staff={staff} refresh={refresh} />}
@@ -111,7 +111,7 @@ function Team({ staff, refresh }) {
       </div>
 
       <Modal open={!!edit} onClose={() => setEdit(null)} title={edit ? `Contrat · ${edit.name}` : ''}
-        footer={<><Btn variant="ghost" onClick={() => setEdit(null)}>Annuler</Btn><Btn onClick={saveIt}>Enregistrer</Btn></>}>
+        footer={<><Btn variant="ghost" onClick={() => setEdit(null)}>{t('Annuler')}</Btn><Btn onClick={saveIt}>{t('Enregistrer')}</Btn></>}>
         <div className="grid gap-4">
           <Field label={t('Type de contrat')}>
             <Select value={f.kind} onChange={e => setF({ ...f, kind: e.target.value })}>
@@ -130,7 +130,7 @@ function Team({ staff, refresh }) {
             </Field>
           </div>
           <div className="flex items-center justify-between rounded-xl px-4 py-2.5 text-sm font-semibold" style={{ background: STATUS.infoSoft, color: STATUS.info }}>
-            <span>Salaire mensuel brut</span>
+            <span>{t('Salaire mensuel brut')}</span>
             <span className="tabular-nums font-extrabold">{money(fGross)}</span>
           </div>
           <Field label={t('Date d’entrée')}>
@@ -184,8 +184,8 @@ function Leaves({ staff, me, refresh }) {
                       <Ic n="Lock" size={12} /> {t('Votre demande : un autre responsable doit décider')}
                     </span>
                   : <>
-                      <Btn size="sm" variant="ghost" onClick={() => decide(l, 'refuse')}>Refuser</Btn>
-                      <Btn size="sm" onClick={() => decide(l, 'accorde')}>Accorder</Btn>
+                      <Btn size="sm" variant="ghost" onClick={() => decide(l, 'refuse')}>{t('Refuser')}</Btn>
+                      <Btn size="sm" onClick={() => decide(l, 'accorde')}>{t('Accorder')}</Btn>
                     </>
               )}
             </div>
@@ -239,19 +239,19 @@ function Payroll({ staff, me, refresh }) {
   return (
     <>
       <Card className="p-4 flex items-center gap-3 flex-wrap mb-4">
-        <Field label="Mois"><Input type="month" value={month} onChange={e => setMonth(e.target.value)} /></Field>
+        <Field label={t('Mois')}><Input type="month" value={month} onChange={e => setMonth(e.target.value)} /></Field>
         <span className="flex-1" />
         {p && <Badge label={st.label} tone={st.tone} />}
         {p && <span className="text-lg font-extrabold tabular-nums">{money(p.total)}</span>}
         {!p && <Btn onClick={prepare}><Ic n="Calculator" size={15} /> {t('Préparer la paie')}</Btn>}
         {p?.stage === 'brouillon' && <>
-          <Btn variant="soft" onClick={prepare}>Recalculer</Btn>
+          <Btn variant="soft" onClick={prepare}>{t('Recalculer')}</Btn>
           {iPrepared
             // MAKER-CHECKER : le préparateur ne valide pas sa propre paie.
             ? <span className="text-xs text-muted font-semibold flex items-center gap-1">
                 <Ic n="Lock" size={12} /> {t('Vous avez préparé : une autre personne valide')}
               </span>
-            : <Btn onClick={validate}><Ic n="Lock" size={15} /> Valider</Btn>}
+            : <Btn onClick={validate}><Ic n="Lock" size={15} /> {t('Valider')}</Btn>}
         </>}
         {p?.stage === 'valide' && <Btn onClick={pay}><Ic n="Check" size={15} /> {t('Marquer payée')}</Btn>}
       </Card>
@@ -272,7 +272,7 @@ function Payroll({ staff, me, refresh }) {
             <div className="px-5 py-3 flex items-center gap-2 text-[13px] font-semibold"
               style={{ background: STATUS.infoSoft, color: STATUS.info }}>
               <Ic n="Lock" size={14} />
-              Paie {p.preparedBy && `préparée par ${p.preparedBy}, `}{t('validée par')} {p.validatedBy} {t('· elle ne peut plus être modifiée. Une correction se fait par un ajustement daté, jamais en réécrivant l’histoire.')}
+              {t('Paie')} {p.preparedBy && `préparée par ${p.preparedBy}, `}{t('validée par')} {p.validatedBy} {t('· elle ne peut plus être modifiée. Une correction se fait par un ajustement daté, jamais en réécrivant l’histoire.')}
             </div>
           )}
           <div className="overflow-x-auto">
@@ -280,13 +280,13 @@ function Payroll({ staff, me, refresh }) {
               <thead>
                 <tr className="text-left text-xs font-bold text-muted border-b border-line">
                   <th className="px-5 py-3">{t('Employé')}</th>
-                  <th className="px-3 py-3">Contrat</th>
-                  <th className="px-3 py-3 text-right">Brut</th>
+                  <th className="px-3 py-3">{t('Contrat')}</th>
+                  <th className="px-3 py-3 text-right">{t('Brut')}</th>
                   <th className="px-3 py-3 text-right">{t('Sans solde')}</th>
-                  <th className="px-3 py-3 text-right">Retenue</th>
-                  <th className="px-3 py-3 text-right">Prime</th>
-                  <th className="px-3 py-3 text-right">Net</th>
-                  <th className="px-5 py-3 text-right">Bulletin</th>
+                  <th className="px-3 py-3 text-right">{t('Retenue')}</th>
+                  <th className="px-3 py-3 text-right">{t('Prime')}</th>
+                  <th className="px-3 py-3 text-right">{t('Net')}</th>
+                  <th className="px-5 py-3 text-right">{t('Bulletin')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -317,7 +317,7 @@ function Payroll({ staff, me, refresh }) {
                     <td className="px-3 py-3 text-right font-extrabold tabular-nums">{money(l.net)}</td>
                     <td className="px-5 py-3 text-right">
                       <Btn size="sm" variant="ghost" onClick={() => setSlip(l)} title={t('Ouvrir le bulletin de paie')}>
-                        <Ic n="FileText" size={14} /> Bulletin
+                        <Ic n="FileText" size={14} /> {t('Bulletin')}
                       </Btn>
                     </td>
                   </tr>
@@ -325,7 +325,7 @@ function Payroll({ staff, me, refresh }) {
               </tbody>
               <tfoot>
                 <tr className="bg-canvas font-extrabold">
-                  <td className="px-5 py-3" colSpan={6}>Total</td>
+                  <td className="px-5 py-3" colSpan={6}>{t('Total')}</td>
                   <td className="px-3 py-3 text-right tabular-nums">{money(p.total)}</td>
                   <td className="px-5 py-3" />
                 </tr>

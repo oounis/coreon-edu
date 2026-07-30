@@ -42,7 +42,7 @@ export default function Recruit() {
   const candPost = cand ? posts().find(p => p.id === cand.postId) : null
 
   return (<>
-    <PageHead title="Recrutement" sub={t("Reçue → entretien → offre → embauchée. Personne ne passe à l'offre sans entretien.")}
+    <PageHead title={t('Recrutement')} sub={t("Reçue → entretien → offre → embauchée. Personne ne passe à l'offre sans entretien.")}
       action={<Btn onClick={() => setOpenP(true)}><Plus size={15} /> {t('Ouvrir un poste')}</Btn>} />
 
     {posts().length === 0
@@ -54,7 +54,7 @@ export default function Recruit() {
           <SectionCard key={p.id} icon={<UserPlus size={16} />} tint={open ? 'brand' : 'slate'} className="mb-4"
             title={p.title} sub={`${p.type} · ${list.length} candidature(s)`}
             action={<div className="flex gap-2">
-              {open && <Btn size="sm" variant="soft" onClick={() => setOpenC(p.id)}><Plus size={14} /> Candidature</Btn>}
+              {open && <Btn size="sm" variant="soft" onClick={() => setOpenC(p.id)}><Plus size={14} /> {t('Candidature')}</Btn>}
               <Btn size="sm" variant="ghost" onClick={() => { closePost(p.id, u.name); refresh() }}>{open ? 'Fermer le poste' : 'Rouvrir'}</Btn>
             </div>} bodyClass="p-3">
             {list.length === 0
@@ -75,10 +75,10 @@ export default function Recruit() {
 
     <Modal open={!!view} onClose={() => setView(null)} title={cand ? cand.name : ''} size="xl"
       footer={cand && !R_STAGES[cand.stage].terminal ? <>
-        <Btn variant="ghost" onClick={() => move(cand.id, 'refusee')}><X size={15} /> Refuser</Btn>
+        <Btn variant="ghost" onClick={() => move(cand.id, 'refusee')}><X size={15} /> {t('Refuser')}</Btn>
         {R_STAGES[cand.stage].next.filter(s => s !== 'refusee').map(s =>
           <Btn key={s} onClick={() => move(cand.id, s)}><Check size={15} /> {R_STAGES[s].label}</Btn>)}
-      </> : <Btn variant="ghost" onClick={() => setView(null)}>Fermer</Btn>}>
+      </> : <Btn variant="ghost" onClick={() => setView(null)}>{t('Fermer')}</Btn>}>
       {cand && <>
         <div className="flex items-center gap-3 mb-3">
           <Avatar name={cand.name} seed={cand.id} size={44} />
@@ -92,7 +92,7 @@ export default function Recruit() {
           <div className="flex items-center gap-1.5"><Mail size={13} className="text-muted" /> {cand.email ? <a className="accent-text font-semibold" href={`mailto:${cand.email}`}>{cand.email}</a> : '·'}</div>
         </div>
         {cand.note && <p className="text-sm text-muted mb-3">« {cand.note} »</p>}
-        <div className="text-xs font-bold uppercase text-muted mb-1">Parcours</div>
+        <div className="text-xs font-bold uppercase text-muted mb-1">{t('Parcours')}</div>
         {cand.history.map((h, i) => (
           <div key={i} className="text-xs py-1 border-b border-line last:border-0">
             <b>{R_STAGES[h.stage]?.label}</b> {h.by} · {format(new Date(h.at), 'd MMM yyyy HH:mm', { locale: df() })}
@@ -101,25 +101,25 @@ export default function Recruit() {
         {!R_STAGES[cand.stage].terminal && <div className="mt-3">
           <Field label={t('Note (obligatoire pour un refus)')}><Textarea value={note} onChange={e => setNote(e.target.value)} className="h-16" placeholder={t("Compte rendu d'entretien, motif de refus…")} /></Field>
         </div>}
-        {cand.stage === 'embauchee' && <p className="text-[12px] text-muted mt-3">{t('Embauchée ✓ : créez maintenant son contrat dans')} <b>RH & Paie</b> {t('et son compte dans')} <b>Comptes</b>.</p>}
+        {cand.stage === 'embauchee' && <p className="text-[12px] text-muted mt-3">{t('Embauchée ✓ : créez maintenant son contrat dans')} <b>{t('RH & Paie')}</b> {t('et son compte dans')} <b>{t('Comptes')}</b>.</p>}
       </>}
     </Modal>
 
     <Modal open={openP} onClose={() => setOpenP(false)} title={t('Ouvrir un poste')}
-      footer={<><Btn variant="ghost" onClick={() => setOpenP(false)}>Annuler</Btn><Btn onClick={submitPost}>Ouvrir</Btn></>}>
+      footer={<><Btn variant="ghost" onClick={() => setOpenP(false)}>{t('Annuler')}</Btn><Btn onClick={submitPost}>{t('Ouvrir')}</Btn></>}>
       <div className="grid sm:grid-cols-2 gap-3">
         <Field label={t('Intitulé *')}><Input value={fp.title} onChange={e => setFp({ ...fp, title: e.target.value })} placeholder={t('Éducatrice petite enfance')} /></Field>
-        <Field label="Type"><Select value={fp.type} onChange={e => setFp({ ...fp, type: e.target.value })}>{POST_TYPES.map(v => <option key={v}>{v}</option>)}</Select></Field>
+        <Field label={t('Type')}><Select value={fp.type} onChange={e => setFp({ ...fp, type: e.target.value })}>{POST_TYPES.map(v => <option key={v}>{v}</option>)}</Select></Field>
       </div>
     </Modal>
 
-    <Modal open={!!openC} onClose={() => setOpenC(null)} title="Nouvelle candidature"
-      footer={<><Btn variant="ghost" onClick={() => setOpenC(null)}>Annuler</Btn><Btn onClick={submitCand}>Enregistrer</Btn></>}>
+    <Modal open={!!openC} onClose={() => setOpenC(null)} title={t('Nouvelle candidature')}
+      footer={<><Btn variant="ghost" onClick={() => setOpenC(null)}>{t('Annuler')}</Btn><Btn onClick={submitCand}>{t('Enregistrer')}</Btn></>}>
       <div className="grid sm:grid-cols-2 gap-3">
         <Field label={t('Nom & prénom *')}><Input value={fc.name} onChange={e => setFc({ ...fc, name: e.target.value })} /></Field>
         <Field label={t('Téléphone')}><Input value={fc.phone} onChange={e => setFc({ ...fc, phone: e.target.value })} placeholder="+216 …" /></Field>
-        <Field label="E-mail"><Input value={fc.email} onChange={e => setFc({ ...fc, email: e.target.value })} /></Field>
-        <div className="sm:col-span-2"><Field label="Note"><Textarea value={fc.note} onChange={e => setFc({ ...fc, note: e.target.value })} className="h-16" placeholder={t('Expérience, diplômes, disponibilité…')} /></Field></div>
+        <Field label={t('E-mail')}><Input value={fc.email} onChange={e => setFc({ ...fc, email: e.target.value })} /></Field>
+        <div className="sm:col-span-2"><Field label={t('Note')}><Textarea value={fc.note} onChange={e => setFc({ ...fc, note: e.target.value })} className="h-16" placeholder={t('Expérience, diplômes, disponibilité…')} /></Field></div>
       </div>
     </Modal>
   </>)

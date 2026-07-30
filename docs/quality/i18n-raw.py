@@ -33,21 +33,110 @@ def strip_comments(s):
     s = re.sub(r'/\*.*?\*/', '', s, flags=re.S)
     return re.sub(r'^\s*//.*$', '', s, flags=re.M)
 
+# ── LES DEUX ANGLES MORTS DE LA PREMIÈRE VERSION (trouvés le 2026-07-30) ─────
+# Le « 0 phrase en dur » du 2026-07-29 était honnête DANS SA DÉFINITION, et
+# cette définition laissait passer le français le plus visible de tous :
+#
+#   1. LES MOTS SANS INDICE FRANÇAIS. `FR_HINT` exige un accent ou un mot-outil.
+#      « Annuler », « Enregistrer », « Fermer », « Montant », « Retenues » n'ont
+#      ni l'un ni l'autre : ce sont les LIBELLÉS DE BOUTONS, et 15 d'entre eux
+#      étaient DÉJÀ traduits au dictionnaire — l'écran restait français parce que
+#      l'appel ne demandait jamais la traduction. Invisible aux DEUX outils :
+#      l'audit ne voit pas une clé qu'on ne lui demande pas, et le détecteur ne
+#      voyait pas un mot sans accent.
+#   2. LES CLÉS D'OBJET PORTEUSES DE TEXTE. On ne regardait que sept props JSX.
+#      Les tables d'étiquettes (`{present:'Présent', due:'Impayé'}`), les
+#      descriptions de modules (`desc:`), les colonnes (`what:`) sont du texte
+#      d'interface qui n'a jamais vu `t()`.
+#
+# Ce qui n'est PAS du texte à traduire, et qu'on nomme ici une fois pour toutes
+# plutôt que de le redécouvrir à chaque passage :
+NOT_TEXT = re.compile(
+    r'^(Coreon( Edu)?|coreon|edu|Kogia( ?Group)?|E-mail|Ctrl( K)?|esc|Esc|OK|CSV|PDF|'
+    r'ZIP|API|URL|ID|OneRoster.*|sourcedId|manifest|Gradebook|Clever|Wonde|LMS|'
+    r'English|Français|العربية)$', re.I)
+# Ce que le motif `>…<` attrape ENCORE, et qui n'est pas du texte : une lecture de
+# propriété (`x.avg` entre le `>` d'une flèche et le `<` d'une comparaison), un
+# identifiant camelCase (`classId`), une variable d'une lettre. L'outil travaille
+# au motif : il ne peut pas le SAVOIR, on le lui NOMME.
+NOT_PROSE = re.compile(r'^([a-z][A-Za-z0-9_]*\.[a-z]|[a-z]+[A-Z][A-Za-z]*$|.$)')
+# Clés d'objet qui ne portent jamais de texte d'interface (style, technique).
+NOT_TEXT_KEY = re.compile(
+    r'^(fontFamily|font|className|class|style|color|background|border|src|href|to|'
+    r'path|route|key|id|type|icon|size|variant|align|dir|lang|locale|format|'
+    r'currency|method|mode|role|tag|name)$')
+# Un mot ou une expression : au moins une lettre, pas une expression de code.
+WORDISH = re.compile(r'^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\'’·\-– ,\.!?]{0,60}$')
+# Les balises JSX elles-mêmes, attrapées par le motif `>…<` sur un saut de ligne.
+TAGNAME = re.compile(
+    r'^(br|hr|div|span|p|b|i|em|strong|code|pre|td|th|tr|li|ul|ol|option|'
+    r'button|input|label|form|section|main|nav|header|footer|small|sup|sub)$')
+
+
 def findings(path):
     src = strip_comments(open(path, encoding='utf-8').read())
     out = []
+    seen = set()
+
+    def add(line, what):
+        if (line, what) not in seen:
+            seen.add((line, what))
+            out.append((line, what))
+
     # 1) TEXTE JSX entre balises : >  Bonjour tout le monde  <
     for m in re.finditer(r'>([^<>{}\n]{4,120})<', src):
         txt = m.group(1).strip()
         if not txt or IGNORE.match(txt) or CODEISH.search(txt) or not FR_HINT.search(txt):
             continue
-        out.append((src[:m.start()].count('\n') + 1, txt))
+        add(src[:m.start()].count('\n') + 1, txt)
+    # 1 bis) ANGLE MORT 1 — le MOT d'interface, même sans accent ni mot-outil.
+    for m in re.finditer(r'>([^<>{}\n]{2,60})<', src):
+        txt = m.group(1).strip()
+        if (not txt or IGNORE.match(txt) or CODEISH.search(txt) or NOT_PROSE.match(txt)
+                or TAGNAME.match(txt) or NOT_TEXT.match(txt) or not WORDISH.match(txt)):
+            continue
+        add(src[:m.start()].count('\n') + 1, txt)
     # 2) PROPS de texte : title="…", sub='…', label=…, placeholder=…
     for m in re.finditer(r'\b(title|sub|label|placeholder|hint|alt|aria-label)\s*=\s*(["\'])([^"\']{4,160})\2', src):
         txt = m.group(3).strip()
         if IGNORE.match(txt) or not FR_HINT.search(txt):
             continue
-        out.append((src[:m.start()].count('\n') + 1, f'{m.group(1)}="{txt}"'))
+        add(src[:m.start()].count('\n') + 1, f'{m.group(1)}="{txt}"')
+    # 2 bis) ANGLE MORT 2 — toute CLÉ D'OBJET qui porte du texte français.
+    #
+    # MAIS une table d'étiquettes n'est PAS un défaut : c'est le bon patron.
+    # `{paid:'Payé'}` lu par `t(COL_FR[p.status])` est correctement traduit — le
+    # français y est la CLÉ du dictionnaire, exactement comme `t('Payé')`. Au
+    # niveau module c'est même la SEULE forme correcte : `t()` évalué à
+    # l'import s'exécuterait avant `loadDict()` dans les pages chargées tôt et
+    # figerait le français.
+    # On ne signale donc que ce qui n'est lu par AUCUN `t(…)` : on relève les
+    # jetons cités dans les appels à `t()` (le nom de la table, `COL_FR`, et les
+    # propriétés lues, `.label`, `.what`), et on épargne les définitions qui en
+    # font partie. Sans cela l'outil accusait 70 lignes déjà traduites, et un
+    # « 0 » devenait impossible à atteindre — donc ininterprétable.
+    wired = set()
+    for c in re.finditer(r'\bt\(([^()]*(?:\([^()]*\)[^()]*)*)\)', src):
+        inner = c.group(1)
+        wired.update(re.findall(r'[A-Za-z_][A-Za-z0-9_]*', inner))
+    for m in re.finditer(r'\b([a-z][a-zA-Z]{1,14})\s*:\s*(["\'])([^"\'\n]{3,200})\2', src):
+        key, txt = m.group(1), m.group(3).strip()
+        if NOT_TEXT_KEY.match(key) or IGNORE.match(txt) or NOT_TEXT.match(txt):
+            continue
+        if not FR_HINT.search(txt):
+            continue
+        if key in wired:
+            continue
+        # la table qui contient cette ligne : `const COL_FR = {` le plus proche
+        head = src.rfind('const ', 0, m.start())
+        owner = None
+        if head != -1:
+            mo = re.match(r'const\s+([A-Za-z_][A-Za-z0-9_]*)', src[head:head + 80])
+            if mo and '\n\n' not in src[head:m.start()]:
+                owner = mo.group(1)
+        if owner and owner in wired:
+            continue
+        add(src[:m.start()].count('\n') + 1, f'{key}: {txt}')
     return out
 
 def main():

@@ -53,6 +53,23 @@ jobs:
           # haut pour interdire tout retour en arrière, assez souple pour qu'un
           # correctif urgent qui ajoute une phrase ne bloque pas la livraison.
           python3 docs/quality/i18n-audit.py --gate 95
+      - name: Français JAMAIS câblé — l'angle mort de la couverture
+        # 2026-07-30 : la couverture répond « parmi les chaînes câblées, combien
+        # sont traduites ? ». Une page dont le texte ne passe jamais par t() ne
+        # déclare aucune clé, donc n'en manque aucune : elle est INVISIBLE. Le
+        # 2026-07-29 l'outil annonçait 0 phrase en dur ; en élargissant la
+        # définition (mots sans accent, clés d'objet) il en restait 313 — dont
+        # « Annuler », « Enregistrer », « Fermer », déjà traduits mais jamais
+        # demandés. Le plafond ci-dessous ne remonte jamais.
+        #
+        # LES 8 QUI RESTENT SONT ASSUMÉES, et ce ne sont pas des libellés :
+        #   · valeurs par défaut de formulaire / données (gender « Garçon »,
+        #     relation « Père », allergies « Aucune » — sentinelle relue par le
+        #     code, jamais affichée telle quelle) ;
+        #   · défauts de démonstration des modules ÉTEINTS (devoirs, examens) ;
+        #   · une table dont la LECTURE est déjà traduite, que l'outil ne peut
+        #     pas relier à sa définition (CommandPalette).
+        run: python3 docs/quality/i18n-raw.py --gate 8
       - name: Repère de dates — le français ne revient pas en dur
         # 2026-07-29 : la couverture ne voit pas les dates (ce ne sont pas des
         # clés t()). Le produit affichait 62 % d'anglais et 100 % de dates

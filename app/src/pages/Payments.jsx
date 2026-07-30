@@ -36,15 +36,15 @@ export default function Payments(){
     const m=months[i]
     if(m.status==='paid'||m.status==='pending') return
     mutate(db=>{db.payments[child.id][i].status='pending'})
-    notify({role:'admin',kind:'payment',actor:u.name,title:'Paiement signalé',body:`${child.name} · ${m.month} · à confirmer`,link:'/app/finance'})
-    notify({role:'schooladmin',kind:'payment',actor:u.name,title:'Paiement signalé',body:`${child.name} · ${m.month} · à confirmer`,link:'/app/finance'})
+    notify({role:'admin',kind:'payment',actor:u.name,title:t('Paiement signalé'),body:`${child.name} · ${m.month} · à confirmer`,link:'/app/finance'})
+    notify({role:'schooladmin',kind:'payment',actor:u.name,title:t('Paiement signalé'),body:`${child.name} · ${m.month} · à confirmer`,link:'/app/finance'})
     toast.success(`${m.month} signalé · en attente de confirmation de l'administration`); force(x=>x+1) }
 
   const declareAll=()=>{
     if(declarable.length===0) return
     mutate(db=>{db.payments[child.id].forEach(m=>{ if(m.status==='due'||m.status==='overdue') m.status='pending' })})
-    notify({role:'admin',kind:'payment',actor:u.name,title:'Paiement signalé',body:`${child.name} · ${declarable.length} mois signalés : à confirmer`,link:'/app/finance'})
-    notify({role:'schooladmin',kind:'payment',actor:u.name,title:'Paiement signalé',body:`${child.name} · ${declarable.length} mois signalés : à confirmer`,link:'/app/finance'})
+    notify({role:'admin',kind:'payment',actor:u.name,title:t('Paiement signalé'),body:`${child.name} · ${declarable.length} mois signalés : à confirmer`,link:'/app/finance'})
+    notify({role:'schooladmin',kind:'payment',actor:u.name,title:t('Paiement signalé'),body:`${child.name} · ${declarable.length} mois signalés : à confirmer`,link:'/app/finance'})
     toast.success("Versement signalé · l'administration confirmera après encaissement"); force(x=>x+1) }
   const confirmBody = confirm==='all'
     ? `${declarable.length} ${t('mois seront signalés comme versés')}${monthly!=null?` · ${t('total')} ${money(monthly*declarable.length)}`:''}`
@@ -67,7 +67,7 @@ export default function Payments(){
 
     <div className="flex items-start gap-2.5 rounded-2xl px-4 py-3 mb-4 text-sm max-w-[680px]" style={{background:STATUS.infoSoft,color:'#0B5E86'}}>
       <Info size={16} className="mt-0.5 shrink-0"/>
-      <span>{t("Signalez votre versement ici : l'administration le confirme après encaissement, et le mois passe alors en")} <b>{t('Payé')}</b>. {awaiting>0 && <>Vous avez <b>{awaiting} mois</b> {t('en attente de confirmation.')}</>}</span>
+      <span>{t("Signalez votre versement ici : l'administration le confirme après encaissement, et le mois passe alors en")} <b>{t('Payé')}</b>. {awaiting>0 && <>{t('Vous avez')} <b>{awaiting} {t('mois')}</b> {t('en attente de confirmation.')}</>}</span>
     </div>
 
     <Card className="p-6 max-w-[680px]">
@@ -78,14 +78,14 @@ export default function Payments(){
           <div key={m.month} className="rounded-xl border border-line p-2 text-center">
             <div className="text-xs font-semibold">{m.month}</div>
             <div className="mt-1 w-full h-1.5 rounded-full" style={{background:COL[m.status]}}/>
-            <div className="text-[11px] text-muted mt-1">{FR[m.status]}</div>
+            <div className="text-[11px] text-muted mt-1">{t(FR[m.status])}</div>
             {m.status==='paid' ? <div className="mt-1.5 text-[11px] text-muted inline-flex items-center gap-0.5"><Check size={11}/> {t('Confirmé')}</div>
-             : m.status==='pending' ? <div className="mt-1.5 text-[11px] inline-flex items-center gap-0.5" style={{color:STATUS.warn}}><Hourglass size={11}/> En attente</div>
-             : <button onClick={()=>setConfirm(i)} className="mt-1.5 text-[11px] font-bold accent-text inline-flex items-center gap-0.5"><Send size={11}/> Signaler</button>}
+             : m.status==='pending' ? <div className="mt-1.5 text-[11px] inline-flex items-center gap-0.5" style={{color:STATUS.warn}}><Hourglass size={11}/> {t('En attente')}</div>
+             : <button onClick={()=>setConfirm(i)} className="mt-1.5 text-[11px] font-bold accent-text inline-flex items-center gap-0.5"><Send size={11}/> {t('Signaler')}</button>}
           </div>
         ))}
       </div>
-      {months.length>0 && <div className="flex gap-4 mt-4 text-xs text-muted flex-wrap">{Object.entries(COL).map(([k,c])=><span key={k} className="flex items-center gap-1.5"><i className="w-3 h-3 rounded" style={{background:c}}/>{FR[k]}</span>)}</div>}
+      {months.length>0 && <div className="flex gap-4 mt-4 text-xs text-muted flex-wrap">{Object.entries(COL).map(([k,c])=><span key={k} className="flex items-center gap-1.5"><i className="w-3 h-3 rounded" style={{background:c}}/>{t(FR[k])}</span>)}</div>}
     </Card>
   </>)
 }

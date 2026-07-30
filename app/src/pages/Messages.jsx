@@ -28,7 +28,7 @@ export default function Messages(){
   const others=d.users.filter(u=>u.id!==me.id && u.role!=='owner' && (me.role!=='parent' || STAFF.includes(u.role)))
   const lastWith=id=>{ const val=mine.filter(m=>m.from===id||m.to===id).sort((a,b)=>b.at-a.at)[0]; return val }
   return (<>
-    <PageHead title="Messages" sub={t('Échangez avec le personnel et les parents.')} action={<Btn onClick={()=>setNewOpen(true)}><Plus size={16}/> Nouveau message</Btn>}/>
+    <PageHead title={t('Messages')} sub={t('Échangez avec le personnel et les parents.')} action={<Btn onClick={()=>setNewOpen(true)}><Plus size={16}/> {t('Nouveau message')}</Btn>}/>
     <div className="grid lg:grid-cols-[300px_1fr] gap-4">
       <Card className="p-2 h-fit">
         {partnerIds.length===0 && <EmptyState icon={<MessageSquare size={26}/>} title={t('Aucune conversation')} sub={t('Démarrez une nouvelle conversation pour la voir ici.')}/>}
@@ -50,8 +50,8 @@ export default function Messages(){
         </>) : <div className="flex-1 grid place-items-center"><EmptyState icon={<MessageSquare size={26}/>} title={t('Aucune conversation sélectionnée')} sub={t('Choisissez une conversation ou démarrez-en une nouvelle.')}/></div>}
       </Card>
     </div>
-    <Modal open={newOpen} onClose={()=>setNewOpen(false)} title="Nouveau message" footer={<><Btn variant="ghost" onClick={()=>setNewOpen(false)}>Annuler</Btn><Btn onClick={startNew}>{t('Démarrer')}</Btn></>}>
-      <Field label="Destinataire"><Select value={to} onChange={e=>setTo(e.target.value)}><option value="">choisir</option>{others.map(u=><option key={u.id} value={u.id}>{u.name} · {ROLE[u.role]?.label}</option>)}</Select></Field>
+    <Modal open={newOpen} onClose={()=>setNewOpen(false)} title={t('Nouveau message')} footer={<><Btn variant="ghost" onClick={()=>setNewOpen(false)}>{t('Annuler')}</Btn><Btn onClick={startNew}>{t('Démarrer')}</Btn></>}>
+      <Field label={t('Destinataire')}><Select value={to} onChange={e=>setTo(e.target.value)}><option value="">{t('choisir')}</option>{others.map(u=><option key={u.id} value={u.id}>{u.name} · {ROLE[u.role]?.label}</option>)}</Select></Field>
     </Modal>
   </>)
 }

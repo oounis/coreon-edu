@@ -88,7 +88,7 @@ export default function DataTable({
           <div className="relative">
             <button onClick={() => setCols(v => !v)} title={t('Colonnes affichées')}
               className="inline-flex items-center gap-1.5 text-[13px] font-semibold px-3 py-2 rounded-xl border border-line bg-white hover:bg-canvas">
-              <Columns3 size={14} /> Colonnes
+              <Columns3 size={14} /> {t('Colonnes')}
             </button>
             {cols && <div className="absolute right-0 top-full mt-1 z-20 card p-2 w-52 shadow-xl">
               {columns.map(c => (
@@ -107,7 +107,7 @@ export default function DataTable({
 
       {/* la table */}
       {filtered.length === 0
-        ? <EmptyState icon={<Search size={24} />} title={q ? 'Aucun résultat' : empty.title} sub={q ? `Rien ne correspond à « ${q} ».` : empty.sub} />
+        ? <EmptyState icon={<Search size={24} />} title={q ? t('Aucun résultat') : t(empty.title)} sub={q ? `Rien ne correspond à « ${q} ».` : empty.sub} />
         : <div className="overflow-x-auto scroll-thin">
           <table className="w-full text-sm">
             <thead><tr className="text-start text-[11px] uppercase tracking-wide text-muted bg-canvas select-none">
@@ -138,7 +138,7 @@ export default function DataTable({
 
       {/* pagination */}
       <div className="flex items-center justify-between gap-3 px-3 py-2.5 border-t border-line text-[13px] text-muted flex-wrap">
-        <span>{filtered.length} ligne{filtered.length > 1 ? 's' : ''}{q && ` (filtrées sur ${rows.length})`}</span>
+        <span>{filtered.length} {t('ligne')}{filtered.length > 1 ? 's' : ''}{q && ` (filtrées sur ${rows.length})`}</span>
         <div className="flex items-center gap-2">
           <select aria-label={t('Lignes par page')} value={pageSize} onChange={e => { setPageSize(+e.target.value); setPage(0) }}
             className="rounded-lg border border-line bg-white px-2 py-1 text-[12px]">
@@ -147,7 +147,7 @@ export default function DataTable({
           <button aria-label={t('Page précédente')} disabled={cur === 0} onClick={() => setPage(p => p - 1)}
             className="w-7 h-7 grid place-items-center rounded-lg border border-line bg-white disabled:opacity-40"><ChevronLeft size={14} /></button>
           <span className="tabular-nums">{cur + 1} / {pages}</span>
-          <button aria-label="Page suivante" disabled={cur >= pages - 1} onClick={() => setPage(p => p + 1)}
+          <button aria-label={t('Page suivante')} disabled={cur >= pages - 1} onClick={() => setPage(p => p + 1)}
             className="w-7 h-7 grid place-items-center rounded-lg border border-line bg-white disabled:opacity-40"><ChevronRight size={14} /></button>
         </div>
       </div>

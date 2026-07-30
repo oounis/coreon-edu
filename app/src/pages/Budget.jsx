@@ -65,7 +65,7 @@ export default function Budget() {
   }
 
   return (<>
-    <PageHead title="Budget & rapports" sub={t('Encaissé, versé, dépensé : le mois en trente secondes : que des chiffres réels.')}
+    <PageHead title={t('Budget & rapports')} sub={t('Encaissé, versé, dépensé : le mois en trente secondes : que des chiffres réels.')}
       action={<div className="flex items-center gap-2">
         <input type="month" value={month} onChange={e => setMonth(e.target.value)} className="rounded-xl border border-line bg-white px-3 py-2 text-sm font-semibold" />
         <Btn variant="soft" onClick={exportCSV}><Download size={15} /> CSV</Btn>
@@ -123,15 +123,15 @@ export default function Budget() {
       }[tile]
       return (
         <Modal open onClose={() => setTile(null)} title={C.title} size="xl"
-          footer={<Btn variant="ghost" onClick={() => setTile(null)}>Fermer</Btn>}>
+          footer={<Btn variant="ghost" onClick={() => setTile(null)}>{t('Fermer')}</Btn>}>
           {C.body}
         </Modal>)
     })()}
 
     <Modal open={open} onClose={() => setOpen(false)} title={t('Inscrire une dépense')}
-      footer={<><Btn variant="ghost" onClick={() => setOpen(false)}>Annuler</Btn><Btn onClick={submit}>Inscrire</Btn></>}>
+      footer={<><Btn variant="ghost" onClick={() => setOpen(false)}>{t('Annuler')}</Btn><Btn onClick={submit}>{t('Inscrire')}</Btn></>}>
       <div className="grid sm:grid-cols-2 gap-3">
-        <Field label="Date"><Input type="date" value={f.date} onChange={e => setF({ ...f, date: e.target.value })} /></Field>
+        <Field label={t('Date')}><Input type="date" value={f.date} onChange={e => setF({ ...f, date: e.target.value })} /></Field>
         <Field label={t('Catégorie')}><Select value={f.category} onChange={e => setF({ ...f, category: e.target.value })}>
           {Object.values(EXPENSE_CATS).map(c => <option key={c.key} value={c.key}>{c.label}</option>)}</Select></Field>
         <Field label={t('Libellé *')}><Input value={f.label} onChange={e => setF({ ...f, label: e.target.value })} placeholder={t('Ramettes de papier, peinture atelier…')} /></Field>

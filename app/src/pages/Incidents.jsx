@@ -23,12 +23,12 @@ export default function Incidents(){
     mutate(db=>{ db.incidents.unshift({id,at:Date.now(),by:u.name,studentId:f.studentId||null,type:f.type,title:f.title.trim(),body:f.body.trim(),severity:f.severity,status:'open'}) })
     notify({role:'admin',kind:'incident',title:`Incident : ${f.type}`,body:`${u.name} a signalé : ${f.title}${s?` (${s.name})`:''}`})
     notify({role:'schooladmin',kind:'incident',title:`Incident : ${f.type}`,body:`${f.title}${s?` (${s.name})`:''}`})
-    if(s?.parentId) notify({to:s.parentId,studentId:s.id,email:true,kind:'incident',title:'Note de l\'école concernant votre enfant',body:`${f.type} : ${f.title}`})
+    if(s?.parentId) notify({to:s.parentId,studentId:s.id,email:true,kind:'incident',title:t('Note de l\'école concernant votre enfant'),body:`${f.type} : ${f.title}`})
     toast.success('Incident signalé · personnes notifiées'); setOpen(false); setF({type:'Bagarre',studentId:'',title:'',body:'',severity:'medium'}); force(x=>x+1)
   }
   const resolve=(id)=>{ mutate(db=>{ const i=db.incidents.find(x=>x.id===id); if(i)i.status='resolved' }); toast.success('Marqué comme résolu'); force(x=>x+1) }
   return (<>
-    <PageHead title="Incidents" sub={t("Signalez et suivez ce qui se passe à l'école.")} action={canReport&&<Btn onClick={()=>setOpen(true)}><Plus size={16}/> {t('Signaler un incident')}</Btn>}/>
+    <PageHead title={t('Incidents')} sub={t("Signalez et suivez ce qui se passe à l'école.")} action={canReport&&<Btn onClick={()=>setOpen(true)}><Plus size={16}/> {t('Signaler un incident')}</Btn>}/>
     <div className="space-y-3">
       {d.incidents.length? d.incidents.map(i=>{ const s=i.studentId?studentById(i.studentId):null; return (
         <Card key={i.id} className="p-4 flex items-start gap-3">
@@ -41,14 +41,14 @@ export default function Incidents(){
           {canResolve&&i.status==='open'&&<Btn variant="soft" onClick={()=>resolve(i.id)}>{t('Résoudre')}</Btn>}
         </Card>) }) : <Card><EmptyState icon={<ShieldAlert size={26}/>} title={t('Aucun incident')} sub={t('Aucun incident signalé pour le moment.')}/></Card>}
     </div>
-    <Modal open={open} onClose={()=>setOpen(false)} title={t('Signaler un incident')} footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={report}>Signaler & notifier</Btn></>}>
+    <Modal open={open} onClose={()=>setOpen(false)} title={t('Signaler un incident')} footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>{t('Annuler')}</Btn><Btn onClick={report}>{t('Signaler & notifier')}</Btn></>}>
       <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Type"><Select value={f.type} onChange={e=>setF({...f,type:e.target.value})}>{TYPES.map(v=><option key={v}>{v}</option>)}</Select></Field>
-          <Field label={t('Gravité')}><Select value={f.severity} onChange={e=>setF({...f,severity:e.target.value})}>{['low','medium','high'].map(s=><option key={s} value={s}>{SEV_FR[s]}</option>)}</Select></Field>
+          <Field label={t('Type')}><Select value={f.type} onChange={e=>setF({...f,type:e.target.value})}>{TYPES.map(v=><option key={v}>{v}</option>)}</Select></Field>
+          <Field label={t('Gravité')}><Select value={f.severity} onChange={e=>setF({...f,severity:e.target.value})}>{['low','medium','high'].map(s=><option key={s} value={s}>{t(SEV_FR[s])}</option>)}</Select></Field>
         </div>
         <Field label={t('Élève (facultatif)')}><Select value={f.studentId} onChange={e=>setF({...f,studentId:e.target.value})}><option value="">{t(', aucun')}</option>{d.students.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</Select></Field>
-        <Field label="Titre"><Input value={f.title} onChange={e=>setF({...f,title:e.target.value})} placeholder={t('ex. Bagarre dans la cour / Élève malade')}/></Field>
+        <Field label={t('Titre')}><Input value={f.title} onChange={e=>setF({...f,title:e.target.value})} placeholder={t('ex. Bagarre dans la cour / Élève malade')}/></Field>
         <Field label={t('Détails')}><Input value={f.body} onChange={e=>setF({...f,body:e.target.value})} placeholder={t("Ce qui s'est passé + mesure prise")}/></Field>
       </div>
     </Modal>

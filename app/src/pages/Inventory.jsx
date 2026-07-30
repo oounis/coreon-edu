@@ -36,7 +36,7 @@ export default function Inventory() {
     .filter(g => g.list.length)
 
   return (<>
-    <PageHead title="Inventaire" sub={t("Ce que l'école possède, où, et quand ça va manquer · chaque mouvement laisse une trace.")}
+    <PageHead title={t('Inventaire')} sub={t("Ce que l'école possède, où, et quand ça va manquer · chaque mouvement laisse une trace.")}
       action={<Btn onClick={() => setOpen(true)}><Plus size={15} /> {t('Ajouter un article')}</Btn>} />
 
     <Card className="p-4 mb-4 flex items-center gap-3">
@@ -50,7 +50,7 @@ export default function Inventory() {
     </Card>
 
     {items().length === 0
-      ? <Card><EmptyState icon={<Boxes size={26} />} title="Inventaire vide" sub={t("Ajoutez les articles que l'école veut suivre : feutres, couches, papier, mobilier…")} /></Card>
+      ? <Card><EmptyState icon={<Boxes size={26} />} title={t('Inventaire vide')} sub={t("Ajoutez les articles que l'école veut suivre : feutres, couches, papier, mobilier…")} /></Card>
       : grouped.map(({ cat, list }) => (
         <SectionCard key={cat.key} icon={<Boxes size={16} />} tint="sky" title={cat.label} bodyClass="p-3" className="mb-4">
           {list.map(it => (
@@ -59,7 +59,7 @@ export default function Inventory() {
                 <span className="block text-sm font-semibold truncate">{it.name}</span>
                 <span className="block text-[12px] text-muted">{it.location || '·'} · seuil {it.minQty}</span>
               </button>
-              {it.qty <= it.minQty && <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: STATUS.warnSoft, color: STATUS.warn }}>BAS</span>}
+              {it.qty <= it.minQty && <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: STATUS.warnSoft, color: STATUS.warn }}>{t('BAS')}</span>}
               <div className="flex items-center gap-1.5 shrink-0">
                 <Btn size="sm" variant="ghost" onClick={() => move(it.id, -1)} aria-label={t('Sortir un')}><Minus size={14} /></Btn>
                 <span className="w-10 text-center text-sm font-extrabold tabular-nums" style={it.qty <= it.minQty ? { color: STATUS.warn } : {}}>{it.qty}</span>
@@ -69,7 +69,7 @@ export default function Inventory() {
         </SectionCard>))}
 
     <Modal open={alerts} onClose={() => setAlerts(false)} title={t('À racheter · stocks sous le seuil')} size="lg"
-      footer={<Btn variant="ghost" onClick={() => setAlerts(false)}>Fermer</Btn>}>
+      footer={<Btn variant="ghost" onClick={() => setAlerts(false)}>{t('Fermer')}</Btn>}>
       {low.map(it => (
         <div key={it.id} className="flex items-center justify-between gap-3 px-2 py-2 rounded-xl hover:bg-canvas text-sm">
           <span className="font-semibold">{it.name} <span className="text-muted font-normal"> {invCatOf(it.category).label}</span></span>
@@ -78,7 +78,7 @@ export default function Inventory() {
     </Modal>
 
     <Modal open={!!hist} onClose={() => setHist(null)} title={hist ? `Mouvements · ${itemById(hist)?.name}` : ''} size="lg"
-      footer={<Btn variant="ghost" onClick={() => setHist(null)}>Fermer</Btn>}>
+      footer={<Btn variant="ghost" onClick={() => setHist(null)}>{t('Fermer')}</Btn>}>
       {hist && (itemById(hist)?.moves || []).map((m, i) => (
         <div key={i} className="flex items-center gap-3 px-2 py-1.5 text-sm border-b border-line last:border-0">
           <History size={13} className="text-muted shrink-0" />
@@ -89,15 +89,15 @@ export default function Inventory() {
     </Modal>
 
     <Modal open={open} onClose={() => setOpen(false)} title={t('Ajouter un article')}
-      footer={<><Btn variant="ghost" onClick={() => setOpen(false)}>Annuler</Btn><Btn onClick={submit}>Ajouter</Btn></>}>
+      footer={<><Btn variant="ghost" onClick={() => setOpen(false)}>{t('Annuler')}</Btn><Btn onClick={submit}>{t('Ajouter')}</Btn></>}>
       <div className="grid sm:grid-cols-2 gap-3">
         <Field label="Article *"><Input value={f.name} onChange={e => setF({ ...f, name: e.target.value })} placeholder="Feutres, couches T4, ramettes A4…" /></Field>
         <Field label={t('Catégorie')}><Select value={f.category} onChange={e => setF({ ...f, category: e.target.value })}>
           {Object.values(INV_CATS).map(c => <option key={c.key} value={c.key}>{c.label}</option>)}</Select></Field>
-        <Field label="Emplacement"><Input value={f.location} onChange={e => setF({ ...f, location: e.target.value })} placeholder={t('Réserve, atelier, cuisine…')} /></Field>
+        <Field label={t('Emplacement')}><Input value={f.location} onChange={e => setF({ ...f, location: e.target.value })} placeholder={t('Réserve, atelier, cuisine…')} /></Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label={t('Quantité')}><Input type="number" min="0" value={f.qty} onChange={e => setF({ ...f, qty: e.target.value })} /></Field>
-          <Field label="Seuil d'alerte"><Input type="number" min="0" value={f.minQty} onChange={e => setF({ ...f, minQty: e.target.value })} /></Field>
+          <Field label={t("Seuil d'alerte")}><Input type="number" min="0" value={f.minQty} onChange={e => setF({ ...f, minQty: e.target.value })} /></Field>
         </div>
       </div>
     </Modal>

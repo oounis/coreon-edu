@@ -42,14 +42,14 @@ export default function Timetable(){
   return (<>
     <PageHead title={t('Emploi du temps')}
       sub={<span className="inline-flex items-center gap-2 flex-wrap">
-        {mode==='me'&&teacher ? <>{teacher.name} · {teacher.subject}</> : <>Classe {clsName}</>}
+        {mode==='me'&&teacher ? <>{teacher.name} · {teacher.subject}</> : <>{t('Classe')} {clsName}</>}
         <span className="text-line">|</span>{sessions} {t('séances ·')} {DAYS[0].slice(0,3)}–{DAYS[4].slice(0,3)} {t('· 6 périodes')}
         {editable && <span className="inline-flex items-center gap-1 text-[12px] font-bold accent-soft accent-text px-2 py-0.5 rounded-full"><Pencil size={11}/> {t('mode édition · cliquez sur une case')}</span>}
       </span>}
       action={
         <div className="flex items-end gap-3">
-          {u.role==='teacher' && <Field label="Vue"><Select value={mode} onChange={e=>setMode(e.target.value)}><option value="me">{t('Mon emploi du temps')}</option><option value="class">{t('Par classe')}</option></Select></Field>}
-          {(mode==='class') && <Field label="Classe"><Select value={classId} onChange={e=>setClassId(e.target.value)}>{classes.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</Select></Field>}
+          {u.role==='teacher' && <Field label={t('Vue')}><Select value={mode} onChange={e=>setMode(e.target.value)}><option value="me">{t('Mon emploi du temps')}</option><option value="class">{t('Par classe')}</option></Select></Field>}
+          {(mode==='class') && <Field label={t('Classe')}><Select value={classId} onChange={e=>setClassId(e.target.value)}>{classes.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</Select></Field>}
         </div>
       }/>
 
@@ -69,10 +69,10 @@ export default function Timetable(){
     </div>
 
     <Modal open={!!edit} onClose={()=>setEdit(null)} title={t('Modifier la séance')}
-      footer={<><Btn variant="danger" onClick={clearCell}><Trash2 size={15}/> {t('Libérer')}</Btn><div className="flex-1"/><Btn variant="ghost" onClick={()=>setEdit(null)}>Annuler</Btn><Btn onClick={saveCell}>Enregistrer</Btn></>}>
+      footer={<><Btn variant="danger" onClick={clearCell}><Trash2 size={15}/> {t('Libérer')}</Btn><div className="flex-1"/><Btn variant="ghost" onClick={()=>setEdit(null)}>{t('Annuler')}</Btn><Btn onClick={saveCell}>{t('Enregistrer')}</Btn></>}>
       {edit&&<div className="grid sm:grid-cols-2 gap-3">
-        <Field label={t('Matière')}><Select value={edit.subject} onChange={e=>setEdit({...edit,subject:e.target.value})}><option value="">Libre</option>{TT_SUBJECTS.map(([n])=><option key={n}>{n}</option>)}</Select></Field>
-        <Field label="Salle"><Select value={edit.room} onChange={e=>setEdit({...edit,room:e.target.value})}>{ROOMS.map(r=><option key={r}>{r}</option>)}</Select></Field>
+        <Field label={t('Matière')}><Select value={edit.subject} onChange={e=>setEdit({...edit,subject:e.target.value})}><option value="">{t('Libre')}</option>{TT_SUBJECTS.map(([n])=><option key={n}>{n}</option>)}</Select></Field>
+        <Field label={t('Salle')}><Select value={edit.room} onChange={e=>setEdit({...edit,room:e.target.value})}>{ROOMS.map(r=><option key={r}>{r}</option>)}</Select></Field>
         <div className="sm:col-span-2 text-xs text-muted">{DAYS[edit.di]} · {PERIODS[edit.pi][0]}–{PERIODS[edit.pi][1]}</div>
       </div>}
     </Modal>

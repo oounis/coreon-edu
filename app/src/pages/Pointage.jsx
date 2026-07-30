@@ -69,7 +69,7 @@ export default function Pointage(){
       return {iso,...c,mins:c.out?toMin(c.out)-toMin(c.in):null} })
 
   return (<>
-    <PageHead title="Mon pointage" sub={t('Votre badgeuse : arrivées, sorties, heures et demandes de congé.')}
+    <PageHead title={t('Mon pointage')} sub={t('Votre badgeuse : arrivées, sorties, heures et demandes de congé.')}
       action={<Btn variant="soft" onClick={()=>setOpen(true)}><Plus size={15}/> {t('Demander un congé')}</Btn>}/>
 
     <div className="grid lg:grid-cols-[380px_1fr] gap-4 mb-4">
@@ -77,7 +77,7 @@ export default function Pointage(){
         <div className="w-14 h-14 rounded-2xl grid place-items-center mx-auto mb-1 accent-soft accent-text" aria-hidden="true"><Ic n="Clock" size={26}/></div>
         {isSummer() ? <>
           <div className="inline-flex items-center gap-1.5 text-[12px] font-bold px-3 py-1 rounded-full" style={{background:'#FEF3C7',color:'#92400E'}}>{t("VACANCES D'ÉTÉ")}</div>
-          <div className="text-lg font-extrabold mt-2">Badgeuse en pause</div>
+          <div className="text-lg font-extrabold mt-2">{t('Badgeuse en pause')}</div>
           <p className="text-sm text-muted mt-1">{t('Le pointage reprend le')} <b>{rentreeLabel()}</b>. Vos heures et votre historique restent consultables ci-contre : bel été !</p>
         </> : !clock ? <>
           <div className="text-lg font-extrabold">{t('Prêt pour la journée ?')}</div>
@@ -98,10 +98,10 @@ export default function Pointage(){
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <StatCard tint="mint"  icon={<CalendarCheck size={20}/>} value={days} label={t('Jours pointés')} sub={format(now,'MMMM',{locale: df()})} onClick={()=>setTile('days')}/>
           <StatCard tint="sky"   icon={<Timer size={20}/>}        value={fmtH(minutes)} label={t('Heures travaillées')} onClick={()=>setTile('hours')}/>
-          <StatCard tint="butter" icon={<Clock size={20}/>}       value={lates} label="Retards" onClick={()=>setTile('lates')}/>
+          <StatCard tint="butter" icon={<Clock size={20}/>}       value={lates} label={t('Retards')} onClick={()=>setTile('lates')}/>
           <StatCard tint="grape" icon={<Plane size={20}/>}        value={`${Math.max(0,QUOTA-used)} j`} label={t('Congé annuel restant')} onClick={()=>setTile('leave')}/>
         </div>
-        <SectionCard icon={<Hourglass size={16}/>} tint="sky" title="Mes derniers pointages" bodyClass="p-3">
+        <SectionCard icon={<Hourglass size={16}/>} tint="sky" title={t('Mes derniers pointages')} bodyClass="p-3">
           {history.length===0 ? <EmptyState title={t('Aucun pointage')} sub={t('Votre historique apparaîtra ici dès votre première arrivée.')}/>
           : <div className="grid sm:grid-cols-2 gap-1.5">{history.map(h=>(
             <div key={h.iso} className="flex items-center justify-between px-3 py-2 rounded-xl border border-line text-sm">
@@ -119,7 +119,7 @@ export default function Pointage(){
         return (
         <div key={lv.id} className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-canvas">
           <span className="min-w-0 flex-1">
-            <span className="block text-sm font-semibold">{LEAVE_TYPES[lv.type]}{lv.type==='permission'&&lv.hours?` · ${lv.hours} h`:''}</span>
+            <span className="block text-sm font-semibold">{t(LEAVE_TYPES[lv.type])}{lv.type==='permission'&&lv.hours?` · ${lv.hours} h`:''}</span>
             <span className="block text-[12px] text-muted">{lv.from===lv.to?lv.from:`${lv.from} → ${lv.to}`}{lv.reason?` · « ${lv.reason} »`:''}</span></span>
           <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:col+'1E',color:col}}>{lbl}</span>
         </div>)})}
@@ -149,18 +149,18 @@ export default function Pointage(){
         leave:{ title:`Congé annuel · ${year}`, body:(<>
           <div className="flex items-end gap-4 mb-3">
             <span className="text-3xl font-extrabold accent-text">{Math.max(0,QUOTA-used)} j</span>
-            <span className="text-sm text-muted pb-1">{t('restants sur')} {QUOTA} · {used} jour(s) pris</span>
+            <span className="text-sm text-muted pb-1">{t('restants sur')} {QUOTA} · {used} {t('jour(s) pris')}</span>
           </div>
           {annuals.length===0 ? <EmptyState title={t('Aucun congé annuel pris cette année')} sub={t('Vos congés approuvés apparaîtront ici.')}/>
           : <div className="space-y-1.5">{annuals.map(lv=>(
             <div key={lv.id} className="flex items-center justify-between px-3 py-2 rounded-xl border border-line text-sm">
               <span className="text-muted">{lv.from===lv.to?lv.from:`${lv.from} → ${lv.to}`}</span>
-              <span className="font-bold">{lv.days} jour(s)</span>
+              <span className="font-bold">{lv.days} {t('jour(s)')}</span>
             </div>))}</div>}</>) },
       }[tile]
       return (
       <Modal open onClose={()=>setTile(null)} title={C.title} size="lg"
-        footer={<Btn variant="ghost" onClick={()=>setTile(null)}>Fermer</Btn>}>
+        footer={<Btn variant="ghost" onClick={()=>setTile(null)}>{t('Fermer')}</Btn>}>
         {C.body}
       </Modal>) })()}
 
@@ -179,22 +179,22 @@ function RequestModal({ open, onClose, staffId, name, onDone }){
     const days=perm?0:Math.max(1,Math.round((new Date(to)-new Date(f.from))/86400000)+1)
     mutate(db=>{ db.staffLeaves=db.staffLeaves||[]
       db.staffLeaves.push({id:uid('lv'),staffId,type:f.type,from:f.from,to,days:perm?0:days,hours:perm?Number(f.hours)||1:null,reason:f.reason.trim(),status:'pending',at:Date.now(),by:null}) })
-    notify({role:'schooladmin',kind:'info',actor:name,title:'Nouvelle demande de congé',
-      body:`${name} demande : ${LEAVE_TYPES[f.type]}${perm?` (${f.hours} h)`:''} · ${f.from}${!perm&&to!==f.from?` → ${to}`:''}.`,link:'/app/staff'})
+    notify({role:'schooladmin',kind:'info',actor:name,title:t('Nouvelle demande de congé'),
+      body:`${name} demande : ${t(LEAVE_TYPES[f.type])}${perm?` (${f.hours} h)`:''} · ${f.from}${!perm&&to!==f.from?` → ${to}`:''}.`,link:'/app/staff'})
     toast.success('Demande envoyée : la Direction a été notifiée')
     setF(BLANK); onClose(); onDone()
   }
   return (
     <Modal open={open} onClose={onClose} title={t('Demander un congé ou une permission')}
-      footer={<><Btn variant="ghost" onClick={onClose}>Annuler</Btn><Btn onClick={submit}>{t('Envoyer la demande')}</Btn></>}>
+      footer={<><Btn variant="ghost" onClick={onClose}>{t('Annuler')}</Btn><Btn onClick={submit}>{t('Envoyer la demande')}</Btn></>}>
       <div className="grid sm:grid-cols-2 gap-3">
-        <Field label="Type"><Select value={f.type} onChange={e=>setF({...f,type:e.target.value})}>{Object.entries(LEAVE_TYPES).map(([k,v])=><option key={k} value={k}>{v}</option>)}</Select></Field>
+        <Field label={t('Type')}><Select value={f.type} onChange={e=>setF({...f,type:e.target.value})}>{Object.entries(LEAVE_TYPES).map(([k,v])=><option key={k} value={k}>{v}</option>)}</Select></Field>
         {perm
           ? <Field label={t('Durée (heures)')}><Input type="number" min="1" max="8" value={f.hours} onChange={e=>setF({...f,hours:e.target.value})}/></Field>
           : <span/>}
         <Field label={perm?'Date':'Du'}><Input type="date" value={f.from} onChange={e=>setF({...f,from:e.target.value})}/></Field>
-        {!perm && <Field label="Au"><Input type="date" value={f.to} onChange={e=>setF({...f,to:e.target.value})}/></Field>}
-        <div className="sm:col-span-2"><Field label="Motif"><Textarea value={f.reason} onChange={e=>setF({...f,reason:e.target.value})} className="h-16" placeholder={t('Optionnel · visible par la Direction')}/></Field></div>
+        {!perm && <Field label={t('Au')}><Input type="date" value={f.to} onChange={e=>setF({...f,to:e.target.value})}/></Field>}
+        <div className="sm:col-span-2"><Field label={t('Motif')}><Textarea value={f.reason} onChange={e=>setF({...f,reason:e.target.value})} className="h-16" placeholder={t('Optionnel · visible par la Direction')}/></Field></div>
       </div>
     </Modal>
   )

@@ -94,7 +94,7 @@ export default function Results(){
         <Chip active={classId==='all'} onClick={()=>setClassId('all')}>{t('Toutes les classes')}</Chip>
         {d.classes.map(c=><Chip key={c.id} active={classId===c.id} onClick={()=>setClassId(c.id)}>{c.name}</Chip>)}
       </div>}/>
-    <div className="mb-5"><Tabs tabs={PERIODS} value={period} onChange={setPeriod}/></div>
+    <div className="mb-5"><Tabs tabs={PERIODS.map(p=>({...p,label:t(p.label)}))} value={period} onChange={setPeriod}/></div>
 
     {data.evals.length===0 ? (
       <SectionCard headless><EmptyState icon={<BarChart3 size={26}/>} title={t('Aucune évaluation sur cette période')}
@@ -121,7 +121,7 @@ export default function Results(){
                   <span className="text-sm font-extrabold" style={{color:m.color}}>{e.avg}/100</span>
                 </div>)})}
             </div>)},
-          overall:{ title:'Moyenne générale · le détail', body:(<>
+          overall:{ title:t('Moyenne générale · le détail'), body:(<>
             <div className="flex items-end gap-4 mb-4">
               <span className="text-4xl font-extrabold" style={{color:mentionFor(data.overall).color}}>{data.overall}/100</span>
               <span className="text-sm text-muted pb-1">{data.evals.length} {t('évaluations ·')} {data.students.length} {t('élèves')}</span>
@@ -138,14 +138,14 @@ export default function Results(){
             </div></>)},
           students:{ title:`Élèves évalués · ${ranked.length}`, body:(
             <div className="space-y-1">{ranked.map((x,i)=><RankRow key={x.s.id} x={x} i={i} onOpen={()=>openStudent(x.s)}/>)}</div>)},
-          struggling:{ title:'En difficulté · moyenne < 40', body: strugglingRows.length===0
+          struggling:{ title:t('En difficulté · moyenne < 40'), body: strugglingRows.length===0
             ? <EmptyState icon={<LifeBuoy size={24}/>} title={t('Aucun élève en difficulté')} sub={t('Aucune moyenne sous 40 sur la période.')}/>
             : <div className="space-y-1">{strugglingRows.map((x,i)=><RankRow key={x.s.id} x={x} i={i} onOpen={()=>openStudent(x.s)}/>)}</div>},
         }[tile]
         return (
         <Modal open onClose={()=>setTile(null)} title={C.title} size="xl"
           footer={<>{['students','struggling'].includes(tile)&&<span className="text-[11px] text-muted mr-auto self-center">{t('Cliquez sur un élève pour ouvrir son historique complet.')}</span>}
-            <Btn variant="ghost" onClick={()=>setTile(null)}>Fermer</Btn></>}>
+            <Btn variant="ghost" onClick={()=>setTile(null)}>{t('Fermer')}</Btn></>}>
           {C.body}
         </Modal>) })()}
 
@@ -236,7 +236,7 @@ function StudentLessonMap({ d, sid }){
 function TrendArrow({ v }){
   if(v>2)  return <span className="inline-flex items-center gap-1 text-xs font-bold" style={{color:STATUS.ok}}><TrendingUp size={14}/>+{v}</span>
   if(v<-2) return <span className="inline-flex items-center gap-1 text-xs font-bold" style={{color:STATUS.danger}}><TrendingDown size={14}/>{v}</span>
-  return <span className="inline-flex items-center gap-1 text-xs font-bold" style={{color:STATUS.neutral}}><Minus size={14}/> stable</span>
+  return <span className="inline-flex items-center gap-1 text-xs font-bold" style={{color:STATUS.neutral}}><Minus size={14}/> {t('stable')}</span>
 }
 function RankRow({ x, i, onOpen, best }){
   const medal=best&&i<3

@@ -28,12 +28,12 @@ export default function Teachers(){
   const TCard=({v})=>(
     <button onClick={()=>setView(v)} className="card p-4 flex items-center gap-3 text-left hover:shadow-lg hover:-translate-y-0.5 transition w-full">
       <Avatar name={v.name} seed={v.id} size={44}/>
-      <div className="min-w-0 flex-1"><div className="font-semibold truncate">{v.name}{v.ref && <code className="ms-1.5 text-[10px] font-semibold text-muted tabular-nums">{v.ref}</code>}</div><div className="text-xs text-muted truncate">{v.designation} · {v.experience} ans</div></div>
+      <div className="min-w-0 flex-1"><div className="font-semibold truncate">{v.name}{v.ref && <code className="ms-1.5 text-[10px] font-semibold text-muted tabular-nums">{v.ref}</code>}</div><div className="text-xs text-muted truncate">{v.designation} · {v.experience} {t('ans')}</div></div>
       <ChevronRight size={16} className="text-muted"/>
     </button>
   )
   return (<>
-    <PageHead title="Enseignants & personnel" sub={`${d.teachers.length} membres · ${subjects.length} matières`} action={canEdit&&<Btn onClick={()=>{setF(BLANK);setOpen(true)}}><UserPlus size={16}/> {t('Ajouter un enseignant')}</Btn>}/>
+    <PageHead title={t('Enseignants & personnel')} sub={`${d.teachers.length} membres · ${subjects.length} matières`} action={canEdit&&<Btn onClick={()=>{setF(BLANK);setOpen(true)}}><UserPlus size={16}/> {t('Ajouter un enseignant')}</Btn>}/>
     <SearchInput value={q} onChange={e=>setQ(e.target.value)} placeholder={t('Rechercher (nom ou matière)…')} className="max-w-sm mb-5"/>
     {list.length===0&&<Card><EmptyState icon={<Search size={26}/>} title={t('Aucun résultat')} sub={t('Aucun membre du personnel ne correspond à cette recherche.')}/></Card>}
     <div className="space-y-6">
@@ -44,26 +44,26 @@ export default function Teachers(){
         </div>
       ))}
     </div>
-    <Modal open={open} onClose={()=>setOpen(false)} title={t('Ajouter un enseignant / membre')} size="2xl" footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={add}>Ajouter</Btn></>}>
-      <Section title="Informations personnelles">
+    <Modal open={open} onClose={()=>setOpen(false)} title={t('Ajouter un enseignant / membre')} size="2xl" footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>{t('Annuler')}</Btn><Btn onClick={add}>{t('Ajouter')}</Btn></>}>
+      <Section title={t('Informations personnelles')}>
         <Field label="Nom complet *"><Input value={f.name} onChange={e=>setF({...f,name:e.target.value})}/></Field>
         {/* adulte : civilité Homme/Femme (« Garçon/Fille » est réservé aux élèves) */}
-        <Field label={t('Civilité')}><Select value={f.gender} onChange={e=>setF({...f,gender:e.target.value})}><option>Homme</option><option>Femme</option></Select></Field>
+        <Field label={t('Civilité')}><Select value={f.gender} onChange={e=>setF({...f,gender:e.target.value})}><option>{t('Homme')}</option><option>{t('Femme')}</option></Select></Field>
         <Field label={t('Date de naissance')}><Input type="date" value={f.dob} onChange={e=>setF({...f,dob:e.target.value})}/></Field>
         <Field label={idLabelFor('staff')}><Input value={f.cin} onChange={e=>setF({...f,cin:e.target.value})}/></Field>
         <Field label={regionLabel()}><Select value={f.governorate} onChange={e=>setF({...f,governorate:e.target.value})}>{regionsOf().length?regionsOf().map(g=><option key={g}>{g}</option>):<option value="">(saisie libre)</option>}</Select></Field>
       </Section>
-      <Section title="Informations professionnelles">
+      <Section title={t('Informations professionnelles')}>
         <Field label={t('Matière')}><Input value={f.subject} onChange={e=>setF({...f,subject:e.target.value})} placeholder={t('Mathématiques')}/></Field>
-        <Field label="Fonction"><Select value={f.designation} onChange={e=>setF({...f,designation:e.target.value})}>{['Professeur','Instituteur principal','Chef de département','Coordinateur','Assistant de laboratoire'].map(x=><option key={x}>{x}</option>)}</Select></Field>
+        <Field label={t('Fonction')}><Select value={f.designation} onChange={e=>setF({...f,designation:e.target.value})}>{['Professeur','Instituteur principal','Chef de département','Coordinateur','Assistant de laboratoire'].map(x=><option key={x}>{x}</option>)}</Select></Field>
         <Field label={t('Diplôme')}><Input value={f.qualification} onChange={e=>setF({...f,qualification:e.target.value})} placeholder={t('Maîtrise')}/></Field>
         <Field label={t('Expérience (années)')}><Input type="number" value={f.experience} onChange={e=>setF({...f,experience:e.target.value})}/></Field>
-        <Field label="Date d'embauche"><Input type="date" value={f.joiningDate} onChange={e=>setF({...f,joiningDate:e.target.value})}/></Field>
+        <Field label={t("Date d'embauche")}><Input type="date" value={f.joiningDate} onChange={e=>setF({...f,joiningDate:e.target.value})}/></Field>
       </Section>
-      <Section title="Contact & salaire">
+      <Section title={t('Contact & salaire')}>
         <Field label={t('Téléphone')}><Input value={f.phone} onChange={e=>setF({...f,phone:e.target.value})}/></Field>
-        <Field label="E-mail"><Input value={f.email} onChange={e=>setF({...f,email:e.target.value})}/></Field>
-        <Field label="Adresse"><Input value={f.address} onChange={e=>setF({...f,address:e.target.value})}/></Field>
+        <Field label={t('E-mail')}><Input value={f.email} onChange={e=>setF({...f,email:e.target.value})}/></Field>
+        <Field label={t('Adresse')}><Input value={f.address} onChange={e=>setF({...f,address:e.target.value})}/></Field>
         <Field label={`Salaire mensuel (${currency()})`}><Input type="number" value={f.salary} onChange={e=>setF({...f,salary:e.target.value})}/></Field>
       </Section>
       <div className="mt-1"><div className="text-xs font-bold uppercase tracking-wide accent-text mb-2">{t('Pièces à fournir')}</div>

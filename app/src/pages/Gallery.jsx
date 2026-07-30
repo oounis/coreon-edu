@@ -51,7 +51,7 @@ function StaffGallery({ u }) {
     <PageHead title={t('Moments')} sub={t('Une photo de la journée, et le parent la voit le soir même.')}
       action={<div className="flex gap-2">
         <Select value={classId} onChange={e => setClassId(e.target.value)} className="w-auto">{classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</Select>
-        <Btn onClick={() => setComposing(true)}><ImagePlus size={16} /> Partager</Btn>
+        <Btn onClick={() => setComposing(true)}><ImagePlus size={16} /> {t('Partager')}</Btn>
       </div>} />
 
     {feed.length === 0
@@ -96,7 +96,7 @@ function Composer({ u, classId, onClose }) {
 
   return (
     <Modal open onClose={onClose} size="xl" title={`Partager un moment · ${classById(classId)?.name || ''}`}
-      footer={<><Btn variant="ghost" onClick={onClose}>Annuler</Btn><Btn onClick={submit} disabled={busy}>Partager</Btn></>}>
+      footer={<><Btn variant="ghost" onClick={onClose}>{t('Annuler')}</Btn><Btn onClick={submit} disabled={busy}>{t('Partager')}</Btn></>}>
       <div className="space-y-4">
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
           {media.map((m, i) => (
@@ -134,7 +134,7 @@ function ParentFeed({ u }) {
   return (<>
     <PageHead title={t('Moments')} sub={t('Les photos de la journée de votre enfant.')} />
     {feed.length === 0
-      ? <Card><EmptyState icon="Camera" title="Rien encore" sub={t("Les moments partagés par l'école apparaîtront ici.")} /></Card>
+      ? <Card><EmptyState icon="Camera" title={t('Rien encore')} sub={t("Les moments partagés par l'école apparaîtront ici.")} /></Card>
       : <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {feed.map(m => <MomentCard key={m.id} m={m} u={u} onChange={() => force(x => x + 1)} />)}
       </div>}

@@ -25,9 +25,9 @@ export default function Bulletin({ student, onClose }){
         <Dialog.Panel className="bg-white w-full max-w-2xl sm:rounded-2xl pop my-0 sm:my-4 print:max-w-none print:my-0 print:shadow-none">
           {/* barre d'action — masquée à l'impression */}
           <div className="flex items-center justify-between p-4 border-b border-line print:hidden">
-            <Dialog.Title className="text-lg font-bold">Bulletin scolaire</Dialog.Title>
+            <Dialog.Title className="text-lg font-bold">{t('Bulletin scolaire')}</Dialog.Title>
             <div className="flex items-center gap-2">
-              <Btn onClick={print}><Printer size={16}/> Imprimer</Btn>
+              <Btn onClick={print}><Printer size={16}/> {t('Imprimer')}</Btn>
               <button onClick={onClose} className="text-muted hover:text-ink"><X size={18}/></button>
             </div>
           </div>
@@ -41,7 +41,7 @@ export default function Bulletin({ student, onClose }){
                 <div className="text-sm text-muted">{sc.city} {t('· Année scolaire')} {sc.year}</div>
               </div>
               <div className="text-right">
-                <div className="text-xs uppercase tracking-wide text-muted font-bold">Bulletin</div>
+                <div className="text-xs uppercase tracking-wide text-muted font-bold">{t('Bulletin')}</div>
                 <div className="text-sm text-muted mt-1">{t('Édité le')} {format(new Date(),'dd MMMM yyyy',{locale: df()})}</div>
               </div>
             </div>
@@ -61,7 +61,7 @@ export default function Bulletin({ student, onClose }){
             {/* synthèse */}
             <div className="grid grid-cols-3 gap-3 mb-6">
               <SummaryBox label={t('Moyenne générale')} value={b.overall!=null?`${b.overall}/100`:'·'} accent/>
-              <SummaryBox label="Mention" value={b.mention.label} color={b.mention.color}/>
+              <SummaryBox label={t('Mention')} value={b.mention.label} color={b.mention.color}/>
               <SummaryBox label={t('Taux de présence')} value={b.attRate!=null?`${b.attRate}%`:'·'}/>
             </div>
 
@@ -72,7 +72,7 @@ export default function Bulletin({ student, onClose }){
                 <thead><tr className="bg-canvas text-left text-[12px] uppercase tracking-wide text-muted">
                   <th className="px-3 py-2 font-semibold">{t('Matière')}</th>
                   <th className="px-3 py-2 font-semibold text-center">{t('Évaluations')}</th>
-                  <th className="px-3 py-2 font-semibold text-center">Moyenne</th>
+                  <th className="px-3 py-2 font-semibold text-center">{t('Moyenne')}</th>
                   <th className="px-3 py-2 font-semibold">{t('Appréciation')}</th>
                 </tr></thead>
                 <tbody className="divide-y divide-line">
@@ -91,14 +91,14 @@ export default function Bulletin({ student, onClose }){
             <h3 className="text-sm font-bold uppercase tracking-wide text-muted mb-2 flex items-center gap-1.5"><CalendarCheck size={14}/> {t('Assiduité')}</h3>
             <div className="flex flex-wrap gap-3 mb-6 text-sm">
               <Pill color={STATUS.ok} label={t('Présences')} value={b.att.present}/>
-              <Pill color={STATUS.danger} label="Absences" value={b.att.absent}/>
-              <Pill color={STATUS.warn} label="Retards" value={b.att.late}/>
+              <Pill color={STATUS.danger} label={t('Absences')} value={b.att.absent}/>
+              <Pill color={STATUS.warn} label={t('Retards')} value={b.att.late}/>
               {b.attTotal===0 && <span className="text-muted">{t('Aucun relevé de présence disponible.')}</span>}
             </div>
 
             {/* badges / distinctions */}
             {b.badges.length>0 && (<>
-              <h3 className="text-sm font-bold uppercase tracking-wide text-muted mb-2 flex items-center gap-1.5"><Award size={14}/> Distinctions</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wide text-muted mb-2 flex items-center gap-1.5"><Award size={14}/> {t('Distinctions')}</h3>
               <div className="flex flex-wrap gap-2 mb-6">
                 {b.badges.slice(0,8).map((bd,i)=><span key={i} className="text-xs font-semibold px-2.5 py-1 rounded-full accent-soft accent-text inline-flex items-center gap-1">{bd.icon&&<Ic n={bd.icon} size={12}/>}{bd.label}</span>)}
               </div>

@@ -150,7 +150,7 @@ export default function Attach({ types, value = [], onChange, readOnly = false }
                 </button>
               )}
               {a && !readOnly && (
-                <button type="button" title="Retirer" onClick={() => onChange(value.filter(x => x.type !== v))}
+                <button type="button" title={tr('Retirer')} onClick={() => onChange(value.filter(x => x.type !== v))}
                   className="text-muted hover:text-ink"><X size={13} /></button>
               )}
               {!readOnly && (

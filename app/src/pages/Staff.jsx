@@ -37,8 +37,8 @@ export default function Staff(){
   const [,force]=useState(0); const refresh=()=>force(x=>x+1)
   const d=db(); const staff=staffList(d)
   return (<>
-    <PageHead title="Personnel" sub={t("Présence, congés et fiabilité de l'équipe · le quotidien RH de l'école.")}
-      action={<Tabs tabs={[{value:'jour',label:'Aujourd’hui'},{value:'mois',label:'Mois'},{value:'conges',label:'Congés',count:(d.staffLeaves||[]).filter(l=>l.status==='pending').length||undefined},{value:'analyse',label:'Analyse'}]} value={tab} onChange={setTab}/>}/>
+    <PageHead title={t('Personnel')} sub={t("Présence, congés et fiabilité de l'équipe · le quotidien RH de l'école.")}
+      action={<Tabs tabs={[{value:'jour',label:t('Aujourd’hui')},{value:'mois',label:t('Mois')},{value:'conges',label:t('Congés'),count:(d.staffLeaves||[]).filter(l=>l.status==='pending').length||undefined},{value:'analyse',label:'Analyse'}]} value={tab} onChange={setTab}/>}/>
     {tab==='jour'    && <DayTab d={d} staff={staff} refresh={refresh}/>}
     {tab==='mois'    && <MonthTab d={d} staff={staff}/>}
     {tab==='conges'  && <LeavesTab d={d} staff={staff} refresh={refresh}/>}
@@ -64,15 +64,15 @@ function DayTab({ d, staff, refresh }){
   return (<>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
       <StatCard tint="mint"   icon={<BriefcaseBusiness size={20}/>} value={counts.present} label={t('Présents')} sub={dayLabel} onClick={()=>setTile('present')}/>
-      <StatCard tint="butter" icon={<Clock size={20}/>}             value={counts.late}    label="Retards" onClick={()=>setTile('late')}/>
-      <StatCard tint="coral"  icon={<UserX size={20}/>}             value={counts.absent}  label="Absents" onClick={()=>setTile('absent')}/>
+      <StatCard tint="butter" icon={<Clock size={20}/>}             value={counts.late}    label={t('Retards')} onClick={()=>setTile('late')}/>
+      <StatCard tint="coral"  icon={<UserX size={20}/>}             value={counts.absent}  label={t('Absents')} onClick={()=>setTile('absent')}/>
       <StatCard tint="grape"  icon={<Plane size={20}/>}             value={counts.conge}   label={t('En congé')} onClick={()=>setTile('conge')}/>
     </div>
 
     {tile && (()=>{ const [lbl,col]=ST[tile]; const rows=staff.filter(x=>(marks[x.id]||'present')===tile)
       return (
       <Modal open onClose={()=>setTile(null)} title={`${lbl} · ${dayLabel}`} size="xl"
-        footer={<Btn variant="ghost" onClick={()=>setTile(null)}>Fermer</Btn>}>
+        footer={<Btn variant="ghost" onClick={()=>setTile(null)}>{t('Fermer')}</Btn>}>
         {rows.length===0 ? <EmptyState title={`Personne n'est « ${lbl.toLowerCase()} »`} sub={t("Rien à afficher pour ce statut aujourd'hui.")}/>
         : <div className="space-y-1.5">
           {rows.map(x=>{ const h=hist[x.id]
@@ -89,7 +89,7 @@ function DayTab({ d, staff, refresh }){
     <ClockBoard d={d} staff={staff}/>
     <SectionCard icon={<BriefcaseBusiness size={16}/>} tint="brand" title={`Appel du personnel · ${dayLabel}`} className="mt-4"
       sub={t('Touchez un statut pour le changer : présent → retard → absent → congé')}
-      action={<Btn onClick={save}><Save size={15}/> Enregistrer</Btn>} bodyClass="p-3">
+      action={<Btn onClick={save}><Save size={15}/> {t('Enregistrer')}</Btn>} bodyClass="p-3">
       <div className="grid sm:grid-cols-2 gap-2">
         {staff.map(x=>{ const st=marks[x.id]||'present'; const [lbl,col]=ST[st]; const h=hist[x.id]
           return (
@@ -158,14 +158,14 @@ function MonthTab({ d, staff }){
       sub={t('Jours ouvrés écoulés : chaque case est un jour')}
       action={<div className="flex items-center gap-2">
         <Btn variant="ghost" size="sm" onClick={()=>setMonth(m=>addMonths(m,-1))} aria-label={t('Mois précédent')}><ChevronLeft size={15}/></Btn>
-        <Btn variant="ghost" size="sm" onClick={()=>setMonth(m=>addMonths(m,1))} disabled={startOfMonth(addMonths(month,1))>new Date()} aria-label="Mois suivant"><ChevronRight size={15}/></Btn>
-        <Btn variant="soft" size="sm" onClick={exportCSV}><Download size={14}/> Export CSV</Btn>
+        <Btn variant="ghost" size="sm" onClick={()=>setMonth(m=>addMonths(m,1))} disabled={startOfMonth(addMonths(month,1))>new Date()} aria-label={t('Mois suivant')}><ChevronRight size={15}/></Btn>
+        <Btn variant="soft" size="sm" onClick={exportCSV}><Download size={14}/> {t('Export CSV')}</Btn>
       </div>} bodyClass="p-0">
       {days.length===0 ? <EmptyState title={t('Aucun jour ouvré écoulé')} sub={t("Ce mois n'a pas encore commencé.")}/> : (
       <div className="overflow-x-auto scroll-thin"><table className="w-full text-sm">
         <thead><tr className="text-left text-[12px] uppercase tracking-wide text-muted bg-canvas">
           <th className="px-4 py-3 font-semibold">{t('Employé')}</th>
-          <th className="px-2 py-3 font-semibold">Jours</th>
+          <th className="px-2 py-3 font-semibold">{t('Jours')}</th>
           {['Prés.','Ret.','Abs.','Congés','Taux'].map(h=><th key={h} className="px-2 py-3 font-semibold text-center">{h}</th>)}
         </tr></thead>
         <tbody className="divide-y divide-line">
@@ -228,7 +228,7 @@ function LeavesTab({ d, staff, refresh }){
     mutate(db=>{ const x=(db.staffLeaves||[]).find(y=>y.id===lv.id); if(x&&x.status==='pending'){ x.status=status; x.by=me.name } })
     if(status==='approved'&&lv.type!=='permission') applyLeave(lv)   // une permission de quelques heures ne remplit pas la journée
     notify({to:lv.staffId,kind:'info',actor:'Direction',title:status==='approved'?'Congé approuvé':'Congé refusé',
-      body:`${LEAVE_TYPES[lv.type]} du ${lv.from} au ${lv.to} : ${status==='approved'?'accordé. Bon repos !':'refusé · voir la direction.'}`})
+      body:`${t(LEAVE_TYPES[lv.type])} du ${lv.from} au ${lv.to} : ${status==='approved'?'accordé. Bon repos !':'refusé · voir la direction.'}`})
     toast.success(status==='approved'?`Congé de ${nameOf(lv.staffId)} approuvé : présence remplie automatiquement`:'Demande refusée')
     refresh()
   }
@@ -255,11 +255,11 @@ function LeavesTab({ d, staff, refresh }){
             <div key={lv.id} className="flex items-center gap-3 p-3 rounded-xl border border-line">
               <Avatar name={nameOf(lv.staffId)} seed={lv.staffId} size={38}/>
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold">{nameOf(lv.staffId)} · {LEAVE_TYPES[lv.type]}</span>
+                <span className="block text-sm font-semibold">{nameOf(lv.staffId)} · {t(LEAVE_TYPES[lv.type])}</span>
                 <span className="block text-xs text-muted">{lv.type==='permission'?`${lv.from}${lv.hours?` · ${lv.hours} h`:''}`:`${lv.from} → ${lv.to} · ${lv.days} j ouvrés`}{lv.reason?` · « ${lv.reason} »`:''}</span>
               </span>
               {canDecide(lv)
-                ? <><Btn size="sm" onClick={()=>decide(lv,'approved')}><Check size={14}/> Approuver</Btn>
+                ? <><Btn size="sm" onClick={()=>decide(lv,'approved')}><Check size={14}/> {t('Approuver')}</Btn>
                     <Btn size="sm" variant="danger" onClick={()=>decide(lv,'rejected')}><X size={14}/></Btn></>
                 : <span className="text-[12px] font-semibold text-muted text-right shrink-0">
                     {lv.staffId===myStaffId ? 'Votre demande · \nla Direction décide' : t('Décision réservée à la Direction ou à la RH')}
@@ -274,7 +274,7 @@ function LeavesTab({ d, staff, refresh }){
             <div key={lv.id} className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-canvas">
               <Avatar name={nameOf(lv.staffId)} seed={lv.staffId} size={30}/>
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold truncate">{nameOf(lv.staffId)} · {LEAVE_TYPES[lv.type]}</span>
+                <span className="block text-sm font-semibold truncate">{nameOf(lv.staffId)} · {t(LEAVE_TYPES[lv.type])}</span>
                 <span className="block text-[12px] text-muted">{lv.from} → {lv.to} · {lv.days} j</span></span>
               <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:col+'1E',color:col}}>{lbl}</span>
             </div>)})}
@@ -296,13 +296,13 @@ function LeavesTab({ d, staff, refresh }){
     </div>
 
     <Modal open={open} onClose={()=>setOpen(false)} title={t('Enregistrer un congé')}
-      footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={add}>{t('Enregistrer & remplir la présence')}</Btn></>}>
+      footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>{t('Annuler')}</Btn><Btn onClick={add}>{t('Enregistrer & remplir la présence')}</Btn></>}>
       <div className="grid sm:grid-cols-2 gap-3">
-        <Field label={t('Employé *')}><Select value={f.staffId} onChange={e=>setF({...f,staffId:e.target.value})}><option value="">choisir</option>{staff.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</Select></Field>
-        <Field label="Type"><Select value={f.type} onChange={e=>setF({...f,type:e.target.value})}>{Object.entries(LEAVE_TYPES).map(([k,v])=><option key={k} value={k}>{v}</option>)}</Select></Field>
+        <Field label={t('Employé *')}><Select value={f.staffId} onChange={e=>setF({...f,staffId:e.target.value})}><option value="">{t('choisir')}</option>{staff.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</Select></Field>
+        <Field label={t('Type')}><Select value={f.type} onChange={e=>setF({...f,type:e.target.value})}>{Object.entries(LEAVE_TYPES).map(([k,v])=><option key={k} value={k}>{v}</option>)}</Select></Field>
         <Field label={t('Du *')}><Input type="date" value={f.from} onChange={e=>setF({...f,from:e.target.value})}/></Field>
         <Field label="Au *"><Input type="date" value={f.to} onChange={e=>setF({...f,to:e.target.value})}/></Field>
-        <div className="sm:col-span-2"><Field label="Motif"><Textarea value={f.reason} onChange={e=>setF({...f,reason:e.target.value})} className="h-16" placeholder="Optionnel"/></Field></div>
+        <div className="sm:col-span-2"><Field label={t('Motif')}><Textarea value={f.reason} onChange={e=>setF({...f,reason:e.target.value})} className="h-16" placeholder={t('Optionnel')}/></Field></div>
       </div>
       <p className="text-xs text-muted mt-2">{t('Les jours ouvrés de la plage seront automatiquement marqués « congé » dans la présence.')}</p>
     </Modal>
@@ -338,7 +338,7 @@ function AnalyseTab({ d, staff }){
           <div key={x.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
             <Avatar name={x.name} seed={x.id} size={34}/>
             <span className="min-w-0 flex-1"><span className="block text-sm font-semibold truncate">{x.name}</span>
-              <span className="block text-[12px] text-muted">{x.absent} absences · {x.late} retards · 30 j</span></span>
+              <span className="block text-[12px] text-muted">{x.absent} {t('absences ·')} {x.late} retards · 30 j</span></span>
             <span className="text-sm font-extrabold" style={{color:STATUS.danger}}>{x.rate}%</span>
           </div>))}
       </SectionCard>
@@ -352,7 +352,7 @@ function AnalyseTab({ d, staff }){
             <span className="w-40 text-sm font-semibold truncate shrink-0">{x.name}</span>
             <div className="flex-1 h-2.5 rounded-full bg-canvas overflow-hidden"><div className="h-full rounded-full" style={{width:`${x.rate??0}%`,background:col}}/></div>
             <span className="w-12 text-right text-sm font-extrabold" style={{color:col}}>{x.rate!=null?`${x.rate}%`:'·'}</span>
-            <span className="w-28 text-right text-[12px] text-muted">{x.absent} abs · {x.late} ret · {x.conge} {t('congés')}</span>
+            <span className="w-28 text-right text-[12px] text-muted">{x.absent} {t('abs ·')} {x.late} {t('ret ·')} {x.conge} {t('congés')}</span>
           </div>)})}
       </div>
     </SectionCard>

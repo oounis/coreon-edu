@@ -43,7 +43,7 @@ export default function MeteoCorner(){
         </div>
         <div className="grid grid-cols-3 divide-x divide-line text-center text-xs py-3">
           <div><div className="text-muted flex items-center justify-center gap-1"><Droplets size={12}/> {t('Humidité')}</div><div className="font-bold mt-0.5">{w.humidity}%</div></div>
-          <div><div className="text-muted flex items-center justify-center gap-1"><Wind size={12}/> {t('Vent')}</div><div className="font-bold mt-0.5">{w.wind} km/h</div></div>
+          <div><div className="text-muted flex items-center justify-center gap-1"><Wind size={12}/> {t('Vent')}</div><div className="font-bold mt-0.5">{w.wind} {t('km/h')}</div></div>
           <div><div className="text-muted">{t('Min / Max')}</div><div className="font-bold mt-0.5">{w.lo}° / {w.hi}°</div></div>
         </div>
       </Menu.Items>

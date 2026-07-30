@@ -15,9 +15,9 @@ export default function Notifications(){
   const open=n=>{ markRead(n.id); nav(safeLink(u.role, n.link)) }
   const Group=({title,items})=> items.length>0 && <div className="mb-5"><div className="text-xs font-bold uppercase text-muted mb-1 px-1">{title}</div><Card className="p-2 divide-y divide-line">{items.map(n=><NotifRow key={n.id} n={n} onClick={()=>open(n)}/>)}</Card></div>
   return (<>
-    <PageHead title="Notifications" sub={`${inboxFor(u).filter(n=>!n.read).length} non lues`} action={<Btn variant="ghost" onClick={()=>{markAllRead(u);force(x=>x+1)}}><CheckCheck size={15}/> Tout marquer comme lu</Btn>}/>
-    <Tabs className="mb-4" tabs={[{value:'all',label:'Toutes'},{value:'unread',label:'Non lues',count:inboxFor(u).filter(n=>!n.read).length}]} value={tab} onChange={setTab}/>
+    <PageHead title={t('Notifications')} sub={`${inboxFor(u).filter(n=>!n.read).length} non lues`} action={<Btn variant="ghost" onClick={()=>{markAllRead(u);force(x=>x+1)}}><CheckCheck size={15}/> {t('Tout marquer comme lu')}</Btn>}/>
+    <Tabs className="mb-4" tabs={[{value:'all',label:t('Toutes')},{value:'unread',label:t('Non lues'),count:inboxFor(u).filter(n=>!n.read).length}]} value={tab} onChange={setTab}/>
     {all.length===0 && <Card><EmptyState icon={<Bell size={26}/>} title={t('Vous êtes à jour')} sub={tab==='unread'?'Aucune notification non lue.':'Aucune notification pour le moment.'}/></Card>}
-    <Group title="Aujourd'hui" items={today}/><Group title={t('Cette semaine')} items={week}/><Group title={t('Plus tôt')} items={older}/>
+    <Group title={t("Aujourd'hui")} items={today}/><Group title={t('Cette semaine')} items={week}/><Group title={t('Plus tôt')} items={older}/>
   </>)
 }

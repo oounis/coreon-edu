@@ -60,9 +60,9 @@ export default function Requests(){
       if(decision==='rejected') req.status='rejected'
       else { req.currentLevel++; if(req.currentLevel>=req.chain.length) req.status='approved' } })
     const req=db().requests.find(x=>x.id===r.id)
-    if(decision==='rejected') notify({to:r.by,email:true,kind:'request',actor:u.name,title:'demande rejetée',body:`${r.type} · ${comment||'sans motif'}`,link:'/app/requests'})
-    else if(req.status==='approved') notify({to:r.by,email:true,kind:'request',actor:'Administration',title:'demande approuvée',body:`${r.type} · validée${REQUEST_DEFS[r.type]?.doc?', document disponible':''}.`,link:'/app/requests'})
-    else { notify({role:req.chain[req.currentLevel],kind:'request',actor:u.name,title:`validation requise : ${r.type}`,body:`De ${r.byName}`,link:'/app/requests'}); notify({to:r.by,kind:'request',actor:u.name,title:'demande validée (étape)',body:`${r.type} · en cours`,link:'/app/requests'}) }
+    if(decision==='rejected') notify({to:r.by,email:true,kind:'request',actor:u.name,title:t('demande rejetée'),body:`${r.type} · ${comment||'sans motif'}`,link:'/app/requests'})
+    else if(req.status==='approved') notify({to:r.by,email:true,kind:'request',actor:t('Administration'),title:t('demande approuvée'),body:`${r.type} · validée${REQUEST_DEFS[r.type]?.doc?', document disponible':''}.`,link:'/app/requests'})
+    else { notify({role:req.chain[req.currentLevel],kind:'request',actor:u.name,title:`${t('validation requise')} : ${r.type}`,body:`De ${r.byName}`,link:'/app/requests'}); notify({to:r.by,kind:'request',actor:u.name,title:t('demande validée (étape)'),body:`${r.type} · en cours`,link:'/app/requests'}) }
     toast.success(decision==='approved'?'Demande approuvée':'Demande rejetée'); setView(null); setComment(''); refresh()
   }
 
@@ -94,10 +94,10 @@ export default function Requests(){
     </Card>)}
 
   return (<>
-    <PageHead title="Demandes & validations" sub={canRaise?'Déposez une demande et suivez son circuit : jusqu’à la clôture.':'Examinez, validez, assignez, clôturez. Tout est tracé.'}
+    <PageHead title={t('Demandes & validations')} sub={canRaise?'Déposez une demande et suivez son circuit : jusqu’à la clôture.':'Examinez, validez, assignez, clôturez. Tout est tracé.'}
       action={<div className="flex gap-2">
         {isDirection&&<Btn variant="soft" onClick={()=>setBilan(true)}><BarChart3 size={16}/> {t('Bilan du mois')}</Btn>}
-        {canRaise&&<Btn onClick={()=>{setType2(myTypes[0]);setOpen(true)}}><Plus size={16}/> Nouvelle demande</Btn>}
+        {canRaise&&<Btn onClick={()=>{setType2(myTypes[0]);setOpen(true)}}><Plus size={16}/> {t('Nouvelle demande')}</Btn>}
       </div>}/>
 
     {toDecide.length>0 && <div className="mb-6"><div className="text-xs font-bold uppercase text-muted mb-2">{t('À valider (')}{toDecide.length}{t(') · cliquez pour examiner')}</div>
@@ -112,8 +112,8 @@ export default function Requests(){
     {/* ---------- DETAIL (review then decide) ---------- */}
     <Modal open={!!view} onClose={()=>setView(null)} title={t('Détail de la demande')} size="xl"
       footer={view && (canDecide(view)
-        ? <><Btn variant="ghost" onClick={()=>act(view,'rejected')}><X size={15}/> Rejeter</Btn><Btn onClick={()=>act(view,'approved')}><Check size={15}/> Approuver</Btn></>
-        : <>{view.status==='approved'&&REQUEST_DEFS[view.type]?.doc&&<><Btn variant="ghost" onClick={()=>setDocR(view)}><Printer size={15}/> {t('Aperçu')}</Btn><Btn onClick={()=>downloadPDF(view)}><Download size={15}/> {t('Télécharger PDF')}</Btn></>}<Btn variant="ghost" onClick={()=>setView(null)}>Fermer</Btn></>)}>
+        ? <><Btn variant="ghost" onClick={()=>act(view,'rejected')}><X size={15}/> {t('Rejeter')}</Btn><Btn onClick={()=>act(view,'approved')}><Check size={15}/> {t('Approuver')}</Btn></>
+        : <>{view.status==='approved'&&REQUEST_DEFS[view.type]?.doc&&<><Btn variant="ghost" onClick={()=>setDocR(view)}><Printer size={15}/> {t('Aperçu')}</Btn><Btn onClick={()=>downloadPDF(view)}><Download size={15}/> {t('Télécharger PDF')}</Btn></>}<Btn variant="ghost" onClick={()=>setView(null)}>{t('Fermer')}</Btn></>)}>
       {view && (()=>{ const reqUser=userById(view.by); const rd=REQUEST_DEFS[view.type]||{fields:[]}; return (<div>
         <div className="flex items-center justify-between mb-3"><div className="text-lg font-bold flex items-center gap-2">{view.type} <Badge status={view.status}/></div></div>
         <div className="grid sm:grid-cols-2 gap-x-6 gap-y-1 text-sm mb-4 bg-canvas rounded-xl p-3">
@@ -147,7 +147,7 @@ export default function Requests(){
                     const r=assignWork(view.id,{assigneeId:assignee,assigneeName:s?.name,deadline:deadline||null,byName:u.name})
                     if(r.error) return toast.error(r.error)
                     toast.success(`Confié à ${s.name}`); setAssignee(''); setDeadline(''); setView(db().requests.find(x=>x.id===view.id)); refresh() }}>
-                    <UserCog size={15}/> Assigner</Btn>
+                    <UserCog size={15}/> {t('Assigner')}</Btn>
                 </div>)}
             {(isDirection||view.assigneeId===u.id) && (
               <div className="flex items-end gap-2">
@@ -177,9 +177,9 @@ export default function Requests(){
 
     {/* ---------- LE BILAN DU MOIS — la demande d'origine d'Othman ---------- */}
     <Modal open={bilan} onClose={()=>setBilan(false)} title={t('Bilan du mois · le travail accompli')} size="xl"
-      footer={<Btn variant="ghost" onClick={()=>setBilan(false)}>Fermer</Btn>}>
+      footer={<Btn variant="ghost" onClick={()=>setBilan(false)}>{t('Fermer')}</Btn>}>
       {bilan && (()=>{ const rep=monthReport(month); return (<div>
-        <Field label="Mois"><Input type="month" value={month} onChange={e=>setMonth(e.target.value)}/></Field>
+        <Field label={t('Mois')}><Input type="month" value={month} onChange={e=>setMonth(e.target.value)}/></Field>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 my-4">
           {[['Déposées',rep.submitted,null],['Clôturées',rep.closed,STATUS.ok],['En retard',rep.closedLate,rep.closedLate?STATUS.warn:null],['Encore ouvertes',rep.open,null],['Échéance dépassée',rep.overdue,rep.overdue?STATUS.danger:null]].map(([l,v,c])=>(
             <Card key={l} className="p-3 text-center"><div className="text-2xl font-extrabold tabular-nums" style={c?{color:c}:{}}>{v}</div><div className="text-[11px] text-muted mt-0.5">{l}</div></Card>))}
@@ -188,12 +188,12 @@ export default function Requests(){
           <div><div className="text-xs font-bold uppercase text-muted mb-2">{t('Clôturées par catégorie')}</div>
             {Object.entries(rep.byCategory).length?Object.entries(rep.byCategory).map(([c,s])=>(
               <div key={c} className="flex justify-between text-sm border-b border-line py-1.5"><span>{c}</span>
-                <span className="font-bold tabular-nums">{s.closed}{s.late>0&&<span className="font-semibold text-xs ml-1.5" style={{color:STATUS.warn}}>dont {s.late} en retard</span>}</span></div>))
+                <span className="font-bold tabular-nums">{s.closed}{s.late>0&&<span className="font-semibold text-xs ml-1.5" style={{color:STATUS.warn}}>{t('dont')} {s.late} {t('en retard')}</span>}</span></div>))
               :<div className="text-xs text-muted">{t('Rien de clôturé ce mois-ci.')}</div>}</div>
           <div><div className="text-xs font-bold uppercase text-muted mb-2">{t('Par personne')}</div>
             {Object.entries(rep.byAssignee).length?Object.entries(rep.byAssignee).sort((a,b)=>b[1].closed-a[1].closed).map(([n,s])=>(
               <div key={n} className="flex justify-between text-sm border-b border-line py-1.5"><span>{n}</span>
-                <span className="font-bold tabular-nums">{s.closed}{s.late>0&&<span className="font-semibold text-xs ml-1.5" style={{color:STATUS.warn}}>dont {s.late} en retard</span>}</span></div>))
+                <span className="font-bold tabular-nums">{s.closed}{s.late>0&&<span className="font-semibold text-xs ml-1.5" style={{color:STATUS.warn}}>{t('dont')} {s.late} {t('en retard')}</span>}</span></div>))
               :<div className="text-xs text-muted">{t("Personne n'a clôturé ce mois-ci.")}</div>}</div>
         </div>
         <p className="text-[11px] text-muted mt-4">{t("Compté depuis la trace des demandes : rien d'estimé, rien de saisi à la main.")}</p>
@@ -201,7 +201,7 @@ export default function Requests(){
     </Modal>
 
     {/* new request */}
-    <Modal open={open} onClose={()=>setOpen(false)} title="Nouvelle demande" size="xl" footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={submit}>Envoyer</Btn></>}>
+    <Modal open={open} onClose={()=>setOpen(false)} title={t('Nouvelle demande')} size="xl" footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>{t('Annuler')}</Btn><Btn onClick={submit}>{t('Envoyer')}</Btn></>}>
       <Field label={t('Type de demande')}><Select value={type} onChange={e=>setType2(e.target.value)}>{myTypes.map(v=><option key={v}>{v}</option>)}</Select></Field>
       <div className="text-xs text-muted my-2">Circuit : {def.chain?.map(r=>ROLE[r].label).join(' → ')}</div>
       {def.note&&<div className="text-xs bg-canvas rounded-xl p-2 mb-3 text-muted flex items-start gap-1.5"><Info size={13} className="shrink-0 mt-0.5"/><span>{def.note}</span></div>}
@@ -220,7 +220,7 @@ export default function Requests(){
     </Modal>
 
     {/* document preview */}
-    <Modal open={!!docR} onClose={()=>setDocR(null)} title="Document officiel" size="xl" footer={<><Btn variant="ghost" onClick={()=>setDocR(null)}>Fermer</Btn><Btn onClick={()=>downloadPDF(docR)}><Download size={15}/> {t('Télécharger PDF')}</Btn></>}>
+    <Modal open={!!docR} onClose={()=>setDocR(null)} title={t('Document officiel')} size="xl" footer={<><Btn variant="ghost" onClick={()=>setDocR(null)}>{t('Fermer')}</Btn><Btn onClick={()=>downloadPDF(docR)}><Download size={15}/> {t('Télécharger PDF')}</Btn></>}>
       {docR && <OfficialDoc r={docR}/>}
     </Modal>
   </>)
@@ -232,7 +232,7 @@ function docModel(r){
   const sc=settings()
   const f=r.fields||{}; const today=format(new Date(),'dd/MM/yyyy')
   if(r.type==='Certificat de scolarité'){ const s=studentById(f.child); const cls=classById(s?.classId)
-    return { title:'Certificat de scolarité', ref:r.id.toUpperCase(), today, sc,
+    return { title:t('Certificat de scolarité'), ref:r.id.toUpperCase(), today, sc,
       intro:`La Direction de l'établissement ${sc.schoolName} certifie que l'élève :`,
       rows:[['Nom & prénom',s?.name],['Classe',`${cls?.name||''} (${cls?.grade||''})`],['N° acte de naissance',s?.cin||'·'],['Année scolaire',f.year||sc.year]],
       body:`est régulièrement inscrit(e) et suit ses études dans notre établissement. Le présent certificat est délivré pour servir et valoir ce que de droit${f.addressedTo?` (${f.addressedTo})`:''}.`, r }

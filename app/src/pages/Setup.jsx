@@ -95,7 +95,7 @@ export default function Setup() {
           <Field label={t('Nom de l’établissement')}>
             <Input value={name} onChange={e => setName(e.target.value)} />
           </Field>
-          <Field label="Pays" hint={isOwner ? `Devise : ${PACKS[country]?.currency || 'DT'} · pièces, urgences et semaine du pays` : 'Fixé par Kogia Group au provisionnement (contactez le support).'}>
+          <Field label={t('Pays')} hint={isOwner ? `Devise : ${PACKS[country]?.currency || 'DT'} · pièces, urgences et semaine du pays` : 'Fixé par Kogia Group au provisionnement (contactez le support).'}>
             <Select disabled={!isOwner} value={country} onChange={e => { setCountry(e.target.value); setLoc(PACKS[e.target.value]?.locale || 'fr') }}>
               {PACK_LIST.map(p => <option key={p.key} value={p.key}>{p.label}</option>)}
             </Select>
@@ -107,7 +107,7 @@ export default function Setup() {
           </Field>
         </div>
 
-        <div className="text-sm font-bold mt-6 mb-3">Quels niveaux accueillez-vous ?</div>
+        <div className="text-sm font-bold mt-6 mb-3">{t('Quels niveaux accueillez-vous ?')}</div>
         <div className="grid sm:grid-cols-3 gap-3">
           {SHAPES.map(sh => {
             const on = shape === sh.key
@@ -123,9 +123,9 @@ export default function Setup() {
                 <span className="w-11 h-11 rounded-xl grid place-items-center accent-soft accent-text mb-3">
                   <Ic n={sh.icon} size={22} />
                 </span>
-                <div className="font-extrabold">{sh.label}</div>
-                <div className="text-xs text-muted font-semibold">{sh.sub}</div>
-                <p className="text-[13px] text-muted mt-2">{sh.lead}</p>
+                <div className="font-extrabold">{t(sh.label)}</div>
+                <div className="text-xs text-muted font-semibold">{t(sh.sub)}</div>
+                <p className="text-[13px] text-muted mt-2">{t(sh.lead)}</p>
               </button>
             )
           })}
@@ -135,7 +135,7 @@ export default function Setup() {
             très bien : un bon réglage par défaut vaut mieux qu'une question de plus. */}
         {shape && (
           <Card className="p-5 mt-5">
-            <div className="text-sm font-bold mb-1">Affiner, si besoin</div>
+            <div className="text-sm font-bold mb-1">{t('Affiner, si besoin')}</div>
             <p className="text-xs text-muted mb-3">
               {t('Décochez un niveau que vous n’accueillez pas. Vous pourrez le changer plus tard.')}
             </p>
@@ -166,7 +166,7 @@ export default function Setup() {
 
         <div className="flex justify-end mt-6">
           <Btn size="lg" onClick={finish} disabled={!shape || !name.trim()}>
-            Commencer <Ic n="ArrowRight" size={16} />
+            {t('Commencer')} <Ic n="ArrowRight" size={16} />
           </Btn>
         </div>
 

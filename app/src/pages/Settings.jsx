@@ -125,7 +125,7 @@ export default function Settings() {
             <h3 className="font-bold flex items-center gap-2 mb-4"><Building2 size={18} className="accent-text" /> {t('Identité de l’établissement')}</h3>
             <div className="grid sm:grid-cols-2 gap-3">
               <Field label={t('Nom de l’école *')}><Input value={f.schoolName} onChange={e => set('schoolName', e.target.value)} placeholder={t('École Al-Nour')} /></Field>
-              <Field label={t('Nom court (sidebar)')}><Input value={f.shortName} onChange={e => set('shortName', e.target.value)} placeholder="Al-Nour" /></Field>
+              <Field label={t('Nom court (sidebar)')}><Input value={f.shortName} onChange={e => set('shortName', e.target.value)} placeholder={t('Al-Nour')} /></Field>
               {/* CR-023 : Pays → Ville. On choisit dans la liste du pays, jamais
                   au clavier. Changer de pays recharge SES villes. */}
               <Field label={regionLabel()}>
@@ -136,7 +136,7 @@ export default function Settings() {
               </Field>
               <Field label={t('Année scolaire')}><Input value={f.year} onChange={e => set('year', e.target.value)} placeholder="2025–2026" /></Field>
               <Field label={t('Directeur / directrice')}><Input value={f.director} onChange={e => set('director', e.target.value)} /></Field>
-              <Field label={t('Initiales du logo')}><Input value={f.logoText} onChange={e => set('logoText', e.target.value.slice(0, 3).toUpperCase())} maxLength={3} placeholder="AN" /></Field>
+              <Field label={t('Initiales du logo')}><Input value={f.logoText} onChange={e => set('logoText', e.target.value.slice(0, 3).toUpperCase())} maxLength={3} placeholder={t('AN')} /></Field>
             </div>
             <div className="text-xs font-bold uppercase tracking-wide accent-text mt-5 mb-2">{t('Coordonnées')}</div>
             <div className="grid sm:grid-cols-2 gap-3">

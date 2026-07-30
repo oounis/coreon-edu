@@ -16,7 +16,7 @@ export default function Library(){
         <td className="px-4 py-3"><div className="flex items-center gap-3"><IconTile icon={<BookMarked size={16}/>} tint="brand" size={36} radius="rounded-lg"/><span className="font-medium">{b.title}</span></div></td>
         <td className="px-4 py-3 text-muted">{b.author}</td><td className="px-4 py-3 text-muted">{b.category}</td>
         <td className="px-4 py-3"><span className="font-bold" style={{color:b.available>0?STATUS.ok:STATUS.danger}}>{b.available}</span><span className="text-muted">/{b.copies}</span></td>
-        <td className="px-4 py-3"><div className="flex gap-2"><Btn variant="soft" onClick={()=>issue(b.id)} disabled={b.available===0}>{t('Prêter')}</Btn><Btn variant="ghost" onClick={()=>ret(b.id)} disabled={b.available===b.copies}>Retour</Btn></div></td></tr>))}
+        <td className="px-4 py-3"><div className="flex gap-2"><Btn variant="soft" onClick={()=>issue(b.id)} disabled={b.available===0}>{t('Prêter')}</Btn><Btn variant="ghost" onClick={()=>ret(b.id)} disabled={b.available===b.copies}>{t('Retour')}</Btn></div></td></tr>))}
     </Table>}
   </>)
 }
