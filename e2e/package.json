@@ -22,7 +22,7 @@
     "qualite": "node parcours.qualite.mjs",
     "perf": "node parcours.perf.mjs",
     "comptes": "node parcours.comptes.mjs",
-    "all": "node parcours.public.mjs && node parcours.demandes.mjs && node parcours.arabe.mjs && node parcours.langues.mjs && node parcours.smoke.mjs && node parcours.journal.mjs && node parcours.uiux.mjs && node parcours.comportement.mjs && node parcours.moments.mjs && node parcours.cantine.mjs && node parcours.presence.mjs && node parcours.tuiles.mjs && node parcours.gestion.mjs && node parcours.live.mjs && node parcours.comptes.mjs && node parcours.eleves.mjs && node parcours.scroll.mjs && node parcours.qualite.mjs && node parcours.perf.mjs && node parcours.mobile.mjs",
+    "all": "node parcours.public.mjs && node parcours.demandes.mjs && node parcours.arabe.mjs && node parcours.langues.mjs && node parcours.fuites-langue.mjs && node parcours.smoke.mjs && node parcours.journal.mjs && node parcours.uiux.mjs && node parcours.comportement.mjs && node parcours.moments.mjs && node parcours.cantine.mjs && node parcours.presence.mjs && node parcours.tuiles.mjs && node parcours.gestion.mjs && node parcours.live.mjs && node parcours.comptes.mjs && node parcours.eleves.mjs && node parcours.scroll.mjs && node parcours.qualite.mjs && node parcours.perf.mjs && node parcours.mobile.mjs",
     "journal": "node parcours.journal.mjs",
     "langues": "node parcours.langues.mjs"
   },

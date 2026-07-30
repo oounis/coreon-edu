@@ -94,7 +94,7 @@ export default function Requests(){
     </Card>)}
 
   return (<>
-    <PageHead title={t('Demandes & validations')} sub={canRaise?'Déposez une demande et suivez son circuit : jusqu’à la clôture.':'Examinez, validez, assignez, clôturez. Tout est tracé.'}
+    <PageHead title={t('Demandes & validations')} sub={canRaise?t('Déposez une demande et suivez son circuit : jusqu’à la clôture.'):t('Examinez, validez, assignez, clôturez. Tout est tracé.')}
       action={<div className="flex gap-2">
         {isDirection&&<Btn variant="soft" onClick={()=>setBilan(true)}><BarChart3 size={16}/> {t('Bilan du mois')}</Btn>}
         {canRaise&&<Btn onClick={()=>{setType2(myTypes[0]);setOpen(true)}}><Plus size={16}/> {t('Nouvelle demande')}</Btn>}
@@ -103,10 +103,10 @@ export default function Requests(){
     {toDecide.length>0 && <div className="mb-6"><div className="text-xs font-bold uppercase text-muted mb-2">{t('À valider (')}{toDecide.length}{t(') · cliquez pour examiner')}</div>
       <div className="space-y-3">{toDecide.map(r=><Row key={r.id} r={r} decidable/>)}</div></div>}
 
-    <div className="text-xs font-bold uppercase text-muted mb-2">{canRaise?'Mes demandes':'Toutes les demandes'}</div>
+    <div className="text-xs font-bold uppercase text-muted mb-2">{canRaise?t('Mes demandes'):t('Toutes les demandes')}</div>
     <div className="space-y-3">
       {(canRaise?mine:d.requests).map(r=><Row key={r.id} r={r}/>)}
-      {(canRaise?mine:d.requests).length===0 && <Card><EmptyState icon={<FileText size={26}/>} title={t('Aucune demande')} sub={canRaise?'Déposez votre première demande pour la suivre ici.':'Les demandes à examiner apparaîtront ici.'}/></Card>}
+      {(canRaise?mine:d.requests).length===0 && <Card><EmptyState icon={<FileText size={26}/>} title={t('Aucune demande')} sub={canRaise?t('Déposez votre première demande pour la suivre ici.'):t('Les demandes à examiner apparaîtront ici.')}/></Card>}
     </div>
 
     {/* ---------- DETAIL (review then decide) ---------- */}
@@ -117,10 +117,10 @@ export default function Requests(){
       {view && (()=>{ const reqUser=userById(view.by); const rd=REQUEST_DEFS[view.type]||{fields:[]}; return (<div>
         <div className="flex items-center justify-between mb-3"><div className="text-lg font-bold flex items-center gap-2">{view.type} <Badge status={view.status}/></div></div>
         <div className="grid sm:grid-cols-2 gap-x-6 gap-y-1 text-sm mb-4 bg-canvas rounded-xl p-3">
-          <div><span className="text-muted">Demandeur :</span> <b>{view.byName}</b> ({ROLE[reqUser?.role]?.label})</div>
-          <div><span className="text-muted">CIN :</span> {reqUser?.cin||'·'}</div>
-          <div><span className="text-muted">Date :</span> {format(view.at,'dd/MM/yyyy HH:mm')}</div>
-          <div><span className="text-muted">Circuit :</span> {view.chain.map(r=>ROLE[r].label).join(' → ')}</div>
+          <div><span className="text-muted">{t('Demandeur :')}</span> <b>{view.byName}</b> ({ROLE[reqUser?.role]?.label})</div>
+          <div><span className="text-muted">{t('CIN :')}</span> {reqUser?.cin||'·'}</div>
+          <div><span className="text-muted">{t('Date :')}</span> {format(view.at,'dd/MM/yyyy HH:mm')}</div>
+          <div><span className="text-muted">{t('Circuit :')}</span> {view.chain.map(r=>ROLE[r].label).join(' → ')}</div>
         </div>
         <div className="text-xs font-bold uppercase text-muted mb-2">{t('Détails saisis')}</div>
         <div className="space-y-1 mb-4">
@@ -169,7 +169,7 @@ export default function Requests(){
           <div className="mt-4 pt-4 border-t border-line">
             <div className="text-xs font-bold uppercase text-muted mb-1.5">{t('Qui a fait quoi')}</div>
             {view.trace.map((v,i)=>(<div key={i} className="text-xs py-0.5">
-              <b>{v.by}</b> {v.action==='assigne'?'a assigné':'a clôturé'} · {format(v.at,'dd/MM/yyyy HH:mm')}
+              <b>{v.by}</b> {v.action==='assigne'?t('a assigné'):t('a clôturé')} · {format(v.at,'dd/MM/yyyy HH:mm')}
               {v.note&&<span className="text-muted"> {v.note}</span>}</div>))}
           </div>)}
       </div>) })()}
@@ -203,7 +203,7 @@ export default function Requests(){
     {/* new request */}
     <Modal open={open} onClose={()=>setOpen(false)} title={t('Nouvelle demande')} size="xl" footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>{t('Annuler')}</Btn><Btn onClick={submit}>{t('Envoyer')}</Btn></>}>
       <Field label={t('Type de demande')}><Select value={type} onChange={e=>setType2(e.target.value)}>{myTypes.map(v=><option key={v}>{v}</option>)}</Select></Field>
-      <div className="text-xs text-muted my-2">Circuit : {def.chain?.map(r=>ROLE[r].label).join(' → ')}</div>
+      <div className="text-xs text-muted my-2">{t('Circuit :')} {def.chain?.map(r=>ROLE[r].label).join(' → ')}</div>
       {def.note&&<div className="text-xs bg-canvas rounded-xl p-2 mb-3 text-muted flex items-start gap-1.5"><Info size={13} className="shrink-0 mt-0.5"/><span>{def.note}</span></div>}
       <div className="grid sm:grid-cols-2 gap-3">{def.fields.map(f=>(
         <div key={f.k} className={f.t==='textarea'||f.t==='checkbox'?'sm:col-span-2':''}>
@@ -213,7 +213,7 @@ export default function Requests(){
                 {f.t==='select'? <Select value={vals[f.k]||''} onChange={e=>setVals({...vals,[f.k]:e.target.value})}><option value=""> </option>{f.o.map(o=><option key={o}>{o}</option>)}</Select>
                 : f.t==='child'? <Select value={vals[f.k]||''} onChange={e=>setVals({...vals,[f.k]:e.target.value})}><option value=""> </option>{childOptions.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</Select>
                 : f.t==='textarea'? <Textarea value={vals[f.k]||''} onChange={e=>setVals({...vals,[f.k]:e.target.value})} className="h-20"/>
-                : f.t==='attach'? <label className="flex items-center gap-2 text-sm border border-line rounded-xl px-3 py-2.5 cursor-pointer"><Paperclip size={14} className="text-muted"/>{vals[f.k]||'Joindre un fichier'}<input type="file" className="hidden" onChange={e=>setVals({...vals,[f.k]:e.target.files?.[0]?.name||''})}/></label>
+                : f.t==='attach'? <label className="flex items-center gap-2 text-sm border border-line rounded-xl px-3 py-2.5 cursor-pointer"><Paperclip size={14} className="text-muted"/>{vals[f.k]||t('Joindre un fichier')}<input type="file" className="hidden" onChange={e=>setVals({...vals,[f.k]:e.target.files?.[0]?.name||''})}/></label>
                 : <Input type={f.t==='number'?'number':f.t==='date'?'date':f.t==='time'?'time':'text'} value={vals[f.k]||''} onChange={e=>setVals({...vals,[f.k]:e.target.value})}/>}
               </Field>}
         </div>))}</div>

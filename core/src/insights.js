@@ -102,7 +102,7 @@ export function schoolInsights(d = db(), { days = 7 } = {}) {
       tone: bc.positiveRate >= 70 ? 'ok' : bc.positiveRate >= 45 ? 'info' : 'warn',
       value: `${bc.positiveRate}%`,
       label: t('Climat de classe positif'),
-      sub: `${bc.positives} encouragement${bc.positives > 1 ? 's' : ''} · ${bc.toImprove} rappel${bc.toImprove > 1 ? 's' : ''} cette semaine${tr ? ` · surtout « ${tr.label} »` : ''}`,
+      sub: `${bc.positives} ${bc.positives > 1 ? t('encouragements') : t('encouragement')} · ${bc.toImprove} ${bc.toImprove > 1 ? t('rappels') : t('rappel')} ${t('cette semaine')}${tr ? ` · surtout « ${tr.label} »` : ''}`,
       to: '/app/behavior',
     })
   }
@@ -130,7 +130,7 @@ export function schoolInsights(d = db(), { days = 7 } = {}) {
     out.push({
       key: 'assiduite', icon: 'Stethoscope', tone: 'warn',
       value: String(at.watch.length),
-      label: `Enfant${at.watch.length > 1 ? 's' : ''} à surveiller`,
+      label: at.watch.length > 1 ? t('Enfants à surveiller') : t('Enfant à surveiller'),
       sub: t('Absences répétées cette semaine : prendre des nouvelles'),
       to: '/app/attendance',
     })

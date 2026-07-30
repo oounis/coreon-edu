@@ -95,7 +95,7 @@ export default function Setup() {
           <Field label={t('Nom de l’établissement')}>
             <Input value={name} onChange={e => setName(e.target.value)} />
           </Field>
-          <Field label={t('Pays')} hint={isOwner ? `Devise : ${PACKS[country]?.currency || 'DT'} · pièces, urgences et semaine du pays` : 'Fixé par Kogia Group au provisionnement (contactez le support).'}>
+          <Field label={t('Pays')} hint={isOwner ? `Devise : ${PACKS[country]?.currency || 'DT'} · pièces, urgences et semaine du pays` : t('Fixé par Kogia Group au provisionnement (contactez le support).')}>
             <Select disabled={!isOwner} value={country} onChange={e => { setCountry(e.target.value); setLoc(PACKS[e.target.value]?.locale || 'fr') }}>
               {PACK_LIST.map(p => <option key={p.key} value={p.key}>{p.label}</option>)}
             </Select>

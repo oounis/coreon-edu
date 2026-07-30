@@ -107,7 +107,7 @@ export default function Pointage(){
             <div key={h.iso} className="flex items-center justify-between px-3 py-2 rounded-xl border border-line text-sm">
               <span className="text-muted capitalize">{format(new Date(h.iso),'EEE d MMM',{locale: df()})}</span>
               <span className="font-semibold">{h.in} → {h.out||'·'}</span>
-              <span className="font-bold" style={{color:h.in>LATE?STATUS.warn:STATUS.ok}}>{h.mins?fmtH(h.mins):'en cours'}</span>
+              <span className="font-bold" style={{color:h.in>LATE?STATUS.warn:STATUS.ok}}>{h.mins?fmtH(h.mins):t('en cours')}</span>
             </div>))}</div>}
         </SectionCard>
       </div>
@@ -131,7 +131,7 @@ export default function Pointage(){
         <div key={h.iso} className="flex items-center justify-between px-3 py-2 rounded-xl border border-line text-sm">
           <span className="text-muted capitalize">{format(new Date(h.iso),'EEEE d MMMM',{locale: df()})}</span>
           <span className="font-semibold tabular-nums">{h.in} → {h.out||'·'}</span>
-          <span className="font-bold" style={{color:h.in>LATE?STATUS.warn:STATUS.ok}}>{h.mins?fmtH(h.mins):'en cours'}</span>
+          <span className="font-bold" style={{color:h.in>LATE?STATUS.warn:STATUS.ok}}>{h.mins?fmtH(h.mins):t('en cours')}</span>
         </div>)
       const lateRows=monthRows.filter(h=>h.in>LATE)
       const annuals=myLeaves.filter(l=>l.type==='annuel'&&l.status==='approved'&&new Date(l.from).getFullYear()===year)
@@ -192,7 +192,7 @@ function RequestModal({ open, onClose, staffId, name, onDone }){
         {perm
           ? <Field label={t('Durée (heures)')}><Input type="number" min="1" max="8" value={f.hours} onChange={e=>setF({...f,hours:e.target.value})}/></Field>
           : <span/>}
-        <Field label={perm?'Date':'Du'}><Input type="date" value={f.from} onChange={e=>setF({...f,from:e.target.value})}/></Field>
+        <Field label={perm?t('Date'):t('Du')}><Input type="date" value={f.from} onChange={e=>setF({...f,from:e.target.value})}/></Field>
         {!perm && <Field label={t('Au')}><Input type="date" value={f.to} onChange={e=>setF({...f,to:e.target.value})}/></Field>}
         <div className="sm:col-span-2"><Field label={t('Motif')}><Textarea value={f.reason} onChange={e=>setF({...f,reason:e.target.value})} className="h-16" placeholder={t('Optionnel · visible par la Direction')}/></Field></div>
       </div>

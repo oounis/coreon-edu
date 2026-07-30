@@ -116,7 +116,7 @@ export default function Events(){
                     <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[12px] text-muted mt-0.5">
                       {e.time&&<span className="flex items-center gap-1"><Clock size={11}/>{e.time}</span>}
                       {e.place&&<span className="flex items-center gap-1"><MapPin size={11}/>{e.place}</span>}
-                      <span className="flex items-center gap-1"><Users size={11}/>{t(AUD[e.audience])||'Toute l’école'}</span>
+                      <span className="flex items-center gap-1"><Users size={11}/>{t(AUD[e.audience])||t('Toute l’école')}</span>
                     </div>
                     {e.desc&&<div className="text-xs text-muted mt-1">{e.desc}</div>}
                   </div>
@@ -124,7 +124,7 @@ export default function Events(){
                 </div>
               </div>
             ))}
-          </div> : <EmptyState icon={<CalendarDays size={22}/>} title={t('Aucun événement ce jour')} sub={canAdd?'Double-cliquez sur un jour du calendrier pour en ajouter un.':'Sélectionnez un autre jour du calendrier.'}/>}
+          </div> : <EmptyState icon={<CalendarDays size={22}/>} title={t('Aucun événement ce jour')} sub={canAdd?t('Double-cliquez sur un jour du calendrier pour en ajouter un.'):t('Sélectionnez un autre jour du calendrier.')}/>}
         </Card>
 
         <Card className="p-4">

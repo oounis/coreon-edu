@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react'
+import { t } from '@core/i18n.js'
 import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import toast from 'react-hot-toast'
@@ -125,7 +126,7 @@ export default function App(){
           encore à l'écran. Avec un rôle, le lecteur d'écran annonce enfin
           l'attente, et le contrôle d'accessibilité cesse d'être capricieux. */}
       <RoutedBoundary>
-      <Suspense fallback={<div className="min-h-screen grid place-items-center"><div role="status" aria-live="polite" className="skeleton w-40 h-10" aria-label="Chargement…"/></div>}>
+      <Suspense fallback={<div className="min-h-screen grid place-items-center"><div role="status" aria-live="polite" className="skeleton w-40 h-10" aria-label={t('Chargement…')}/></div>}>
       <Routes>
         {/* La vitrine publique : une coquille partagée (en-tête + pied) et une
             VRAIE route par entrée de menu (CR-006). URL propre, favori possible,

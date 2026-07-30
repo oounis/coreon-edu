@@ -181,7 +181,12 @@ export function pendingAck() {
   const HOURS = 3600 * 1000
   return accidents()
     .filter(a => a.stage === 'envoye')
-    .map(a => ({ ...a, waitingHours: Math.round((nowMs() - ms(a.sentAt)) / HOURS) }))
+    // PLANCHER À ZÉRO. En mode démonstration l'horloge est SIMULÉE (journée
+    // type à 10:30) et peut passer AVANT l'horodatage semé : l'écran affichait
+    // « en attente depuis -1 h ». Une attente négative n'existe pas ; on ne
+    // corrige pas l'heure simulée (elle est voulue), on refuse de mentir sur
+    // la durée. Trouvé par le balayage de langue, qui lisait l'écran.
+    .map(a => ({ ...a, waitingHours: Math.max(0, Math.round((nowMs() - ms(a.sentAt)) / HOURS)) }))
     .sort((x, y) => y.waitingHours - x.waitingHours)
 }
 

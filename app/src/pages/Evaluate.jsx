@@ -171,7 +171,7 @@ export default function Evaluate(){
         <p className="sr-only">{t("Glissez chaque élève vers une réponse. Au clavier : tabulez jusqu'à un élève, appuyez sur espace pour le saisir, utilisez les flèches pour choisir une réponse, puis espace pour le déposer.")}</p>
         <DropZone id="pool" label={t('Élèves à placer')} className="card border-dashed p-3 mb-4 min-h-[64px]">
           <div className="flex flex-wrap gap-2">{pool.length? pool.map(s=><StudentChip key={s.id} student={s}/>) : <span className="text-sm text-muted px-2 py-1 inline-flex items-center gap-1"><Check size={14}/> {t('Tous placés')}</span>}</div>
-          {pool.length>0&&<div className="flex gap-2 mt-2 flex-wrap"><span className="text-xs text-muted py-1">Rapide :</span>{BUCKETS.map(b=><button key={b.key} onClick={()=>autoFill(b.key)} className="text-xs px-2 py-1 rounded-full border border-line hover:bg-canvas">{t('tous →')} {b.label}</button>)}</div>}
+          {pool.length>0&&<div className="flex gap-2 mt-2 flex-wrap"><span className="text-xs text-muted py-1">{t('Rapide :')}</span>{BUCKETS.map(b=><button key={b.key} onClick={()=>autoFill(b.key)} className="text-xs px-2 py-1 rounded-full border border-line hover:bg-canvas">{t('tous →')} {b.label}</button>)}</div>}
         </DropZone>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {BUCKETS.map(b=>{ const inB=students.filter(s=>place[s.id]===b.key); return (
@@ -184,7 +184,7 @@ export default function Evaluate(){
         <div className="flex items-center justify-between mt-6">
           <Btn variant="ghost" onClick={()=>step>0&&setStep(step-1)} disabled={step===0}><ChevronLeft size={16}/> {t('Retour')}</Btn>
           <button onClick={()=>setPlacements(p=>({...p,[q.id]:{}}))} className="text-sm text-muted hover:text-ink inline-flex items-center gap-1"><RotateCcw size={14}/> {t('réinitialiser')}</button>
-          <Btn onClick={()=>setStep(step+1)}>{step<4?'Suivant':'Badges & note'} <ChevronRight size={16}/></Btn>
+          <Btn onClick={()=>setStep(step+1)}>{step<4?t('Suivant'):t('Badges & note')} <ChevronRight size={16}/></Btn>
         </div>
         <DragOverlay>{active? <StudentChip student={active} overlay/> : null}</DragOverlay>
       </DndContext>
@@ -194,7 +194,7 @@ export default function Evaluate(){
         <p className="text-muted text-sm mb-4">{t('Facultatif : touchez un élève, puis un badge.')}</p>
         <BadgePicker students={students} badges={badges} setBadges={setBadges}/>
         <Textarea value={note} onChange={e=>setNote(e.target.value)} placeholder={t("Note facultative pour les parents / l'administration…")} className="mt-4 h-24"/>
-        <div className="flex items-center justify-between mt-6"><Btn variant="ghost" onClick={()=>setStep(4)}><ChevronLeft size={16}/> {t('Retour')}</Btn><Btn onClick={submit} disabled={saving}><Zap size={17}/> {saving?'Enregistrement…':'Enregistrer & partager'}</Btn></div>
+        <div className="flex items-center justify-between mt-6"><Btn variant="ghost" onClick={()=>setStep(4)}><ChevronLeft size={16}/> {t('Retour')}</Btn><Btn onClick={submit} disabled={saving}><Zap size={17}/> {saving?t('Enregistrement…'):t('Enregistrer & partager')}</Btn></div>
       </div>
     )}
   </>)

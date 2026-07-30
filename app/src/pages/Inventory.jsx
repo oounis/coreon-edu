@@ -44,8 +44,8 @@ export default function Inventory() {
         {low.length ? <AlertTriangle size={20} /> : <PackageCheck size={20} />}
       </span>
       <button onClick={() => low.length && setAlerts(true)} className={`text-left ${low.length ? 'k-press' : 'cursor-default'}`}>
-        <div className="font-extrabold">{low.length ? `${low.length} article(s) sous le seuil : à racheter` : 'Aucun stock sous son seuil'}</div>
-        <div className="text-xs text-muted">{low.length ? 'Cliquez pour voir la liste de courses.' : 'Chaque article porte un seuil : en dessous, il apparaît ici.'}</div>
+        <div className="font-extrabold">{low.length ? `${low.length} article(s) sous le seuil : à racheter` : t('Aucun stock sous son seuil')}</div>
+        <div className="text-xs text-muted">{low.length ? t('Cliquez pour voir la liste de courses.') : t('Chaque article porte un seuil : en dessous, il apparaît ici.')}</div>
       </button>
     </Card>
 
@@ -91,7 +91,7 @@ export default function Inventory() {
     <Modal open={open} onClose={() => setOpen(false)} title={t('Ajouter un article')}
       footer={<><Btn variant="ghost" onClick={() => setOpen(false)}>{t('Annuler')}</Btn><Btn onClick={submit}>{t('Ajouter')}</Btn></>}>
       <div className="grid sm:grid-cols-2 gap-3">
-        <Field label="Article *"><Input value={f.name} onChange={e => setF({ ...f, name: e.target.value })} placeholder="Feutres, couches T4, ramettes A4…" /></Field>
+        <Field label="Article *"><Input value={f.name} onChange={e => setF({ ...f, name: e.target.value })} placeholder={t('Feutres, couches T4, ramettes A4…')} /></Field>
         <Field label={t('Catégorie')}><Select value={f.category} onChange={e => setF({ ...f, category: e.target.value })}>
           {Object.values(INV_CATS).map(c => <option key={c.key} value={c.key}>{c.label}</option>)}</Select></Field>
         <Field label={t('Emplacement')}><Input value={f.location} onChange={e => setF({ ...f, location: e.target.value })} placeholder={t('Réserve, atelier, cuisine…')} /></Field>

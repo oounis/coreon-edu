@@ -71,7 +71,7 @@ export default function Interop() {
           <b> manifest</b>. Les identifiants (<code>sourcedId</code>{t(') sont ASCII et stables : un consommateur (Clever, Wonde, un LMS) peut les réimporter tels quels.')}
         </p>
         <Btn onClick={download} disabled={busy}>
-          <Ic n="Download" size={15} /> Exporter en OneRoster v1.2 (CSV)
+          <Ic n="Download" size={15} /> {t('Exporter en OneRoster v1.2 (CSV)')}
         </Btn>
       </Card>
 

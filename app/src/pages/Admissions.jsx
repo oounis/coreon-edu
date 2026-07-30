@@ -54,7 +54,7 @@ export default function Admissions() {
     if (stage === 'refuse' && !note) { setRefusing(id); setRefuseNote(''); return }
     const r = advance(id, stage, me?.name || 'Administration', note || '')
     if (r.error) return toast.error(r.error)
-    toast.success(`${t('Candidature')} : ${stageLabel(stage)}`)
+    toast.success(`${t('Candidature')} : ${t(stageLabel(stage))}`)
     refresh()
   }
 
@@ -73,7 +73,7 @@ export default function Admissions() {
           { k: 'Inscrits', v: s.inscrit, i: 'UserCheck' },
         ].map(x => (
           <Card key={x.k} className="p-4">
-            <div className="flex items-center gap-1.5 text-muted text-xs font-bold"><Ic n={x.i} size={13} />{x.k}</div>
+            <div className="flex items-center gap-1.5 text-muted text-xs font-bold"><Ic n={x.i} size={13} />{t(x.k)}</div>
             <div className="text-2xl font-extrabold mt-1 tabular-nums">{x.v}</div>
           </Card>
         ))}
@@ -84,7 +84,7 @@ export default function Admissions() {
           <button key={f} onClick={() => setFilter(f)}
             className={`px-3 py-1.5 rounded-full text-[13px] font-bold border transition
               ${filter === f ? 'text-white border-transparent accent-bg' : 'bg-white border-line text-muted'}`}>
-            {f === 'actives' ? 'En cours' : f === 'toutes' ? 'Toutes' : stageLabel(f)}
+            {f === 'actives' ? t('En cours') : f === 'toutes' ? t('Toutes') : t(stageLabel(f))}
           </button>
         ))}
       </div>
@@ -113,7 +113,7 @@ export default function Admissions() {
                 {!st?.terminal && (
                   <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold shrink-0"
                     style={{ color: ready ? STATUS.ok : STATUS.warn }}>
-                    <Ic n="Paperclip" size={12} /> {ready ? 'complètes' : 'incomplètes'}
+                    <Ic n="Paperclip" size={12} /> {ready ? t('complètes') : t('incomplètes')}
                   </span>
                 )}
                 <Badge status={x.stage} label={st?.label} tone={st?.tone} />
@@ -132,7 +132,7 @@ export default function Admissions() {
           <>
             {STAGES[a.stage].next.filter(n => n !== 'inscrit').map(n => (
               <Btn key={n} variant={n === 'refuse' ? 'ghost' : 'primary'}
-                onClick={() => go(a.id, n)}>{stageLabel(n)}</Btn>
+                onClick={() => go(a.id, n)}>{t(stageLabel(n))}</Btn>
             ))}
           </>
         )}>
@@ -174,7 +174,7 @@ export default function Admissions() {
                 onChange={files => { setFiles(a.id, files); refresh() }} />
               {!docsComplete(a) && (
                 <p className="text-[12px] mt-2" style={{ color: STATUS.warn }}>
-                  Il manque : {docsFor(a.level).filter(d => d.required && !hasDoc(a, d.key)).map(d => d.label).join(', ')}.
+                  {t('Il manque :')} {docsFor(a.level).filter(d => d.required && !hasDoc(a, d.key)).map(d => d.label).join(', ')}.
                 </p>
               )}
             </div>
@@ -202,7 +202,7 @@ export default function Admissions() {
                             toast.success(`${a.childName} est inscrit${''} en ${c.name}.`)
                             setOpen(null); refresh()
                           }}>
-                          {c.free ? 'Inscrire' : 'Pleine'}
+                          {c.free ? t('Inscrire') : t('Pleine')}
                         </Btn>
                       </span>
                     </div>

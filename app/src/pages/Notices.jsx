@@ -24,7 +24,7 @@ export default function Notices(){
       </div><div className="mt-3"><Btn onClick={post}>{t('Publier')}</Btn></div></Card>}
     <div className="space-y-3">
       {feed.length? feed.map(n=>(<Card key={n.id} className="p-4 flex items-start gap-3"><IconTile icon={<Megaphone size={18}/>} tint="brand" size={40} radius="rounded-xl"/>
-        <div><div className="font-semibold">{n.title}</div><div className="text-sm text-muted">{n.body}</div><div className="text-[12px] text-muted mt-0.5">{formatDistanceToNow(n.at,{addSuffix:true,locale: df()})} · {audFR[n.role]||'à vous'}</div></div></Card>))
+        <div><div className="font-semibold">{n.title}</div><div className="text-sm text-muted">{n.body}</div><div className="text-[12px] text-muted mt-0.5">{formatDistanceToNow(n.at,{addSuffix:true,locale: df()})} · {audFR[n.role]||t('à vous')}</div></div></Card>))
        : <Card><EmptyState icon={<Megaphone size={26}/>} title={t('Aucune annonce')} sub={t("Les communications de l'école apparaîtront ici.")}/></Card>}
     </div>
   </>)

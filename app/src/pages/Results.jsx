@@ -150,7 +150,7 @@ export default function Results(){
         </Modal>) })()}
 
       <div className="grid lg:grid-cols-[1fr_340px] gap-4 mb-5">
-        <SectionCard icon={<TrendingUp size={16}/>} tint="brand" title={t('Évolution de la moyenne')} sub={`Moyenne des évaluations · ${PERIODS.find(p=>p.value===period).label.toLowerCase()}`}>
+        <SectionCard icon={<TrendingUp size={16}/>} tint="brand" title={t('Évolution de la moyenne')} sub={`${t('Moyenne des évaluations')} · ${t(PERIODS.find(p=>p.value===period).label).toLowerCase()}`}>
           <SoftArea data={trend} dataKey="moyenne" color={SERIES[0]} id="gAvg" domain={[0,100]} height={224}/>
         </SectionCard>
         <SectionCard icon={<Gauge size={16}/>} tint="grape" title={t('Répartition des niveaux')} sub={t('Toutes réponses confondues')}>
@@ -172,7 +172,7 @@ export default function Results(){
       </div>
 
       <SectionCard icon={<BookMarked size={16}/>} tint="grape" title={t('Performance par matière & leçon')}
-        sub={`${classId==='all'?"Toute l'école":d.classes.find(c=>c.id===classId)?.name} · moyenne de toutes les évaluations de la période · le cœur du pilotage pédagogique`} className="mb-5">
+        sub={`${classId==='all'?t("Toute l'école"):d.classes.find(c=>c.id===classId)?.name} · ${t('moyenne de toutes les évaluations de la période · le cœur du pilotage pédagogique')}`} className="mb-5">
         <LessonMap data={subjectAgg}/>
       </SectionCard>
 
@@ -195,7 +195,7 @@ export default function Results(){
         {rows.length===0 ? <EmptyState icon={<Search size={24}/>} title={t('Aucun élève ne correspond')}/> : (
         <div className="overflow-x-auto scroll-thin"><table className="w-full text-sm">
           <thead><tr className="text-left text-[12px] uppercase tracking-wide text-muted bg-canvas">
-            {['#','Élève','Classe','Évaluations','Moyenne','Mention','Tendance',''].map((h,i)=><th key={i} className="px-4 py-3 font-semibold">{h}</th>)}</tr></thead>
+            {['#','Élève','Classe','Évaluations','Moyenne','Mention','Tendance',''].map((h,i)=><th key={i} className="px-4 py-3 font-semibold">{t(h)}</th>)}</tr></thead>
           <tbody className="divide-y divide-line">
             {rows.map((x,i)=>(
               <tr key={x.s.id} onClick={()=>setView(x.s)} className="hover:bg-canvas cursor-pointer">
@@ -246,7 +246,7 @@ function RankRow({ x, i, onOpen, best }){
         style={medal?{background:['#FFF4DD','#EEF1F6','#FCEEE2'][i],color:[STATUS.warn,N.slate,STATUS.warn][i]}:{background:STATUS.neutralSoft,color:N.slate}}>{i+1}</span>
       <Avatar name={x.s.name} seed={x.s.id} size={34}/>
       <span className="min-w-0 flex-1"><span className="block font-semibold truncate leading-tight">{x.s.name}</span>
-        <span className="block text-[12px] text-muted">{classById(x.s.classId)?.name} · {x.count} {t('évaluation')}{x.count>1?'s':''}</span></span>
+        <span className="block text-[12px] text-muted">{classById(x.s.classId)?.name} · {x.count} {x.count>1?t('évaluations'):t('évaluation')}</span></span>
       <TrendArrow v={x.trend}/>
       <span className="text-sm font-extrabold w-14 text-right" style={{color:x.mention.color}}>{x.avg}/100</span>
     </button>

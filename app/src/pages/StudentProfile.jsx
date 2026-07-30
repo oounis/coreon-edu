@@ -98,7 +98,7 @@ export default function StudentProfile() {
             {allergic && <Badge tone="warn" label={`Allergie : ${s.allergies}`} status="allergy" />}
           </div>
           <div className="text-sm text-muted mt-0.5">
-            {cls ? `${cls.name} · ${cls.cycle}` : 'Sans classe'}{s.dob && ` · né(e) le ${s.dob}`}{s.bloodGroup && s.bloodGroup !== '·' && ` · ${s.bloodGroup}`}
+            {cls ? `${cls.name} · ${cls.cycle}` : t('Sans classe')}{s.dob && ` · né(e) le ${s.dob}`}{s.bloodGroup && s.bloodGroup !== '·' && ` · ${s.bloodGroup}`}
           </div>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -133,7 +133,7 @@ export default function StudentProfile() {
 
       {/* Présence */}
       <SectionCard icon={<CalendarCheck size={16} />} tint="mint" title={t('Présence')} sub={t('30 derniers jours + dernières anomalies')} bodyClass="p-4">
-        <div id="sec-presence" className="text-3xl font-extrabold" style={{ color: stats.rate >= 90 ? STATUS.ok : STATUS.warn }}>{stats.rate != null ? `${stats.rate}%` : 'Aucun appel'}</div>
+        <div id="sec-presence" className="text-3xl font-extrabold" style={{ color: stats.rate >= 90 ? STATUS.ok : STATUS.warn }}>{stats.rate != null ? `${stats.rate}%` : t('Aucun appel')}</div>
         {stats.anomalies.length === 0
           ? <p className="text-sm text-muted mt-2">{t('Aucune absence ni retard enregistrés.')}</p>
           : <div className="mt-2 space-y-1">{stats.anomalies.map((a, i) => (
@@ -164,13 +164,13 @@ export default function StudentProfile() {
       <SectionCard icon={<HeartPulse size={16} />} tint="coral" title={t('Santé & sécurité')} bodyClass="p-4">
         <div className="space-y-1.5 text-sm">
           <div className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{t('Allergies')}</span>
-            <span className="font-bold" style={allergic ? { color: STATUS.warn } : {}}>{s.allergies || 'Aucune'}</span></div>
-          <div className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{t('Suivi médical')}</span><span className="font-medium">{s.medical || 'Aucun'}</span></div>
+            <span className="font-bold" style={allergic ? { color: STATUS.warn } : {}}>{s.allergies || t('Aucune')}</span></div>
+          <div className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{t('Suivi médical')}</span><span className="font-medium">{s.medical || t('Aucun')}</span></div>
           <div className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{t('Vaccins')}</span>
             <span className="font-medium" style={stats.vaccines.due?.length ? { color: STATUS.warn } : {}}>
               {stats.vaccines.unknown ? '·' : `${stats.vaccines.done.length} faits${stats.vaccines.due.length ? ` · ${stats.vaccines.due.length} en retard` : ' · à jour'}`}</span></div>
           <div className="flex justify-between py-1.5"><span className="text-muted flex items-center gap-1"><ShieldCheck size={13} /> {t('Personnes autorisées')}</span>
-            <span className="font-medium">{stats.pickups.length ? stats.pickups.map(p => p.name.split(' ')[0]).join(', ') : 'Aucune · à compléter !'}</span></div>
+            <span className="font-medium">{stats.pickups.length ? stats.pickups.map(p => p.name.split(' ')[0]).join(', ') : t('Aucune · à compléter !')}</span></div>
         </div>
       </SectionCard>
 

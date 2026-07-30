@@ -225,7 +225,7 @@ export default function Settings() {
               </Field>
               <Field label={t('Langue par défaut')} hint={t('La langue d’un nouvel appareil. Chacun peut la changer.')}>
                 <Select disabled={u.role !== 'owner'} value={f.locale || 'fr'} onChange={e => set('locale', e.target.value)}>
-                  <option value="fr">{t('Français')}</option>
+                  <option value="fr">Français</option>
                   <option value="ar">العربية</option>
                   <option value="en">English</option>
                 </Select>

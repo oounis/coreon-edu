@@ -17,7 +17,7 @@ export default function Notifications(){
   return (<>
     <PageHead title={t('Notifications')} sub={`${inboxFor(u).filter(n=>!n.read).length} non lues`} action={<Btn variant="ghost" onClick={()=>{markAllRead(u);force(x=>x+1)}}><CheckCheck size={15}/> {t('Tout marquer comme lu')}</Btn>}/>
     <Tabs className="mb-4" tabs={[{value:'all',label:t('Toutes')},{value:'unread',label:t('Non lues'),count:inboxFor(u).filter(n=>!n.read).length}]} value={tab} onChange={setTab}/>
-    {all.length===0 && <Card><EmptyState icon={<Bell size={26}/>} title={t('Vous êtes à jour')} sub={tab==='unread'?'Aucune notification non lue.':'Aucune notification pour le moment.'}/></Card>}
+    {all.length===0 && <Card><EmptyState icon={<Bell size={26}/>} title={t('Vous êtes à jour')} sub={tab==='unread'?t('Aucune notification non lue.'):t('Aucune notification pour le moment.')}/></Card>}
     <Group title={t("Aujourd'hui")} items={today}/><Group title={t('Cette semaine')} items={week}/><Group title={t('Plus tôt')} items={older}/>
   </>)
 }

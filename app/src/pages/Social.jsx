@@ -235,13 +235,13 @@ export default function Social() {
   const [tile, setTile] = useState(null) // live | pending | settled | last
 
   return (<>
-    <PageHead title={seesAll ? 'Espaces & activités' : SPACES[mySpace].label}
-      sub={seesAll ? "Les activités proposées par les parents, les enseignants et le personnel · l'Administration instruit, la Direction approuve." : SPACES[mySpace].sub}
+    <PageHead title={seesAll ? t('Espaces & activités') : SPACES[mySpace].label}
+      sub={seesAll ? t("Les activités proposées par les parents, les enseignants et le personnel · l'Administration instruit, la Direction approuve.") : SPACES[mySpace].sub}
       action={canPropose && <Btn onClick={() => { setF(BLANK(mySpace)); setOpen(true) }}><Plus size={16} /> {t('Proposer une activité')}</Btn>} />
 
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
       <StatCard tint="brand" icon={<Sparkles size={20} />} value={live.length} label={t('Activités ouvertes')} sub={t('inscriptions en cours')} onClick={() => setTile('live')} />
-      <StatCard tint="butter" icon={<Hourglass size={20} />} value={seesAll ? pendingAll.length : toDecide.length} label={seesAll ? "En cours de validation" : "En attente de l'école"} onClick={() => setTile('pending')} />
+      <StatCard tint="butter" icon={<Hourglass size={20} />} value={seesAll ? pendingAll.length : toDecide.length} label={seesAll ? t('En cours de validation') : t("En attente de l'école")} onClick={() => setTile('pending')} />
       <StatCard tint="mint" icon={<Check size={20} />} value={settled.length} label={t('Confirmées')} onClick={() => setTile('settled')} />
       {seesAll
         ? <StatCard tint="grape" icon={<Users size={20} />} value={events.length} label={t('Propositions au total')} onClick={() => setTile('last')} />
@@ -270,7 +270,7 @@ export default function Social() {
 
     {/* File d'attente de la Direction */}
     {toDecide.length > 0 && (
-      <SectionCard icon={<Hourglass size={16} />} tint="butter" title={u.role === 'admin' ? "Activités à instruire" : "Activités à approuver"} sub={u.role === 'admin' ? "Quorum atteint : vérifiez le lieu, la sécurité, puis visez pour la Direction." : "Visées par l'Administration · votre approbation est finale."} bodyClass="p-3" className="mb-5">
+      <SectionCard icon={<Hourglass size={16} />} tint="butter" title={u.role === 'admin' ? t('Activités à instruire') : t('Activités à approuver')} sub={u.role === 'admin' ? t('Quorum atteint : vérifiez le lieu, la sécurité, puis visez pour la Direction.') : t("Visées par l'Administration · votre approbation est finale.")} bodyClass="p-3" className="mb-5">
         {toDecide.map(ev => {
           const clash = facilityClash(ev, d.events)
           return (
@@ -282,7 +282,7 @@ export default function Social() {
                   {format(parseISO(ev.date), 'EEEE d MMMM', { locale: df() })} · {ev.time} · {ev.place} {t('· proposé par')} {ev.byName}
                 </div>
                 <div className="text-[12px] text-muted mt-0.5">
-                  {plural(adultCount(ev), 'adulte', 'adultes')}{childCount(ev) > 0 && ` · ${plural(childCount(ev), 'enfant', 'enfants')}`} · {audienceOf(ev.audience).short} · {ev.pricePerPerson ? `${money(ev.pricePerPerson)}/pers.` : 'gratuit'}
+                  {plural(adultCount(ev), 'adulte', 'adultes')}{childCount(ev) > 0 && ` · ${plural(childCount(ev), 'enfant', 'enfants')}`} · {audienceOf(ev.audience).short} · {ev.pricePerPerson ? `${money(ev.pricePerPerson)}/pers.` : t('gratuit')}
                 </div>
                 {clash && <div className="mt-1.5 inline-flex items-center gap-1.5 text-[12px] font-bold px-2 py-1 rounded-lg" style={{ background: STATUS.dangerSoft, color: STATUS.danger }}>
                   <AlertTriangle size={12} /> {ev.place} {t('est déjà pris ce jour-là : «')} {clash.title} »
@@ -296,7 +296,7 @@ export default function Social() {
 
     {events.length === 0
       ? <Card><EmptyState icon={<Sparkles size={26} />} title={t("Aucune activité pour l'instant")}
-          sub={seesAll ? "Personne n'a encore rien proposé, dans aucun espace."
+          sub={seesAll ? t("Personne n'a encore rien proposé, dans aucun espace.")
             : canPropose ? "Proposez la première : les autres vous rejoindront."
             : "Rien n'a encore été proposé dans cet espace."} /></Card>
       : <div className="grid lg:grid-cols-2 gap-4">
@@ -337,7 +337,7 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
             <h3 className="font-extrabold truncate">{ev.title}</h3>
             <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: st.color + '1E', color: st.color }}>{st.label}</span>
           </div>
-          <div className="text-xs text-muted mt-0.5">{t('proposé par')} {mine ? 'vous' : ev.byName}</div>
+          <div className="text-xs text-muted mt-0.5">{t('proposé par')} {mine ? t('vous') : ev.byName}</div>
         </div>
       </div>
 
@@ -349,7 +349,7 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
       </div>
 
       {ev.desc && <p className="text-sm text-muted">{ev.desc}</p>}
-      {ev.audience !== 'mixte' && ev.reason && <p className="text-[12px] text-muted italic">Non mixte : {ev.reason}</p>}
+      {ev.audience !== 'mixte' && ev.reason && <p className="text-[12px] text-muted italic">{t('Non mixte :')} {ev.reason}</p>}
 
       {/* Le prix, en évidence — jamais une surprise le jour J. */}
       <div className="rounded-xl px-3 py-2.5 flex items-center gap-2.5" style={{ background: ev.pricePerPerson ? STATUS.warnSoft : STATUS.okSoft }}>
@@ -364,15 +364,15 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
       {isLive(ev.status) && <>
         <div>
           <div className="flex items-center justify-between text-xs mb-1">
-            <span className="font-semibold">{adultCount(ev)} / {ev.minParticipants} {(ev.space || 'parent') === 'parent' ? 'parents' : 'personnes'}{childCount(ev) > 0 && <span className="text-muted font-normal"> {plural(childCount(ev), 'enfant', 'enfants')}</span>}</span>
-            <span className="text-muted">{need > 0 ? `encore ${need}` : 'quorum atteint'}</span>
+            <span className="font-semibold">{adultCount(ev)} / {ev.minParticipants} {(ev.space || 'parent') === 'parent' ? t('parents') : t('personnes')}{childCount(ev) > 0 && <span className="text-muted font-normal"> {plural(childCount(ev), 'enfant', 'enfants')}</span>}</span>
+            <span className="text-muted">{need > 0 ? `encore ${need}` : t('quorum atteint')}</span>
           </div>
           <div className="h-2 rounded-full bg-canvas overflow-hidden">
             <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: need > 0 ? STATUS.info : STATUS.ok }} />
           </div>
           <div className="flex items-center justify-between text-[12px] text-muted mt-1.5">
             <span className="inline-flex items-center gap-1"><Clock size={11} />
-              {deadlinePassed(ev) ? 'Inscriptions closes' : `Clôture ${formatDistanceToNowStrict(new Date(deadline), { addSuffix: true, locale: df() })}`}</span>
+              {deadlinePassed(ev) ? t('Inscriptions closes') : `Clôture ${formatDistanceToNowStrict(new Date(deadline), { addSuffix: true, locale: df() })}`}</span>
             {left != null && <span>{plural(left, 'place restante', 'places restantes')}</span>}
           </div>
         </div>
@@ -396,8 +396,8 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
                   <span className="text-muted tabular-nums">{money(p.amountAgreed)}</span>
                   {isDirection
                     ? <button onClick={() => onMarkPaid(ev, p.userId)} className="text-[11px] font-bold px-2 py-0.5 rounded-full"
-                        style={{ background: p.paid ? STATUS.okSoft : STATUS.neutralSoft, color: p.paid ? STATUS.ok : STATUS.neutral }}>{p.paid ? 'Réglé' : 'À régler'}</button>
-                    : <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: p.paid ? STATUS.okSoft : STATUS.neutralSoft, color: p.paid ? STATUS.ok : STATUS.neutral }}>{p.paid ? 'Réglé' : 'À régler'}</span>}
+                        style={{ background: p.paid ? STATUS.okSoft : STATUS.neutralSoft, color: p.paid ? STATUS.ok : STATUS.neutral }}>{p.paid ? t('Réglé') : t('À régler')}</button>
+                    : <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: p.paid ? STATUS.okSoft : STATUS.neutralSoft, color: p.paid ? STATUS.ok : STATUS.neutral }}>{p.paid ? t('Réglé') : t('À régler')}</span>}
                 </>}
               </div>))}
           </div>
@@ -410,17 +410,17 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
           me
             ? <>
                 <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl" style={{ background: STATUS.okSoft, color: STATUS.ok }}>
-                  <Check size={13} />{me.waitlisted ? "En liste d'attente" : me.rsvp === 'oui' ? 'Vous participez' : 'Peut-être'}</span>
+                  <Check size={13} />{me.waitlisted ? t("En liste d'attente") : me.rsvp === 'oui' ? 'Vous participez' : 'Peut-être'}</span>
                 {stale && <span className="text-[12px] font-bold" style={{ color: STATUS.warn }}>{t('Le prix a changé · reconfirmez')}</span>}
                 {stale && <Btn size="sm" onClick={onJoin}>{t('Reconfirmer')}</Btn>}
                 <Btn size="sm" variant="ghost" onClick={onWithdraw}>{t('Se désister')}</Btn>
               </>
             : blocked
               ? <span className="inline-flex items-center gap-1.5 text-xs text-muted"><Ban size={13} />{blocked}</span>
-              : <Btn size="sm" onClick={onJoin}>{isFull(ev) ? "Rejoindre la liste d'attente" : joinButtonLabel(ev)}</Btn>
+              : <Btn size="sm" onClick={onJoin}>{isFull(ev) ? t("Rejoindre la liste d'attente") : joinButtonLabel(ev)}</Btn>
         )}
         {mine && isLive(ev.status) && <Btn size="sm" variant="danger" onClick={onCancel}><X size={13} /> {t('Annuler')}</Btn>}
-        {canDecide(ev, u) && <Btn size="sm" onClick={onDecide}><ShieldCheck size={14} /> {ev.status === 'vise' ? 'Approuver' : 'Instruire'}</Btn>}
+        {canDecide(ev, u) && <Btn size="sm" onClick={onDecide}><ShieldCheck size={14} /> {ev.status === 'vise' ? t('Approuver') : t('Instruire')}</Btn>}
       </div>
     </Card>
   )
@@ -461,7 +461,7 @@ function ProposeModal({ open, onClose, f, setF, minDate, onSubmit, useIdea, spac
                 <div className="text-[12px] text-muted mt-1 flex flex-wrap gap-x-2.5">
                   <span className="inline-flex items-center gap-1"><MapPin size={11} />{i.place}</span>
                   <span className="inline-flex items-center gap-1"><Users size={11} />{audienceOf(i.audience).short} · {i.min}</span>
-                  <span className="inline-flex items-center gap-1 font-bold" style={{ color: i.price ? STATUS.warn : STATUS.ok }}><Wallet size={11} />{i.price ? money(i.price) : 'gratuit'}</span>
+                  <span className="inline-flex items-center gap-1 font-bold" style={{ color: i.price ? STATUS.warn : STATUS.ok }}><Wallet size={11} />{i.price ? money(i.price) : t('gratuit')}</span>
                 </div>
               </button>)
           })}
@@ -526,7 +526,7 @@ function JoinModal({ ev, u, onClose, onConfirm }) {
     <Modal open onClose={onClose} title={ev.title} size="lg"
       footer={<><Btn variant="ghost" onClick={onClose}>{t('Annuler')}</Btn>
         <Btn disabled={needsConsent && !agreed} onClick={() => onConfirm(ev, { rsvp, adults, children: kidsAllowed ? children : 0 })}>
-          {rsvp === 'peut-etre' ? 'Enregistrer « peut-être »' : wait ? "Rejoindre la liste d'attente" : joinButtonLabel(ev)}
+          {rsvp === 'peut-etre' ? t('Enregistrer « peut-être »') : wait ? "Rejoindre la liste d'attente" : joinButtonLabel(ev)}
         </Btn></>}>
 
       <div className="flex flex-wrap gap-2 mb-4">
@@ -572,9 +572,9 @@ function DecideModal({ ev, clash, onClose, onSettle, role }) {
   const isFinal = ev.status === 'vise'   // la Direction tranche ; l'Administration ne fait que viser
   const reasons = securityNeeds(ev)
   return (
-    <Modal open onClose={onClose} title={isFinal ? "Approuver l'activité" : "Instruire l'activité"} size="lg"
+    <Modal open onClose={onClose} title={isFinal ? t("Approuver l'activité") : t("Instruire l'activité")} size="lg"
       footer={<><Btn variant="danger" onClick={() => onSettle(ev, false, note)}><X size={15} /> {t('Refuser')}</Btn>
-        <Btn onClick={() => onSettle(ev, true, note)}><Check size={15} /> {isFinal ? "Approuver & réserver" : "Viser & transmettre à la Direction"}</Btn></>}>
+        <Btn onClick={() => onSettle(ev, true, note)}><Check size={15} /> {isFinal ? t('Approuver & réserver') : t('Viser & transmettre à la Direction')}</Btn></>}>
       <div className="space-y-2 text-sm">
         <div className="font-extrabold text-base flex items-center gap-2"><Ic n={catOf(ev.cat).icon} size={17} className="accent-text" />{ev.title}</div>
         <div className="text-muted">{ev.desc}</div>
@@ -592,7 +592,7 @@ function DecideModal({ ev, clash, onClose, onSettle, role }) {
         </div>
         {ev.audience !== 'mixte' && ev.reason && <div className="text-xs text-muted italic">{t('Motif de non-mixité :')} {ev.reason}</div>}
         {clash && <div className="rounded-xl px-3 py-2.5 text-xs font-semibold flex items-center gap-2" style={{ background: STATUS.dangerSoft, color: STATUS.danger }}>
-          <AlertTriangle size={15} /> Conflit : « {clash.title} {t('» occupe déjà')} {ev.place} {t('ce jour-là.')}</div>}
+          <AlertTriangle size={15} /> {t('Conflit : «')} {clash.title} {t('» occupe déjà')} {ev.place} {t('ce jour-là.')}</div>}
         <Field label={t('Motif (obligatoire en cas de refus)')}>
           <Textarea rows={2} value={note} onChange={e => setNote(e.target.value)} placeholder={t("ex. le terrain est réservé pour le cross de l'école")} /></Field>
         {reasons.length > 0 && <div className="rounded-xl px-3 py-2.5 text-[12px]" style={{ background: '#EEF1F6', color: '#334155' }}>
@@ -602,7 +602,7 @@ function DecideModal({ ev, clash, onClose, onSettle, role }) {
         </div>}
         <p className="text-[12px] text-muted">{isFinal
           ? `En approuvant, l'activité entre au calendrier de l'école, les ${adultCount(ev)} inscrits sont prévenus${ev.pricePerPerson ? ' du montant à régler' : ''}${reasons.length ? ", et l'agent de sécurité reçoit sa feuille de route" : ''}.`
-          : "En visant, vous transmettez à la Direction, qui décidera. Rien n'est confirmé aux participants tant qu'elle n'a pas approuvé."} {t('En refusant, personne ne paie.')}</p>
+          : t("En visant, vous transmettez à la Direction, qui décidera. Rien n'est confirmé aux participants tant qu'elle n'a pas approuvé.")} {t('En refusant, personne ne paie.')}</p>
       </div>
     </Modal>
   )

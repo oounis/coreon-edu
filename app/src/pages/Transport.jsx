@@ -58,7 +58,7 @@ function RouteCard({ r, mine }){
           <div><div className="font-bold leading-tight">{r.driver}</div><div className="text-xs text-muted">{t('Chauffeur')}</div></div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="text-right"><div className="text-[12px] text-muted flex items-center gap-1 justify-end"><Clock size={11}/> {dir==='out'?'Dépose':'Arrivée'} à {nextStop}</div><div className="text-sm font-extrabold accent-text">≈ {eta} {t('min')}</div></div>
+          <div className="text-right"><div className="text-[12px] text-muted flex items-center gap-1 justify-end"><Clock size={11}/> {dir==='out'?t('Dépose'):t('Arrivée')} à {nextStop}</div><div className="text-sm font-extrabold accent-text">≈ {eta} {t('min')}</div></div>
           {/* le bouton n'avait aucun handler : il ouvre maintenant vraiment le téléphone */}
           {r.phone
             ? <a href={`tel:${r.phone}`} aria-label={`Appeler ${r.driver} au ${r.phone}`}
@@ -85,7 +85,7 @@ export default function Transport(){
   // Chaque tuile s'ouvre : le détail par circuit, pas seulement le total.
   const [tile,setTile]=useState(null) // routes | buses | kids | stops
   return (<>
-    <PageHead title={t('Transport scolaire')} sub={u?.role==='parent'?'Suivez le bus de votre enfant en temps réel.':'Flotte, circuits et suivi en direct.'}/>
+    <PageHead title={t('Transport scolaire')} sub={u?.role==='parent'?t('Suivez le bus de votre enfant en temps réel.'):t('Flotte, circuits et suivi en direct.')}/>
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
       <StatCard tint="brand"  icon={<Route size={20}/>}  value={routes.length} label={t('Circuits')} onClick={()=>setTile('routes')}/>
       <StatCard tint="butter" icon={<Bus size={20}/>}    value={buses}         label={t('Bus en service')} onClick={()=>setTile('buses')}/>

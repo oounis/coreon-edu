@@ -104,7 +104,7 @@ function Team({ staff, refresh }) {
                 : <span className="text-xs font-bold" style={{ color: STATUS.warn }}>
                     <Ic n="TriangleAlert" size={13} className="inline mr-1 align-[-2px]" />{t('Aucun contrat')}
                   </span>}
-              <Btn size="sm" variant="soft" onClick={() => open(s)}>{c ? 'Modifier' : 'Créer le contrat'}</Btn>
+              <Btn size="sm" variant="soft" onClick={() => open(s)}>{c ? t('Modifier') : t('Créer le contrat')}</Btn>
             </Card>
           )
         })}

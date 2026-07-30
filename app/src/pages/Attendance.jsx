@@ -123,7 +123,7 @@ function StudentsInsights(){
         <SoftArea data={A.trend} dataKey="taux" color={STATUS.ok} id="gAtt" unit="%" domain={[60,100]} height={208}/>
       </SectionCard>
 
-      <SectionCard icon={<UserX size={16}/>} tint="coral" title={`Absents & retards · ${format(new Date(A.latest),'d MMM',{locale: df()})}`} sub={t('Un clic pour prévenir le parent')} bodyClass="p-3 max-h-72 overflow-y-auto scroll-thin">
+      <SectionCard icon={<UserX size={16}/>} tint="coral" title={`${t('Absents & retards')} · ${format(new Date(A.latest),'d MMM',{locale: df()})}`} sub={t('Un clic pour prévenir le parent')} bodyClass="p-3 max-h-72 overflow-y-auto scroll-thin">
         {today.absents.length===0 ? <EmptyState icon={<Check size={22}/>} title={t('Personne ne manque')} sub={t('Tous les élèves sont présents.')}/>
         : today.absents.map(({sid,classId,status})=>{ const s=studentById(sid); if(!s) return null
           return (
@@ -189,7 +189,7 @@ function StatDetailModal({ detail, onClose, A, today, rate, dayLabel, dayPerClas
   const list=(status)=>{
     const rows=today.absents.filter(a=>a.status===status).map(({sid,classId})=>({s:studentById(sid),classId})).filter(x=>x.s)
     return rows.length===0
-      ? <EmptyState icon={<Check size={22}/>} title={status==='absent'?'Aucun absent':'Aucun retard'} sub={`Personne n'a été marqué ${t(FR[status]).toLowerCase()} ce jour-là.`}/>
+      ? <EmptyState icon={<Check size={22}/>} title={status==='absent'?t('Aucun absent'):t('Aucun retard')} sub={`Personne n'a été marqué ${t(FR[status]).toLowerCase()} ce jour-là.`}/>
       : rows.map(({s,classId})=><Row key={s.id} s={s} classId={classId} status={status}
           body={`${s.name} a été marqué(e) ${t(FR[status]).toLowerCase()} le ${dayLabel}.`}/>)
   }
@@ -279,7 +279,7 @@ function MarkView(){
 
   return (<>
     <PageHead title={t('Appel / Présence')} sub={`${cls.cls.name} · ${cls.subject} · ${today}`}
-      action={<Btn onClick={save} disabled={saving}><Check size={16}/> {saving?'Enregistrement…':'Enregistrer'}</Btn>}/>
+      action={<Btn onClick={save} disabled={saving}><Check size={16}/> {saving?t('Enregistrement…'):t('Enregistrer')}</Btn>}/>
 
     <Card className="p-3 mb-4">
       <label className="text-xs font-semibold text-muted px-1">{t('Séance')}</label>

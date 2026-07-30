@@ -81,7 +81,7 @@ function DayTab({ d, staff, refresh }){
               <Avatar name={x.name} seed={x.id} size={34}/>
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-semibold truncate">{x.name}</span>
-                <span className="block text-[12px] text-muted truncate">{x.sub}{h?` · 30 j : ${h.absent} abs · ${h.late} ret · ${h.conge} congés`:''}</span></span>
+                <span className="block text-[12px] text-muted truncate">{x.sub}{h?` · ${t('30 j :')} ${h.absent} ${t('abs')} · ${h.late} ${t('ret')} · ${h.conge} ${h.conge>1?t('congés'):t('congé')}`:''}</span></span>
               <span className="text-[12px] font-bold px-3 py-1.5 rounded-full" style={{background:col+'1E',color:col}}>{lbl}</span>
             </div>)})}
         </div>}
@@ -97,7 +97,7 @@ function DayTab({ d, staff, refresh }){
             <Avatar name={x.name} seed={x.id} size={36}/>
             <span className="min-w-0 flex-1">
               <span className="block text-sm font-semibold truncate leading-tight">{x.name}</span>
-              <span className="block text-[12px] text-muted truncate">{x.sub}{h?` · 30 j : ${h.absent} abs · ${h.late} ret · ${h.conge} congés`:''}</span>
+              <span className="block text-[12px] text-muted truncate">{x.sub}{h?` · ${t('30 j :')} ${h.absent} ${t('abs')} · ${h.late} ${t('ret')} · ${h.conge} ${h.conge>1?t('congés'):t('congé')}`:''}</span>
             </span>
             <button onClick={()=>setMarks(m=>({...m,[x.id]:NEXT[st]}))}
               className="text-[12px] font-bold px-3 py-1.5 rounded-full transition" style={{background:col+'1E',color:col}}>{lbl}</button>
@@ -115,8 +115,8 @@ function ClockBoard({ d, staff }){
   const done=staff.filter(x=>clk[x.id]&&clk[x.id].out)
   const missing=staff.filter(x=>!clk[x.id])
   return (
-    <SectionCard icon={<Clock size={16}/>} tint="mint" title={`Badgeuse · en ce moment`}
-      sub={`${inside.length} dans l'école · ${done.length} journée(s) terminée(s) · ${missing.length} non pointé(s)`} bodyClass="p-3">
+    <SectionCard icon={<Clock size={16}/>} tint="mint" title={t('Badgeuse · en ce moment')}
+      sub={`${inside.length} ${t("dans l'école")} · ${done.length} ${t('journée(s) terminée(s)')} · ${missing.length} ${t('non pointé(s)')}`} bodyClass="p-3">
       <div className="flex flex-wrap gap-2">
         {staff.map(x=>{ const c=clk[x.id]
           const state=!c?['non pointé',STATUS.neutral]:c.out?[`${c.in} → ${c.out}`,'#8B5CF6']:[`arrivé ${c.in}`,c.in>'08:05'?STATUS.warn:STATUS.ok]
@@ -338,7 +338,7 @@ function AnalyseTab({ d, staff }){
           <div key={x.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
             <Avatar name={x.name} seed={x.id} size={34}/>
             <span className="min-w-0 flex-1"><span className="block text-sm font-semibold truncate">{x.name}</span>
-              <span className="block text-[12px] text-muted">{x.absent} {t('absences ·')} {x.late} retards · 30 j</span></span>
+              <span className="block text-[12px] text-muted">{x.absent} {t('absences ·')} {x.late} {t('retards · 30 j')}</span></span>
             <span className="text-sm font-extrabold" style={{color:STATUS.danger}}>{x.rate}%</span>
           </div>))}
       </SectionCard>

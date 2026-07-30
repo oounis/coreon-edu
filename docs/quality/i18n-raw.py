@@ -88,6 +88,11 @@ def findings(path):
         txt = m.group(1).strip()
         if not txt or IGNORE.match(txt) or CODEISH.search(txt) or not FR_HINT.search(txt):
             continue
+        # « Français » porte une cédille : l'indice français le désigne, alors
+        # que c'est un NOM DE LANGUE — un sélecteur écrit chaque langue dans la
+        # sienne. Cette famille-ci ne consultait pas la liste des non-textes.
+        if NOT_TEXT.match(txt):
+            continue
         add(src[:m.start()].count('\n') + 1, txt)
     # 1 bis) ANGLE MORT 1 — le MOT d'interface, même sans accent ni mot-outil.
     for m in re.finditer(r'>([^<>{}\n]{2,60})<', src):

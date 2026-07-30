@@ -115,7 +115,7 @@ function Bulletins({ refresh }) {
                     </span>
                 : <span className="text-xs font-bold" style={{ color: STATUS.warn }}>{t('Pas de bulletin')}</span>}
               <Btn size="sm" variant="soft" onClick={() => setOpen({ s, cls, early, r })}>
-                {r ? 'Modifier' : 'Saisir'}
+                {r ? t('Modifier') : t('Saisir')}
               </Btn>
             </Card>
           )

@@ -186,7 +186,7 @@ function Sante({ child, refresh }) {
             <Ic n="Syringe" size={18} style={{ color: STATUS.warn }} />
             <div className="text-[13px]">
               <b>{v.due.length} {t('vaccin(s) dus et non enregistrés')}</b> {t('pour l’âge de')} {child.name.split(' ')[0]}
-              {' '}({v.ageMonths} mois) : {v.due.map(x => x.label).join(', ')}.
+              {' '}({v.ageMonths} {t('mois) :')} {v.due.map(x => x.label).join(', ')}.
               <div className="mt-1 text-muted">{t('Une crèche a l’obligation de le savoir : et de le dire aux parents.')}</div>
             </div>
           </div>
@@ -209,7 +209,7 @@ function Sante({ child, refresh }) {
                 </span>
                 <span className="text-[11px] font-bold"
                   style={{ color: done ? STATUS.ok : due ? STATUS.warn : STATUS.neutral }}>
-                  {done ? 'Fait' : due ? 'Dû' : `${x.months} mois`}
+                  {done ? t('Fait') : due ? 'Dû' : `${x.months} mois`}
                 </span>
               </button>
             )
@@ -261,7 +261,7 @@ function Jalons({ child, refresh }) {
       {!!st.watch?.length && (
         <Card className="p-4 mb-4" style={{ background: STATUS.warnSoft }}>
           <div className="text-[13px]">
-            <b>{t('À surveiller')}</b> ({child.name.split(' ')[0]}, {st.ageMonths} mois) :
+            <b>{t('À surveiller')}</b> ({child.name.split(' ')[0]}, {st.ageMonths} {t('mois) :')}
             {' '}{st.watch.map(m => m.label).join(' · ')}
           </div>
         </Card>

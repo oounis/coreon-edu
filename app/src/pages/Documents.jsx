@@ -116,7 +116,7 @@ export default function Documents() {
             </button>))}
         </div>
         <div className="grid sm:grid-cols-2 gap-3 items-end">
-          <Field label={docType?.needs === 'archived' ? 'Élève (dossiers archivés)' : 'Élève'}>
+          <Field label={docType?.needs === 'archived' ? t('Élève (dossiers archivés)') : t('Élève')}>
             <Select value={sid} onChange={e => setSid(e.target.value)}>
               <option value="">{t('Choisir')}</option>
               {pool.map(s => <option key={s.id} value={s.id}>{s.name}{s.classId ? ` · ${classById(s.classId)?.name || ''}` : ''}</option>)}
@@ -126,7 +126,7 @@ export default function Documents() {
             <Input value={addressedTo} onChange={e => setAddressedTo(e.target.value)} placeholder={t('CNSS')} />
           </Field>
         </div>
-        {pool.length === 0 && <p className="text-[12px] text-muted mt-2">{t('Aucun élève dans cet état')}{docType?.needs === 'archived' ? 'la radiation ne concerne que les dossiers archivés' : ''}.</p>}
+        {pool.length === 0 && <p className="text-[12px] text-muted mt-2">{t('Aucun élève dans cet état')}{docType?.needs === 'archived' ? t('la radiation ne concerne que les dossiers archivés') : ''}.</p>}
         <Btn className="mt-3" onClick={issue}><ScrollText size={15} /> {t('Délivrer & inscrire au registre')}</Btn>
       </Card>
 

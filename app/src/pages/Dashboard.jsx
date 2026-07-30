@@ -264,9 +264,9 @@ export default function Dashboard(){
         <p className="text-xs text-muted capitalize mb-3">{new Date().toLocaleDateString(dateLocale(),{weekday:'long',day:'numeric',month:'long'})}</p>
         <div className="space-y-1">
           <TodayRow to="/app/attendance" icon={<UserX size={15}/>} color={absToday?STATUS.danger:STATUS.ok}
-            label={absToday?`${absToday} absent${absToday>1?'s':''}${lateToday?` · ${lateToday} retard${lateToday>1?'s':''}`:''}`:t('Aucun absent')}/>
+            label={absToday?`${absToday} ${absToday>1?t('absents'):t('absent')}${lateToday?` · ${lateToday} ${lateToday>1?t('retards'):t('retard')}`:''}`:t('Aucun absent')}/>
           <TodayRow to="/app/incidents" icon={<ShieldAlert size={15}/>} color={openInc?STATUS.warn:STATUS.ok}
-            label={openInc?`${openInc} incident${openInc>1?'s':''} ouvert${openInc>1?'s':''}`:t('Aucun incident ouvert')}/>
+            label={openInc?`${openInc} ${openInc>1?t('incidents ouverts'):t('incident ouvert')}`:t('Aucun incident ouvert')}/>
           <TodayRow to="/app/events" icon={<CalendarDays size={15}/>} color={eventsToday.length?'#7539E4':STATUS.neutral}
             label={eventsToday.length?`${eventsToday[0].title}${eventsToday.length>1?` +${eventsToday.length-1}`:''}`:t("Aucun événement aujourd'hui")}/>
         </div>

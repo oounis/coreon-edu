@@ -55,10 +55,10 @@ export default function Recruit() {
             title={p.title} sub={`${p.type} · ${list.length} candidature(s)`}
             action={<div className="flex gap-2">
               {open && <Btn size="sm" variant="soft" onClick={() => setOpenC(p.id)}><Plus size={14} /> {t('Candidature')}</Btn>}
-              <Btn size="sm" variant="ghost" onClick={() => { closePost(p.id, u.name); refresh() }}>{open ? 'Fermer le poste' : 'Rouvrir'}</Btn>
+              <Btn size="sm" variant="ghost" onClick={() => { closePost(p.id, u.name); refresh() }}>{open ? t('Fermer le poste') : t('Rouvrir')}</Btn>
             </div>} bodyClass="p-3">
             {list.length === 0
-              ? <EmptyState title={t('Aucune candidature')} sub={open ? 'Ajoutez la première candidature reçue.' : 'Poste fermé.'} />
+              ? <EmptyState title={t('Aucune candidature')} sub={open ? t('Ajoutez la première candidature reçue.') : t('Poste fermé.')} />
               : <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
                 {list.map(c => (
                   <button key={c.id} onClick={() => { setNote(''); setView(c.id) }} className="flex items-center gap-2.5 p-2.5 rounded-xl border border-line hover:bg-canvas text-left">

@@ -102,7 +102,7 @@ function TeacherJournal({ classes }) {
                     <div className="font-bold">{child.name}</div>
                     {child.allergies && child.allergies !== 'Aucune' && (
                       <div className="text-xs font-bold flex items-center gap-1" style={{ color: STATUS.danger }}>
-                        <Ic n="TriangleAlert" size={12} /> Allergie : {child.allergies}
+                        <Ic n="TriangleAlert" size={12} /> {t('Allergie :')} {child.allergies}
                       </div>
                     )}
                   </div>

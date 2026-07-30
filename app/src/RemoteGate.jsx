@@ -45,7 +45,7 @@ function RemoteLogin({ onDone }) {
         </label>
         {err && <p className="text-sm font-semibold mb-3" style={{ color: '#DC4B54' }} role="alert">{err}</p>}
         <button disabled={busy} className="w-full rounded-xl accent-bg text-white font-bold py-2.5 disabled:opacity-50">
-          {busy ? 'Connexion…' : 'Se connecter'}
+          {busy ? t('Connexion…') : t('Se connecter')}
         </button>
         <p className="text-[11px] text-muted mt-4">{t("Session de 8 heures · les données restent sur le serveur de l'école.")}</p>
       </form>

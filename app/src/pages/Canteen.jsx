@@ -41,7 +41,7 @@ function StaffCanteen({ u }) {
       <span className="w-11 h-11 grid place-items-center rounded-xl" style={{ background: (sum.alerts ? STATUS.warn : STATUS.ok) + '20', color: sum.alerts ? STATUS.warn : STATUS.ok }}>
         {sum.alerts ? <AlertTriangle size={20} /> : <ShieldCheck size={20} />}
       </span>
-      <div><div className="font-extrabold">{sum.alerts ? `${sum.alerts} alerte${sum.alerts > 1 ? 's' : ''} allergie cette semaine` : 'Aucune allergie en conflit cette semaine'}</div>
+      <div><div className="font-extrabold">{sum.alerts ? `${sum.alerts} ${sum.alerts > 1 ? t('alertes allergie cette semaine') : t('alerte allergie cette semaine')}` : t('Aucune allergie en conflit cette semaine')}</div>
         <div className="text-xs text-muted">{t('Croisé automatiquement avec le dossier de chaque enfant inscrit.')}</div></div>
     </Card>
 
@@ -190,7 +190,7 @@ function ParentCanteen({ u }) {
             <div className="mt-3 pt-3 border-t rounded-b-xl -mx-4 -mb-4 px-4 py-2.5" style={{ background: STATUS.warn + '12', borderColor: STATUS.warn + '30' }}>
               <div className="flex items-start gap-1.5 text-[13px] font-semibold" style={{ color: STATUS.warn }}>
                 <AlertTriangle size={14} className="shrink-0 mt-0.5" />
-                <span>Attention : {day.risks.map(r => `${r.label} (${r.dish})`).join(', ')}. L'école le sait.</span>
+                <span>{t('Attention :')} {day.risks.map(r => `${r.label} (${r.dish})`).join(', ')}. L'école le sait.</span>
               </div>
             </div>
           )}

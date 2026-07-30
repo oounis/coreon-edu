@@ -52,7 +52,7 @@ function StaffBehavior({ u }) {
     {climate && climate.total > 0 && (
       <Card className="p-5 mb-4">
         <div className="flex items-center gap-4 flex-wrap">
-          <div><div className="text-xs text-muted font-bold uppercase">Ambiance · 30 jours</div>
+          <div><div className="text-xs text-muted font-bold uppercase">{t('Ambiance · 30 jours')}</div>
             <div className="text-3xl font-extrabold" style={{ color: STATUS.ok }}>{climate.positiveRate}%<span className="text-base font-semibold text-muted"> {t("d'encouragements")}</span></div></div>
           <div className="h-10 w-px bg-line hidden sm:block" />
           <div className="flex gap-2 flex-wrap flex-1">
@@ -74,7 +74,7 @@ function StaffBehavior({ u }) {
             <Avatar name={s.name} seed={s.id} size={40} />
             <span className="min-w-0 flex-1">
               <span className="block font-bold truncate">{s.name}</span>
-              <span className="block text-xs text-muted">{sum.positives} {t('encouragement')}{sum.positives > 1 ? 's' : ''}{sum.toImprove ? ` · ${sum.toImprove} à suivre` : ''}</span>
+              <span className="block text-xs text-muted">{sum.positives} {sum.positives > 1 ? t('encouragements') : t('encouragement')}{sum.toImprove ? ` · ${sum.toImprove} à suivre` : ''}</span>
             </span>
             <span className="text-lg font-extrabold tabular-nums" style={{ color: sum.score >= 0 ? STATUS.ok : STATUS.warn }}>{sum.score > 0 ? '+' : ''}{sum.score}</span>
           </button>

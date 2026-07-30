@@ -106,7 +106,7 @@ function Composer({ u, classId, onClose }) {
             </div>
           ))}
           <label className="aspect-square rounded-xl border-2 border-dashed border-line grid place-items-center cursor-pointer text-muted hover:accent-text hover:border-current transition">
-            <span className="flex flex-col items-center gap-1 text-xs font-semibold"><ImagePlus size={20} />{busy ? '…' : 'Ajouter'}</span>
+            <span className="flex flex-col items-center gap-1 text-xs font-semibold"><ImagePlus size={20} />{busy ? '…' : t('Ajouter')}</span>
             <input type="file" accept="image/*" multiple className="hidden" onChange={addFiles} />
           </label>
         </div>

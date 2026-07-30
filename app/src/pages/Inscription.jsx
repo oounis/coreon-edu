@@ -195,7 +195,7 @@ export default function Inscription() {
       </Card>
 
       <p className="text-xs text-muted text-center mt-4">
-        {t('Vos informations ne servent qu’à cette candidature.')} {s?.schoolName || 'L’école'} {t('est la seule à les voir.')}
+        {t('Vos informations ne servent qu’à cette candidature.')} {s?.schoolName || t('L’école')} {t('est la seule à les voir.')}
       </p>
     </Screen>
   )

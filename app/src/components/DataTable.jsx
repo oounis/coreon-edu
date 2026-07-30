@@ -138,7 +138,7 @@ export default function DataTable({
 
       {/* pagination */}
       <div className="flex items-center justify-between gap-3 px-3 py-2.5 border-t border-line text-[13px] text-muted flex-wrap">
-        <span>{filtered.length} {t('ligne')}{filtered.length > 1 ? 's' : ''}{q && ` (filtrées sur ${rows.length})`}</span>
+        <span>{filtered.length} {filtered.length > 1 ? t('lignes') : t('ligne')}{q && ` (${t('filtrées sur')} ${rows.length})`}</span>
         <div className="flex items-center gap-2">
           <select aria-label={t('Lignes par page')} value={pageSize} onChange={e => { setPageSize(+e.target.value); setPage(0) }}
             className="rounded-lg border border-line bg-white px-2 py-1 text-[12px]">

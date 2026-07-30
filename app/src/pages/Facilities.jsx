@@ -95,7 +95,7 @@ function Planning({ refresh }) {
             <div className="font-bold text-sm tabular-nums">{s.from} · {s.to}</div>
             <div className="text-[11px] font-semibold mt-0.5"
               style={{ color: s.free ? STATUS.ok : STATUS.neutral }}>
-              {s.free ? 'Libre' : (s.reason || 'Occupé')}
+              {s.free ? t('Libre') : (s.reason || 'Occupé')}
             </div>
           </button>
         ))}
@@ -157,7 +157,7 @@ function BookModal({ facility, date, slot, me, onClose, onDone }) {
 
         <Field label={t('Au nom de *')}>
           <Input value={who} onChange={e => setWho(e.target.value)}
-            placeholder={audience === 'externe' ? 'Club Nautique de Tunis' : 'Classe 5ème A'} />
+            placeholder={audience === 'externe' ? t('Club Nautique de Tunis') : t('Classe 5ème A')} />
         </Field>
         <Field label={t('Téléphone')}>
           <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+216 20 000 000" />
@@ -166,7 +166,7 @@ function BookModal({ facility, date, slot, me, onClose, onDone }) {
         <Field label={t('Répéter chaque semaine')}
           hint={t('Un club veut « tous les samedis pendant 8 semaines » : pas cliquer huit fois.')}>
           <Select value={weeks} onChange={e => setWeeks(e.target.value)}>
-            {[1, 4, 8, 12, 16].map(w => <option key={w} value={w}>{w === 1 ? 'Une seule fois' : `${w} semaines`}</option>)}
+            {[1, 4, 8, 12, 16].map(w => <option key={w} value={w}>{w === 1 ? t('Une seule fois') : `${w} semaines`}</option>)}
           </Select>
         </Field>
 

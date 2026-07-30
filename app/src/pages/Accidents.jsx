@@ -145,7 +145,7 @@ export default function Accidents() {
           { k: 'Graves', v: st.graves, i: 'TriangleAlert', c: STATUS.danger },
         ].map(c => (
           <Card key={c.k} className="p-4">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-muted"><Ic n={c.i} size={13} style={{ color: c.c }} />{c.k}</div>
+            <div className="flex items-center gap-1.5 text-xs font-bold text-muted"><Ic n={c.i} size={13} style={{ color: c.c }} />{t(c.k)}</div>
             <div className="text-2xl font-extrabold mt-1 tabular-nums">{c.v}</div>
           </Card>
         ))}
@@ -162,7 +162,7 @@ export default function Accidents() {
               <div className="mt-2 grid gap-1">
                 {waiting.map(a => (
                   <div key={a.id} className="flex items-center gap-2 flex-wrap">
-                    <span>{nameOf(a.childId)} · depuis <b>{a.waitingHours} h</b></span>
+                    <span>{nameOf(a.childId)} · {t('depuis')} <b>{a.waitingHours} h</b></span>
                     {!!a.reminders.length && <span className="text-muted">({a.reminders.length} {t('relance(s))')}</span>}
                     <Btn size="sm" variant="soft" onClick={() => { remind(a.id, me.name); toast.success('Relance envoyée.'); refresh() }}>
                       {t('Relancer')}
@@ -200,7 +200,7 @@ export default function Accidents() {
               </div>
 
               <p className="text-sm mt-3">{a.whatHappened}</p>
-              {!!a.care?.length && <p className="text-[13px] text-muted mt-1"><b>Soins :</b> {a.care.map(c => CARE[c]).join(' · ')}</p>}
+              {!!a.care?.length && <p className="text-[13px] text-muted mt-1"><b>{t('Soins :')}</b> {a.care.map(c => CARE[c]).join(' · ')}</p>}
 
               {/* La chaîne de custodie, lisible d'un coup d'œil. */}
               <div className="text-[12px] text-muted mt-3 grid gap-0.5">
@@ -287,7 +287,7 @@ function DeclareModal({ me, onClose, onDone }) {
         <div className="grid gap-4">
           <Field label="Enfant *">
             <Select value={childId} onChange={e => setChildId(e.target.value)}>
-              <option value="">Choisir…</option>
+              <option value="">{t('Choisir…')}</option>
               {kids.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
             </Select>
           </Field>
