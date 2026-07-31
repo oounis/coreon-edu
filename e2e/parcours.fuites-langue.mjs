@@ -36,7 +36,7 @@ const FRENCH_WORDS = [
   // métier
   'élève', 'élèves', 'enseignant', 'école', 'niveau', 'présence',
   'retard', 'congé', 'facture', 'reçu', 'paiement', 'bulletin', 'cantine',
-  'attestation', 'demandes', 'seuil', 'alertes', 'annonce', 'moyenne',
+  'demandes', 'seuil', 'alertes', 'annonce', 'moyenne',
 ]
 // PIÈGE : plusieurs mots « français » sont AUSSI anglais — journal, parent,
 // accident, personnel, absence, session, moment. Les garder faisait échouer des
@@ -120,16 +120,15 @@ await scenario(8996, async ({ page, ok, base }) => {
       }
     }
   }
-  // ── LE PLAFOND, ET CE QU'IL RESTE DEDANS ─────────────────────────────────
-  // Il ne remonte jamais. Les 4 fuites admises sont TOUTES dans le CŒUR, pas
-  // dans les pages : ce sont des VOCABULAIRES MÉTIER que `t()` n'a jamais vus —
-  //   · `core/src/documents.js` : « Attestation d'inscription », « L'élève est
-  //     inscrit pour l'année en cours », « CNSS, banque, employeur » ;
-  //   · `core/src/requests.js` + `tunisia.js` : « Attestation de salaire » et
-  //     les types de demande, cités avec leurs références au droit du travail.
-  // Les traduire demande une décision PAYS (le Golfe ne dit ni « CNSS » ni
-  // « attestation de scolarité »), pas un codemod : c'est le chantier suivant.
-  const CEILING = 4
+  // ── LE PLAFOND EST À ZÉRO ────────────────────────────────────────────────
+  // Il ne remonte jamais. Les vocabulaires du cœur — `documents.js`,
+  // `requests.js`/`tunisia.js` — sont traduits eux aussi : types de demande,
+  // groupes, libellés de champs et options de listes, plus les étiquettes du
+  // composant `Badge` partagé (Présent/Absent/Retard/En attente…), que quatre
+  // pages affichaient sans jamais demander de traduction.
+  // « CNSS » (caisse TUNISIENNE) a été retiré : le produit sert BH/QA/TN/LY, et
+  // nommer l'organisme d'un seul pays est faux dans les trois autres.
+  const CEILING = 0
   ok(leaks <= CEILING,
     `${swept} pages balayées en EN et AR · ${leaks} fuite(s) de français (plafond ${CEILING})`)
   if (leaks < CEILING) console.log(`NOTE — le plafond peut descendre à ${leaks}.`)

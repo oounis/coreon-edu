@@ -71,7 +71,7 @@ function DayTab({ d, staff, refresh }){
 
     {tile && (()=>{ const [lbl,col]=ST[tile]; const rows=staff.filter(x=>(marks[x.id]||'present')===tile)
       return (
-      <Modal open onClose={()=>setTile(null)} title={`${lbl} · ${dayLabel}`} size="xl"
+      <Modal open onClose={()=>setTile(null)} title={`${t(lbl)} · ${dayLabel}`} size="xl"
         footer={<Btn variant="ghost" onClick={()=>setTile(null)}>{t('Fermer')}</Btn>}>
         {rows.length===0 ? <EmptyState title={`Personne n'est « ${lbl.toLowerCase()} »`} sub={t("Rien à afficher pour ce statut aujourd'hui.")}/>
         : <div className="space-y-1.5">
@@ -82,7 +82,7 @@ function DayTab({ d, staff, refresh }){
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-semibold truncate">{x.name}</span>
                 <span className="block text-[12px] text-muted truncate">{x.sub}{h?` · ${t('30 j :')} ${h.absent} ${t('abs')} · ${h.late} ${t('ret')} · ${h.conge} ${h.conge>1?t('congés'):t('congé')}`:''}</span></span>
-              <span className="text-[12px] font-bold px-3 py-1.5 rounded-full" style={{background:col+'1E',color:col}}>{lbl}</span>
+              <span className="text-[12px] font-bold px-3 py-1.5 rounded-full" style={{background:col+'1E',color:col}}>{t(lbl)}</span>
             </div>)})}
         </div>}
       </Modal>) })()}
@@ -100,7 +100,7 @@ function DayTab({ d, staff, refresh }){
               <span className="block text-[12px] text-muted truncate">{x.sub}{h?` · ${t('30 j :')} ${h.absent} ${t('abs')} · ${h.late} ${t('ret')} · ${h.conge} ${h.conge>1?t('congés'):t('congé')}`:''}</span>
             </span>
             <button onClick={()=>setMarks(m=>({...m,[x.id]:NEXT[st]}))}
-              className="text-[12px] font-bold px-3 py-1.5 rounded-full transition" style={{background:col+'1E',color:col}}>{lbl}</button>
+              className="text-[12px] font-bold px-3 py-1.5 rounded-full transition" style={{background:col+'1E',color:col}}>{t(lbl)}</button>
           </div>) })}
       </div>
     </SectionCard>
@@ -175,7 +175,7 @@ function MonthTab({ d, staff }){
                 <span className="min-w-0"><span className="block font-semibold truncate leading-tight">{r.name}</span><span className="block text-[11px] text-muted truncate">{r.sub}</span></span></span></td>
               <td className="px-2 py-2.5"><span className="flex gap-[3px] flex-wrap max-w-[340px]">
                 {r.cells.map((st,i)=>{ const col=st?ST[st][1]:'#E2E8F0'
-                  return <i key={i} title={`${format(days[i],'EEE d MMM',{locale: df()})} · ${st?ST[st][0]:'non pointé'}`}
+                  return <i key={i} title={`${format(days[i],'EEE d MMM',{locale: df()})} · ${st?t(ST[st][0]):t('non pointé')}`}
                     className="w-3 h-3 rounded-[4px] inline-block" style={{background:st?col:'#EEF1F6',outline:st?'none':'1px dashed #D8DEE9'}}/>})}
               </span></td>
               <td className="px-2 py-2.5 text-center font-bold" style={{color:STATUS.ok}}>{r.c.present}</td>
@@ -187,7 +187,7 @@ function MonthTab({ d, staff }){
         </tbody>
       </table>
       <div className="flex items-center gap-4 px-4 py-3 border-t border-line text-[12px] text-muted flex-wrap">
-        {Object.entries(ST).map(([k,[lbl,col]])=><span key={k} className="inline-flex items-center gap-1.5"><i className="w-3 h-3 rounded-[4px]" style={{background:col}}/>{lbl}</span>)}
+        {Object.entries(ST).map(([k,[lbl,col]])=><span key={k} className="inline-flex items-center gap-1.5"><i className="w-3 h-3 rounded-[4px]" style={{background:col}}/>{t(lbl)}</span>)}
         <span className="inline-flex items-center gap-1.5"><i className="w-3 h-3 rounded-[4px]" style={{background:'#EEF1F6',outline:'1px dashed #D8DEE9'}}/>{t('non pointé')}</span>
       </div></div>)}
     </SectionCard>
@@ -276,7 +276,7 @@ function LeavesTab({ d, staff, refresh }){
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-semibold truncate">{nameOf(lv.staffId)} · {t(LEAVE_TYPES[lv.type])}</span>
                 <span className="block text-[12px] text-muted">{lv.from} → {lv.to} · {lv.days} j</span></span>
-              <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:col+'1E',color:col}}>{lbl}</span>
+              <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:col+'1E',color:col}}>{t(lbl)}</span>
             </div>)})}
         </SectionCard>
       </div>

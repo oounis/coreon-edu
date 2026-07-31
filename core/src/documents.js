@@ -23,7 +23,11 @@ import { todayIso } from './clock.js'
 export const DOC_TYPES = {
   scolarite: {
     key: 'scolarite', label: 'Certificat de scolarité', prefix: 'CS', needs: 'active',
-    hint: 'Le plus demandé au guichet : CNSS, banque, employeur.',
+    // « CNSS » est la caisse TUNISIENNE. Le produit sert BH/QA/TN/LY : nommer
+    // l'organisme d'un seul pays est faux dans les trois autres, et inventer
+    // son équivalent local serait pire. On dit ce qui est vrai partout ; le
+    // pack pourra nommer l'organisme le jour où on en sera sûr.
+    hint: 'Le plus demandé au guichet : sécurité sociale, banque, employeur.',
   },
   inscription: {
     key: 'inscription', label: "Attestation d'inscription", prefix: 'AI', needs: 'active',

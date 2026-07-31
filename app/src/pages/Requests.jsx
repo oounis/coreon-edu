@@ -76,8 +76,8 @@ export default function Requests(){
     return (
     <Card className="p-4 hover:shadow-md transition cursor-pointer" >
       <div onClick={()=>{setComment('');setView(r)}} className="flex items-start justify-between gap-3 flex-wrap">
-        <div className="min-w-0"><div className="font-semibold flex items-center gap-2 flex-wrap"><FileText size={16} className="accent-text"/> {r.type}
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-canvas text-muted">{categoryOf(r)}</span>
+        <div className="min-w-0"><div className="font-semibold flex items-center gap-2 flex-wrap"><FileText size={16} className="accent-text"/> {t(r.type)}
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-canvas text-muted">{t(categoryOf(r))}</span>
             <Badge status={r.status}/></div>
           <div className="text-xs text-muted mt-0.5">{t('par')} {r.byName} · {formatDistanceToNow(r.at,{addSuffix:true,locale: df()})}</div>
           {/* le travail qui suit la signature : à qui, pour quand, où ça en est */}
@@ -115,7 +115,7 @@ export default function Requests(){
         ? <><Btn variant="ghost" onClick={()=>act(view,'rejected')}><X size={15}/> {t('Rejeter')}</Btn><Btn onClick={()=>act(view,'approved')}><Check size={15}/> {t('Approuver')}</Btn></>
         : <>{view.status==='approved'&&REQUEST_DEFS[view.type]?.doc&&<><Btn variant="ghost" onClick={()=>setDocR(view)}><Printer size={15}/> {t('Aperçu')}</Btn><Btn onClick={()=>downloadPDF(view)}><Download size={15}/> {t('Télécharger PDF')}</Btn></>}<Btn variant="ghost" onClick={()=>setView(null)}>{t('Fermer')}</Btn></>)}>
       {view && (()=>{ const reqUser=userById(view.by); const rd=REQUEST_DEFS[view.type]||{fields:[]}; return (<div>
-        <div className="flex items-center justify-between mb-3"><div className="text-lg font-bold flex items-center gap-2">{view.type} <Badge status={view.status}/></div></div>
+        <div className="flex items-center justify-between mb-3"><div className="text-lg font-bold flex items-center gap-2">{t(view.type)} <Badge status={view.status}/></div></div>
         <div className="grid sm:grid-cols-2 gap-x-6 gap-y-1 text-sm mb-4 bg-canvas rounded-xl p-3">
           <div><span className="text-muted">{t('Demandeur :')}</span> <b>{view.byName}</b> ({ROLE[reqUser?.role]?.label})</div>
           <div><span className="text-muted">{t('CIN :')}</span> {reqUser?.cin||'·'}</div>
@@ -202,7 +202,7 @@ export default function Requests(){
 
     {/* new request */}
     <Modal open={open} onClose={()=>setOpen(false)} title={t('Nouvelle demande')} size="xl" footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>{t('Annuler')}</Btn><Btn onClick={submit}>{t('Envoyer')}</Btn></>}>
-      <Field label={t('Type de demande')}><Select value={type} onChange={e=>setType2(e.target.value)}>{myTypes.map(v=><option key={v}>{v}</option>)}</Select></Field>
+      <Field label={t('Type de demande')}><Select value={type} onChange={e=>setType2(e.target.value)}>{myTypes.map(v=><option key={v} value={v}>{t(v)}</option>)}</Select></Field>
       <div className="text-xs text-muted my-2">{t('Circuit :')} {def.chain?.map(r=>ROLE[r].label).join(' → ')}</div>
       {def.note&&<div className="text-xs bg-canvas rounded-xl p-2 mb-3 text-muted flex items-start gap-1.5"><Info size={13} className="shrink-0 mt-0.5"/><span>{def.note}</span></div>}
       <div className="grid sm:grid-cols-2 gap-3">{def.fields.map(f=>(
@@ -238,7 +238,7 @@ function docModel(r){
       body:`est régulièrement inscrit(e) et suit ses études dans notre établissement. Le présent certificat est délivré pour servir et valoir ce que de droit${f.addressedTo?` (${f.addressedTo})`:''}.`, r }
   }
   const user=userById(r.by); const teacher=db().teachers.find(x=>x.id===user?.teacherId); const isSalary=r.type.includes('salaire')
-  return { title:r.type, ref:r.id.toUpperCase(), today, sc, intro:`Nous soussignés, la Direction de l'établissement ${sc.schoolName}, attestons que :`,
+  return { title:t(r.type), ref:r.id.toUpperCase(), today, sc, intro:`Nous soussignés, la Direction de l'établissement ${sc.schoolName}, attestons que :`,
     rows:[['Nom & prénom',r.byName],['Fonction',teacher?.designation||user?.position||'Enseignant'],['CIN',user?.cin||teacher?.cin||'·'],['Date d\'embauche',teacher?.joiningDate||'·'],...(isSalary?[['Salaire mensuel brut',teacher?.salary?money(teacher.salary):'·']]:[])],
     body:`est employé(e) au sein de notre établissement. La présente attestation est délivrée à l'intéressé(e)${f.addressedTo?`, à l'attention de ${f.addressedTo},`:''} pour servir et valoir ce que de droit${f.purpose?` (${f.purpose})`:''}.`, r }
 }

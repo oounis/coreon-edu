@@ -35,7 +35,7 @@ function docModel(rec) {
     radiation: `n'est plus inscrit(e) dans notre établissement${s?.archivedAt ? ` depuis le ${format(new Date(s.archivedAt), 'dd/MM/yyyy')}` : ''}. Son dossier scolaire reste archivé et disponible. Le présent certificat est délivré pour servir et valoir ce que de droit${rec.addressedTo ? ` (${rec.addressedTo})` : ''}.`,
   }
   return {
-    title: docType?.label || rec.type, ref: rec.number, today: format(new Date(rec.at), 'dd/MM/yyyy'),
+    title: t(docType?.label || rec.type), ref: rec.number, today: format(new Date(rec.at), 'dd/MM/yyyy'),
     sc, rows, by: rec.by,
     intro: `La Direction de l'établissement ${sc.schoolName} ${rec.type === 'radiation' ? 'certifie' : 'certifie'} que l'élève :`,
     body: BODY[rec.type] || '',
@@ -97,7 +97,7 @@ export default function Documents() {
     if (!sid) return toast.error("Choisissez l'élève")
     const r = issueDocument({ type, studentId: sid, addressedTo, by: u.name })
     if (r.error) return toast.error(r.error)
-    toast.success(`${docTypeOf(type).label} n° ${r.doc.number} : inscrit au registre`)
+    toast.success(`${t(docTypeOf(type).label)} n° ${r.doc.number} : ${t("inscrit au registre")}`)
     setAddressedTo(''); setView(r.doc); force(x => x + 1)
   }
 
@@ -111,8 +111,8 @@ export default function Documents() {
           {DOC_LIST.map(x => (
             <button key={x.key} onClick={() => { setType(x.key); setSid('') }}
               className={`text-left rounded-xl border p-3 transition ${type === x.key ? 'border-transparent ring-2 ring-[var(--accent)] bg-white' : 'border-line hover:bg-canvas'}`}>
-              <div className="text-sm font-bold">{x.label}</div>
-              <div className="text-[12px] text-muted mt-0.5">{x.hint}</div>
+              <div className="text-sm font-bold">{t(x.label)}</div>
+              <div className="text-[12px] text-muted mt-0.5">{t(x.hint)}</div>
             </button>))}
         </div>
         <div className="grid sm:grid-cols-2 gap-3 items-end">
@@ -147,7 +147,7 @@ export default function Documents() {
               <Avatar name={rec.studentName} seed={rec.studentId} size={28} />
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-semibold truncate">{rec.studentName}</span>
-                <span className="block text-[12px] text-muted">{docTypeOf(rec.type)?.label}{rec.addressedTo ? ` · ${rec.addressedTo}` : ''}</span></span>
+                <span className="block text-[12px] text-muted">{t(docTypeOf(rec.type)?.label)}{rec.addressedTo ? ` · ${rec.addressedTo}` : ''}</span></span>
               <span className="text-[12px] text-muted shrink-0">{format(new Date(rec.at), 'd MMM yyyy', { locale: df() })} · {rec.by}</span>
             </button>))}
         </div>}

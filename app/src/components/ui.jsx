@@ -55,7 +55,7 @@ export function Badge({ status, label: lbl, tone }){
   const [bg,fg,label]= tone ? [...(TONE[tone]||NEUTp), lbl||status]
                      : m[status] ? m[status]
                      : [STATUS.neutralSoft,STATUS.neutral, lbl||status]
-  return <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:bg,color:fg}}>{label}</span>
+  return <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:bg,color:fg}}>{t(label)}</span>
 }
 // ── Avatar à initiales : LE seul style d'avatar du produit. Aplat déterministe
 // tiré du nom, jamais une image. Les sept teintes sont canoniques ET réversibles
