@@ -17,7 +17,7 @@
 | **Aucune sauvegarde** | Aucune restauration possible. Pour un dossier scolaire, c'est disqualifiant. | Backend |
 | **Quota du navigateur (~5 Mo)** | Une école réelle le dépasse en quelques semaines de pièces jointes. Le produit **le dit désormais honnêtement** au lieu de perdre les données en silence — mais la limite reste. | Backend + stockage de fichiers |
 | **Écriture concurrente** | Deux onglets, deux enseignants : le dernier écrase le premier. | Backend |
-| **Conformité INPDP / RGPD** | Données de santé d'enfants. Aucun registre, aucun chiffrement, aucun journal d'audit. | Backend + travail juridique |
+| **Conformité INPDP / RGPD** | Données de santé d'enfants. **Journal d'audit livré le 2026-08-01** (CR-039, `core/src/audit.js`) : qui a lu / modifié quel dossier sensible. Restent le registre des traitements, le chiffrement, et l'immuabilité serveur du journal. | Backend + travail juridique |
 
 ## Ce qui est DÉJÀ prêt pour la production (et c'est beaucoup)
 

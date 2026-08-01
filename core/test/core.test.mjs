@@ -1568,3 +1568,206 @@ test("cantine : « Peanut allergy » et l'arabe déclenchent l'alerte — « Pea
   assert.equal(studentReactsTo({ allergies: 'None' }, 'arachide'), false, '« None » = aucune allergie')
   assert.equal(studentReactsTo({ allergies: 'Arachides' }, 'arachide'), true, 'le français marche toujours')
 })
+
+// ════════════════════════════════════════════════════════════════════════════
+// CR-039 · LE JOURNAL D'AUDIT (norme D6) — la preuve, pas la promesse.
+//
+// Ce que ces tests refusent de croire sur parole :
+//  · qu'une ligne écrite ne peut pas être modifiée en douce ;
+//  · que le journal survit à la purge des données de démonstration ;
+//  · que la donnée sensible elle-même n'y entre jamais ;
+//  · qu'un compteur plein perd des lignes SANS le dire.
+// ════════════════════════════════════════════════════════════════════════════
+test('audit : la chaîne d’empreintes DÉTECTE une ligne réécrite', async () => {
+  const { record, verifyChain, auditEntries, MAX_ENTRIES } = await import('../src/audit.js')
+  const { getItem, setItem } = await import('../src/storage.js')
+
+  record({ action: 'read',  category: 'sante', subjectId: 'k1', subjectName: 'Yassine' })
+  record({ action: 'write', category: 'sante', subjectId: 'k1', subjectName: 'Yassine' })
+  record({ action: 'read',  category: 'paie',  subjectId: 'p1', subjectName: 'Registre de paie' })
+
+  const before = verifyChain()
+  assert.equal(before.ok, true, 'une chaîne jamais touchée se vérifie')
+  assert.ok(before.checked >= 3)
+
+  // L'attaque la plus probable : effacer la trace de SA propre consultation en
+  // réécrivant la ligne dans le stockage du navigateur. Le nom change, pas
+  // l'empreinte — c'est exactement ce que la chaîne doit voir.
+  const raw = JSON.parse(getItem('coreon_audit'))
+  const victim = raw.entries[raw.entries.length - 2]
+  victim.userName = 'Quelqu’un d’autre'
+  setItem('coreon_audit', JSON.stringify(raw))
+
+  const after = verifyChain()
+  assert.equal(after.ok, false, 'une ligne réécrite CASSE la chaîne')
+  assert.equal(after.brokenAt, victim.n, 'et le journal NOMME la première ligne rompue')
+
+  // Retirer une ligne se voit aussi : la suivante ne pointe plus sur son prédécesseur.
+  victim.userName = ''                                     // remettre l'original
+  const cut = JSON.parse(getItem('coreon_audit'))
+  cut.entries.splice(cut.entries.length - 2, 1)
+  setItem('coreon_audit', JSON.stringify(cut))
+  assert.equal(verifyChain().ok, false, 'une ligne RETIRÉE casse aussi la chaîne')
+
+  setItem('coreon_audit', '')                              // repartir propre
+  assert.equal(verifyChain().ok, true)
+  assert.equal(auditEntries().length, 0)
+  assert.ok(MAX_ENTRIES > 0)
+})
+
+test('audit : on écrit QUI a touché le dossier, JAMAIS ce qu’il contient', async () => {
+  const { auditEntries, auditTrail, whoTouched } = await import('../src/audit.js')
+  const { setItem } = await import('../src/storage.js')
+  const { saveHealth } = await import('../src/childcare.js')
+  setItem('coreon_audit', '')
+
+  const d = db()
+  const kid = d.students[0]
+  saveHealth(kid.id, { allergies: 'Arachides', bloodGroup: 'O+', notes: 'Traitement en cours' })
+
+  const line = auditEntries().at(-1)
+  assert.equal(line.category, 'sante')
+  assert.equal(line.subjectId, kid.id)
+  assert.equal(line.subjectName, kid.name, 'le NOM du dossier, pour que le contrôleur s’y retrouve')
+
+  // LA garantie : le journal ne doit pas devenir un second dossier médical.
+  const dump = JSON.stringify(line)
+  for (const secret of ['Arachides', 'O+', 'Traitement en cours'])
+    assert.ok(!dump.includes(secret), `la valeur « ${secret} » ne doit JAMAIS entrer au journal`)
+
+  // Et la question du contrôleur se répond en un appel.
+  assert.equal(whoTouched(kid.id, 'sante').length, 1)
+  assert.equal(auditTrail({ category: 'paie' }).length, 0)
+})
+
+test('audit : le vocabulaire des détails est FERMÉ — donc traduisible', async () => {
+  const { DETAILS, auditEntries } = await import('../src/audit.js')
+  const { setItem } = await import('../src/storage.js')
+  const EN = (await import('../src/i18n.en.js')).default
+  const AR = (await import('../src/i18n.ar.js')).default
+
+  // Chaque phrase que le journal sait écrire doit exister dans les DEUX
+  // dictionnaires : sinon un directeur du Golfe lirait du français dans un
+  // écran arabe, des mois après l'événement.
+  for (const phrase of Object.values(DETAILS)) {
+    assert.ok(EN[phrase], `« ${phrase} » n’a pas de traduction anglaise`)
+    assert.ok(AR[phrase], `« ${phrase} » n’a pas de traduction arabe`)
+  }
+
+  // Et rien d'autre que ce vocabulaire ne s'écrit : un `detail` libre serait
+  // figé dans la langue du jour.
+  setItem('coreon_audit', '')
+  const { setDisabled } = await import('../src/accounts.js')
+  const victim = db().users.find(u => u.role === 'teacher')
+  setDisabled(victim.id, true)
+  setDisabled(victim.id, false)
+  const known = new Set(Object.values(DETAILS))
+  for (const e of auditEntries())
+    if (e.detail) assert.ok(known.has(e.detail), `détail hors vocabulaire : « ${e.detail} »`)
+})
+
+test('audit : les catégories et actions sont traduites, elles aussi', async () => {
+  const { CATEGORIES, ACTIONS } = await import('../src/audit.js')
+  const EN = (await import('../src/i18n.en.js')).default
+  const AR = (await import('../src/i18n.ar.js')).default
+  for (const c of Object.values(CATEGORIES)) {
+    assert.ok(EN[c.label], `catégorie « ${c.label} » sans anglais`)
+    assert.ok(AR[c.label], `catégorie « ${c.label} » sans arabe`)
+    assert.ok(c.why, 'chaque catégorie porte le MOTIF qui la met au journal')
+  }
+  for (const a of Object.values(ACTIONS)) {
+    assert.ok(EN[a.label], `action « ${a.label} » sans anglais`)
+    assert.ok(AR[a.label], `action « ${a.label} » sans arabe`)
+  }
+})
+
+test('audit : une connexion REFUSÉE laisse une trace — c’est la ligne qu’on cherche', async () => {
+  const { auditEntries, DETAILS } = await import('../src/audit.js')
+  const { setItem } = await import('../src/storage.js')
+  const { login } = await import('../src/auth.js')
+  setItem('coreon_audit', '')
+
+  const who = db().users.find(u => u.role === 'schooladmin')
+  assert.equal(login(who.email, 'mot-de-passe-faux'), null)
+  const denied = auditEntries().at(-1)
+  assert.equal(denied.action, 'denied')
+  assert.equal(denied.detail, DETAILS.identifiantsFaux)
+  assert.ok(!JSON.stringify(denied).includes('mot-de-passe-faux'), 'le mot de passe essayé n’est jamais écrit')
+
+  const ok = login(who.email, who.pw)
+  assert.ok(ok, 'le vrai mot de passe passe')
+  assert.equal(auditEntries().at(-1).action, 'login')
+  logout()
+  assert.equal(auditEntries().at(-1).action, 'logout')
+})
+
+test('audit : la purge des données de démonstration ne l’efface PAS — elle s’y inscrit', async () => {
+  const { auditEntries, DETAILS, verifyChain } = await import('../src/audit.js')
+  const { setItem } = await import('../src/storage.js')
+  const { purgeDemoData, saveSettings, resetDb } = await import('../src/db.js')
+  setItem('coreon_audit', '')
+
+  const { record } = await import('../src/audit.js')
+  record({ action: 'read', category: 'sante', subjectId: 'avant', subjectName: 'Avant la purge' })
+  const before = auditEntries().length
+
+  saveSettings({ schoolName: 'École Test Purge' })
+  assert.equal(purgeDemoData().ok, true)
+
+  const after = auditEntries()
+  assert.ok(after.length > before, 'la purge AJOUTE une ligne')
+  assert.ok(after.some(e => e.subjectName === 'Avant la purge'),
+    'ce qui précédait la purge est TOUJOURS là : le journal ne s’efface pas avec les données')
+  assert.equal(after.at(-1).detail, DETAILS.demoPurgee)
+  assert.equal(verifyChain().ok, true)
+
+  setItem('coreon_audit', '')
+  resetDb(); db()                                  // re-semer pour la suite des tests
+})
+
+test('audit : le journal plein perd des lignes — et le DIT (rotation comptée, chaîne intacte)', async () => {
+  const { record, auditHealth, MAX_ENTRIES, auditEntries } = await import('../src/audit.js')
+  const { setItem, getItem } = await import('../src/storage.js')
+  setItem('coreon_audit', '')
+
+  // Écrire au-delà du plafond directement dans le stockage serait tricher : on
+  // passe par record(), donc par la vraie rotation. 12 lignes de plus suffisent.
+  const over = 12
+  for (let i = 0; i < MAX_ENTRIES + over; i++)
+    record({ action: 'read', category: 'audit', subjectId: 'x' + i, subjectName: 'Journal d’audit' })
+
+  const h = auditHealth()
+  assert.equal(h.count, MAX_ENTRIES, 'le journal se plafonne')
+  assert.equal(h.dropped, over, 'et il COMPTE ce qu’il a laissé sortir')
+  assert.equal(h.full, true)
+  assert.equal(h.ok, true, 'la chaîne reste vérifiable après rotation (ancre reprise)')
+
+  // La numérotation ne se réutilise jamais : sinon deux lignes différentes
+  // porteraient le même numéro et l'export mentirait.
+  const ns = auditEntries().map(e => e.n)
+  assert.equal(new Set(ns).size, ns.length, 'aucun numéro réutilisé')
+  assert.equal(ns[0], over + 1, 'la plus ancienne restante est bien la 13e écrite')
+
+  setItem('coreon_audit', '')
+  assert.ok(getItem('coreon_audit') !== null)
+})
+
+test('audit : le CSV neutralise l’injection de formule (une cellule n’est pas un terminal)', async () => {
+  const { record, auditCsv, AUDIT_CSV_HEADER } = await import('../src/audit.js')
+  const { setItem } = await import('../src/storage.js')
+  setItem('coreon_audit', '')
+
+  record({ action: 'read', category: 'eleve', subjectId: 'x', subjectName: '=HYPERLINK("http://mechant","clic")' })
+  const csv = auditCsv()
+  assert.ok(csv.startsWith(AUDIT_CSV_HEADER.join(',')))
+  assert.ok(!csv.includes(',"=HYPERLINK'), 'une cellule ne doit jamais commencer par =')
+  assert.ok(csv.includes('\'=HYPERLINK'), 'elle est préfixée, donc affichée comme du texte')
+  setItem('coreon_audit', '')
+})
+
+test('audit : le journal se lit par la Direction, PAS par ceux qu’il surveille', () => {
+  assert.equal(canAccess('schooladmin', '/app/audit'), true)
+  assert.equal(canAccess('owner', '/app/audit'), true)
+  for (const role of ['admin', 'hr', 'accountant', 'teacher', 'supervisor', 'security', 'parent'])
+    assert.equal(canAccess(role, '/app/audit'), false, `${role} ne doit pas lire le journal d’audit`)
+})

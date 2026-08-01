@@ -87,9 +87,11 @@ La marche vers 95 % (≈310 clés) ne peut donc plus rebloquer une livraison.
 
 ### D6 · Sécurité & données personnelles
 **Critère.** Pas de secret dans le dépôt ; pas d'élévation de privilège ; pas d'accès hors rôle ; consentement du pays ; journal d'audit pour les données sensibles.
-**Mesure.** `.github/workflows/securite.yml` (CodeQL + motifs de secrets, à chaque poussée + hebdo) · tests ACL du serveur.
+**Mesure.** `.github/workflows/securite.yml` (CodeQL + motifs de secrets, à chaque poussée + hebdo) · tests ACL du serveur · **9 tests cœur du journal d'audit** · `node e2e/parcours.audit.mjs` (la consultation d'un dossier de santé doit APPARAÎTRE au journal).
 **État : 🟡 partiel.** Corrigés : élévation de privilège par POST /api/db, traversée de chemin du serveur statique, XSS stocké par nom de fichier, jeton du worker mail révoqué et sorti du dépôt, limites de débit connexion/réinitialisation, sauvegarde du registre d'auth, lecture Administration alignée sur ses droits d'écriture.
-**Réserve A :** **journal d'audit inexistant** (qui a lu/modifié un dossier médical) — exigence PDPL/INPDP. **Mode démo = mots de passe en clair côté navigateur** tant que l'hébergement serveur n'est pas fait.
+**2026-08-01 · CR-039 LIVRÉ — le journal d'audit existe.** `core/src/audit.js` : 9 natures de donnée sensible, chacune avec le motif juridique qui l'y met ; consultations (dossier de santé, personnes autorisées, fiche élève 360°, contrats & paie, journal lui-même) ET modifications (santé, autorisations de départ, accidents, comptes, contrats, paie, documents officiels) ; connexions et **connexions REFUSÉES**. Clé de stockage séparée du blob de l'école, chaîne d'empreintes qui NOMME la première ligne altérée, **aucun chemin de suppression**, export CSV daté (lui-même journalisé). Lisible par la Direction et la plateforme UNIQUEMENT — pas par ceux qu'il surveille.
+
+**Réserve A (ce qui reste, et qui dépend de D9) :** l'immuabilité est *tamper-évidente*, pas *tamper-proof* — le journal vit dans le navigateur de l'école, qui sait ouvrir la console peut recalculer la chaîne. La garantie devient réelle avec une table serveur en AJOUT SEUL. Même dépendance pour le reste : **mode démo = mots de passe en clair côté navigateur** tant que l'hébergement serveur n'est pas fait.
 
 ### D7 · Données du client (entrée et sortie)
 **Critère.** Une école apporte ses données sans ressaisie et peut les reprendre.
@@ -124,7 +126,7 @@ La marche vers 95 % (≈310 clés) ne peut donc plus rebloquer une livraison.
 | D3 Pays | 🟡 | TVA/NBR · GOSI/EOSB · reporting MOE |
 | D4 Langue | ✅ | — (EN 100 % · AR 100 %, barrière CI à 95 %) |
 | D5 Argent | 🟡 | unifier les deux modèles · reçus location/activités |
-| D6 Sécurité | 🟡 | journal d'audit · sortir du mode démo |
+| D6 Sécurité | 🟡 | ~~journal d'audit~~ ✅ 2026-08-01 · immuabilité serveur · sortir du mode démo |
 | D7 Données client | ✅ | (ZIP d'export : confort) |
 | D8 UX & accessibilité | ✅ | — |
 | D9 Exploitation | 🟡 | **hébergement serveur** · supervision · restauration testée |
@@ -142,8 +144,9 @@ La marche vers 95 % (≈310 clés) ne peut donc plus rebloquer une livraison.
    aussi la moitié de D6 (mots de passe hachés, sessions, sauvegardes).
 2. ~~**D4 — langue à 95 %**~~ ✅ **FERMÉE le 2026-07-29** : EN et AR à 100 %.
 3. **D5/D3 — argent et conformité** : modèle unique + TVA/NBR.
-4. **D6 — journal d'audit** (CR-039, réserve A) : qui a lu/modifié un dossier
-   médical. Exigence PDPL/INPDP, désormais le plus gros reste après D9.
+4. ~~**D6 — journal d'audit**~~ ✅ **FERMÉE le 2026-08-01** (CR-039) : qui a lu et qui a
+   modifié un dossier sensible se lit en une minute, s'exporte, et une ligne réécrite
+   se détecte. Ce qui en reste — l'immuabilité vraie — est un sous-produit de D9.
 
 ---
 

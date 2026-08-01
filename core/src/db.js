@@ -5,6 +5,7 @@ import { subjectHue } from './subjects.js'
 import { BRAND } from './tokens.js'
 import { nextRef, uuid as newUuid } from './refs.js'
 import { countryCode } from './locales.js'
+import { record, DETAILS } from './audit.js'
 const KEY="coreon_db"
 const SCHEMA=24
 
@@ -760,7 +761,12 @@ export function purgeDemoData(){
     else if(k==='users') out[k]=(v||[]).filter(u=>u.role==='schooladmin'||u.role==='owner')
     else out[k]=Array.isArray(v)?[]:(v&&typeof v==='object'?{}:v)
   }
-  return save(out)?{ok:true}:{error:"Le stockage a refusé l'écriture."}
+  const ok = save(out)
+  // CR-039 : la purge des données de démonstration est le SEUL effacement de
+  // masse du produit. Elle ne touche pas le journal d'audit (clé séparée) et
+  // s'y inscrit : le passage de la démo au réel est daté et signé, pas un trou.
+  if(ok) record({ action:'system', category:'audit', subjectName:'Journal d’audit', detail:DETAILS.demoPurgee })
+  return ok?{ok:true}:{error:"Le stockage a refusé l'écriture."}
 }
 export const uid=(p="id")=>p+"_"+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3)
 

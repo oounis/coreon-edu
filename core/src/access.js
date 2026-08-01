@@ -7,6 +7,11 @@ export const ROUTE_ROLES={
   '/app/schools': ['owner'],
   '/app/settings': ['schooladmin','owner'],
   '/app/accounts': ['schooladmin'],
+  // CR-039 : le journal d'audit se lit par ceux qui RÉPONDENT du traitement des
+  // données — la Direction (responsable de traitement au sens PDPL/INPDP) et la
+  // plateforme. Surtout pas par l'Administration ni la RH : un journal lisible
+  // par les personnes qu'il surveille ne surveille plus personne.
+  '/app/audit': ['schooladmin', 'owner'],
   '/app/students': ['schooladmin','admin','supervisor','teacher'],
   // La fiche élève 360° : le personnel — le parent a ses propres vues.
   '/app/eleve': ['schooladmin','admin','supervisor','teacher'],

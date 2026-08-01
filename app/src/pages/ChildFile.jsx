@@ -17,6 +17,7 @@ import {
   PageHead, Card, Btn, Badge, Modal, Field, Input, Select, Tabs, EmptyState, Avatar, STATUS,
 } from '../components/ui.jsx'
 import { Ic } from '../icons.jsx'
+import { useAuditRead } from '../useAudit.js'
 import toast from 'react-hot-toast'
 
 const hhmm = v => new Date(v).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' })
@@ -35,6 +36,11 @@ export default function ChildFile() {
   const [sel, setSel] = useState(kids[0]?.id)
   const [tab, setTab] = useState('depart')
   const child = kids.find(k => k.id === sel)
+
+  // CR-039 : deux des trois onglets sont des données sensibles. On journalise
+  // le DOSSIER ouvert, pas la page — « Jalons » n'écrit donc rien (sujet nul).
+  useAuditRead(tab === 'sante' ? 'sante' : 'gardiens',
+    child && tab !== 'jalons' ? { id: child.id, name: child.name } : null)
 
   if (!kids.length) return <EmptyState icon="Baby" title={t('Aucun enfant en petite enfance.')}
     sub={t('Le dossier de l’enfant concerne la crèche et la maternelle.')} />

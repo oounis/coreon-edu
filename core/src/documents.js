@@ -19,6 +19,7 @@
 // ════════════════════════════════════════════════════════════════════════════
 import { db, mutate, studentById } from './db.js'
 import { todayIso } from './clock.js'
+import { auditWrite, DETAILS } from './audit.js'
 
 export const DOC_TYPES = {
   scolarite: {
@@ -73,6 +74,9 @@ export function issueDocument({ type, studentId, addressedTo = '', by }) {
     at: Date.now(), date: todayIso(), by,
   }
   mutate(d => { d.documents = [rec, ...(d.documents || [])] })
+  // CR-039 : un document officiel porte l'identité d'un mineur et sort de
+  // l'école. Qui l'a délivré, pour qui, à qui il est adressé : au journal.
+  auditWrite('identite', { id: studentId, name: s.name, detail: DETAILS.documentDelivre, note: rec.number })
   return { doc: rec }
 }
 

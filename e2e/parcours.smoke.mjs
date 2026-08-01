@@ -3,7 +3,7 @@
 // de /app/attendance (clé d'appel coupée au mauvais underscore, 2026-07-15).
 import { scenario } from './lib.mjs'
 const ROLES = {
-  'direction@alnour.tn/admin': ['/app','/app/accounts','/app/admissions','/app/students','/app/teachers','/app/staff','/app/hr','/app/accounting','/app/academic','/app/facilities','/app/child','/app/journal','/app/results','/app/timetable','/app/attendance','/app/finance','/app/events','/app/security','/app/social','/app/incidents','/app/accidents','/app/requests','/app/messages','/app/notices','/app/interop','/app/settings','/app/notifications'],
+  'direction@alnour.tn/admin': ['/app','/app/accounts','/app/audit','/app/admissions','/app/students','/app/teachers','/app/staff','/app/hr','/app/accounting','/app/academic','/app/facilities','/app/child','/app/journal','/app/results','/app/timetable','/app/attendance','/app/finance','/app/events','/app/security','/app/social','/app/incidents','/app/accidents','/app/requests','/app/messages','/app/notices','/app/interop','/app/settings','/app/notifications'],
   // L'Administration ne gère PLUS la RH ni la comptabilité (CR-016/020) : son
   // périmètre est le quotidien — admissions, élèves, documents, journal, présence.
   'admin@alnour.tn/office': ['/app','/app/admissions','/app/students','/app/pointage','/app/documents','/app/journal','/app/attendance','/app/requests'],

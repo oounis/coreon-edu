@@ -46,6 +46,7 @@ const ALL_NAV=[
   { to:'/app/live', section:'quotidien', pinned:['parent'], label:'Suivi en direct', icon:'Radio', roles:['parent'] },
   { to:'/app/schools', section:'systeme', label:'Écoles', icon:'Building2', roles:['owner'] },
   { to:'/app/accounts', section:'systeme', label:'Comptes', icon:'UserCog', roles:['schooladmin'] },
+  { to:'/app/audit', section:'systeme', label:'Journal d’audit', icon:'ScrollText', roles:['schooladmin','owner'] },
   { to:'/app/admissions', section:'eleves', pinned:['schooladmin','admin'], label:'Inscriptions', icon:'UserPlus', module:'admissions',
     roles:['schooladmin','admin'] },
   { to:'/app/students', section:'eleves', label:'Élèves', icon:'Users', roles:['schooladmin','admin','supervisor','teacher'] },

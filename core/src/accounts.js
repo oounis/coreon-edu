@@ -16,6 +16,7 @@
 //  4. Le compte plateforme (owner) ne se gère pas depuis l'école.
 // ════════════════════════════════════════════════════════════════════════════
 import { db, mutate, uid, setParentChildren } from './db.js'
+import { auditWrite, DETAILS } from './audit.js'
 
 // ⚠️ AUDIT 2026-07-25 : `hr` et `accountant` manquaient — le client ne pouvait
 // PAS créer les deux comptes de département que l'ACL (CR-019) a été bâtie pour.
@@ -53,6 +54,9 @@ export function createAccount(f) {
     db.users.push(user)
     if (f.role === 'parent') setParentChildren(db, id, f.childIds || [])
   })
+  // CR-039 : créer, promouvoir, désactiver ou réinitialiser un accès sont les
+  // gestes qui ouvrent la porte aux données — ils se journalisent tous.
+  auditWrite('compte', { id, name: f.name.trim(), detail: DETAILS.compteCree })
   return { user: db().users.find(u => u.id === id) }
 }
 
@@ -73,6 +77,7 @@ export function updateAccount(id, patch) {
     if (patch.subject !== undefined && x.teacherId) { const t = db.teachers.find(y => y.id === x.teacherId); if (t) t.subject = patch.subject }
     if (patch.childIds !== undefined && x.role === 'parent') setParentChildren(db, id, patch.childIds)
   })
+  auditWrite('compte', { id, name: u.name, detail: patch.role && patch.role !== u.role ? DETAILS.compteRole : DETAILS.compteModifie })
   return { user: db().users.find(x => x.id === id) }
 }
 
@@ -85,6 +90,7 @@ export function setDisabled(id, disabled) {
   if (disabled && isLastDirection(d, id))
     return { error: 'Impossible : c\'est le dernier compte Direction actif : l\'école se verrouillerait dehors.' }
   mutate(db => { const x = db.users.find(y => y.id === id); if (x) x.disabled = !!disabled })
+  auditWrite('compte', { id, name: u.name, detail: disabled ? DETAILS.compteDesactive : DETAILS.compteReactive })
   return { ok: true }
 }
 
@@ -96,6 +102,8 @@ export function resetPassword(id) {
   if (u.role === 'owner') return { error: 'Le compte plateforme ne se gère pas depuis l\'école.' }
   const tmp = Math.random().toString(36).slice(2, 8)
   mutate(db => { const x = db.users.find(y => y.id === id); if (x) x.pw = tmp })
+  // Le mot de passe temporaire n'entre PAS au journal : il y resterait lisible.
+  auditWrite('compte', { id, name: u.name, detail: DETAILS.motDePasse })
   return { pw: tmp }
 }
 

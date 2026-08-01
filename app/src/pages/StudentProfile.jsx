@@ -22,6 +22,7 @@ import Bulletin from '../components/Bulletin.jsx'
 import { ArrowLeft, BellRing, ScrollText, Users, CalendarCheck, Gauge, Wallet, Smile, HeartPulse, ShieldCheck, FileText, Printer } from 'lucide-react'
 import { format } from 'date-fns'
 import { df } from '../datefns.js'
+import { useAuditRead } from '../useAudit.js'
 import toast from 'react-hot-toast'
 
 
@@ -32,6 +33,10 @@ export default function StudentProfile() {
   const d = db()
   const s = d.students.find(x => x.id === id)
   const [bulletin, setBulletin] = useState(false)
+
+  // CR-039 : la fiche 360° réunit santé, accidents, argent et documents d'un
+  // mineur sur un seul écran. C'est LA consultation qu'un contrôleur veut tracer.
+  useAuditRead('eleve', s ? { id: s.id, name: s.name } : null)
 
   const stats = useMemo(() => {
     if (!s) return null

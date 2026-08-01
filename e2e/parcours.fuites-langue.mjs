@@ -58,7 +58,8 @@ const PAGES = [
     '/app/admissions', '/app/documents', '/app/events', '/app/notices', '/app/messages',
     '/app/canteen', '/app/gallery', '/app/behavior', '/app/childfile', '/app/accidents',
     '/app/facilities', '/app/inventory', '/app/budget', '/app/recruit', '/app/teachers',
-    '/app/interop', '/app/requests', '/app/timetable', '/app/settings', '/app/incidents']],
+    '/app/interop', '/app/requests', '/app/timetable', '/app/settings', '/app/incidents',
+    '/app/audit']],
   ['creche@alnour.tn', 'teacher', ['/app', '/app/evaluate', '/app/journal', '/app/attendance']],
   ['parent@alnour.tn', 'parent', ['/app', '/app/live', '/app/payments', '/app/journal', '/app/gallery']],
 ]

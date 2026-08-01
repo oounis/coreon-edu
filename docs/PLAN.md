@@ -235,6 +235,10 @@ l'interface n'est pas une règle.*
 | 2026-07-14 | **La règle n°7 s'applique au marketing** : témoignages inventés supprimés de la page d'accueil | La confiance se gagne par les principes (les 9 règles), pas par des clients imaginaires |
 | 2026-07-14 | La **catégorie** d'une demande = le groupe de son type, jamais une saisie | Une taxonomie de plus serait une case de plus à remplir faux |
 | 2026-07-14 | L'ardoise passe à `#485868` (7.31:1, AAA) et graisse 600 aux petites tailles | Retour d'Othman « texte très clair » — calculé, pas estimé, changé à la source |
+| 2026-08-01 | Le **journal d'audit vit dans SA PROPRE clé de stockage**, hors du blob de l'école | `acl.js/mergeWrite` fusionne un blob POSTÉ par un client : une collection du blob serait réécrivable par celui-là même qu'elle surveille. La séparation d'aujourd'hui est le `POST /api/audit` en AJOUT SEUL de demain |
+| 2026-08-01 | Le journal **n'écrit jamais la valeur** consultée, seulement le geste | Recopier le groupe sanguin ou le salaire ferait du journal un SECOND fichier sensible, et doublerait la fuite qu'il surveille |
+| 2026-08-01 | **Aucun chemin de suppression** n'existe, pas même pour la Direction ; la purge des données de démonstration s'y INSCRIT au lieu de l'effacer | Un journal qu'on peut vider ne prouve rien. La seule perte tolérée est la rotation — comptée, ancrée, affichée |
+| 2026-08-01 | On dit **tamper-évident**, pas tamper-proof | Les données vivent dans le navigateur : promettre l'immuabilité serait un mensonge d'interface (D2). La vraie garantie vient avec l'hébergement serveur |
 
 ---
 

@@ -16,6 +16,7 @@ import {
 } from '../components/ui.jsx'
 import Payslip from '../components/Payslip.jsx'
 import { Ic } from '../icons.jsx'
+import { useAuditRead } from '../useAudit.js'
 import toast from 'react-hot-toast'
 
 // audit FAT 2026-07-26 : money() du cœur — les millièmes du BHD comptent
@@ -40,6 +41,12 @@ export default function HR() {
   const [tab, setTab] = useState('equipe')
   const [, force] = useState(0)
   const refresh = () => force(n => n + 1)
+
+  // CR-039 : ouvrir « Contrats » ou « Paie », c'est consulter les salaires de
+  // toute l'équipe d'un coup. Le sujet n'est donc pas une personne mais le
+  // registre lui-même — la consultation en masse est justement celle qu'on trace.
+  useAuditRead('paie', tab === 'equipe' ? { id: 'contrats', name: 'Contrats de l’équipe' }
+    : tab === 'paie' ? { id: 'paie', name: 'Registre de paie' } : null)
 
   return (
     <>

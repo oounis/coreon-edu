@@ -21,6 +21,14 @@
 import { db, save } from './db.js'
 import { roundMoney } from './currency.js'
 import { now, todayIso, nowMs, ms } from './clock.js'
+import { auditWrite, DETAILS } from './audit.js'
+
+// CR-039 : contrat et paie sont les données personnelles les plus sensibles du
+// personnel. Le MONTANT n'entre jamais au journal — seulement le geste et sur qui.
+const staffName = id => {
+  const d = db()
+  return (d.teachers || []).find(t => t.id === id)?.name || (d.users || []).find(u => u.id === id)?.name || ''
+}
 
 // ── Contrats ────────────────────────────────────────────────────────────────
 export const CONTRACTS = {
@@ -82,6 +90,7 @@ export function setContract({ staffId, kind = 'cdi', base = 0, housing = 0, tran
   d.hrContracts = [...(d.hrContracts || []).filter(c => c.staffId !== staffId),
     { staffId, kind, base: b, housing: Number(housing) || 0, transport: Number(transport) || 0, start, end }]
   save(d)
+  auditWrite('paie', { id: staffId, name: staffName(staffId), detail: DETAILS.contratEnregistre })
 }
 
 /** Une demande de congé. C'est l'employé qui la dépose. */
@@ -228,6 +237,7 @@ export function validatePayroll(month, byId, byName) {
   d.hrPayrolls = d.hrPayrolls.map(x => x.month !== month ? x
     : { ...x, stage: 'valide', validatedBy: byName, validatedById: byId || null, validatedAt: nowMs() })
   save(d)
+  auditWrite('paie', { id: month, name: 'Registre de paie', detail: DETAILS.paieValidee, note: month })
   return { ok: true }
 }
 
@@ -238,6 +248,7 @@ export function markPaid(month) {
   const d = db()
   d.hrPayrolls = d.hrPayrolls.map(x => x.month !== month ? x : { ...x, stage: 'paye', paidAt: nowMs() })
   save(d)
+  auditWrite('paie', { id: month, name: 'Registre de paie', detail: DETAILS.paiePayee, note: month })
   return { ok: true }
 }
 

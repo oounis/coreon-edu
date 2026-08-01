@@ -25,6 +25,11 @@
 // ════════════════════════════════════════════════════════════════════════════
 import { db, save, assignRef} from './db.js'
 import { now, nowMs, ms } from './clock.js'
+import { auditWrite, DETAILS } from './audit.js'
+
+// CR-039 : une déclaration d'accident EST une donnée de santé. Qui l'a écrite,
+// qui l'a validée, qui l'a lue : le journal d'audit répond aux trois.
+const childName = id => (db().students || []).find(s => s.id === id)?.name || ''
 
 /** Le schéma corporel. Un adulte pointe où l'enfant s'est fait mal — il n'écrit pas. */
 export const BODY_ZONES = [
@@ -112,6 +117,7 @@ export function declare({ childId, zones, kind, severity, whatHappened, care, at
   }
   assignRef(db(), 'accident', a)
   write([a, ...accidents()])
+  auditWrite('accident', { id: childId, name: childName(childId), detail: DETAILS.accidentDeclare, note: a.ref || a.id })
   return { accident: a }
 }
 
@@ -151,6 +157,7 @@ export function acknowledge(id, parentName) {
   if (a.stage !== 'envoye') return { error: 'Rien à accuser.' }
   write(accidents().map(x => x.id !== id ? x
     : { ...x, stage: 'accuse', ack: { by: parentName, at: nowMs() } }))
+  auditWrite('accident', { id: a.childId, name: childName(a.childId), detail: DETAILS.accidentAccuse, note: parentName })
   return { ok: true }
 }
 

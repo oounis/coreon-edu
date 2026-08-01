@@ -17,6 +17,12 @@
 // ════════════════════════════════════════════════════════════════════════════
 import { db, save } from './db.js'
 import { now, todayIso, nowMs, ms } from './clock.js'
+import { auditWrite, DETAILS } from './audit.js'
+
+// CR-039 : santé et personnes autorisées sont les deux dossiers les plus
+// sensibles du produit. Chaque écriture laisse une ligne au journal d'audit —
+// avec le NOM de l'enfant, jamais la donnée écrite (voir l'en-tête d'audit.js).
+const childName = id => (db().students || []).find(s => s.id === id)?.name || ''
 
 // ── SANTÉ : vaccins ─────────────────────────────────────────────────────────
 /** Le calendrier vaccinal tunisien (obligatoires). `months` = âge d'administration. */
@@ -38,6 +44,10 @@ export function saveHealth(childId, patch) {
   const d = db()
   d.health = { ...(d.health || {}), [childId]: { ...healthOf(childId), ...patch } }
   save(d)
+  // On journalise QUE le dossier a bougé, jamais ce qui y a été écrit :
+  // « dossier de santé modifié » répond au contrôleur, « arachide » le
+  // renseignerait — et ferait du journal un second fichier médical.
+  auditWrite('sante', { id: childId, name: childName(childId), detail: DETAILS.santeModifiee })
 }
 
 const monthsOld = dob => {
@@ -83,6 +93,7 @@ export function addPickup(childId, { name, relation, phone, cin, addedBy }) {
     }],
   }
   save(d)
+  auditWrite('gardiens', { id: childId, name: childName(childId), detail: DETAILS.gardienAjoute, note: name.trim() })
   return { ok: true }
 }
 
@@ -95,6 +106,7 @@ export function revokePickup(childId, id, by, reason) {
       : { ...p, active: false, revokedBy: by, revokedAt: nowMs(), revokeReason: reason || '' }),
   }
   save(d)
+  auditWrite('gardiens', { id: childId, name: childName(childId), detail: DETAILS.gardienRetire, note: reason || '' })
   return { ok: true }
 }
 
@@ -126,6 +138,7 @@ export function handOver(childId, personId, byName) {
   }
   d.departures = [rec, ...(d.departures || [])]
   save(d)
+  auditWrite('gardiens', { id: childId, name: childName(childId), detail: DETAILS.enfantRemis, note: check.person.name })
   return { departure: rec }
 }
 

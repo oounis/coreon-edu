@@ -160,13 +160,26 @@ Coreon EDU
 ## 7. Sécurité (données d'enfants)
 
 Exigé : RBAC ✅ · isolation tenant ◻︎(contexte prêt, isolation serveur à faire) ·
-**journal d'audit ⛔ (prérequis, absent)** · authentification (session/scrypt en mode
+**journal d'audit ✅ (`core/src/audit.js`, CR-039)** · authentification (session/scrypt en mode
 serveur ✅ ; démo en clair, non destinée aux vraies écoles) · politique de mots de passe
 ◻︎ · chiffrement des données sensibles ⛔ · surveillance d'activité ⛔.
 
-**Audit — la prochaine brique de sécurité à poser.** Chaque action importante :
-`{ qui, quand, quoi, ancienne valeur → nouvelle valeur }`. Ex. « Enseignant a changé une
-note : 15 → 18, le 2026-01-15 10:30 ». C'est aussi la preuve de conformité RGPD.
+**Audit — posé le 2026-08-01 (CR-039).** `core/src/audit.js` : chaque geste sensible
+écrit `{ qui, quand, action, nature de la donnée, quel dossier }`, dans une clé de
+stockage SÉPARÉE du blob de l'école (sinon `mergeWrite` laisserait un client réécrire
+le journal en le postant), chaînée par empreinte, SANS aucun chemin de suppression.
+
+**Ce que le journal n'écrit PAS, et pourquoi ce n'est pas un manque :** l'ancienne et la
+nouvelle VALEUR. La note « 15 → 18 » se justifie ; « groupe sanguin O+ → A− » ferait du
+journal un SECOND dossier médical, à protéger comme le premier, et doublerait la fuite
+qu'il surveille. La règle retenue : le journal dit QUE le dossier a bougé et QUI l'a
+touché ; le contenu reste dans le dossier. L'avant→après pourra revenir pour les données
+NON sensibles (notes, barème) le jour où le serveur les tient — pas avant.
+
+**Ce qu'il ne prétend pas être.** L'empreinte chaînée est tamper-ÉVIDENTE, pas
+tamper-PROOF : les données vivent dans le navigateur de l'école, qui sait ouvrir la
+console peut recalculer la chaîne. La vraie immuabilité arrive avec D9 (table en AJOUT
+SEUL, sans droit UPDATE ni DELETE). La couture est posée pour ce jour-là.
 
 ---
 
@@ -221,7 +234,7 @@ conception des workflows · concepts de sécurité · scalabilité SaaS.
 | Modèle de rôles | 8 rôles, séparation des tâches | ✅ spécifié ([role-model.md]) · ◻︎ appliqué en partie |
 | Multi-tenant (isolation) | tenant/école/pays sur chaque table | ◻︎ contexte prêt · ⛔ isolation serveur |
 | Onboarding wizard | 6 étapes | ◻︎ briques prêtes · ⛔ parcours |
-| Audit log | qui/quand/quoi/avant→après | ⛔ à faire (prochaine brique sécurité) |
+| Audit log | qui/quand/action/nature/dossier | ✅ `core/src/audit.js` (CR-039) · ⛔ immuabilité serveur (D9) |
 | Notifications | in-app/email/SMS/push | ◻︎ in-app+email · ⛔ SMS/push |
 | Reporting engine | adaptatif pays/école/rôle/année | ◻︎ insights statiques |
 | API-first web+mobile | cœur partagé | ✅ cœur partagé · ◻︎ API serveur mono-école |
@@ -251,8 +264,8 @@ options, choisir celle qui garde le cœur unique et pousse la variation dans la 
 2. **Avant la vente** — passe de *demo-readiness* : école de démo au pays du prospect,
    vérifier devise/villes/pièces sur chaque écran, répéter le parcours de vente.
 3. **À la signature** — couche curriculum du pays signé (contre son vrai système).
-4. **Ensuite** — audit log (sécurité) · assistant d'onboarding · isolation multi-tenant
-   serveur · moteur de rapports · SMS/push.
+4. **Ensuite** — ~~audit log~~ ✅ (2026-08-01) · assistant d'onboarding · isolation
+   multi-tenant serveur · moteur de rapports · SMS/push.
 5. **Plus tard** — split départemental complet (CR-019/021) · couche IA.
 
 Ne pas ouvrir le chantier curriculum/tenant en spéculation juste avant une vente : d'abord
