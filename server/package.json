@@ -1,0 +1,9 @@
+{
+  "name": "coreon-server",
+  "private": true,
+  "type": "module",
+  "description": "Seule dépendance du serveur Coreon : le client Turso, requis UNIQUEMENT quand TURSO_DATABASE_URL est posé (hébergeur sans disque persistant, ex. Render). Sans cette variable, server.mjs reste zéro dépendance (fichiers JSON locaux, store.mjs).",
+  "dependencies": {
+    "@libsql/client": "^0.15.0"
+  }
+}

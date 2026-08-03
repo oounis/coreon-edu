@@ -43,9 +43,17 @@ const ORIGINS = (process.env.COREON_ORIGINS || 'http://localhost:5173,http://loc
 const STATIC = process.env.COREON_STATIC ? join(HERE, process.env.COREON_STATIC) : null
 const SESSION_TTL = 8 * 60 * 60 * 1000
 
-const store = makeStore(DATA)
-let school = store.read('school', null)          // { rev, blob }
-let auth = store.read('auth', { users: [], sessions: {} })
+// Deux magasins possibles, MÊME interface {read, write, backup} : fichiers
+// locaux (par défaut) ou Turso (TURSO_DATABASE_URL posé) pour un hébergeur
+// SANS disque persistant (ex. Render, plan gratuit — voir README « Déployer »).
+// `read` est ASYNC dans les deux cas maintenant (attendre une valeur déjà
+// prête ne coûte rien) ; `write`/`backup` restent des appels non attendus
+// partout ailleurs dans ce fichier, comme avant.
+const store = process.env.TURSO_DATABASE_URL
+  ? await (await import('./store.turso.mjs')).makeStore(process.env.TURSO_DATABASE_URL, process.env.TURSO_AUTH_TOKEN)
+  : makeStore(DATA)
+let school = await store.read('school', null)          // { rev, blob }
+let auth = await store.read('auth', { users: [], sessions: {} })
 if (!school) { console.error('Aucune école : lancez d\'abord  node server/import.mjs  (voir README)'); process.exit(1) }
 
 const persistSchool = () => store.write('school', school)

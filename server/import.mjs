@@ -29,14 +29,20 @@ if (arg === '--demo') {
   blob = JSON.parse(readFileSync(arg, 'utf8'))
 }
 
-const store = makeStore(DATA)
-store.backup()
+// Même choix de magasin que server.mjs — voir le commentaire là-bas.
+const store = process.env.TURSO_DATABASE_URL
+  ? await (await import('./store.turso.mjs')).makeStore(process.env.TURSO_DATABASE_URL, process.env.TURSO_AUTH_TOKEN)
+  : makeStore(DATA)
+await store.backup()
 
 const users = (blob.users || []).filter(u => u.email)
 const authUsers = users.map(u => ({ id: u.id, email: u.email, hash: hashPw(u.pw || Math.random().toString(36)) }))
 blob.users = (blob.users || []).map(({ pw, ...u }) => u)
 
-store.write('school', { rev: 1, blob })
-store.write('auth', { users: authUsers, sessions: {} })
+// Attendues : ce script CLI quitte juste après — Turso doit avoir confirmé
+// l'écriture avant que le process ne meure (le fichier local, lui, écrit déjà
+// de façon synchrone : attendre ne change rien pour ce chemin-là).
+await store.write('school', { rev: 1, blob })
+await store.write('auth', { users: authUsers, sessions: {} })
 console.log(`École importée · ${blob.students?.length || 0} élèves · ${authUsers.length} comptes (mots de passe hachés) · données : ${DATA}`)
 if (arg === '--demo') console.log('Comptes de démo : direction@alnour.tn/admin, etc. — mêmes mots de passe qu\'en démo.')
