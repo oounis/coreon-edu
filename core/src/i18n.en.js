@@ -2267,4 +2267,25 @@ Object.assign(EN, {
   'Journées envoyées': 'Days sent',
 })
 
+// ── Suivi en direct : statuts calculés (core/src/livestatus.js) ────────────
+// Même trou de fond que le journal : title/sub sont des propriétés d'objet
+// calculées à la volée selon l'heure, jamais soumises à t(). Trouvé par la
+// barrière fuites-langue en CI (dépend de l'heure réelle — « Pause déjeuner »
+// ne fuit que si le test tombe sur un créneau cantine, d'où l'absence locale).
+Object.assign(EN, {
+  'À l’infirmerie': 'At the infirmary',
+  'Sous la surveillance de l’infirmière': 'Under the nurse’s supervision',
+  'Avant l’école': 'Before school',
+  'Journée terminée': 'Day over',
+  'Sortie des classes': 'End of classes',
+  'En classe': 'In class',
+  'En récréation': 'At recess',
+  'Pause dans la cour': 'Break in the yard',
+  'Pause déjeuner': 'Lunch break',
+  'À la cantine': 'At the canteen',
+  'Étude': 'Study hall',
+  'Salle de classe': 'Classroom',
+  'Journée type': 'Typical day',
+})
+
 export default EN

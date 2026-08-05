@@ -75,7 +75,7 @@ export default function Live(){
               {pill.pulse&&<motion.span animate={{opacity:[1,.3,1]}} transition={{repeat:Infinity,duration:1.4}}><Radio size={12}/></motion.span>}{pill.txt}</span>
             <span className="text-sm font-bold text-muted hidden sm:inline">{t('Journée de')} {first} · {day}</span>
           </div>
-          <span className="text-sm font-extrabold px-3 py-1 rounded-full" style={{background:area.color+'16',color:area.color}}>{(liveNow||replay)?st.title:phase==='after'?'Journée terminée':phase==='before'?"Avant l'école":'Journée type'}</span>
+          <span className="text-sm font-extrabold px-3 py-1 rounded-full" style={{background:area.color+'16',color:area.color}}>{(liveNow||replay)?t(st.title):phase==='after'?t('Journée terminée'):phase==='before'?t("Avant l'école"):t('Journée type')}</span>
         </div>
         <RouteMap stops={[
           { kind:'entree', label:t('Arrivée'), time:fmt(open) },
@@ -94,8 +94,8 @@ export default function Live(){
 
           {(phase==='live'||replay) && <div className="mt-4 rounded-2xl p-4" style={{background:area.color+'12'}}>
             <div className="flex items-center gap-2 text-sm font-bold" style={{color:area.color}}><MapPin size={15}/> {area.label}</div>
-            <div className="text-lg font-extrabold mt-1">{st.title}</div>
-            <div className="text-sm text-muted">{st.sub}</div>
+            <div className="text-lg font-extrabold mt-1">{t(st.title)}</div>
+            <div className="text-sm text-muted">{t(st.sub)}</div>
             {remain>0 && st.title!=='Journée terminée' && st.title!=='Avant l’école' && <>
               <div className="mt-3 h-2 rounded-full bg-white/70 overflow-hidden"><motion.div className="h-full rounded-full" style={{background:area.color}} animate={{width:`${Math.round(done*100)}%`}} transition={{type:'spring',stiffness:80,damping:18}}/></div>
               <div className="flex items-center justify-between mt-1.5 text-xs"><span className="flex items-center gap-1 text-muted"><Clock size={12}/> {t('Se termine à')} {fmt(st.seg.end)}</span><span className="font-bold" style={{color:area.color}}>{remain} {t('min restantes')}</span></div>
@@ -137,8 +137,8 @@ export default function Live(){
               <span className="flex items-center gap-2 text-sm font-bold" style={{color:area.color}}><MapPin size={15}/> {area.label}</span>
               <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{background:'#F59E0B22',color:'#B45309'}}>{t('SIMULATION')}</span>
             </div>
-            <div className="text-lg font-extrabold mt-1">À {fmt(min)}{t(", un jour d'école :")} {st.title==='En classe'?st.sub?.split(' · ')[0]:st.title}</div>
-            <div className="text-sm text-muted">{st.seg?.end>st.seg?.start?`Séance de ${fmt(st.seg.start)} à ${fmt(st.seg.end)} (${st.seg.end-st.seg.start} min)`:st.sub}</div>
+            <div className="text-lg font-extrabold mt-1">À {fmt(min)}{t(", un jour d'école :")} {st.title==='En classe'?(st.sub?.split(' · ')[0]||''):t(st.title)}</div>
+            <div className="text-sm text-muted">{st.seg?.end>st.seg?.start?`Séance de ${fmt(st.seg.start)} à ${fmt(st.seg.end)} (${st.seg.end-st.seg.start} min)`:t(st.sub)}</div>
           </div>}
 
           {phase==='vacances' && <div className="mt-4 rounded-2xl p-4" style={{background:'#F59E0B14'}}>

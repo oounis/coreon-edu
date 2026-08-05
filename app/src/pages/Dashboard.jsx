@@ -500,8 +500,8 @@ function ParentDashboard({u,d,greet}){
             <span className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{background:phase==='live'?STATUS.live:'rgba(255,255,255,.25)'}}><Radio size={11}/> {pillTxt}</span>
             <span className="opacity-80 uppercase tracking-wide">{t('Suivi en direct')}</span>
           </div>
-          <div className="text-2xl font-extrabold mt-1.5 leading-tight">{phase==='vacances'?t("Vacances d'été"):live.title}</div>
-          <div className="opacity-90 text-sm">{child.name.split(' ')[0]} · {phase==='vacances'?`${t('Reprise le')} ${rentreeLabel()}`:live.sub}</div>
+          <div className="text-2xl font-extrabold mt-1.5 leading-tight">{phase==='vacances'?t("Vacances d'été"):t(live.title)}</div>
+          <div className="opacity-90 text-sm">{child.name.split(' ')[0]} · {phase==='vacances'?`${t('Reprise le')} ${rentreeLabel()}`:t(live.sub)}</div>
           <div className="inline-flex items-center gap-1 text-xs font-bold mt-2 bg-white text-ink px-3 py-1.5 rounded-full group-hover:gap-2 transition-all">{t('Voir le parcours de la journée')} <ArrowRight size={13}/></div>
         </div>
         <span className="ml-auto w-16 h-16 rounded-full grid place-items-center shrink-0 mr-2 group-hover:scale-110 transition" style={{background:pm.color+'16',color:pm.color}}><pm.Icon size={30}/></span>

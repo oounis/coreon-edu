@@ -2530,4 +2530,22 @@ Object.assign(AR, {
   'Journées envoyées': 'أيام مُرسَلة',
 })
 
+// ── Suivi en direct : statuts calculés (core/src/livestatus.js) ────────────
+// Même correctif que le dictionnaire anglais — voir son commentaire.
+Object.assign(AR, {
+  'À l’infirmerie': 'في المستوصف',
+  'Sous la surveillance de l’infirmière': 'تحت إشراف الممرضة',
+  'Avant l’école': 'قبل المدرسة',
+  'Journée terminée': 'انتهى اليوم الدراسي',
+  'Sortie des classes': 'خروج التلاميذ',
+  'En classe': 'في الفصل',
+  'En récréation': 'في الاستراحة',
+  'Pause dans la cour': 'استراحة في الساحة',
+  'Pause déjeuner': 'استراحة الغداء',
+  'À la cantine': 'في المطعم المدرسي',
+  'Étude': 'قاعة الدراسة',
+  'Salle de classe': 'قاعة الدرس',
+  'Journée type': 'يوم اعتيادي',
+})
+
 export default AR
