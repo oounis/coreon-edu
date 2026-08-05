@@ -2522,4 +2522,12 @@ Object.assign(AR, {
   'Sale': 'متسخة',
 })
 
+// ── Journal du jour : cartes de synthèse (codex-review, même page) ─────────
+Object.assign(AR, {
+  'Enfants': 'الأطفال',
+  'En sieste': 'نائمون',
+  'Sans repas noté': 'دون وجبة مسجَّلة',
+  'Journées envoyées': 'أيام مُرسَلة',
+})
+
 export default AR

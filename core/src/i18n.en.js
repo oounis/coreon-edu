@@ -2258,4 +2258,13 @@ Object.assign(EN, {
   'Sale': 'Dirty',
 })
 
+// ── Journal du jour : cartes de synthèse (codex-review, même page) ─────────
+// Même trou que le vocabulaire ci-dessus, même correctif : {s.k} rendu brut.
+Object.assign(EN, {
+  'Enfants': 'Children',
+  'En sieste': 'Napping',
+  'Sans repas noté': 'No meal logged',
+  'Journées envoyées': 'Days sent',
+})
+
 export default EN

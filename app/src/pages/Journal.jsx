@@ -78,7 +78,7 @@ function TeacherJournal({ classes }) {
             { k: 'Journées envoyées', v: `${sum.sent}/${sum.total}`, i: 'Send' },
           ].map(s => (
             <Card key={s.k} className="p-4">
-              <div className="flex items-center gap-2 text-muted text-xs font-bold"><Ic n={s.i} size={14} />{s.k}</div>
+              <div className="flex items-center gap-2 text-muted text-xs font-bold"><Ic n={s.i} size={14} />{t(s.k)}</div>
               <div className="text-2xl font-extrabold mt-1 tabular-nums">{s.v}</div>
             </Card>
           ))}
