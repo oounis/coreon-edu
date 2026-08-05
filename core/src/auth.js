@@ -19,6 +19,14 @@ export function login(email,pw){
   // l'accès à tout le monde… et ne coupait rien. Une école suspendue par Kogia
   // (impayé, fin de contrat) ne laisse plus entrer que le compte plateforme.
   if(u && u.role !== 'owner' && schoolSuspended()){ audit('denied', u, DETAILS.ecoleSuspendue); return { suspended:true } }
+  // codex-review #12 : « Ajouter une école » (Console Kogia) crée un compte
+  // Direction fonctionnel AVANT que cette école ait son propre déploiement —
+  // ce blob-ci reste celui de l'école `live`. Sans ce refus, ce compte se
+  // connectait ici et voyait les élèves d'une AUTRE école : un mensonge
+  // d'interface (« l'école gère le reste ») devenu une vraie fuite de
+  // données d'enfants. Le compte redevient utilisable dès que l'école a son
+  // propre déploiement (routine D9) — rien à migrer, `schoolId` ne sert qu'à ça.
+  if(u && foreignSchool(u)){ audit('denied', u, DETAILS.ecoleNonDeployee); return { foreignSchool:true } }
   if(u){ open(u.id); audit('login', u, ''); return u }
   audit('denied', { id:'', name:mail, role:'' }, DETAILS.identifiantsFaux)
   return null
@@ -33,6 +41,12 @@ export function schoolSuspended(){
   const d = db()
   const own = (d.schools || []).find(s => s.live) || null
   return own ? own.status === 'suspended' : false
+}
+/** Ce compte a-t-il été créé pour une AUTRE école que celle de ce déploiement ? */
+function foreignSchool(u){
+  if(!u.schoolId) return false
+  const own = (db().schools || []).find(s => s.live) || null
+  return !!(own && u.schoolId !== own.id)
 }
 export function loginAs(id){ open(id); const u=current(); audit('login', u, ''); return u }
 export function logout(){ const u=current(); if(u) audit('logout', u, ''); removeSession(SK); removeSession(TK) }

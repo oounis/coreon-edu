@@ -153,6 +153,7 @@ const AR = {
   'EN DIRECT': 'مباشر',
   // QA vague 3
   'L’accès de cette école est suspendu. Contactez Kogia Group.': 'وصول هذه المدرسة موقوف. يُرجى الاتصال بمجموعة كوجيا.',
+  'Ce compte appartient à une école pas encore déployée ici. Contactez Kogia Group.': 'هذا الحساب يخص مدرسة لم يتم نشرها هنا بعد. يُرجى الاتصال بمجموعة كوجيا.',
   'Signaler un versement': 'الإبلاغ عن دفعة',
   'Signaler un versement ?': 'الإبلاغ عن دفعة؟',
   'Signaler': 'إبلاغ',
@@ -2461,6 +2462,7 @@ Object.assign(AR, {
   'Données de démonstration purgées': 'تم حذف بيانات العرض التجريبي',
   'Identifiants incorrects': 'بيانات دخول غير صحيحة',
   'École suspendue': 'المدرسة موقوفة',
+  'Compte d’une école pas encore déployée ici': 'حساب مدرسة لم يتم نشرها هنا بعد',
   'Journal exporté': 'تم تصدير السجل',
   'Registre de paie': 'سجل الأجور',
   'Contrats de l’équipe': 'عقود الفريق',

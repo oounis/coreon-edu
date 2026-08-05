@@ -219,6 +219,14 @@ export const server = http.createServer(async (req, res) => {
       const user = cred && (school.blob.users || []).find(u => u.id === cred.id)
       if (!cred || !user || !checkPw(pw, cred.hash)) return send(res, 401, { error: 'E-mail ou mot de passe incorrect.' }, origin)
       if (user.disabled) return send(res, 403, { error: 'Compte désactivé par la Direction.' }, origin)
+      // codex-review #12, même garde que core/src/auth.js (voir son commentaire) —
+      // dupliquée ici car server.mjs a sa propre voie d'authentification, qui ne
+      // passe pas par core/src/auth.js. Ce blob-ci sert UNE école (`live`) ; un
+      // compte créé par « Ajouter une école » avant que sa propre instance existe
+      // ne doit pas se connecter ICI et voir les données de l'école live.
+      const ownSchool = (school.blob.schools || []).find(s => s.live) || null
+      if (user.role !== 'owner' && ownSchool?.status === 'suspended') return send(res, 403, { error: 'Accès suspendu par Kogia Group.' }, origin)
+      if (user.schoolId && ownSchool && user.schoolId !== ownSchool.id) return send(res, 403, { error: 'Ce compte appartient à une école pas encore déployée ici.' }, origin)
       const { pw: _, ...safe } = user
       return send(res, 200, { token: openSession(user.id), user: safe }, origin)
     }

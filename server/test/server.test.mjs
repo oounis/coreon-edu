@@ -208,3 +208,42 @@ test('oubli : au-delà de 5 demandes par heure, on refuse', async () => {
   for (let i = 0; i < 8; i++) codes.push((await api('/api/forgot', { method: 'POST', body: { email: 'admin@alnour.tn' } })).status)
   assert.ok(codes.includes(429), 'la limite finit par tomber')
 })
+
+test('codex-review #12 : un compte « Ajouter une école » ne se connecte PAS sur ce serveur', async () => {
+  // server.mjs a sa PROPRE voie d'authentification (pas core/src/auth.js) —
+  // vérifie ici que la garde y est bien dupliquée, pas seulement côté client.
+  const owner = await login('owner@kogia.tn', 'owner')
+  assert.equal(owner.user.role, 'owner')
+  const blob = (await api('/api/db', { token: owner.token })).json.blob
+  const rev = (await api('/api/rev', { token: owner.token })).json.rev
+  const email = 'direction@ecole-serveur-test.tn'
+  await api('/api/db', { method: 'POST', token: owner.token, body: { baseRev: rev,
+    blob: { ...blob,
+      schools: [...blob.schools, { id: 'sc_test', name: 'École Test Serveur', status: 'trial' }],
+      users: [...blob.users, { id: 'u_test_scope', role: 'schooladmin', name: 'Test', email, pw: 'test12345', schoolId: 'sc_test' }],
+    } } })
+
+  const denied = await api('/api/login', { method: 'POST', body: { email, pw: 'test12345' } })
+  assert.equal(denied.status, 403)
+  assert.ok(denied.json.error.includes('pas encore déployée'), denied.json.error)
+})
+
+test('une école suspendue par Kogia bloque le personnel côté serveur (pas seulement côté client)', async () => {
+  // Un seul login() dans ce test : le limiteur (20/15 min) est PARTAGÉ par
+  // tout le fichier, et ce test tourne en dernier — après 16 tests qui ont
+  // déjà chacun consommé leur part.
+  const owner = await login('owner@kogia.tn', 'owner')
+  const rev = (await api('/api/rev', { token: owner.token })).json.rev
+  const blob = (await api('/api/db', { token: owner.token })).json.blob
+  await api('/api/db', { method: 'POST', token: owner.token, body: { baseRev: rev,
+    blob: { ...blob, schools: blob.schools.map(s => s.live ? { ...s, status: 'suspended' } : s) } } })
+
+  const staffDenied = await api('/api/login', { method: 'POST', body: { email: 'direction@alnour.tn', pw: 'admin' } })
+  assert.equal(staffDenied.status, 403, 'école suspendue → personnel refusé, y compris via /api/login du serveur')
+
+  // Remise en état pour ne pas polluer un test ajouté après celui-ci.
+  const rev2 = (await api('/api/rev', { token: owner.token })).json.rev
+  const blob2 = (await api('/api/db', { token: owner.token })).json.blob
+  await api('/api/db', { method: 'POST', token: owner.token, body: { baseRev: rev2,
+    blob: { ...blob2, schools: blob2.schools.map(s => s.live ? { ...s, status: 'active' } : s) } } })
+})

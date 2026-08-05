@@ -24,9 +24,20 @@ export default function Login() {
   const [showPw, setShowPw] = useState(false); const [err, setErr] = useState('')
   const go = () => {
     const u = login(email, pw)
-    if (u && !u.disabled) nav('/app')
+    // codex-review #12 (creusé pendant la vérification du correctif) : login()
+    // refuse `disabled`/`suspended`/`foreignSchool` en renvoyant un petit objet
+    // MARQUEUR ({suspended:true}…), jamais l'utilisateur réel — SEUL un vrai
+    // succès porte un `.id`. L'ancienne condition (`u && !u.disabled`) ne
+    // regardait QUE la clé `disabled` : un refus `suspended` (préexistant, non
+    // testé à l'écran) ou `foreignSchool` passait comme un succès, naviguait
+    // vers /app, se faisait renvoyer par la garde de route (aucune session
+    // n'a été ouverte) — et atterrissait sur un formulaire vierge, SANS le
+    // message honnête (le `else` n'était jamais atteint). Piloté à l'écran
+    // pour le prouver, pas seulement lu dans le code.
+    if (u && u.id) nav('/app')
     else setErr(u?.suspended ? t('L’accès de cette école est suspendu. Contactez Kogia Group.')
-      : u && u.disabled ? t('Ce compte a été désactivé. Contactez la direction.') : t('E-mail ou mot de passe incorrect.'))
+      : u?.foreignSchool ? t('Ce compte appartient à une école pas encore déployée ici. Contactez Kogia Group.')
+      : u?.disabled ? t('Ce compte a été désactivé. Contactez la direction.') : t('E-mail ou mot de passe incorrect.'))
   }
   const quick = db().users
     .filter(u => ['schooladmin', 'admin', 'hr', 'accountant', 'teacher', 'supervisor', 'security', 'parent'].includes(u.role))

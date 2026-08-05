@@ -1701,6 +1701,33 @@ test('audit : une connexion REFUSÉE laisse une trace — c’est la ligne qu’
   assert.equal(auditEntries().at(-1).action, 'logout')
 })
 
+test('codex-review #12 : un compte « Ajouter une école » ne voit PAS les élèves de l’école live', async () => {
+  const { auditEntries, DETAILS } = await import('../src/audit.js')
+  const { setItem } = await import('../src/storage.js')
+  const { login } = await import('../src/auth.js')
+  setItem('coreon_audit', '')
+
+  // Reproduit EXACTEMENT Schools.jsx `add()` : une 2ᵉ école, pas `live`, plus
+  // un compte Direction fonctionnel pour elle.
+  const scid = uid('sc')
+  const email = 'direction@ecole-test.tn'
+  mutate(db => {
+    db.schools.push({ id: scid, name: 'École Test', status: 'trial' })
+    db.users.push({ id: uid('u'), role: 'schooladmin', name: 'Test', email, pw: 'test1234', schoolId: scid })
+  })
+
+  const r = login(email, 'test1234')
+  assert.equal(r?.foreignSchool, true, 'le mot de passe est bon mais l’école n’est pas celle de ce déploiement')
+  assert.equal(auditEntries().at(-1).action, 'denied')
+  assert.equal(auditEntries().at(-1).detail, DETAILS.ecoleNonDeployee)
+
+  // Non-régression : le compte Direction de l’école LIVE (sans schoolId, comme
+  // tous les comptes existants) continue de se connecter normalement.
+  const own = db().users.find(u => u.role === 'schooladmin' && !u.schoolId)
+  assert.ok(login(own.email, own.pw)?.id, 'le compte de l’école live n’est pas bloqué par erreur')
+  logout()
+})
+
 test('audit : la purge des données de démonstration ne l’efface PAS — elle s’y inscrit', async () => {
   const { auditEntries, DETAILS, verifyChain } = await import('../src/audit.js')
   const { setItem } = await import('../src/storage.js')

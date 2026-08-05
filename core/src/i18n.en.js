@@ -146,6 +146,7 @@ const EN = {
   'EN DIRECT': 'LIVE',
   // QA vague 3
   'L’accès de cette école est suspendu. Contactez Kogia Group.': 'This school’s access is suspended. Please contact Kogia Group.',
+  'Ce compte appartient à une école pas encore déployée ici. Contactez Kogia Group.': 'This account belongs to a school not yet deployed here. Please contact Kogia Group.',
   'Ce compte a été désactivé. Contactez la direction.': 'This account has been deactivated. Please contact management.',
   'Signaler un versement': 'Report a payment',
   'Signaler un versement ?': 'Report a payment?',
@@ -2194,6 +2195,7 @@ const EN = {
   'Données de démonstration purgées': 'Demonstration data purged',
   'Identifiants incorrects': 'Incorrect credentials',
   'École suspendue': 'School suspended',
+  'Compte d’une école pas encore déployée ici': 'Account for a school not yet deployed here',
   'Journal exporté': 'Log exported',
   'Registre de paie': 'Payroll register',
   'Contrats de l’équipe': 'Team contracts',

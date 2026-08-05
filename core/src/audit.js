@@ -123,6 +123,7 @@ export const DETAILS = {
   demoPurgee:       'Données de démonstration purgées',
   identifiantsFaux: 'Identifiants incorrects',
   ecoleSuspendue:   'École suspendue',
+  ecoleNonDeployee: 'Compte d’une école pas encore déployée ici',
   journalExporte:   'Journal exporté',
 }
 
