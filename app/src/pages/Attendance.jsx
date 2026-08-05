@@ -151,7 +151,7 @@ function StudentsInsights(){
           </div>))}
       </SectionCard>
 
-      <SectionCard icon={<Users size={16}/>} tint="sky" title={t('Présence par classe')} sub="30 derniers jours">
+      <SectionCard icon={<Users size={16}/>} tint="sky" title={t('Présence par classe')} sub={t('30 derniers jours')}>
         <div className="space-y-3">
           {Object.entries(A.perClass).map(([cid,c])=>{ const total2=c.present+c.absent+c.late; const r=total2?Math.round(c.present/total2*100):100
             const col=r>=95?STATUS.ok:r>=90?STATUS.warn:STATUS.danger

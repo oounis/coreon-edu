@@ -2288,4 +2288,9 @@ Object.assign(EN, {
   'Journée type': 'Typical day',
 })
 
+// ── Présence : sous-titre de carte non câblé (codex-review, capture prod) ──
+Object.assign(EN, {
+  '30 derniers jours': 'Last 30 days',
+})
+
 export default EN

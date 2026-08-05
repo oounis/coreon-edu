@@ -2548,4 +2548,9 @@ Object.assign(AR, {
   'Journée type': 'يوم اعتيادي',
 })
 
+// ── Présence : sous-titre de carte non câblé (codex-review, capture prod) ──
+Object.assign(AR, {
+  '30 derniers jours': 'آخر 30 يومًا',
+})
+
 export default AR
