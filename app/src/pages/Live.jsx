@@ -75,7 +75,7 @@ export default function Live(){
               {pill.pulse&&<motion.span animate={{opacity:[1,.3,1]}} transition={{repeat:Infinity,duration:1.4}}><Radio size={12}/></motion.span>}{pill.txt}</span>
             <span className="text-sm font-bold text-muted hidden sm:inline">{t('Journée de')} {first} · {day}</span>
           </div>
-          <span className="text-sm font-extrabold px-3 py-1 rounded-full" style={{background:area.color+'16',color:area.color}}>{(liveNow||replay)?t(st.title):phase==='after'?t('Journée terminée'):phase==='before'?t("Avant l'école"):t('Journée type')}</span>
+          <span className="text-sm font-extrabold px-3 py-1 rounded-full" style={{background:area.color+'16',color:area.color}}>{(liveNow||replay)?t(st.title):phase==='after'?t('Journée terminée'):phase==='before'?t('Avant l’école'):t('Journée type')}</span>
         </div>
         <RouteMap stops={[
           { kind:'entree', label:t('Arrivée'), time:fmt(open) },
