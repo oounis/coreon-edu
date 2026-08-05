@@ -121,10 +121,10 @@ function TeacherJournal({ classes }) {
                   {MEALS.map(m => (
                     <div key={m.key} className="flex items-center gap-2 flex-wrap">
                       <span className="text-[13px] font-semibold w-32 flex items-center gap-1.5">
-                        <Ic n={m.icon} size={14} className="text-muted" />{m.label}
+                        <Ic n={m.icon} size={14} className="text-muted" />{t(m.label)}
                       </span>
                       {ATE.map(a => (
-                        <Pick key={a.key} label={a.label} tone={a.tone}
+                        <Pick key={a.key} label={t(a.label)} tone={a.tone}
                           on={j.meals?.[m.key] === a.key}
                           onClick={() => { setMeal(child.id, m.key, a.key, date); refresh() }} />
                       ))}
@@ -154,7 +154,7 @@ function TeacherJournal({ classes }) {
                 <div className="text-xs font-bold text-muted mb-1.5">{t('Change')}</div>
                 <div className="flex items-center gap-2 flex-wrap">
                   {DIAPER.map(dp => (
-                    <Pick key={dp.key} label={dp.label} tone={dp.tone}
+                    <Pick key={dp.key} label={t(dp.label)} tone={dp.tone}
                       onClick={() => { addDiaper(child.id, dp.key, date); refresh() }} />
                   ))}
                   {!!j.diapers?.length && (
@@ -170,7 +170,7 @@ function TeacherJournal({ classes }) {
                 <div className="text-xs font-bold text-muted mb-1.5">{t('Humeur')}</div>
                 <div className="flex items-center gap-2 flex-wrap">
                   {MOODS.map(m => (
-                    <Pick key={m.key} label={m.label} icon={m.icon} on={j.mood === m.key}
+                    <Pick key={m.key} label={t(m.label)} icon={m.icon} on={j.mood === m.key}
                       onClick={() => { setMood(child.id, m.key, date); refresh() }} />
                   ))}
                 </div>
@@ -243,7 +243,7 @@ function ParentJournal({ children }) {
                 </div>
                 {mood && (
                   <span className="flex items-center gap-1.5 text-sm font-bold accent-text">
-                    <Ic n={mood.icon} size={17} />{mood.label}
+                    <Ic n={mood.icon} size={17} />{t(mood.label)}
                   </span>
                 )}
               </div>
@@ -255,8 +255,8 @@ function ParentJournal({ children }) {
                   </div>
                   {MEALS.filter(m => j.meals?.[m.key]).map(m => (
                     <div key={m.key} className="text-[13px] flex justify-between">
-                      <span>{m.label}</span>
-                      <b>{ATE.find(a => a.key === j.meals[m.key])?.label}</b>
+                      <span>{t(m.label)}</span>
+                      <b>{t(ATE.find(a => a.key === j.meals[m.key])?.label || '')}</b>
                     </div>
                   ))}
                   {!Object.keys(j.meals || {}).length && <div className="text-[13px] text-muted">{t('Rien de noté.')}</div>}

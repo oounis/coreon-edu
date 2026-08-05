@@ -2501,4 +2501,25 @@ Object.assign(AR, {
 
 })
 
+// ── Vocabulaire du Journal du jour (core/src/journal.js — MEALS/ATE/MOODS/DIAPER) ──
+// Même correctif que le dictionnaire anglais — voir son commentaire.
+Object.assign(AR, {
+  'Petit-déjeuner': 'الفطور',
+  'Collation': 'وجبة خفيفة صباحية',
+  'Déjeuner': 'الغداء',
+  'Goûter': 'وجبة خفيفة بعد الظهر',
+  'Tout': 'أكل كل شيء',
+  'La moitié': 'النصف',
+  'Très peu': 'القليل جدًا',
+  'Rien': 'لم يأكل شيئًا',
+  'Joyeux': 'مرح',
+  'Calme': 'هادئ',
+  'Fatigué': 'متعب',
+  'Grognon': 'متذمر',
+  'Souffrant': 'يشعر بتوعك',
+  'Propre': 'نظيفة',
+  'Mouillé': 'مبللة',
+  'Sale': 'متسخة',
+})
+
 export default AR

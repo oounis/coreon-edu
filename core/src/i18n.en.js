@@ -2234,4 +2234,28 @@ const EN = {
 
 }
 
+// ── Vocabulaire du Journal du jour (core/src/journal.js — MEALS/ATE/MOODS/DIAPER) ──
+// Manquait entièrement : ces libellés sont des propriétés d'objet, jamais
+// passées à t() avant ce correctif — un compteur de couverture ne voit que
+// ce qui lui est soumis, donc ce trou n'apparaissait dans AUCUN audit.
+// Repéré en pilotant /app/journal en EN sur la prod (2026-08-05).
+Object.assign(EN, {
+  'Petit-déjeuner': 'Breakfast',
+  'Collation': 'Morning snack',
+  'Déjeuner': 'Lunch',
+  'Goûter': 'Afternoon snack',
+  'Tout': 'All of it',
+  'La moitié': 'Half',
+  'Très peu': 'Very little',
+  'Rien': 'Nothing',
+  'Joyeux': 'Happy',
+  'Calme': 'Calm',
+  'Fatigué': 'Tired',
+  'Grognon': 'Grumpy',
+  'Souffrant': 'Unwell',
+  'Propre': 'Clean',
+  'Mouillé': 'Wet',
+  'Sale': 'Dirty',
+})
+
 export default EN
