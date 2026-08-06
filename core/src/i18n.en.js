@@ -2304,4 +2304,89 @@ Object.assign(EN, {
   'Sortie de l’école': 'End of day',
 })
 
+// ── DONNÉES DE RÉFÉRENCE (audit 2026-08-02) ─────────────────────────────────
+// Les phrases d'INTERFACE étaient à 100 % ; les données de RÉFÉRENCE, non :
+// fêtes, mois du barème, fonctions du personnel et messages système passaient
+// à l'écran en français, même en anglais. Un audit navigateur sur l'environnement
+// `int` a relevé « Fête de la Femme », « Éducatrice », « Fév », et une phrase
+// MIXTE (« 1 reminder this week · surtout … »). Le français reste la clé ; on
+// ajoute simplement ce que le dictionnaire ne connaissait pas.
+Object.assign(EN, {
+  // Fêtes & journées (core/src/fetes.js)
+  'Achoura': 'Ashura',
+  'Achoura (2e jour)': 'Ashura (day 2)',
+  'Aïd el-Fitr': 'Eid al-Fitr',
+  'Aïd el-Fitr (2e jour)': 'Eid al-Fitr (day 2)',
+  'Aïd el-Fitr (3e jour)': 'Eid al-Fitr (day 3)',
+  'Aïd el-Idha': 'Eid al-Adha',
+  'Aïd el-Idha (2e jour)': 'Eid al-Adha (day 2)',
+  'Aïd el-Idha (3e jour)': 'Eid al-Adha (day 3)',
+  'Mouled': 'Mawlid',
+  'Ras el Am el Hijri': 'Islamic New Year',
+  'Fête de la Femme': 'Women’s Day',
+  'Fête de la Libération': 'Liberation Day',
+  'Fête de la République': 'Republic Day',
+  'Fête de la Révolution': 'Revolution Day',
+  'Fête de la musique': 'Music Day',
+  'Fête du Travail': 'Labour Day',
+  'Fête nationale': 'National Day',
+  'Fête nationale (2e jour)': 'National Day (day 2)',
+  'Jour de la Terre': 'Earth Day',
+  'Journée de la langue maternelle': 'Mother Language Day',
+  'Journée des Martyrs': 'Martyrs’ Day',
+  'Journée des compétences des jeunes': 'World Youth Skills Day',
+  'Journée des personnes handicapées': 'Day of Persons with Disabilities',
+  'Journée du livre pour enfants': 'Children’s Book Day',
+  'Journée internationale de la jeunesse': 'International Youth Day',
+  'Journée internationale de la paix': 'International Day of Peace',
+  'Journée internationale des familles': 'International Day of Families',
+  'Journée internationale des femmes': 'International Women’s Day',
+  'Journée internationale du bonheur': 'International Day of Happiness',
+  'Journée mondiale de la gentillesse': 'World Kindness Day',
+  'Journée mondiale de la langue arabe': 'World Arabic Language Day',
+  'Journée mondiale de la poésie': 'World Poetry Day',
+  'Journée mondiale de la santé': 'World Health Day',
+  'Journée mondiale des enseignants': 'World Teachers’ Day',
+  'Journée mondiale du livre': 'World Book Day',
+  'Journée nationale du sport': 'National Sports Day',
+
+  // Mois du barème de frais (FEE_MONTHS, core/src/db.js)
+  'Sep': 'Sep', 'Oct': 'Oct', 'Nov': 'Nov', 'Déc': 'Dec', 'Jan': 'Jan',
+  'Fév': 'Feb', 'Avr': 'Apr', 'Mai': 'May', 'Juin': 'Jun',
+
+  // Fonctions du personnel (core/src/tunisia.js · STAFF_POSITIONS)
+  'Directrice': 'Principal',
+  'Directeur adjoint': 'Deputy principal',
+  'Instituteur': 'Primary teacher',
+  'Institutrice': 'Primary teacher',
+  'Instituteur principal': 'Senior primary teacher',
+  'Professeur': 'Teacher',
+  'Enseignant': 'Teacher',
+  'Maître d’application': 'Training teacher',
+  'Enseignant suppléant': 'Substitute teacher',
+  'Surveillant général': 'Head supervisor',
+  'Conseiller principal d’éducation (CPE)': 'Head of student affairs',
+  'Censeur': 'Vice-principal',
+  'Secrétaire': 'Secretary',
+  'Agent administratif': 'Administrative officer',
+  'Adjoint administratif': 'Administrative assistant',
+  'Économe / Intendant': 'Bursar',
+  'Documentaliste': 'Librarian',
+  'Infirmier(ère)': 'Nurse',
+  'Technicien de laboratoire': 'Lab technician',
+  'Psychologue scolaire': 'School psychologist',
+  'Agent d’entretien': 'Cleaner',
+  'Concierge': 'Caretaker',
+  'Chauffeur': 'Driver',
+  'Chef de département': 'Head of department',
+  'Coordinateur': 'Coordinator',
+  'Assistant de laboratoire': 'Lab assistant',
+  'Éducatrice': 'Early-years teacher',
+  'Propriétaire': 'Owner',
+
+  // Messages système
+  'Accès non autorisé pour votre rôle.': 'You do not have access to this section.',
+  'à suivre': 'to follow up',
+})
+
 export default EN

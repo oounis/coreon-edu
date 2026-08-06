@@ -2560,4 +2560,50 @@ Object.assign(AR, {
   'Sortie de l’école': 'نهاية اليوم الدراسي',
 })
 
+// ── DONNÉES DE RÉFÉRENCE (audit 2026-08-02) ─────────────────────────────────
+// Même correctif que le dictionnaire anglais : les FONCTIONS du personnel, les
+// MOIS du barème et les messages système restaient en français à l'écran. Les
+// mois gardent la nomenclature TUNISIENNE (جانفي/فيفري/أفريل/ماي/جوان), cohérente
+// avec `dateLocale()` qui suit déjà langue ET pays.
+Object.assign(AR, {
+  // Mois du barème de frais (FEE_MONTHS, core/src/db.js)
+  'Sep': 'سبتمبر', 'Oct': 'أكتوبر', 'Nov': 'نوفمبر', 'Déc': 'ديسمبر',
+  'Jan': 'جانفي', 'Fév': 'فيفري', 'Avr': 'أفريل', 'Mai': 'ماي', 'Juin': 'جوان',
+
+  // Fonctions du personnel (core/src/tunisia.js · STAFF_POSITIONS)
+  'Directrice': 'المديرة',
+  'Directeur adjoint': 'المدير المساعد',
+  'Instituteur': 'معلّم',
+  'Institutrice': 'معلّمة',
+  'Instituteur principal': 'معلّم أوّل',
+  'Professeur': 'أستاذ',
+  'Enseignant': 'مدرّس',
+  'Maître d’application': 'معلّم تطبيق',
+  'Enseignant suppléant': 'مدرّس نائب',
+  'Surveillant général': 'القيّم العام',
+  'Conseiller principal d’éducation (CPE)': 'مستشار التربية',
+  'Censeur': 'الناظر',
+  'Secrétaire': 'كاتب',
+  'Agent administratif': 'عون إداري',
+  'Adjoint administratif': 'مساعد إداري',
+  'Économe / Intendant': 'القيّم المالي',
+  'Comptable': 'محاسب',
+  'Documentaliste': 'أمين المكتبة',
+  'Infirmier(ère)': 'ممرّض(ة)',
+  'Technicien de laboratoire': 'تقني مخبر',
+  'Psychologue scolaire': 'أخصائي نفسي مدرسي',
+  'Agent d’entretien': 'عون نظافة',
+  'Concierge': 'حارس',
+  'Chauffeur': 'سائق',
+  'Chef de département': 'رئيس قسم',
+  'Coordinateur': 'منسّق',
+  'Assistant de laboratoire': 'مساعد مخبر',
+  'Éducatrice': 'مربّية',
+  'Propriétaire': 'المالك',
+
+  // Messages système
+  'Accès non autorisé pour votre rôle.': 'ليس لديك صلاحية الوصول إلى هذا القسم.',
+  'à suivre': 'للمتابعة',
+})
+
 export default AR
