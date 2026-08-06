@@ -16,6 +16,12 @@ import { formatDistanceToNow, format } from 'date-fns'
 import { df } from '../datefns.js'
 import toast from 'react-hot-toast'
 
+// codex-review #18 : la modale affichait def.chain (le circuit THÉORIQUE du
+// type de demande) alors que submit() enregistre un circuit FILTRÉ (le
+// demandeur ne peut pas être son propre approbateur). Un seul calcul pour
+// les deux : la prévisualisation ne peut plus jamais dériver de ce qui est
+// réellement enregistré.
+const finalChainFor=(defChain,role)=>{ const c=(defChain||[]).filter(r=>r!==role); return c.length?c:['schooladmin'] }
 const defaults=type=>{ const o={}; (REQUEST_DEFS[type]?.fields||[]).forEach(f=>{ o[f.k]= f.t==='checkbox'?false : (f.def||'') }); return o }
 const fieldVal=(r,f)=>{ const v=r.fields?.[f.k]; if(v===''||v==null||v===false)return null
   if(f.t==='checkbox')return 'Oui'; if(f.t==='child')return studentById(v)?.name||v; if(f.t==='attach')return <span className="inline-flex items-center gap-1"><Paperclip size={12}/>{v}</span>; return String(v) }
@@ -43,11 +49,7 @@ export default function Requests(){
 
   const submit=()=>{ for(const f of def.fields){ if(f.req && !vals[f.k]) return toast.error(`Champ requis : ${f.l}`) }
     const id=uid('req')
-    // On retire de la chaîne le niveau correspondant au rôle du demandeur : il ne
-    // peut pas être son propre approbateur. S'il ne reste personne, la demande
-    // remonte à la direction.
-    const chain=def.chain.filter(role=>role!==u.role)
-    const finalChain=chain.length?chain:['schooladmin']
+    const finalChain=finalChainFor(def.chain,u.role)
     mutate(db=>{db.requests.unshift({id,at:Date.now(),by:u.id,byName:u.name,type,fields:vals,chain:finalChain,currentLevel:0,approvals:[],status:'pending'})})
     notify({role:finalChain[0],kind:'request',actor:u.name,title:`nouvelle demande : ${type}`,body:def.fields[0]?`${def.fields[0].l}: ${vals[def.fields[0].k]}`:'',link:'/app/requests'})
     toast.success('Demande envoyée'); setOpen(false); setType2(myTypes[0]); refresh() }
@@ -203,7 +205,7 @@ export default function Requests(){
     {/* new request */}
     <Modal open={open} onClose={()=>setOpen(false)} title={t('Nouvelle demande')} size="xl" footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>{t('Annuler')}</Btn><Btn onClick={submit}>{t('Envoyer')}</Btn></>}>
       <Field label={t('Type de demande')}><Select value={type} onChange={e=>setType2(e.target.value)}>{myTypes.map(v=><option key={v} value={v}>{t(v)}</option>)}</Select></Field>
-      <div className="text-xs text-muted my-2">{t('Circuit :')} {def.chain?.map(r=>ROLE[r].label).join(' → ')}</div>
+      <div className="text-xs text-muted my-2">{t('Circuit :')} {def.chain?.length?finalChainFor(def.chain,u.role).map(r=>ROLE[r].label).join(' → '):''}</div>
       {def.note&&<div className="text-xs bg-canvas rounded-xl p-2 mb-3 text-muted flex items-start gap-1.5"><Info size={13} className="shrink-0 mt-0.5"/><span>{def.note}</span></div>}
       <div className="grid sm:grid-cols-2 gap-3">{def.fields.map(f=>(
         <div key={f.k} className={f.t==='textarea'||f.t==='checkbox'?'sm:col-span-2':''}>
