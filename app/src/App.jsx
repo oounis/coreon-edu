@@ -81,7 +81,7 @@ function Protected({ el, roles, path }){
   // Un module éteint (features.js) n'est plus atteignable, même en tapant l'URL.
   if(path && !featureEnabled(path)) return <Navigate to="/app" replace/>
   if(roles && !roles.includes(u.role)){
-    toast.error("Accès non autorisé pour votre rôle.")
+    toast.error(t('Accès non autorisé pour votre rôle.'))
     return <Navigate to="/app" replace/>
   }
   return <AppShell>{el}</AppShell>
