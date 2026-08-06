@@ -2553,4 +2553,11 @@ Object.assign(AR, {
   '30 derniers jours': 'آخر 30 يومًا',
 })
 
+// ── Suivi en direct : étiquettes courtes du parcours (RouteMapFlow.jsx) ────
+// Même correctif que le dictionnaire anglais — voir son commentaire.
+Object.assign(AR, {
+  'Récré': 'استراحة',
+  'Sortie de l’école': 'نهاية اليوم الدراسي',
+})
+
 export default AR

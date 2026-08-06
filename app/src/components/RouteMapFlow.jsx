@@ -4,11 +4,17 @@ import '@xyflow/react/dist/style.css'
 import { Check } from 'lucide-react'
 import { Avatar } from './ui.jsx'
 import { subjectMeta, PLACES } from '../subjects.jsx'
+import { t } from '@core/i18n.js'
 
 const COLOR = { entree:'#7C8698', class:'#7539E4', cour:'#22C55E', cantine:'#F59E0B' }
 // each stop renders as an icon badge from the shared subject/place icon system
-function metaFor(kind, label){
-  if(kind==='entree') return PLACES[label==='Sortie'?'sortie':'arrivee']
+// ⚠️ `label` peut être une chaîne DÉJÀ traduite (Arrivée/Sortie sont câblées
+// via t() à leur définition, voir Live.jsx) — ne JAMAIS s'en servir pour une
+// comparaison logique (c'était le cas ici : « Sortie »===« Sign out » ailleurs
+// dans le dictionnaire, collision de sens). L'arrivée/sortie se distingue par
+// position (`isLast`), jamais par le texte affiché.
+function metaFor(kind, label, isLast){
+  if(kind==='entree') return PLACES[isLast?'sortie':'arrivee']
   if(kind==='cour')    return PLACES.recre
   if(kind==='cantine') return PLACES.cantine
   if(label==='Étude')  return PLACES.etude
@@ -76,8 +82,8 @@ export default function RouteMapFlow({ stops, curIndex, done=0, remain, name='',
   const curColor=COLOR[stops[curIndex]?.kind]||COLOR.class
   const P = useMemo(()=> stops.map((_,i)=>{ const row=Math.floor(i/COLS), inRow=i%COLS, col=row%2===0?inRow:(COLS-1-inRow); return {x:col*COLW, y:row*ROWH} }),[stops.length])
 
-  const nodes = stops.map((s,i)=>{ const m=metaFor(s.kind,s.label); return { id:String(i), type:'station', position:P[i], draggable:false, selectable:false,
-    data:{ ...s, color:COLOR[s.kind]||COLOR.class, Icon:m.Icon, iconColor:m.color,
+  const nodes = stops.map((s,i)=>{ const m=metaFor(s.kind,s.label,i===stops.length-1); return { id:String(i), type:'station', position:P[i], draggable:false, selectable:false,
+    data:{ ...s, label:t(s.label), color:COLOR[s.kind]||COLOR.class, Icon:m.Icon, iconColor:m.color,
       state: plain?'plain':i<curIndex?'done':i===curIndex?'current':'future', cursor: plain&&i===curIndex, name, seed, showStudent } } })
 
   const edges = stops.slice(0,-1).map((_,i)=>{ const a=P[i], b=P[i+1]

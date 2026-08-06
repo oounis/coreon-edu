@@ -80,7 +80,7 @@ export default function Live(){
         <RouteMap stops={[
           { kind:'entree', label:t('Arrivée'), time:fmt(open) },
           ...segs.map(s=>({ kind:s.kind==='free'?'class':s.kind, label:stopLabel(s), sub:s.cell?.room, time:fmt(s.start) })),
-          { kind:'entree', label:'Sortie', time:fmt(close) },
+          { kind:'entree', label:t('Sortie de l’école'), time:fmt(close) },
         ]} curIndex={min<open?0:min>=close?segs.length+1:(()=>{const j=segs.findIndex(s=>min>=s.start&&min<s.end);return (j<0?segs.length-1:j)+1})()}
           name={kid.name} seed={kid.id} showStudent={liveNow||replay} plain={!(liveNow||phase==='after')}/>
       </Card>

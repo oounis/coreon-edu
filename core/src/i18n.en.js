@@ -2293,4 +2293,15 @@ Object.assign(EN, {
   '30 derniers jours': 'Last 30 days',
 })
 
+// ── Suivi en direct : étiquettes courtes du parcours (RouteMapFlow.jsx) ────
+// Même famille de trou : stopLabel() (Live.jsx) renvoie des libellés courts
+// jamais soumis à t(). « Sortie » existait déjà comme clé — mais traduite
+// « Sign out » (déconnexion), sens différent ici (fin de journée) : renommé
+// « Sortie de l’école » pour éviter la collision plutôt que de réutiliser
+// une clé au sens différent selon le contexte.
+Object.assign(EN, {
+  'Récré': 'Recess',
+  'Sortie de l’école': 'End of day',
+})
+
 export default EN
