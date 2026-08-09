@@ -23,7 +23,7 @@ jobs:
     name: Tests unitaires & intégration (cœur)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - name: Tests d'exécution du cœur
@@ -40,7 +40,7 @@ jobs:
       name: ${{ github.ref_name }}
       url: "https://${{ github.ref_name }}.edu.kogiagroup.com"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: npm, cache-dependency-path: app/package-lock.json }
       - name: Installer & construire
