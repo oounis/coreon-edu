@@ -16,9 +16,12 @@ réversible).
 | `core/src/` | **Le cœur métier partagé** — JS pur, zéro dépendance, zéro API navigateur. Données, règles, autorisations, notifications. Web et mobile l'importent tel quel (`@core`). |
 | `app/` | **Application web** (React 19 + Vite + Tailwind). Six portails par rôle. |
 | `mobile/` | **Application Android/iOS** (Expo / React Native). 22 écrans natifs sur le même cœur. |
+| `server/` | **Backend optionnel** — mots de passe hachés, sessions, verrou de révision. Zéro dépendance en local (fichiers JSON) ; `@libsql/client` uniquement si `TURSO_DATABASE_URL` est posé (hébergeur sans disque persistant). Voir `server/README.md`. |
+| `ops/` | Scripts de vérification rapide (`check.sh`, `verify-live.sh`) — voir `CLAUDE.md`. |
 | `brand/` | Logos et identité visuelle (source de vérité). |
 | `source_assets/` | Illustrations sources (non embarquées). |
 | `HANDOFF.md` | État précis du produit — **à lire pour reprendre le développement.** |
+| `CLAUDE.md` | Repères pour reprendre une session (structure, flot git, comment vérifier avant de dire « en ligne »). |
 
 ## Développer
 
@@ -42,8 +45,11 @@ sur le web. Détails et pièges connus : `HANDOFF.md`.
 
 ## État
 
-Pré-production : données locales de démonstration (pas encore de backend — c'est la
-prochaine étape, avec les vrais comptes). Modules Devoirs/Examens/Bibliothèque/
-Transport volontairement éteints (`core/src/features.js`) — le code reste prêt.
+La démo publique reste locale par défaut (données dans le navigateur, aucun compte
+requis). Un backend existe et tourne (`server/`, hébergé gratuitement sur Render +
+Turso) — mots de passe hachés, sessions, verrou de révision — mais reste **optionnel
+par école** : le client bascule en mode serveur seulement si `coreon_api` est posé
+(voir `server/README.md`). Modules Devoirs/Examens/Bibliothèque/Transport
+volontairement éteints (`core/src/features.js`) — le code reste prêt.
 
 © Kogia Group · Tunisie
