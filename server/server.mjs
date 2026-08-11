@@ -54,6 +54,16 @@ const store = process.env.TURSO_DATABASE_URL
   : makeStore(DATA)
 let school = await store.read('school', null)          // { rev, blob }
 let auth = await store.read('auth', { users: [], sessions: {} })
+
+// CodeQL (2026-08-11) : `auth.sessions[token]` et `auth.resets[token]` utilisent
+// une chaîne venue du client comme clé d'objet. Un jeton nommé `constructor` ou
+// `__proto__` renvoyait alors une propriété HÉRITÉE, truthy — testé en
+// production : l'accès restait refusé (401/403), mais la vérification passait un
+// cran plus loin qu'elle n'aurait dû, et un `403` au lieu d'un `401` le montre.
+// On coupe la racine : ces tables n'héritent de rien.
+const bare = src => Object.assign(Object.create(null), src || {})
+auth.sessions = bare(auth.sessions)
+auth.resets = bare(auth.resets)
 if (!school) { console.error('Aucune école : lancez d\'abord  node server/import.mjs  (voir README)'); process.exit(1) }
 
 const persistSchool = () => store.write('school', school)
@@ -140,7 +150,7 @@ const ipOf = req => {
 //   · réinitialiser ferme toutes les sessions ouvertes du compte : si un
 //     intrus était déjà entré, le changement le met dehors
 const RESET_TTL = 60 * 60 * 1000
-auth.resets = auth.resets || {}
+auth.resets = auth.resets || Object.create(null)   // même raison qu'en haut : pas de prototype
 
 const openReset = userId => {
   const token = randomBytes(24).toString('hex')
