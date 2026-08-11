@@ -28,7 +28,7 @@ export default function Teachers(){
   const TCard=({v})=>(
     <button onClick={()=>setView(v)} className="card p-4 flex items-center gap-3 text-left hover:shadow-lg hover:-translate-y-0.5 transition w-full">
       <Avatar name={v.name} seed={v.id} size={44}/>
-      <div className="min-w-0 flex-1"><div className="font-semibold truncate">{v.name}{v.ref && <code className="ms-1.5 text-[10px] font-semibold text-muted tabular-nums">{v.ref}</code>}</div><div className="text-xs text-muted truncate">{v.designation} · {v.experience} {t('ans')}</div></div>
+      <div className="min-w-0 flex-1"><div className="font-semibold truncate">{v.name}{v.ref && <code className="ms-1.5 text-[10px] font-semibold text-muted tabular-nums">{v.ref}</code>}</div><div className="text-xs text-muted truncate">{t(v.designation)} · {v.experience} {t('ans')}</div></div>
       <ChevronRight size={16} className="text-muted"/>
     </button>
   )
@@ -55,7 +55,7 @@ export default function Teachers(){
       </Section>
       <Section title={t('Informations professionnelles')}>
         <Field label={t('Matière')}><Input value={f.subject} onChange={e=>setF({...f,subject:e.target.value})} placeholder={t('Mathématiques')}/></Field>
-        <Field label={t('Fonction')}><Select value={f.designation} onChange={e=>setF({...f,designation:e.target.value})}>{['Professeur','Instituteur principal','Chef de département','Coordinateur','Assistant de laboratoire'].map(x=><option key={x}>{x}</option>)}</Select></Field>
+        <Field label={t('Fonction')}><Select value={f.designation} onChange={e=>setF({...f,designation:e.target.value})}>{['Professeur','Instituteur principal','Chef de département','Coordinateur','Assistant de laboratoire'].map(x=><option key={x} value={x}>{t(x)}</option>)}</Select></Field>
         <Field label={t('Diplôme')}><Input value={f.qualification} onChange={e=>setF({...f,qualification:e.target.value})} placeholder={t('Maîtrise')}/></Field>
         <Field label={t('Expérience (années)')}><Input type="number" value={f.experience} onChange={e=>setF({...f,experience:e.target.value})}/></Field>
         <Field label={t("Date d'embauche")}><Input type="date" value={f.joiningDate} onChange={e=>setF({...f,joiningDate:e.target.value})}/></Field>
@@ -70,7 +70,7 @@ export default function Teachers(){
         <Attach types={DOC_TYPES.teacher} value={f.attachments} onChange={a=>setF({...f,attachments:a})}/></div>
     </Modal>
     <Modal open={!!view} onClose={()=>setView(null)} title={t('Profil du personnel')} size="xl">
-      {view&&(<div><div className="flex items-center gap-4 mb-5"><Avatar name={view.name} seed={view.id} size={56}/><div><div className="text-xl font-extrabold">{view.name}</div><div className="text-muted text-sm">{view.designation} · {view.subject}</div></div></div>
+      {view&&(<div><div className="flex items-center gap-4 mb-5"><Avatar name={view.name} seed={view.id} size={56}/><div><div className="text-xl font-extrabold">{view.name}</div><div className="text-muted text-sm">{t(view.designation)} · {view.subject}</div></div></div>
         <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">{[['Genre',view.gender],[idLabelFor('teacher'),view.cin],[regionLabel(),view.governorate],['Date de naissance',view.dob],['Diplôme',view.qualification],['Expérience',`${view.experience} ans`],['Date d\'embauche',view.joiningDate],['Téléphone',view.phone],['E-mail',view.email],['Adresse',view.address],['Salaire',view.salary?money(view.salary):'·']].map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium text-right">{v||'·'}</span></div>)}</div></div>)}
     </Modal>
   </>)

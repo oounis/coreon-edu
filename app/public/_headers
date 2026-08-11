@@ -1,0 +1,26 @@
+# ════════════════════════════════════════════════════════════════════════════
+# EN-TÊTES DE SÉCURITÉ — audit 2026-08-02.
+#
+# L'audit navigateur a relevé qu'aucun en-tête de sécurité n'était servi :
+# ni HSTS, ni X-Frame-Options, ni Permissions-Policy. Une école qui confie des
+# dossiers d'ENFANTS a droit au minimum du métier.
+#
+# PORTÉE : ce fichier est lu par CLOUDFLARE PAGES — donc dev.edu et int.edu.
+# La production (edu.kogiagroup.com) est servie par GitHub Pages, qui NE SAIT
+# PAS poser d'en-têtes personnalisés. Couvrir la production demande de passer
+# le domaine derrière Cloudflare (proxy) ou de servir depuis Pages : c'est une
+# décision d'infrastructure, pas un changement de code. Voir docs/COREON_STATUS.md.
+#
+# La CSP est délibérément en REPORT-ONLY : elle mesure sans rien casser. Elle
+# passera en mode bloquant une fois les rapports lus et les sources confirmées
+# (l'application appelle open-meteo pour la météo et beacon.min.js sur Pages).
+# ════════════════════════════════════════════════════════════════════════════
+
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=(), interest-cohort=()
+  Cross-Origin-Opener-Policy: same-origin
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://api.open-meteo.com https://cloudflareinsights.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'

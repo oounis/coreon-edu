@@ -117,7 +117,7 @@ export default function Finance(){
     {d.students.length===0 ? <Card><EmptyState icon={<Wallet size={26}/>} title={t('Aucun élève')} sub={t("Les échéanciers de paiement apparaîtront ici dès qu'un élève sera inscrit.")}/></Card>
     : <Card className="p-4 overflow-x-auto scroll-thin">
       <table className="w-full text-sm">
-        <thead><tr className="text-[12px] uppercase text-muted"><th className="text-left px-2 py-2">{t('Élève')}</th>{FEE_MONTHS.map(m=><th key={m} className="px-1 py-2">{m}</th>)}<th></th></tr></thead>
+        <thead><tr className="text-[12px] uppercase text-muted"><th className="text-left px-2 py-2">{t('Élève')}</th>{FEE_MONTHS.map(m=><th key={m} className="px-1 py-2">{t(m)}</th>)}<th></th></tr></thead>
         <tbody className="divide-y divide-line">
           {d.students.map(s=>(
             <tr key={s.id}>
