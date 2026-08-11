@@ -31,8 +31,14 @@ réciproquement. Chaque jeton n'est accepté que par sa propre école.
 ## Sauvegardes et restauration
 
 - Sauvegarde datée au démarrage puis **toutes les 6 heures**, rotation sur 30.
-- ⚠️ **À faire avant le pilote** : exécuter et documenter une **restauration
-  testée**. Une sauvegarde jamais restaurée n'est pas une sauvegarde.
+- ✅ **Restauration testée le 2026-08-11** — procédure : `server/restore.mjs`.
+  Épreuve réelle sur une base jetable : école semée (121 élèves, 67 comptes),
+  sauvegarde prise, **toutes les données effacées** (0 ligne), puis restaurées.
+  Résultat relu depuis la base : révision, 121 élèves et 67 comptes intacts,
+  le compte de direction se reconnecte (hash présent, profil correspondant).
+  La procédure conserve l'état actuel sous `pre-restore-<date>` avant d'écraser,
+  et **refuse** de restaurer une école sans son registre d'authentification —
+  sinon les données reviendraient sans que personne ne puisse se connecter.
 
 ## Hébergement et transport
 
@@ -58,7 +64,7 @@ de pilote (voir §Reste à formaliser).
 
 ## Reste à formaliser avant signature d'un pilote
 
-1. Restauration testée et documentée.
+1. ~~Restauration testée et documentée~~ — **fait le 2026-08-11**.
 2. Délai d'engagement en cas d'incident et procédure de notification.
 3. Convention de traitement des données (sous-traitants : hébergeur, base,
    supervision).
