@@ -1,3 +1,19 @@
+> # ⛔ DOCUMENT HISTORIQUE — NE PAS SUIVRE
+>
+> **Archivé le 2026-08-11.** Ce fichier décrit une architecture ou un état qui
+> **n'a jamais été construit** ou qui a été **délibérément remplacé**. Il est
+> conservé pour comprendre les décisions passées, jamais pour guider un travail.
+>
+> **Sources de vérité actuelles :**
+> - [`README.md`](../../README.md) — ce qu'est le produit aujourd'hui
+> - [`docs/quality/ARCHITECTURE-BIBLE.md`](../quality/ARCHITECTURE-BIBLE.md) — la constitution (multi-tenant, multi-pays)
+> - [`docs/COREON_STATUS.md`](../COREON_STATUS.md) — l'état courant
+> - **Linear** (KogiaGroup / KOG) — le travail en cours
+>
+> Écart connu de ce document : Décrit un backend **FastAPI + PostgreSQL + Redis** qui n'a jamais existé. Le backend réel est **Node zéro-dépendance + Turso + Render** (`server/`)..
+
+---
+
 # Coreon Edu — SaaS Plan (Zero → Production)
 
 > **Product:** A multi-tenant SaaS for **quick, in-classroom student evaluation**.

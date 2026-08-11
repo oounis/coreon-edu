@@ -9,6 +9,19 @@ Sur l'écran de connexion, entrez d'un clic dans n'importe quel portail (Directi
 Enseignant, Parent…). La première visite simule une journée de classe (mode démo,
 réversible).
 
+## Où est la vérité
+
+| Question | Document |
+|---|---|
+| Ce qu'est le produit, comment le lancer | **ce README** |
+| L'architecture, les principes non négociables | [`docs/quality/ARCHITECTURE-BIBLE.md`](docs/quality/ARCHITECTURE-BIBLE.md) |
+| L'état courant, les manques | [`docs/COREON_STATUS.md`](docs/COREON_STATUS.md) |
+| Le travail en cours | **Linear** (KogiaGroup / équipe KOG) |
+| Les décisions passées, y compris abandonnées | [`docs/history/`](docs/history/) — **ne jamais suivre** |
+
+Les documents de `docs/history/` décrivent des architectures qui n'ont pas été
+construites (FastAPI/Redis, Supabase). Ils portent un bandeau d'avertissement.
+
 ## Structure du dépôt
 
 | Dossier | Rôle |
@@ -20,7 +33,7 @@ réversible).
 | `ops/` | Scripts de vérification rapide (`check.sh`, `verify-live.sh`) — voir `CLAUDE.md`. |
 | `brand/` | Logos et identité visuelle (source de vérité). |
 | `source_assets/` | Illustrations sources (non embarquées). |
-| `HANDOFF.md` | État précis du produit — **à lire pour reprendre le développement.** |
+| `docs/history/HANDOFF.md` (archivé) | État précis du produit — **à lire pour reprendre le développement.** |
 | `CLAUDE.md` | Repères pour reprendre une session (structure, flot git, comment vérifier avant de dire « en ligne »). |
 
 ## Développer
@@ -29,7 +42,9 @@ réversible).
 # Web
 cd app && npm install && npm run dev          # http://localhost:5173
 
-# Mobile (Expo SDK 54 — la version supportée par Expo Go sur l'App Store)
+# Mobile (Expo SDK 54 — imposé par l'App Store : Expo Go 55+ n'y est pas
+# distribué, et au-delà l'app devient intestable sur iPhone. Verrouillé dans
+# .github/dependabot.yml — ne pas remonter sans raison écrite.)
 cd mobile && npm install && npx expo start --tunnel   # scanner avec Expo Go
 npx expo export --platform web                # aperçu navigateur depuis dist/
 
@@ -41,7 +56,7 @@ npx expo-doctor        # 20/20 attendu
 Règles d'or : la logique vit dans `core/` (jamais dupliquée par plateforme) ;
 `core/src/storage.js` est la seule couture plateforme ; les mêmes formes de données
 partout — un appel fait sur mobile produit exactement le bulletin que le parent voit
-sur le web. Détails et pièges connus : `HANDOFF.md`.
+sur le web. Détails et pièges connus : `docs/history/HANDOFF.md` (archivé).
 
 ## État
 

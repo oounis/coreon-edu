@@ -60,7 +60,7 @@ Hors dépôt : `/mnt/c/Current LAB/_Private/Kogia/KOGIA_credentials.txt`. Ce dé
 et le site sont **publics** — rien de sensible dedans, jamais.
 
 ## Où reprendre
-Voir mémoire `kogia-build-state` / `HANDOFF.md` pour l'état détaillé. En bref
+Voir mémoire `kogia-build-state` / `docs/history/HANDOFF.md` (archivé) pour l'état détaillé. En bref
 (2026-08-01) : **D9 hébergement serveur** est le seul vrai blocage restant
 (bloqué sur Othman, ~1h, Cloudflare Workers gratuit). Faisable sans lui :
 **D5/D3 argent (CR-038)** — unifier factures/grille mensuelle, TVA, GOSI/EOSB.
