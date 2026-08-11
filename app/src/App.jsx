@@ -5,12 +5,16 @@ import { Toaster } from 'react-hot-toast'
 import toast from 'react-hot-toast'
 import { current } from '@core/auth.js'
 import { isRemote } from './remote.js'
-import AppShell from './components/AppShell.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
 import SiteChrome from './pages/site/Chrome.jsx'
 import Home from './pages/site/Home.jsx'
 import Login from './pages/Login.jsx'
 // Les pages secondaires de la vitrine se chargent à la demande (CR-006).
+// AppShell n'apparaît qu'APRÈS connexion (voir Protected plus bas), mais était
+// importé au démarrage : chaque visiteur de la vitrine téléchargeait le cadre
+// complet de l'application scolaire sans jamais l'utiliser. Il est rendu à
+// l'intérieur du <Suspense> global, donc le différer ne change rien à l'écran.
+const AppShell = lazy(() => import('./components/AppShell.jsx'))
 const ModulesPage = lazy(() => import('./pages/site/ModulesPage.jsx'))
 const DataPage = lazy(() => import('./pages/site/DataPage.jsx'))
 const PricingPage = lazy(() => import('./pages/site/PricingPage.jsx'))

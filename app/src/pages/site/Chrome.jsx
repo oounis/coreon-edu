@@ -40,9 +40,12 @@ export default function SiteChrome(){
           </div>
         </div>
         {/* menu mobile : mêmes routes, sur une ligne défilante */}
-        <nav className="md:hidden flex items-center gap-5 overflow-x-auto px-5 pb-2.5 text-sm font-medium text-muted">
+        <nav className="md:hidden flex items-center gap-6 overflow-x-auto px-5 pb-1 text-sm font-medium text-muted">
           {NAV.map(([to,label])=>(
-            <NavLink key={to} to={to} active={pathname===to} className="shrink-0">{t(label)}</NavLink>
+            /* py-2.5 : sans lui, la zone tactile se limitait à la hauteur du
+               texte (~20 px) — sous le minimum utilisable, et un enseignant
+               qui navigue d'une main sur son téléphone se trompait de lien. */
+            <NavLink key={to} to={to} active={pathname===to} className="shrink-0 py-2.5">{t(label)}</NavLink>
           ))}
         </nav>
       </header>
