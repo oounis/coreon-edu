@@ -30,8 +30,8 @@ export const LOCALES = {
   ar: { key: 'ar', label: 'العربية',  dir: 'rtl' },
   // L'ANGLAIS (2026-07-26) : Bahreïn déclare ar + en ; les écoles privées du
   // Golfe travaillent largement en anglais. ÉTAT MESURÉ AU 2026-08-11 :
-  // 1 868 chaînes `t()` en usage, **96 % traduites** en anglais comme en arabe
-  // (84 manquantes de chaque côté, listées dans docs/quality/i18n-gap.md).
+  // 1 981 chaînes `t()` en usage, **100 % traduites** en anglais comme en arabe
+  // depuis le 2026-08-11 (91 ajoutées côté anglais ce jour-là).
   // La couverture n'est plus « l'écorce » : les données de référence (fêtes,
   // mois du barème, fonctions du personnel) ont rejoint le dictionnaire.
   // Ce qui manque retombe sur le français — jamais sur un vide.
