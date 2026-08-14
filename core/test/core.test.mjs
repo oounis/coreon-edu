@@ -702,6 +702,28 @@ test('acl : la fusion d\'écriture ne prend que les collections du rôle', () =>
   assert.equal(merged.attendance.k.s1, 'absent', 'l\'appel est pris')
 })
 
+// CodeQL js/remote-property-injection (2026-08-14) : owner/schooladmin passent
+// par le chemin '*' de mergeWrite, où RIEN d'autre ne filtrait les clés avant
+// la fusion. Un blob posté portant `__proto__`/`constructor`/`prototype` ne
+// doit jamais atteindre le [[Prototype]] de l'objet fusionné, quel que soit
+// le rôle — ni à l'écriture (mergeWrite), ni à la relecture (blobForStaff).
+test('acl : __proto__/constructor/prototype ne traversent jamais mergeWrite ni blobForStaff', () => {
+  const poison = JSON.parse('{"__proto__": {"pollue": true}, "constructor": "x", "prototype": "y", "classes": []}')
+  const { merged: viaEtoile } = mergeWrite({}, poison, 'owner')
+  assert.equal(Object.getPrototypeOf(viaEtoile), Object.prototype, 'chemin \'*\' (owner) : prototype intact')
+  assert.equal(viaEtoile.pollue, undefined, 'aucune fuite via le prototype')
+  assert.ok('classes' in viaEtoile, 'les clés légitimes du même blob passent toujours')
+
+  const { merged: viaAdmin, applied } = mergeWrite({}, poison, 'admin')
+  assert.equal(Object.getPrototypeOf(viaAdmin), Object.prototype, 'chemin allExcept (admin) : prototype intact')
+  assert.ok(!applied.includes('__proto__') && !applied.includes('constructor') && !applied.includes('prototype'))
+
+  const d = JSON.parse('{"__proto__": {"pollue": true}, "constructor": "x", "classes": []}')
+  const tb = blobForStaff(d, 'schooladmin')
+  assert.equal(Object.getPrototypeOf(tb), Object.prototype, 'blobForStaff : prototype intact à la relecture')
+  assert.equal(tb.pollue, undefined, 'aucune fuite via le prototype en lecture')
+})
+
 // ── Les comptes : l'annuaire de l'école, sous règles ─────────────────────────
 import { createAccount, updateAccount, setDisabled, resetPassword } from '../src/accounts.js'
 

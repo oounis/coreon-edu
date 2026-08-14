@@ -212,7 +212,17 @@ export function buildPlan(d, targetKey, records) {
 }
 
 // ── 4. APPLIQUER — par les mêmes chemins que la saisie manuelle ──────────────
-const tempPw = () => Math.random().toString(36).slice(2, 6) + Math.random().toString(36).slice(2, 6)
+// CodeQL js/insecure-randomness (2026-08-14) : Math.random() servait à générer
+// un vrai mot de passe de compte (personnel/parent importés en masse). PRNG
+// non cryptographique, prévisible entre onboarding et premier changement de
+// mot de passe. `crypto.getRandomValues` est du Web Crypto API : disponible
+// tel quel en navigateur ET en Node — ce fichier tourne des deux côtés
+// (app/src/pages/ImportData.jsx l'importe côté client).
+const TEMP_PW_ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789'
+const tempPw = () => {
+  const octets = crypto.getRandomValues(new Uint8Array(10))
+  return Array.from(octets, o => TEMP_PW_ALPHABET[o % TEMP_PW_ALPHABET.length]).join('')
+}
 const initialsOf = name => name.split(' ').filter(Boolean).map(w => w[0]).slice(0, 2).join('').toUpperCase()
 
 export function applyPlan(targetKey, plan, { byId = '', byName = '', file = '' } = {}) {
