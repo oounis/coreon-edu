@@ -29,15 +29,15 @@ Othman signale : logique de certaines fonctionnalités incorrecte, modèles de
 données incomplets, à travers web + mobile + langues. Angles à privilégier :
 
 1. **Modèles de données incomplets** — comparer chaque entité de
-   `core/src/*.js` à la section « Data model » de `PLAN.md` et à la Bible
+   `core/src/*.js` à la section « Data model » de `docs/history/PLAN.md` (archivé) et à la Bible
    (§ « pas du rangement ») : champs manquants, cas non couverts, incohérence
    entre ce que le modèle promet et ce qu'un écran affiche.
 2. **Logique de fonctionnalité incorrecte** — piloter un flux (pas juste lire
    le code) : ouvrir l'écran, dérouler le scénario métier réel (ex. facturer
    une école, inscrire un enfant, clôturer une année) et voir si le résultat
-   est celui qu'un directeur d'école attendrait. La Bible et `HANDOFF.md`
+   est celui qu'un directeur d'école attendrait. La Bible et `docs/history/HANDOFF.md` (archivé)
    listent les défauts déjà trouvés CETTE façon (jamais en lisant un chiffre).
-3. **Parité web/mobile** — `mobile/` a ses propres écrans (voir `HANDOFF.md`
+3. **Parité web/mobile** — `mobile/` a ses propres écrans (voir `docs/history/HANDOFF.md` (archivé)
    §B) ; un module vivant côté web mais absent/différent côté mobile est un
    constat valide.
 4. **Langues** — CI a déjà des barrières dures ici (`i18n-audit.py`,
@@ -48,7 +48,7 @@ données incomplets, à travers web + mobile + langues. Angles à privilégier :
 ## Ce que Codex doit lire avant de commencer
 `CLAUDE.md` (racine) → `docs/quality/ARCHITECTURE-BIBLE.md` →
 `docs/quality/erp-epics-plan.md` (décisions D-1/D-2/D-3) →
-`docs/quality/gap-analysis.md` → `HANDOFF.md` (défauts déjà trouvés, pour ne
+`docs/quality/gap-analysis.md` → `docs/history/HANDOFF.md` (archivé) (défauts déjà trouvés, pour ne
 pas les re-signaler).
 
 ## Ce que Claude fait de son côté

@@ -31,8 +31,8 @@ jobs:
     name: Tests unitaires & intégration (cœur)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with: { node-version: 20 }
       - name: Tests d'exécution du cœur
         working-directory: core
@@ -87,8 +87,8 @@ jobs:
     needs: qualite
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with: { node-version: 20, cache: npm, cache-dependency-path: app/package-lock.json }
       - name: Installer & construire
         working-directory: app
@@ -107,7 +107,7 @@ jobs:
       - name: Parcours (public · demandes · arabe · smoke · qualité a11y+PDF · perf · mobile)
         working-directory: e2e
         run: npm run all
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
         with: { enablement: true }
       - uses: actions/upload-pages-artifact@v3
         with: { path: app/dist }
@@ -121,7 +121,7 @@ jobs:
     environment: { name: github-pages, url: "${{ steps.deployment.outputs.page_url }}" }
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
   # ── 4. APRÈS LA MISE EN LIGNE : le site réel répond-il ? ───────────────────
   # « Déployé » n'est pas « en ligne ». On vérifie l'adresse de production.

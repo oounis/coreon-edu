@@ -1,6 +1,18 @@
 # Le serveur Coreon — pilote v1
 
-Un seul processus Node (≥ 20), **zéro dépendance**. Il héberge UNE école et lève
+Un seul processus Node (≥ 20), **zéro dépendance**.
+
+> ⚠️ **Une école par processus — limite temporaire, PAS un principe.**
+> La [Bible d'architecture](../docs/quality/ARCHITECTURE-BIBLE.md) définit Coreon
+> comme une plateforme **multi-tenant / multi-école**, et le modèle de données le
+> porte déjà (`refContext()` : pays / tenant / école / année). Ce serveur ne lit
+> pas encore ces valeurs depuis la session : il sert un blob `school` unique.
+> D'ici là, chaque école reçoit sa propre instance (`ops/provision-school.sh`) —
+> décision d'exploitation datée du 2026-08-11, valable jusqu'à ~10 écoles,
+> détaillée au §0 bis de la Bible. **N'écrivez pas de code qui suppose une seule
+> école** : il faudra le défaire.
+
+Il lève
 les verrous de `docs/quality/production-readiness-checklist.md` : mots de passe
 hachés (scrypt), données servies **par rôle** (`core/src/acl.js`, défaut refus),
 écritures sous **verrou de révision** (fini le « dernier écrase le premier »),

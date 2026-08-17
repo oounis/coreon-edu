@@ -23,8 +23,8 @@ jobs:
     name: Tests unitaires & intégration (cœur)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with: { node-version: 20 }
       - name: Tests d'exécution du cœur
         working-directory: core
@@ -40,8 +40,8 @@ jobs:
       name: ${{ github.ref_name }}
       url: "https://${{ github.ref_name }}.edu.kogiagroup.com"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with: { node-version: 20, cache: npm, cache-dependency-path: app/package-lock.json }
       - name: Installer & construire
         working-directory: app
@@ -75,9 +75,15 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy app/dist --project-name=coreon-edu-${{ github.ref_name }} --branch=${{ github.ref_name }} --commit-hash=${{ github.sha }}
       - name: "Smoke d'environnement : le sous-domaine sert bien l'application"
+        # AUDIT 2026-08-02 : le nom de branche était interpolé DIRECTEMENT dans le
+        # script (`${{ github.ref_name }}` dans un `run:`) — une branche nommée avec
+        # des métacaractères shell exécutait son propre code sur le runner. Il passe
+        # désormais par l'environnement, où le shell ne le réinterprète pas.
+        env:
+          REF_NAME: ${{ github.ref_name }}
         run: |
           set -e
-          URL="https://${{ github.ref_name }}.edu.kogiagroup.com/"
+          URL="https://${REF_NAME}.edu.kogiagroup.com/"
           ok=0
           for i in $(seq 1 20); do
             code=$(curl -s -o page.html -w "%{http_code}" "$URL" || echo 000)

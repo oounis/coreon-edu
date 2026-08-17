@@ -247,3 +247,17 @@ test('une école suspendue par Kogia bloque le personnel côté serveur (pas seu
   await api('/api/db', { method: 'POST', token: owner.token, body: { baseRev: rev2,
     blob: { ...blob2, schools: blob2.schools.map(s => s.live ? { ...s, status: 'active' } : s) } } })
 })
+
+// Régression CodeQL 2026-08-11 : `auth.sessions[token]` utilisait une chaîne du
+// client comme clé. Un jeton nommé d'après une propriété héritée (`constructor`,
+// `__proto__`…) renvoyait un objet truthy, et la vérification de session
+// continuait au lieu de s'arrêter net. Ce test fige le comportement voulu.
+test('un jeton nommé comme une propriété héritée ne trouve aucune session', () => {
+  const bare = src => Object.assign(Object.create(null), src || {})
+  const sessions = bare({ 'vrai-jeton': { userId: 'u1', exp: Date.now() + 60000 } })
+
+  for (const forge of ['__proto__', 'constructor', 'toString', 'valueOf', 'hasOwnProperty']) {
+    assert.equal(sessions[forge], undefined, `"${forge}" ne doit rien résoudre`)
+  }
+  assert.ok(sessions['vrai-jeton'], 'un jeton légitime reste trouvable')
+})

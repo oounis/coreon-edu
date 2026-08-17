@@ -29,9 +29,16 @@ export const LOCALES = {
   fr: { key: 'fr', label: 'Français', dir: 'ltr' },
   ar: { key: 'ar', label: 'العربية',  dir: 'rtl' },
   // L'ANGLAIS (2026-07-26) : Bahreïn déclare ar + en ; les écoles privées du
-  // Golfe travaillent largement en anglais. Tranche 1 : l'écorce (navigation,
-  // sections, rôles, niveaux — verrouillée par le test de couverture) ; le
-  // reste retombe honnêtement sur le français et se traduit page par page.
+  // Golfe travaillent largement en anglais. ÉTAT MESURÉ AU 2026-08-11 :
+  // 1 981 chaînes `t()` en usage, **100 % traduites** en anglais comme en arabe
+  // depuis le 2026-08-11 (91 ajoutées côté anglais ce jour-là).
+  // La couverture n'est plus « l'écorce » : les données de référence (fêtes,
+  // mois du barème, fonctions du personnel) ont rejoint le dictionnaire.
+  // Ce qui manque retombe sur le français — jamais sur un vide.
+  //
+  // ⚠️ Un commentaire précédent annonçait « 100 % » : c'était faux, mesuré à
+  // 96 %. Une couverture s'annonce mesurée, pas espérée — sinon on cesse de
+  // combler l'écart en croyant l'avoir fermé.
   en: { key: 'en', label: 'English',  dir: 'ltr' },
 }
 

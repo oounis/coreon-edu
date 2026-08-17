@@ -74,7 +74,7 @@ function StaffBehavior({ u }) {
             <Avatar name={s.name} seed={s.id} size={40} />
             <span className="min-w-0 flex-1">
               <span className="block font-bold truncate">{s.name}</span>
-              <span className="block text-xs text-muted">{sum.positives} {sum.positives > 1 ? t('encouragements') : t('encouragement')}{sum.toImprove ? ` · ${sum.toImprove} à suivre` : ''}</span>
+              <span className="block text-xs text-muted">{sum.positives} {sum.positives > 1 ? t('encouragements') : t('encouragement')}{sum.toImprove ? ` · ${sum.toImprove} ${t('à suivre')}` : ''}</span>
             </span>
             <span className="text-lg font-extrabold tabular-nums" style={{ color: sum.score >= 0 ? STATUS.ok : STATUS.warn }}>{sum.score > 0 ? '+' : ''}{sum.score}</span>
           </button>

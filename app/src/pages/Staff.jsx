@@ -21,10 +21,10 @@ import { isoOf } from '@core/clock.js'
 
 function staffList(d){
   return [
-    ...d.teachers.map(v=>({id:v.id,name:v.name,sub:`${v.designation||'Enseignant'} · ${v.subject||''}`})),
+    ...d.teachers.map(v=>({id:v.id,name:v.name,sub:`${t(v.designation||'Enseignant')} · ${v.subject||''}`})),
     // QA FAT 2026-07-26 : sécurité, RH et comptabilité n'existaient pas dans
     // l'appel du personnel — un gardien sans présence RH officielle.
-    ...d.users.filter(u=>['admin','supervisor','security','hr','accountant'].includes(u.role)).map(u=>({id:u.id,name:u.name,sub:u.position||ROLE[u.role].label})),
+    ...d.users.filter(u=>['admin','supervisor','security','hr','accountant'].includes(u.role)).map(u=>({id:u.id,name:u.name,sub:u.position?t(u.position):ROLE[u.role].label})),
   ]
 }
 // jours ouvrés (lun–ven) d'une plage

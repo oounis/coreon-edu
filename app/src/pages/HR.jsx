@@ -26,11 +26,11 @@ const day = d => new Date(d).toLocaleDateString(dateLocale(), { day: '2-digit', 
 function useStaff() {
   const d = db()
   return useMemo(() => {
-    const val = (d.teachers || []).map(x => ({ id: x.id, name: x.name, role: x.designation || 'Enseignant', salary: x.salary }))
+    const val = (d.teachers || []).map(x => ({ id: x.id, name: x.name, role: t(x.designation || 'Enseignant'), salary: x.salary }))
     const LABELS = { admin: 'Administration', supervisor: 'Surveillant', security: 'Sécurité', schooladmin: 'Direction', hr: 'Ressources humaines', accountant: 'Comptabilité' }
     const u = (d.users || [])
       .filter(x => ['admin', 'supervisor', 'security', 'schooladmin', 'hr', 'accountant'].includes(x.role))
-      .map(x => ({ id: x.id, name: x.name, role: x.position || t(LABELS[x.role]) }))
+      .map(x => ({ id: x.id, name: x.name, role: x.position ? t(x.position) : t(LABELS[x.role]) }))
     return [...val, ...u]
   }, [d])
 }

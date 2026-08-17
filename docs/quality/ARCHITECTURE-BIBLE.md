@@ -25,6 +25,36 @@ gestion, meilleures décisions.
 
 ---
 
+## 0 bis. Décision d'exploitation — instance par école (2026-08-11)
+
+**Ce qui a été décidé, et pourquoi c'est une ÉTAPE et non l'architecture.**
+
+Aujourd'hui, chaque école pilote reçoit **sa propre base et son propre serveur**
+(`ops/provision-school.sh`). L'isolation devient physique : deux écoles ne
+partagent rien, prouvé par test croisé de jetons (A→A 200, A→B 401).
+
+C'est en tension apparente avec le principe n°1 (« peut grandir **sans se
+dupliquer** »). La tension se résout ainsi :
+
+1. **Le modèle de données reste multi-tenant, sans exception.** `refContext()`
+   porte déjà `country / tenant / school / year`. **Aucune nouvelle écriture ne
+   doit supposer « une seule école ».** C'est le principe n°7, il ne bouge pas.
+2. **L'instance-par-école est une décision d'EXPLOITATION**, réversible, valable
+   jusqu'à **~10 écoles**. Elle ne justifie JAMAIS d'écrire du code mono-école.
+   Passé ce seuil, ou dès qu'un client demande plusieurs écoles sous un même
+   tenant, on converge vers le multi-tenant applicatif.
+3. **Le serveur doit converger** : lire `tenant / école` depuis la session (JWT),
+   pas depuis un blob unique. Tant que ce n'est pas fait, la limite est
+   documentée comme temporaire — jamais présentée comme la conception.
+
+**Pourquoi cet ordre.** À la date de cette décision, Coreon n'a **aucune école
+cliente**. Construire le multi-tenant applicatif avant le premier client, c'est
+deviner ses besoins ; l'instance-par-école permet de signer une école cette
+semaine sans aucun risque de fuite, et la convergence se fera avec un vrai
+client en face. La Bible reste la vérité ; ceci est le chemin vers elle.
+
+---
+
 ## 1. Les principes non négociables
 
 1. **Un seul cœur, des configurations.** JAMAIS « Coreon EDU Libye », « Coreon EDU
