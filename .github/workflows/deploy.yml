@@ -23,7 +23,14 @@ on:
   pull_request: { branches: [main] }
   workflow_dispatch:
 permissions: { contents: read, pages: write, id-token: write }
-concurrency: { group: pages, cancel-in-progress: true }
+# Le groupe était `pages`, une constante : TOUTES les exécutions partageaient
+# donc le même verrou, et `cancel-in-progress` faisait s'annuler entre elles
+# des vérifications de PR sans aucun rapport. Preuve au 2026-08-17 : quatre
+# PR Dependabot (brace-expansion, nanoid, js-yaml, undici) sont restées en
+# « cancelled », leur CI n'ayant jamais pu finir — impossible de savoir si
+# elles étaient sûres à fusionner. Le groupe inclut désormais la référence,
+# comme le fait déjà correctement envs.yml juste à côté.
+concurrency: { group: "deploy-${{ github.workflow }}-${{ github.ref }}", cancel-in-progress: true }
 
 jobs:
   # ── 1. LE CŒUR : les règles du métier, testées par exécution ───────────────
