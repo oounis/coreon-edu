@@ -168,11 +168,18 @@ const MAIL_TOKEN = process.env.COREON_MAIL_TOKEN || ''
 const APP_URL = process.env.COREON_APP_URL || 'https://edu.kogiagroup.com'
 const SUPPORT = process.env.COREON_SUPPORT || 'support@kogiagroup.com'
 
+// CodeQL js/log-injection (2026-08-14) : `to` peut venir d'un e-mail stocké
+// sans validation anti-CRLF (auth.users, posé à la création du compte). Sans
+// ce nettoyage, un e-mail contenant \r\n forgerait de fausses lignes dans les
+// journaux du serveur — le seul canal de secours quand MAIL_RELAY n'est pas
+// configuré.
+const journalise = v => String(v).replace(/[\r\n\t]/g, ' ')
+
 // Le relais unique : tout e-mail du serveur passe par ici. COREON_MAIL_TOKEN
 // doit être le SERVER_TOKEN du worker (voie serveur, distincte du jeton du
 // navigateur — le worker n'exige pas d'Origin pour cette voie-là).
 async function relayMail(to, subject, text) {
-  if (!MAIL_RELAY) { console.log(`[mail non relayé] ${to} · ${subject}`); return { ok: false, via: 'no-relay' } }
+  if (!MAIL_RELAY) { console.log(`[mail non relayé] ${journalise(to)} · ${journalise(subject)}`); return { ok: false, via: 'no-relay' } }
   try {
     const r = await fetch(MAIL_RELAY, {
       method: 'POST',
@@ -191,7 +198,7 @@ async function sendResetMail(to, token) {
     `Ce lien est valable 60 minutes et ne fonctionne qu'une seule fois.\n` +
     `Si vous n'avez rien demandé, ignorez ce message : votre mot de passe reste inchangé.\n\n` +
     `Besoin d'aide : ${SUPPORT}\nCoreon EDU, Kogia Group`
-  if (!MAIL_RELAY) { console.log(`[mot de passe oublié] ${to} → ${link}`); return { ok: false, via: 'no-relay' } }
+  if (!MAIL_RELAY) { console.log(`[mot de passe oublié] ${journalise(to)} → ${link}`); return { ok: false, via: 'no-relay' } }
   return relayMail(to, subject, text)
 }
 

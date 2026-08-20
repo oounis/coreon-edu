@@ -17,6 +17,16 @@
 
 const DIRECTION = ['schooladmin', 'owner']
 
+// CodeQL js/remote-property-injection (2026-08-14) : `Object.keys(postedBlob)`
+// et `Object.keys(d)` itèrent des clés qui, en bout de chaîne, viennent d'un
+// blob POSTÉ par le client puis persisté dans school.blob. Une clé nommée
+// `__proto__` (JSON.parse la crée comme propriété OWN, contrairement à un
+// littéral objet) survit telle quelle jusqu'à `merged[k] = ...` — une
+// affectation crochet sur `__proto__` réassigne le [[Prototype]] de l'objet.
+// `mayWriteCollection` renvoie `true` sans condition pour owner/schooladmin
+// (`w === '*'`), donc rien d'autre ne barre cette clé avant mergeWrite.
+const CLES_DANGEREUSES = new Set(['__proto__', 'constructor', 'prototype'])
+
 // Les collections RH et ARGENT : l'Administration n'y touche JAMAIS (CR-016/020,
 // docs/quality/role-model.md §2). La RH possède la paie/contrats/recrutement ; la
 // Comptabilité possède factures/reçus/paiements/barème/remises/dépenses/budget. La
@@ -91,7 +101,7 @@ export function stripSecrets(d) {
 export function blobForStaff(d, role) {
   const strip = new Set(READ_STRIP[role] || [])
   const out = {}
-  for (const k of Object.keys(d)) { if (!strip.has(k)) out[k] = d[k] }
+  for (const k of Object.keys(d)) { if (!strip.has(k) && !CLES_DANGEREUSES.has(k)) out[k] = d[k] }
   if (strip.has('hrPayrolls')) out.teachers = (d.teachers || []).map(lightTeacher)
   return stripSecrets(out)
 }
@@ -158,13 +168,15 @@ export function blobForParent(d, user) {
  */
 export function mergeWrite(serverBlob, postedBlob, role) {
   if (writableCollections(role) === '*') {
-    const merged = { ...postedBlob }
+    const merged = {}
+    for (const k of Object.keys(postedBlob || {})) if (!CLES_DANGEREUSES.has(k)) merged[k] = postedBlob[k]
     merged.users = (postedBlob.users || []).map(({ pw, ...u }) => u)
     return { merged, applied: ['*'] }
   }
   const merged = { ...serverBlob }
   const applied = []
   for (const k of Object.keys(postedBlob || {})) {
+    if (CLES_DANGEREUSES.has(k)) continue
     if (mayWriteCollection(role, k)) { merged[k] = postedBlob[k]; applied.push(k) }
   }
   return { merged, applied }
