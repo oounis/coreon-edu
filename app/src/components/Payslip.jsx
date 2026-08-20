@@ -5,7 +5,7 @@
 // bulletin scolaire (Bulletin.jsx).
 import { settings } from '@core/db.js'
 import { t } from '@core/i18n.js'
-import { currency, money } from '@core/currency.js'
+import { money } from '@core/currency.js'
 import { EARNINGS, CONTRACTS, monthLabel } from '@core/hr.js'
 import { Btn, Avatar, STATUS } from './ui.jsx'
 import { Dialog } from '@headlessui/react'

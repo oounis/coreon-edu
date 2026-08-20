@@ -3,7 +3,7 @@
 import { getItem, setItem, removeItem } from './storage.js'
 import { subjectHue } from './subjects.js'
 import { BRAND } from './tokens.js'
-import { nextRef, uuid as newUuid } from './refs.js'
+import { nextRef, uuid as newUuid, randomHex } from './refs.js'
 import { countryCode } from './locales.js'
 import { record, DETAILS } from './audit.js'
 const KEY="coreon_db"
@@ -541,7 +541,6 @@ function seed(){
   const socialEvents=demoSocialEvents()
 
   // ── Poste de sécurité : registre, rondes, main courante ──
-  const hm=d=>`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
   const todayISO=dISO(0)
   const visitors=[
     {id:'v1',date:todayISO,name:'Nizar Ben Amor',idType:'CIN',idNumber:'0912****',org:'Papeterie El Amel',purpose:'Livraison',hostName:'Karim Jelassi',
@@ -768,7 +767,9 @@ export function purgeDemoData(){
   if(ok) record({ action:'system', category:'audit', subjectName:'Journal d’audit', detail:DETAILS.demoPurgee })
   return ok?{ok:true}:{error:"Le stockage a refusé l'écriture."}
 }
-export const uid=(p="id")=>p+"_"+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3)
+// Identifiant technique : 7 caractères base36 tirés de WebCrypto (plus Math.random,
+// CodeQL js/insecure-randomness 2026-08-20) + 3 caractères d'horloge, comme avant.
+export const uid=(p="id")=>p+"_"+parseInt(randomHex(5),16).toString(36).padStart(7,"0").slice(-7)+Date.now().toString(36).slice(-3)
 
 // ── lien parent ↔ enfant ────────────────────────────────────────────────────
 // Il existe des deux côtés : `student.parentId` ET `user.childIds`. La page Élèves

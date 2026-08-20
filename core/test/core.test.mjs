@@ -36,8 +36,8 @@ test('dates : locales, jamais UTC ; rentrée calculée', () => {
 
 test('mentions : ordonnées et définies aux bornes', () => {
   const excellent = mentionFor(95), faible = mentionFor(20)
-  assert.ok(excellent && excellent.label)
-  assert.ok(faible && faible.label)
+  assert.ok(excellent.label)
+  assert.ok(faible.label)
   assert.notEqual(excellent.label, faible.label)
 })
 
@@ -281,7 +281,7 @@ test('demandes : catégorie → assigné → échéance → clôture, tout est t
 })
 
 // ── L'arabe n'est pas une traduction, c'est une direction (i18n.js) ──────────
-import { t, setLocale, locale, dir, LOCALES, registerDict } from '../src/i18n.js'
+import { t, setLocale, locale, dir, registerDict } from '../src/i18n.js'
 // Les dictionnaires sont des morceaux à part depuis 2026-07-28 (poids du bundle) :
 // le test les prend directement et les POSE, sans passer par import() dynamique.
 import AR from '../src/i18n.ar.js'
@@ -377,7 +377,7 @@ test('comportement : rien ne s\'efface — un retrait est tracé', () => {
 })
 
 // ── Les moments (photo/vidéo) : la vie privée des enfants, dans le cœur ───────
-import { share, feedForParent, visibleToParent, toggleLike, removeMoment } from '../src/gallery.js'
+import { share, feedForParent, visibleToParent, toggleLike } from '../src/gallery.js'
 
 test('moments : un parent ne voit QUE son enfant ou la classe de son enfant', () => {
   const d = db()
@@ -485,7 +485,7 @@ test("fêtes : la date hégirienne (Umm al-Qura) se lit nativement, seuls BH/QA/
 })
 
 // ── La cantine : le menu qui PROTÈGE l'enfant (croisement allergies) ─────────
-import { atRiskForDay, studentReactsTo, setDay, toggleSubscriber, allergensOfDay, weekForChild, summary as canteenSummary } from '../src/canteen.js'
+import { atRiskForDay, studentReactsTo, setDay, toggleSubscriber, weekForChild, summary as canteenSummary } from '../src/canteen.js'
 
 test('cantine : l\'alerte allergie est CALCULÉE du dossier, jamais oubliée', () => {
   const d = db()
@@ -499,8 +499,6 @@ test('cantine : l\'alerte allergie est CALCULÉE du dossier, jamais oubliée', (
 })
 
 test('cantine : on ratisse large — « cacahuète » attrape l\'allergie aux arachides', () => {
-  const d = db()
-  const amira = d.students.find(s => s.id === 's1')
   // un plat qui dit « cacahuète » sans dire « arachide » doit quand même alerter
   setDay('mer', [{ name: 'Sauce cacahuète', allergens: ['arachide'] }])
   assert.ok(atRiskForDay('mer').some(r => r.student.id === 's1'), 'faux négatif interdit : on alerte')
@@ -508,7 +506,7 @@ test('cantine : on ratisse large — « cacahuète » attrape l\'allergie aux ar
 
 test('cantine : inscription/désinscription, et le menu d\'un enfant porte ses drapeaux', () => {
   toggleSubscriber('s5')
-  assert.ok(atRiskForDay('lun') !== null)   // ne casse pas
+  assert.ok(Array.isArray(atRiskForDay('lun')))   // ne casse pas, renvoie toujours une liste
   const week = weekForChild('s1')
   const lundi = week.find(w => w.key === 'lun')
   assert.ok(lundi.risks.some(r => /Arachide/i.test(r.label)), 'le lundi d\'Amira porte l\'alerte arachide')
@@ -1064,7 +1062,7 @@ test('pré-inscription : le dossier envoyé garde le nom complet et les conditio
 // ── Saisie des bulletins par classe (CR-022) ────────────────────────────────
 test('saisie par classe : une note par élève, enregistrée en un geste', async () => {
   const { resetDb, db } = await import('../src/db.js')
-  const { saveClassReports, classGrid, reportOf, rowAverage, columnAverage, MARK_MAX } = await import('../src/academic.js')
+  const { saveClassReports, classGrid, reportOf } = await import('../src/academic.js')
   resetDb(); db()   // une école de démo neuve
   const cls = (db().classes || []).find(c => (db().students || []).filter(s => s.classId === c.id).length >= 3)
   const g = classGrid(cls.id, 't1')
@@ -1118,7 +1116,7 @@ test('saisie par classe : une note hors barème est refusée, pas arrondie en do
 
 test('saisie par classe : aucun bulletin vide n’est fabriqué', async () => {
   const { resetDb, db } = await import('../src/db.js')
-  const { saveClassReports, classGrid, reports } = await import('../src/academic.js')
+  const { saveClassReports, reports } = await import('../src/academic.js')
   resetDb(); db()   // une école de démo neuve
   const cls = (db().classes || []).find(c => (db().students || []).filter(s => s.classId === c.id).length >= 2)
   const avant = reports().length
@@ -1312,7 +1310,7 @@ test('identité : un compte conserve le type de pièce choisi', async () => {
 
 // ── Marchés cibles : 4 pays + villes (CR-023) ────────────────────────────────
 test('marchés : exactement 4 pays de lancement, chacun avec ses villes', async () => {
-  const { PACK_LIST, citiesOf, setLocalePack, countryCode } = await import('../src/locales.js')
+  const { PACK_LIST, citiesOf } = await import('../src/locales.js')
   const keys = PACK_LIST.map(p => p.key).sort()
   assert.deepEqual(keys, ['BH', 'LY', 'QA', 'TN'], 'Bahreïn, Libye, Qatar, Tunisie — et rien d’autre')
   assert.ok(citiesOf('BH').includes('Manama'), 'Bahreïn : Manama')

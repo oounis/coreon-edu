@@ -21,7 +21,7 @@
 // ════════════════════════════════════════════════════════════════════════════
 import { db, mutate } from './db.js'
 import { REQUEST_DEFS } from './tunisia.js'
-import { now, todayIso, isoOf, nowMs, ms } from './clock.js'
+import { now, todayIso, isoOf, nowMs } from './clock.js'
 import { notify } from './notify.js'
 
 /** La catégorie d'une demande = le groupe de son type. Jamais une saisie libre. */

@@ -23,7 +23,7 @@
 // pas une moyenne sur 20 — il a des acquis observés. Deux barèmes, un seul module.
 // ════════════════════════════════════════════════════════════════════════════
 import { db, save } from './db.js'
-import { now, todayIso, nowMs, ms } from './clock.js'
+import { todayIso, nowMs } from './clock.js'
 import { LEVELS, levelOf, labelOf, nextLevel, isEarly } from './levels.js'
 import { feesOf } from './accounting.js'
 import { curriculum, gradeOf } from './locales.js'

@@ -20,7 +20,7 @@
 // ════════════════════════════════════════════════════════════════════════════
 import { db, save } from './db.js'
 import { roundMoney } from './currency.js'
-import { now, todayIso, nowMs, ms } from './clock.js'
+import { todayIso, nowMs } from './clock.js'
 import { auditWrite, DETAILS } from './audit.js'
 
 // CR-039 : contrat et paie sont les données personnelles les plus sensibles du

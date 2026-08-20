@@ -15,8 +15,6 @@
 //  3. Aucun mot de passe ne voyage : `stripSecrets` nettoie chaque blob sortant.
 // ════════════════════════════════════════════════════════════════════════════
 
-const DIRECTION = ['schooladmin', 'owner']
-
 // CodeQL js/remote-property-injection (2026-08-14) : `Object.keys(postedBlob)`
 // et `Object.keys(d)` itèrent des clés qui, en bout de chaîne, viennent d'un
 // blob POSTÉ par le client puis persisté dans school.blob. Une clé nommée
@@ -93,15 +91,16 @@ const lightTeacher = t => ({ id: t.id, name: t.name, subject: t.subject || '', d
 export function stripSecrets(d) {
   return {
     ...d,
-    users: (d.users || []).map(({ pw, ...u }) => u),
+    users: (d.users || []).map(({ pw: _pw, ...u }) => u),
   }
 }
 
 /** Le blob d'un membre du PERSONNEL : tout, moins les collections retirées. */
 export function blobForStaff(d, role) {
   const strip = new Set(READ_STRIP[role] || [])
-  const out = {}
-  for (const k of Object.keys(d)) { if (!strip.has(k) && !CLES_DANGEREUSES.has(k)) out[k] = d[k] }
+  // Construit par `fromEntries` plutôt que `out[k] = …` : même résultat, mais
+  // aucune affectation crochet sur une clé venue du blob (CodeQL la suit).
+  const out = Object.fromEntries(Object.entries(d).filter(([k]) => !strip.has(k) && !CLES_DANGEREUSES.has(k)))
   if (strip.has('hrPayrolls')) out.teachers = (d.teachers || []).map(lightTeacher)
   return stripSecrets(out)
 }
@@ -116,11 +115,11 @@ export function blobForParent(d, user) {
   const email = String(user.email || '').toLowerCase()
 
   // L'appel : ne garder, dans chaque feuille, QUE les marques de ses enfants.
-  const attendance = {}
-  for (const [key, marks] of Object.entries(d.attendance || {})) {
-    const mine = Object.fromEntries(Object.entries(marks || {}).filter(([sid]) => kids.has(sid)))
-    if (Object.keys(mine).length) attendance[key] = mine
-  }
+  const attendance = Object.fromEntries(
+    Object.entries(d.attendance || {})
+      .map(([key, marks]) => [key, Object.fromEntries(Object.entries(marks || {}).filter(([sid]) => kids.has(sid)))])
+      .filter(([, mine]) => Object.keys(mine).length),
+  )
 
   return stripSecrets({
     _v: d._v,
@@ -168,9 +167,8 @@ export function blobForParent(d, user) {
  */
 export function mergeWrite(serverBlob, postedBlob, role) {
   if (writableCollections(role) === '*') {
-    const merged = {}
-    for (const k of Object.keys(postedBlob || {})) if (!CLES_DANGEREUSES.has(k)) merged[k] = postedBlob[k]
-    merged.users = (postedBlob.users || []).map(({ pw, ...u }) => u)
+    const merged = Object.fromEntries(Object.entries(postedBlob || {}).filter(([k]) => !CLES_DANGEREUSES.has(k)))
+    merged.users = (postedBlob.users || []).map(({ pw: _pw, ...u }) => u)
     return { merged, applied: ['*'] }
   }
   const merged = { ...serverBlob }

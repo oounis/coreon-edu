@@ -6,7 +6,7 @@ import { SoftBars, SoftBarsH, Gauge, DistributionBar } from '../components/chart
 import { SERIES, LEVELS, axis as chartAxis, grid as chartGrid, tooltip as chartTip } from '@core/charts.js'
 import { Users, GraduationCap, Wallet, ShieldAlert, ClipboardCheck, CreditCard, Star, ArrowRight, Bell, FileText, TrendingUp, CalendarCheck, Radio, Stethoscope, UserX, CalendarDays, ChevronRight, Building2, Search, CheckCircle2 } from 'lucide-react'
 import { current } from '@core/auth.js'
-import { db, FEE_MONTHS, studentById, classById, settings, attParts } from '@core/db.js'
+import { db, studentById, classById, settings, attParts } from '@core/db.js'
 import { money } from '@core/accounting.js'
 import { decisionsFor } from '@core/workbench.js'
 import { schoolInsights } from '@core/insights.js'
@@ -20,7 +20,7 @@ import { statusAt, AREAS, fmt, nowState, schoolPhase } from '@core/livestatus.js
 import { subjectMeta, PLACES } from '../subjects.jsx'
 import Bulletin from '../components/Bulletin.jsx'
 import { todayIso as todayIsoLocal } from '@core/clock.js'
-import { rentreeLabel, DemoLiveButton } from '../components/Summer.jsx'
+import { rentreeLabel } from '../components/Summer.jsx'
 import { unreadFor } from '@core/notify.js'
 import { needsSecurity, isNightEvent } from '@core/social.js'
 // place → shared icon system (subjects.jsx) — same visual family as the live map
@@ -48,7 +48,6 @@ export default function Dashboard(){
     // répartition de la dernière évaluation de la classe
     const ev=d.evaluations.find(e=>e.classId===cls.cls.id)
     const dist=[[t('Excellent'),LEVELS[0]],[t('Bien'),LEVELS[1]],[t('Moyen'),LEVELS[2]],[t('Insuffisant'),LEVELS[3]]]
-    const buckets=['excellent','good','average','weak']
     const distData=dist.map(([n,c],i)=>{ let v=0; if(ev) cls.students.forEach(s=>{ const sum=studentSummary(ev,s.id); if(sum.score!=null){ const k=sum.score>=85?0:sum.score>=60?1:sum.score>=40?2:3; if(k===i)v++ } }); return {name:n,value:v,color:c} })
     const hasDist=distData.some(x=>x.value>0)
     // « Mes évaluations » : celles de CET enseignant — la liste affichait toutes

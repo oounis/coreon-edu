@@ -4,12 +4,12 @@
 // Aucune exception tolérée. Ce parcours entre dans `npm run all` et la CI.
 import { chromium } from 'playwright-core'
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync, rmSync, existsSync, readFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join, extname, dirname, resolve, sep } from 'node:path'
+import { join, extname, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import http from 'node:http'
-import { findChrome } from './lib.mjs'
+import { findChrome, fichierServi } from './lib.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const MOBILE = join(HERE, '../mobile')
@@ -20,11 +20,9 @@ console.log('Export du bundle mobile (react-native-web)…')
 execFileSync('npx', ['expo', 'export', '--platform', 'web', '--output-dir', OUT], { cwd: MOBILE, stdio: 'ignore' })
 
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.ttf': 'font/ttf', '.woff2': 'font/woff2', '.png': 'image/png' }
-// CodeQL js/path-injection (2026-08-14) : mêmes trois lignes que e2e/lib.mjs.
-const dansOut = p => { const r = resolve(p); return r === OUT || r.startsWith(OUT + sep) }
+// CodeQL js/path-injection : même garde que e2e/lib.mjs (`fichierServi`).
 const server = http.createServer((req, res) => {
-  let p = join(OUT, req.url.split('?')[0])
-  if (req.url === '/' || !dansOut(p) || !existsSync(p)) p = join(OUT, 'index.html')
+  const p = fichierServi(OUT, req.url)
   res.writeHead(200, { 'content-type': MIME[extname(p)] || 'application/octet-stream' })
   res.end(readFileSync(p))
 }).listen(8975)

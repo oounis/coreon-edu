@@ -73,7 +73,7 @@ export default function App() {
         L'application n'a pas pu démarrer.
       </Text>
       <Text style={{ fontSize: 13, color: C.muted, textAlign: 'center' }}>
-        {String(bootError && (bootError.message || bootError))}
+        {String(bootError.message || bootError)}
       </Text>
     </View>
   )

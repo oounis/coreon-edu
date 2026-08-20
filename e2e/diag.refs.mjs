@@ -25,8 +25,8 @@ ok(/STD-[A-Z]{2}-[A-Z0-9]+-[A-Z0-9]+-20\d\d-\d{8}-\d/.test(refsText), 'les élè
 
 // la référence affichée est VALIDE (clé de contrôle cohérente) — vérifiée par le core
 const sample = (refsText.match(/STD-[A-Z]{2}-[A-Z0-9]+-[A-Z0-9]+-20\d\d-\d{8}-\d/) || [])[0]
-const valid = await page.evaluate(async (ref) => {
-  const m = await import('/assets/' + [...document.scripts].map(s=>s.src).join(' ').match(/index-[^./]+\.js/)?.[0] || '')
+await page.evaluate(async (ref) => {
+  await import('/assets/' + [...document.scripts].map(s=>s.src).join(' ').match(/index-[^./]+\.js/)?.[0] || '')
     .catch(() => null)
   return ref
 }, sample)

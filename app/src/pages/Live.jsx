@@ -10,7 +10,7 @@ import { studentSummary, mentionFor } from '@core/results.js'
 import RouteMap from '../components/RouteMapFlow.jsx'
 import { isoOf, now as appNow, isDemoLive, isWeekend, dayIndex } from '@core/clock.js'
 import { t } from '@core/i18n.js'
-import { rentreeLabel, DemoLiveButton } from '../components/Summer.jsx'
+import { rentreeLabel } from '../components/Summer.jsx'
 
 const stopLabel=s=> s.kind==='class'?(s.cell?.subject||'Étude') : s.kind==='cour'?'Récré' : s.kind==='cantine'?'Déjeuner' : 'Étude'
 

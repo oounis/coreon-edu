@@ -11,7 +11,7 @@ const ROLES = {
   'parent@alnour.tn/parent': ['/app','/app/live','/app/journal','/app/payments','/app/timetable','/app/events','/app/social','/app/accidents','/app/notices','/app/notifications'],
   'securite@alnour.tn/secu': ['/app','/app/security','/app/incidents','/app/pointage','/app/events','/app/social'],
 }
-await scenario(8971, async ({ page, ok, login, base }) => {
+await scenario(8971, async ({ page, ok, base }) => {
   const issues = []
   for (const [cred, routes] of Object.entries(ROLES)) {
     const [email, pw] = cred.split('/')
@@ -36,7 +36,6 @@ await scenario(8971, async ({ page, ok, login, base }) => {
       const boundary = []
       const c = m => { if (m.type() === 'error' && /\[boundary\]|is not defined|ReferenceError/.test(m.text())) boundary.push(m.text().slice(0, 90)) }
       page.on('console', c)
-      await page.goto(`${base}/#${r.slice(4) ? r : r}`.replace('/#/app','/#/app'))
       await page.goto(`${base}/#${r}`)
       // On ATTEND le contenu (jusqu'à 3 s) au lieu d'un sommeil fixe : le smoke
       // détecte une page CASSÉE/vide, pas une page lente (la perf a son parcours).

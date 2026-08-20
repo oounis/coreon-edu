@@ -55,38 +55,39 @@ const store = process.env.TURSO_DATABASE_URL
 let school = await store.read('school', null)          // { rev, blob }
 let auth = await store.read('auth', { users: [], sessions: {} })
 
-// CodeQL (2026-08-11) : `auth.sessions[token]` et `auth.resets[token]` utilisent
-// une chaîne venue du client comme clé d'objet. Un jeton nommé `constructor` ou
-// `__proto__` renvoyait alors une propriété HÉRITÉE, truthy — testé en
-// production : l'accès restait refusé (401/403), mais la vérification passait un
-// cran plus loin qu'elle n'aurait dû, et un `403` au lieu d'un `401` le montre.
-// On coupe la racine : ces tables n'héritent de rien.
-const bare = src => Object.assign(Object.create(null), src || {})
-auth.sessions = bare(auth.sessions)
-auth.resets = bare(auth.resets)
+// CodeQL (2026-08-11, puis 2026-08-20) : `auth.sessions[token]` et
+// `auth.resets[token]` utilisaient une chaîne venue du client comme clé d'objet.
+// Un jeton nommé `constructor` ou `__proto__` renvoyait alors une propriété
+// HÉRITÉE, truthy — testé en production : l'accès restait refusé (401/403), mais
+// la vérification passait un cran plus loin qu'elle n'aurait dû. Première parade :
+// `Object.create(null)`. CodeQL continuait de suivre la clé jusqu'à l'affectation
+// crochet ; on passe donc à des `Map` : aucune propriété héritée, aucune clé
+// spéciale, et `persistAuth` resérialise en objet — le format stocké ne change pas.
+const sessions = new Map(Object.entries(auth.sessions || {}))
+const resets = new Map(Object.entries(auth.resets || {}))
 if (!school) { console.error('Aucune école : lancez d\'abord  node server/import.mjs  (voir README)'); process.exit(1) }
 
 const persistSchool = () => store.write('school', school)
-const persistAuth = () => store.write('auth', auth)
+const persistAuth = () => store.write('auth', { ...auth, sessions: Object.fromEntries(sessions), resets: Object.fromEntries(resets) })
 
 // ── Sessions ──────────────────────────────────────────────────────────────────
 const openSession = userId => {
   const token = randomBytes(24).toString('hex')
-  auth.sessions[token] = { userId, exp: Date.now() + SESSION_TTL }
+  sessions.set(token, { userId, exp: Date.now() + SESSION_TTL })
   // ménage : les sessions mortes ne s'accumulent pas
-  for (const [t, s] of Object.entries(auth.sessions)) if (s.exp < Date.now()) delete auth.sessions[t]
+  for (const [t, s] of sessions) if (s.exp < Date.now()) sessions.delete(t)
   persistAuth()
   return token
 }
 const sessionUser = req => {
   const token = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '')
-  const s = auth.sessions[token]
+  const s = sessions.get(token)
   if (!s || s.exp < Date.now()) return null
   const u = (school.blob.users || []).find(u => u.id === s.userId) || null
   // Désactiver un compte doit couper l'accès TOUT DE SUITE — pas à l'expiration
   // du jeton (8 h plus tard). On vérifie `disabled` à CHAQUE requête, et on tue
   // la session au passage : la Direction ferme la porte, elle se ferme.
-  if (u && u.disabled) { delete auth.sessions[token]; persistAuth(); return null }
+  if (u && u.disabled) { sessions.delete(token); persistAuth(); return null }
   return u
 }
 
@@ -150,12 +151,11 @@ const ipOf = req => {
 //   · réinitialiser ferme toutes les sessions ouvertes du compte : si un
 //     intrus était déjà entré, le changement le met dehors
 const RESET_TTL = 60 * 60 * 1000
-auth.resets = auth.resets || Object.create(null)   // même raison qu'en haut : pas de prototype
 
 const openReset = userId => {
   const token = randomBytes(24).toString('hex')
-  auth.resets[token] = { userId, exp: Date.now() + RESET_TTL }
-  for (const [t, r] of Object.entries(auth.resets)) if (r.exp < Date.now()) delete auth.resets[t]
+  resets.set(token, { userId, exp: Date.now() + RESET_TTL })
+  for (const [t, r] of resets) if (r.exp < Date.now()) resets.delete(t)
   persistAuth()
   return token
 }
@@ -187,7 +187,13 @@ async function relayMail(to, subject, text) {
       body: JSON.stringify({ to, subject, text }),
     })
     return { ok: r.ok, via: r.ok ? 'sent' : 'relay-error' }
-  } catch (e) { return { ok: false, via: 'error', error: String(e?.message || e) } }
+  } catch (e) {
+    // Le détail reste côté serveur : `/api/mail` renvoie `r` tel quel au client,
+    // et un message d'exception (hôte, DNS, pile) n'a rien à faire dans un navigateur
+    // (CodeQL js/stack-trace-exposure, 2026-08-20).
+    console.error(`[mail relais] ${journalise(e?.message || e)}`)
+    return { ok: false, via: 'error' }
+  }
 }
 
 async function sendResetMail(to, token) {
@@ -250,7 +256,7 @@ export const server = http.createServer(async (req, res) => {
 
     if (url.pathname === '/api/logout' && req.method === 'POST') {
       const token = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '')
-      delete auth.sessions[token]; persistAuth()
+      sessions.delete(token); persistAuth()
       return send(res, 200, { ok: true }, origin)
     }
 
@@ -272,18 +278,19 @@ export const server = http.createServer(async (req, res) => {
     if (url.pathname === '/api/reset' && req.method === 'POST') {
       if (!resetAllowed(ipOf(req))) return send(res, 429, { error: 'Trop de tentatives. Réessayez plus tard.' }, origin)
       const { token, pw } = await readBody(req)
-      const rec = auth.resets[String(token || '')]
+      const key = String(token || '')
+      const rec = resets.get(key)
       if (!rec || rec.exp < Date.now()) {
-        delete auth.resets[String(token || '')]; persistAuth()
+        resets.delete(key); persistAuth()
         return send(res, 400, { error: 'Ce lien a expiré ou a déjà servi. Demandez-en un nouveau.' }, origin)
       }
       if (String(pw || '').length < 8) return send(res, 400, { error: 'Le mot de passe doit faire au moins 8 caractères.' }, origin)
       const cred = auth.users.find(u => u.id === rec.userId)
-      if (!cred) { delete auth.resets[token]; persistAuth(); return send(res, 400, { error: 'Compte introuvable.' }, origin) }
+      if (!cred) { resets.delete(key); persistAuth(); return send(res, 400, { error: 'Compte introuvable.' }, origin) }
       cred.hash = hashPw(pw)
-      delete auth.resets[token]
+      resets.delete(key)
       // toutes les sessions du compte tombent : un intrus éventuel est éjecté
-      for (const [t, s] of Object.entries(auth.sessions)) if (s.userId === rec.userId) delete auth.sessions[t]
+      for (const [t, s] of sessions) if (s.userId === rec.userId) sessions.delete(t)
       persistAuth()
       return send(res, 200, { ok: true }, origin)
     }

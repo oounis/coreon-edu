@@ -37,7 +37,7 @@ await store.backup()
 
 const users = (blob.users || []).filter(u => u.email)
 const authUsers = users.map(u => ({ id: u.id, email: u.email, hash: hashPw(u.pw || Math.random().toString(36)) }))
-blob.users = (blob.users || []).map(({ pw, ...u }) => u)
+blob.users = (blob.users || []).map(({ pw: _pw, ...u }) => u)
 
 // Attendues : ce script CLI quitte juste après — Turso doit avoir confirmé
 // l'écriture avant que le process ne meure (le fichier local, lui, écrit déjà

@@ -77,7 +77,7 @@ function StationNode({ data }){
 }
 const nodeTypes = { station: StationNode }
 
-export default function RouteMapFlow({ stops, curIndex, done=0, remain, name='', seed, showStudent=true, plain=false }){
+export default function RouteMapFlow({ stops, curIndex, name='', seed, showStudent=true, plain=false }){
   const COLS=4, COLW=214, ROWH=182
   const curColor=COLOR[stops[curIndex]?.kind]||COLOR.class
   const P = useMemo(()=> stops.map((_,i)=>{ const row=Math.floor(i/COLS), inRow=i%COLS, col=row%2===0?inRow:(COLS-1-inRow); return {x:col*COLW, y:row*ROWH} }),[stops.length])

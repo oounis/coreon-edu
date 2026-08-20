@@ -24,7 +24,6 @@ export default function Schools(){
   const totalStudents=schools.filter(s=>s.status!=='suspended').reduce((n,s)=>n+count(s),0)
   const mrr=schools.filter(s=>s.status==='active').reduce((n,s)=>n+s.price,0)
   const trials=schools.filter(s=>s.status==='trial').length
-  const sadmin=d.users.find(u=>u.role==='schooladmin')
   // Chaque tuile s'ouvre : derrière le chiffre, les écoles concernées.
   const [tile,setTile]=useState(null) // schools | students | mrr | trials
   const [tech,setTech]=useState(null)  // école dont on ouvre la fiche technique

@@ -19,7 +19,7 @@
 //     trace), mais l'historique d'un enfant ne se réécrit pas en silence.
 // ════════════════════════════════════════════════════════════════════════════
 import { db, mutate, uid, studentById } from './db.js'
-import { now, nowMs, ms } from './clock.js'
+import { nowMs, ms } from './clock.js'
 import { notify } from './notify.js'
 
 // Les catégories. `points` est indicatif (un repère de valorisation), PAS une

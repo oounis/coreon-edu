@@ -18,7 +18,7 @@
 //  On ne diffuse jamais l'image d'un enfant « par défaut ».
 // ════════════════════════════════════════════════════════════════════════════
 import { db, mutate, uid, studentById } from './db.js'
-import { now, nowMs, ms } from './clock.js'
+import { nowMs, ms } from './clock.js'
 import { notify } from './notify.js'
 
 export const moments = () => db().moments || []
