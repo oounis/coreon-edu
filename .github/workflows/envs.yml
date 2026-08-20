@@ -1,12 +1,39 @@
 # ════════════════════════════════════════════════════════════════════════════
 # LES ENVIRONNEMENTS — dev & int (CR-031, déclenché par la « version finale »).
 #
-# Règle de flux : dev → int → main(prod), jamais de saut.
-#   · dev  → dev.edu.kogiagroup.com  (Cloudflare Pages, coreon-edu-dev)
-#            chaîne RAPIDE : tests cœur + serveur, build, smoke navigateur.
-#   · int  → int.edu.kogiagroup.com  (Cloudflare Pages, coreon-edu-int)
-#            chaîne COMPLÈTE : la même que la production (tous les parcours).
-#   · main → edu.kogiagroup.com      (GitHub Pages, deploy.yml — inchangé).
+# RÈGLE DE FLUX — révisée le 2026-08-20, lisez-la avant d'ouvrir une PR.
+#
+# L'ancienne règle écrite ici était « dev → int → main, jamais de saut ». Elle
+# n'a jamais été suivie : au 2026-08-20, `dev` et `int` étaient 19 commits
+# DERRIÈRE `main` et 0 devant — mortes depuis le 2026-08-06, pendant que tout
+# passait directement par `main`. Une règle que personne n'applique est pire
+# qu'une règle absente : la PR #24 (correctifs de sécurité) a été ouverte
+# contre `dev` en croyant bien faire, et y est restée bloquée à l'écart de la
+# production. C'est le contraire du but recherché.
+#
+# La règle réelle, désormais assumée et écrite :
+#
+#   · main → edu.kogiagroup.com      LA PRODUCTION, et la CIBLE DES PR.
+#            Toute PR se fait contre `main`. Elle est protégée par deploy.yml,
+#            qui fait tourner la chaîne COMPLÈTE sur chaque PR — rien n'entre
+#            sans être prouvé. C'est cette chaîne qui protège la prod, pas un
+#            enchaînement de branches que personne ne promeut.
+#
+#   · dev  → dev.edu.kogiagroup.com  APERÇU À LA DEMANDE, chaîne RAPIDE
+#            (tests cœur + serveur, build, smoke navigateur).
+#   · int  → int.edu.kogiagroup.com  APERÇU À LA DEMANDE, chaîne COMPLÈTE
+#            (la même que la production, tous les parcours).
+#
+# `dev` et `int` ne sont PAS des étapes obligatoires. Ce sont deux vitrines
+# qu'on alimente quand on veut voir tourner quelque chose sur une vraie URL
+# avant de le proposer — une maquette à montrer, un doute à lever sur mobile,
+# une migration à observer. On y pousse à la demande :
+#
+#     git push origin main:dev      # ou  ma-branche:dev
+#     git push origin main:int
+#
+# Elles sont réalignées sur `main` après chaque fusion pour qu'elles ne
+# redeviennent pas les branches mortes du 2026-08-06.
 #
 # Le déploiement Cloudflare passe par wrangler avec les secrets
 # CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID (réglés le 2026-07-25).
