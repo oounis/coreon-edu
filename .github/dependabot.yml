@@ -13,7 +13,13 @@ updates:
     schedule: { interval: monthly }
     open-pull-requests-limit: 3
     groups:
-      tout: { patterns: ['*'] }
+      # `exclude-patterns` et pas seulement `ignore` : le 2026-08-14 la PR
+      # groupée #29 a remonté expo 54 → 57 alors que `ignore` listait déjà
+      # expo. La liste `ignore` ne filtre que les PR DÉDIÉES — elle ne retire
+      # PAS un paquet d'un groupe `patterns: ['*']`. Il faut les deux.
+      tout:
+        patterns: ['*']
+        exclude-patterns: ['expo', 'react', 'react-native']
     # ⚠️ Le 2026-07-11, le SDK a été RÉTROGRADÉ 57 → 54 délibérément : l'App
     # Store ne propose qu'Expo Go SDK 54, et en 57 l'application était
     # INTESTABLE sur l'iPhone d'Othman. Le 2026-08-09, une PR groupée l'a
