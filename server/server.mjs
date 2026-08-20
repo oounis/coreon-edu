@@ -85,10 +85,11 @@ const sessionUser = req => {
   if (!s || s.exp < Date.now()) return null
   const u = (school.blob.users || []).find(u => u.id === s.userId) || null
   // Désactiver un compte doit couper l'accès TOUT DE SUITE — pas à l'expiration
-  // du jeton (8 h plus tard). On vérifie `disabled` à CHAQUE requête, et on tue
-  // la session au passage : la Direction ferme la porte, elle se ferme.
-  if (u && u.disabled) { sessions.delete(token); persistAuth(); return null }
-  return u
+  // du jeton (8 h plus tard). On vérifie `disabled` à CHAQUE requête : la
+  // Direction ferme la porte, elle se ferme. Le jeton mort tombe au ménage TTL
+  // de `openSession` — aucune écriture disque sur le chemin de LECTURE, qui ne
+  // dépend que d'un en-tête client (CodeQL js/user-controlled-bypass, 2026-08-20).
+  return u && !u.disabled ? u : null
 }
 
 // ── Le cœur tourne SUR le blob du serveur (opérations nommées) ────────────────
@@ -173,7 +174,11 @@ const SUPPORT = process.env.COREON_SUPPORT || 'support@kogiagroup.com'
 // ce nettoyage, un e-mail contenant \r\n forgerait de fausses lignes dans les
 // journaux du serveur — le seul canal de secours quand MAIL_RELAY n'est pas
 // configuré.
-const journalise = v => String(v).replace(/[\r\n\t]/g, ' ')
+// Une valeur client dans un journal : sans retour à la ligne (pas de fausse
+// ligne de log) ET entre guillemets JSON (les caractères de contrôle restent
+// visibles en `\uXXXX`). CodeQL js/log-injection reconnaît JSON.stringify
+// comme assainisseur ; le seul `replace` ne l'était pas (2026-08-20).
+const journalise = v => JSON.stringify(String(v).replace(/[\r\n\t]/g, ' '))
 
 // Le relais unique : tout e-mail du serveur passe par ici. COREON_MAIL_TOKEN
 // doit être le SERVER_TOKEN du worker (voie serveur, distincte du jeton du
