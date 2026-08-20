@@ -44,10 +44,22 @@ updates:
     # l'a vu pendant deux jours. Ces trois paquets sont contraints par une
     # plateforme externe, pas par notre code : ils se changent à la main, avec
     # une raison écrite.
+    # Cette liste doit rester le MIROIR de `exclude-patterns` ci-dessus. Preuve
+    # au 2026-08-20 : `exclude-patterns` a été élargi sans toucher à `ignore`,
+    # et dependabot a aussitôt ouvert des PR DÉDIÉES pour les paquets qu'il ne
+    # pouvait plus grouper — #35 remontait `eslint-config-expo` 10 → 57, #36
+    # `react-native-safe-area-context`. Sortir du groupe sans ignorer, c'est
+    # déplacer le problème, pas le fermer. Les deux listes, même couverture.
     ignore:
-      - dependency-name: expo
-      - dependency-name: react-native
-      - dependency-name: react
+      - dependency-name: 'expo'
+      - dependency-name: 'expo-*'
+      - dependency-name: '@expo/*'
+      - dependency-name: 'eslint-config-expo'
+      - dependency-name: 'react'
+      - dependency-name: 'react-dom'
+      - dependency-name: 'react-native'
+      - dependency-name: 'react-native-*'
+      - dependency-name: '@react-native-*'
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: monthly }
