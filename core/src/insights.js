@@ -20,7 +20,7 @@
 import { db, attParts } from './db.js'
 import { t } from './i18n.js'
 import { traitOf } from './behavior.js'
-import { now, nowMs, ms } from './clock.js'
+import { nowMs, ms } from './clock.js'
 
 const DAY = 86400000
 

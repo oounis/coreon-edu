@@ -49,7 +49,7 @@ await page.locator('button:has-text("Enregistrer")').first().click(); await page
 // un nouvel élève reçoit une référence au code pays LY
 await page.goto(`${B}/#/app/students`); await page.waitForTimeout(700)
 // (les élèves existants gardent TN ; on vérifie juste que le code pays actif est LY)
-const code = await page.evaluate(async () => (await import('/assets/' + ([...document.querySelectorAll('script')].map(s=>s.src).find(x=>/index-/.test(x))||'').split('/').pop())).countryCode?.() )
+await page.evaluate(async () => (await import('/assets/' + ([...document.querySelectorAll('script')].map(s=>s.src).find(x=>/index-/.test(x))||'').split('/').pop())).countryCode?.() )
   .catch(() => null)
 ok(true, 'pays actif appliqué (Libye) — les nouveaux dossiers porteront STD-LY-…')
 

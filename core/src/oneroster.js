@@ -211,7 +211,6 @@ export function enrollments() {
   const out = []
   for (const cls of classesOR()) {
     const baseClassId = cls.classCode.split('-')[0]   // ASCII, donc stable
-    const subject = cls.subjects
 
     // Les élèves du groupe.
     for (const s of (d.students || []).filter(x => x.classId === baseClassId && !x.archived)) {

@@ -16,7 +16,6 @@
 // Ce que cet écran écrit : settings.levels → core/src/levels.js → tout le reste.
 // ════════════════════════════════════════════════════════════════════════════
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { settings, saveSettings, purgeDemoData } from '@core/db.js'
 import { current } from '@core/auth.js'
 import { LEVELS, EARLY_YEARS, PRIMARY } from '@core/levels.js'
@@ -48,7 +47,6 @@ const SHAPES = [
 ]
 
 export default function Setup() {
-  const nav = useNavigate()
   const s = settings()
   const isOwner = current()?.role === 'owner'
   const [shape, setShape] = useState(null)

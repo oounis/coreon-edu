@@ -9,7 +9,7 @@ import { settings } from '@core/db.js'
 import {
   FEE_KINDS, DISCOUNT_KINDS, INVOICE_STAGES, METHODS,
   feesOf, setFees, discountsOf, grantDiscount, revokeDiscount,
-  dueFor, invoices, issueInvoice, cancelInvoice, collect, receipts,
+  dueFor, invoices, issueInvoice, cancelInvoice, collect,
   financials, money, currency
 } from '@core/accounting.js'
 import {

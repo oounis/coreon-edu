@@ -49,7 +49,7 @@ const FRENCH_WORDS = [
 // son nom (« École Al-Nour »), sa ville, les intitulés de poste et les types de
 // contrat saisis dans la base. Traduire une donnée serait un défaut, pas une
 // correction : le nom d'une école ne change pas parce qu'on lit en arabe.
-const ALLOWED = /Coreon|Kogia|OneRoster|Clever|Wonde|CSV|PDF|Français|English|École Al-Nour|Al-Nour|Tunis|Éducatrice|Instituteur|Institutrice|Directrice|Directeur|Surveillant[e]?|Comptable|CDI|CDD|Ben Salah|Karoui|Belhadj|Morjane|Brahmi|Ben Amor|Ounis|El Amel|[0-9]+ème [A-Z]|Mathématiques|Merci ! Une question[^.]*\\.|Bienvenue sur Coreon Edu[^!]*!|Réunion parents[^0-9]*[0-9/]*|A aidé un camarade[^\\u00AB\\u00BB]*|Amira a lu son premier texte[^!]*!|Karim avait mal à la t[^.]*\\.|Élève malade|Atelier peinture[^!]*!|il y a [0-9]+ h|nouvelle annonce|[0-9]+ère [A-Z]/gi
+const ALLOWED = /Coreon|Kogia|OneRoster|Clever|Wonde|CSV|PDF|Français|English|École Al-Nour|Al-Nour|Tunis|Éducatrice|Instituteur|Institutrice|Directrice|Directeur|Surveillant[e]?|Comptable|CDI|CDD|Ben Salah|Karoui|Belhadj|Morjane|Brahmi|Ben Amor|Ounis|El Amel|[0-9]+ème [A-Z]|Mathématiques|Merci ! Une question[^.]*\.|Bienvenue sur Coreon Edu[^!]*!|Réunion parents[^0-9]*[0-9/]*|A aidé un camarade[^«»]*|Amira a lu son premier texte[^!]*!|Karim avait mal à la t[^.]*\.|Élève malade|Atelier peinture[^!]*!|il y a [0-9]+ h|nouvelle annonce|[0-9]+ère [A-Z]/gi
 
 // Les pages métier, avec le rôle qui y a droit.
 const PAGES = [

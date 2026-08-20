@@ -21,7 +21,7 @@
 // par un club qui paie. Les créneaux scolaires sont bloqués d'office.
 // ════════════════════════════════════════════════════════════════════════════
 import { db, save } from './db.js'
-import { now, todayIso, nowMs, ms } from './clock.js'
+import { todayIso, nowMs } from './clock.js'
 
 export const FACILITY_KINDS = {
   piscine:     { key: 'piscine',     label: 'Piscine',       icon: 'Waves' },

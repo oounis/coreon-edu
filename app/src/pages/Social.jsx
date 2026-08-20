@@ -14,10 +14,10 @@ import {
   SPACES, spaceOfRole, seesAllSpaces, CATEGORIES_OF, AUDIENCES_OF, defaultAudience, ideasFor,
   audienceOf, kidsOf, needsReason, earliestDate, rsvpDeadline, deadlinePassed,
   goingCount, adultCount, childCount, maybeList, waitlist, seatsLeft, isFull,
-  hasJoined, participantOf, quorumReached, missingForQuorum, joinBlockedReason,
+  hasJoined, participantOf, missingForQuorum, joinBlockedReason,
   amountFor, consentStale, promoteFromWaitlist, isLateWithdrawal, facilityClash,
-  joinButtonLabel, sweep, isLive, isDead, isPending, canDecide, awaitingRole, belongsToSpace,
-  needsSecurity, securityNeeds, securityNotice, isNightEvent,
+  joinButtonLabel, sweep, isLive, isDead, isPending, canDecide, belongsToSpace,
+  needsSecurity, securityNeeds, securityNotice,
 } from '@core/social.js'
 import { now as appNow } from '@core/clock.js'
 import { format, formatDistanceToNowStrict, parseISO } from 'date-fns'
@@ -37,7 +37,6 @@ const BLANK = (space = 'parent') => ({
 
 export default function Social() {
   const u = current()
-  const isParent = u.role === 'parent'
   const canPropose = u.role !== 'owner'   // chacun propose dans SON espace
   const isDirection = ['schooladmin', 'admin'].includes(u.role)
   const [, force] = useState(0); const refresh = () => force(x => x + 1)
@@ -321,7 +320,6 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
   const me = participantOf(ev, u.id)
   const mine = ev.by === u.id
   const blocked = joinBlockedReason(ev, u)
-  const total = goingCount(ev)
   const need = missingForQuorum(ev)
   const left = seatsLeft(ev)
   const stale = me && consentStale(ev, me)
@@ -566,7 +564,7 @@ function JoinModal({ ev, u, onClose, onConfirm }) {
 }
 
 /* ── Décision de la Direction ─────────────────────────────────────────────── */
-function DecideModal({ ev, clash, onClose, onSettle, role }) {
+function DecideModal({ ev, clash, onClose, onSettle }) {
   const [note, setNote] = useState('')
   const aud = audienceOf(ev.audience)
   const isFinal = ev.status === 'vise'   // la Direction tranche ; l'Administration ne fait que viser

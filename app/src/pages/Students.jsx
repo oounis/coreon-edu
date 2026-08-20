@@ -1,22 +1,20 @@
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { current } from '@core/auth.js'
-import { db, mutate, uid, classById, userById, CYCLES, studentsOfClass, setStudentParent, assignRef, settings } from '@core/db.js'
-import { PageHead, Avatar, Btn, Modal, Field, Input, Select, Section, SearchInput, EmptyState, Card } from '../components/ui.jsx'
+import { db, mutate, uid, CYCLES, setStudentParent, assignRef, settings } from '@core/db.js'
+import { PageHead, Avatar, Btn, Modal, Field, Input, Select, Section } from '../components/ui.jsx'
 import { regionsOf, regionLabel, DOC_TYPES, LEGAL } from '@core/tunisia.js'
 import { schoolLevels, labelOf } from '@core/levels.js'
 import Attach from '../components/Attach.jsx'
 import DataTable from '../components/DataTable.jsx'
 import { UserPlus, ShieldCheck } from 'lucide-react'
 import { attParts } from '@core/db.js'
-import { Badge, STATUS } from '../components/ui.jsx'
+import { STATUS } from '../components/ui.jsx'
 import toast from 'react-hot-toast'
 import { notify } from '@core/notify.js'
 import { t } from '@core/i18n.js'
 const BLANK={name:'',gender:'Garçon',dob:'',bloodGroup:'',nationality:'',grade:'',section:'A',rollNo:'',admissionDate:'',prevSchool:'',fatherName:'',motherName:'',guardianPhone:'',parentId:'',address:'',phone:'',email:'',medical:'Aucune',allergies:'Aucune',emergencyName:'',emergencyPhone:'',cin:'',governorate:'',attachments:[],consent:false}
 const cycleOf=g=>CYCLES.find(c=>c.grades.includes(g))?.cycle||'Primaire'
-import { BRAND } from '@core/tokens.js'
-const CYCLE_COLOR={Primaire:BRAND.indigo}
 
 export default function Students(){
   const u=current(); const canEdit=['schooladmin','admin'].includes(u.role)

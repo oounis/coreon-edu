@@ -100,7 +100,14 @@ export function resetPassword(id) {
   const u = (d.users || []).find(x => x.id === id)
   if (!u) return { error: 'Compte introuvable.' }
   if (u.role === 'owner') return { error: 'Le compte plateforme ne se gère pas depuis l\'école.' }
-  const tmp = Math.random().toString(36).slice(2, 8)
+  // Mot de passe TEMPORAIRE : tiré de WebCrypto, jamais de Math.random() — qui
+  // est prévisible (CodeQL js/insecure-randomness, 2026-08-20). Sans source sûre
+  // on REFUSE plutôt que de livrer un mot de passe devinable. Alphabet de 32
+  // signes sans l/o/0/1 (lisible dicté au téléphone), 8 signes = 40 bits.
+  const c = globalThis.crypto
+  if (!c || typeof c.getRandomValues !== 'function') return { error: 'Aucune source aléatoire sûre sur cet appareil : réinitialisez depuis un autre poste.' }
+  const octets = new Uint8Array(8); c.getRandomValues(octets)
+  const tmp = Array.from(octets, b => 'abcdefghijkmnpqrstuvwxyz23456789'[b % 32]).join('')
   mutate(db => { const x = db.users.find(y => y.id === id); if (x) x.pw = tmp })
   // Le mot de passe temporaire n'entre PAS au journal : il y resterait lisible.
   auditWrite('compte', { id, name: u.name, detail: DETAILS.motDePasse })

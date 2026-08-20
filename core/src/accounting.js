@@ -24,8 +24,8 @@
 //     produit — on ne la casse pas ici.)
 // ════════════════════════════════════════════════════════════════════════════
 import { db, save } from './db.js'
-import { currency, money, roundMoney } from './currency.js'
-import { now, todayIso, nowMs, ms } from './clock.js'
+import { money, roundMoney } from './currency.js'
+import { todayIso, nowMs } from './clock.js'
 import { labelOf } from './levels.js'
 
 // ── Le barème : ce que coûte une année, par niveau ──────────────────────────

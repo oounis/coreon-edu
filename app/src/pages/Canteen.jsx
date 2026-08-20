@@ -10,11 +10,11 @@ import { useState } from 'react'
 import { current } from '@core/auth.js'
 import { db, studentById, studentsOfClass } from '@core/db.js'
 import {
-  DAYS, ALLERGEN_LIST, allergenOf, dishesOf, setDay, atRiskForDay, allergensOfDay,
-  isSubscribed, toggleSubscriber, subscribers, weekForChild, summary,
+  DAYS, ALLERGEN_LIST, allergenOf, dishesOf, setDay, atRiskForDay,
+  isSubscribed, toggleSubscriber, weekForChild, summary,
 } from '@core/canteen.js'
 import { t } from '@core/i18n.js'
-import { PageHead, Card, Btn, Avatar, EmptyState, STATUS, Modal, Field, Input } from '../components/ui.jsx'
+import { PageHead, Card, Btn, Avatar, EmptyState, STATUS, Modal, Input } from '../components/ui.jsx'
 import { Ic } from '../icons.jsx'
 import { AlertTriangle, UtensilsCrossed, Plus, X, ShieldCheck } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -26,7 +26,7 @@ export default function Canteen() {
 }
 
 // ── Direction / enseignant : le menu + l'alerte allergie ────────────────────
-function StaffCanteen({ u }) {
+function StaffCanteen() {
   const [, force] = useState(0); const refresh = () => force(x => x + 1)
   const [editDay, setEditDay] = useState(null)
   const [manageSubs, setManageSubs] = useState(false)

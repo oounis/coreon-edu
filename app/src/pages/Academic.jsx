@@ -7,7 +7,7 @@ import { current } from '@core/auth.js'
 import { db } from '@core/db.js'
 import {
   TERMS, ACQUIS, DOMAINS, MARK_MAX, PASS_MARK, DECISIONS, SUBJECTS,
-  reportOf, saveReport, average, yearAverage,
+  reportOf, saveReport, average,
   previewPromotion, runPromotion, promotions,
   archivedStudents, labelOf, isEarly,
   classGrid, saveClassReports, rowAverage, columnAverage,

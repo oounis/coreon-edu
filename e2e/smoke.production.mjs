@@ -69,7 +69,6 @@ ok('AUTH+', await page.locator('a:has-text("Mot de passe oublié")').count() > 0
 console.log('── B. CRUD données ──')
 await login('direction@alnour.tn', 'admin')
 await page.goto(`${B}/#/app/students`); await page.waitForTimeout(900)
-const before = await page.locator('table tbody tr').count()
 // CREATE : ouvrir le formulaire, saisir, enregistrer
 await page.locator('button:has-text("Inscrire un élève"), button:has-text("Inscrire")').first().click().catch(()=>{})
 await page.waitForTimeout(600)

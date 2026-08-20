@@ -20,7 +20,7 @@
 // une place se libère, la liste d'attente avance. C'est comme ça dans la vraie vie.
 // ════════════════════════════════════════════════════════════════════════════
 import { db, save, classById, assignRef, FEE_MONTHS } from './db.js'
-import { now, todayIso, nowMs, ms } from './clock.js'
+import { now, todayIso, nowMs } from './clock.js'
 import { levelOf, labelOf } from './levels.js'
 import { notify } from './notify.js'
 import { applicantEmail, emailsApplicant } from './admissions-mail.js'

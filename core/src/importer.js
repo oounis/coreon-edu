@@ -233,7 +233,7 @@ export function applyPlan(targetKey, plan, { byId = '', byName = '', file = '' }
 
   let created = 0, updated = 0, credentials = []
   const importId = uid('imp')
-  const d = mutate(d => {
+  mutate(d => {
     d.imports = d.imports || []
     for (const row of plan.rows) {
       if (row.action !== 'create' && row.action !== 'update') continue

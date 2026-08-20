@@ -6,7 +6,7 @@ import { dateLocale, t } from '@core/i18n.js'
 import { current } from '@core/auth.js'
 import { db } from '@core/db.js'
 import { idLabelFor } from '@core/locales.js'
-import { isEarly, labelOf } from '@core/levels.js'
+import { isEarly } from '@core/levels.js'
 import {
   VACCINES, RELATIONS, MILESTONES,
   healthOf, saveHealth, vaccineStatus,

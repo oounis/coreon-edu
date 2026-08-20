@@ -14,7 +14,7 @@
 // Pas une note sur 20.
 // ════════════════════════════════════════════════════════════════════════════
 import { db, save } from './db.js'
-import { todayIso, now, nowMs, ms } from './clock.js'
+import { todayIso, nowMs, ms } from './clock.js'
 
 /** Les repas. `ate` : ce que l'enfant a RÉELLEMENT mangé — pas ce qui a été servi. */
 export const MEALS = [

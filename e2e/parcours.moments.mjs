@@ -31,7 +31,6 @@ await scenario(8953, async ({ page, ok, login, base }) => {
   const t1 = await page.locator('body').innerText()
   ok(t1.includes('Test: belle journée au parc.') || t1.includes('Amira'), 'le parent d\'Amira voit le moment')
   // like it
-  const heart = page.locator('button:has(svg)').filter({ hasText: '' })
   ok((await page.locator('img').count()) >= 1, 'parent voit des photos')
 
   // 3. A DIFFERENT parent (p3, child Leila s3, class c5a) — should NOT see Amira-tagged photo

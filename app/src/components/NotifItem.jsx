@@ -1,4 +1,4 @@
-import { FileText, ShieldAlert, CreditCard, Megaphone, MessageSquare, Star, Bell, CalendarCheck } from 'lucide-react'
+import { FileText, ShieldAlert, CreditCard, Megaphone, MessageSquare, Star, CalendarCheck } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { df } from '../datefns.js'
 import { Avatar, STATUS } from './ui.jsx'

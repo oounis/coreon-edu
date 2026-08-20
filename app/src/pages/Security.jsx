@@ -9,8 +9,8 @@ import {
   Avatar, Tabs, EmptyState, Badge, STATUS,
 } from '../components/ui.jsx'
 import {
-  ShieldCheck, DoorOpen, Flashlight, BookOpen, Siren, Clock, MapPin, LogIn, LogOut,
-  Plus, Check, AlertTriangle, Phone, UserCheck, KeyRound, CalendarClock, Users,
+  ShieldCheck, DoorOpen, Flashlight, BookOpen, Clock, MapPin, LogIn, LogOut,
+  Plus, Check, AlertTriangle, Phone, UserCheck, CalendarClock, Users,
 } from 'lucide-react'
 import {
   URGENCES, CONSIGNES, CHECKPOINTS, checkpointOf, LOG_KINDS, logKindOf,
@@ -20,9 +20,9 @@ import {
 import { pack } from '@core/locales.js'
 import {
   securityNeeds, needsSecurity, isNightEvent, securityNotice, SECURITY_NOTICE_H,
-  adultCount, childCount, goingCount, audienceOf,
+  adultCount, childCount,
 } from '@core/social.js'
-import { now as appNow, todayIso, isoOf } from '@core/clock.js'
+import { now as appNow, todayIso } from '@core/clock.js'
 import { format, parseISO } from 'date-fns'
 import { df } from '../datefns.js'
 import toast from 'react-hot-toast'
@@ -125,7 +125,7 @@ export default function Security() {
 }
 
 /* ── 1) Les événements à couvrir + la check-list ─────────────────────────── */
-function EventsTab({ u, d, toCover, refresh }) {
+function EventsTab({ u, toCover, refresh }) {
   const [open, setOpen] = useState(null)
   if (!toCover.length) return <Card><EmptyState icon={<ShieldCheck size={26} />} title={t('Aucun événement à couvrir')}
     sub={t('Les activités approuvées qui demandent une présence de sécurité apparaîtront ici, dès leur validation par la Direction.')} /></Card>

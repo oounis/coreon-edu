@@ -10,7 +10,6 @@ import {
   book, bookRecurring, confirmBooking, payBooking, cancelBooking,
   revenue, money, todayStr,
 } from '@core/facilities.js'
-import { METHODS } from '@core/accounting.js'
 import {
   PageHead, Card, Btn, Badge, Modal, Field, Input, Select, Tabs, EmptyState, STATUS,
 } from '../components/ui.jsx'

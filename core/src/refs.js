@@ -155,15 +155,44 @@ export function nextRef(type, existing, ctx) {
 // ── UUID (troisième identifiant : API, sync mobile, hors-ligne, intégrations) ─
 // La clé technique (BIGINT) reste interne ; l'UUID est l'identifiant STABLE
 // exposé aux API et à la synchronisation, jamais montré à l'utilisateur.
+// Repli sans WebCrypto (vieux RN) : un xorshift32 semé à l'horloge (ms + fraction
+// de performance.now) au premier appel. Deux appareils ne partagent un flux que
+// s'ils chargent le module à la même microseconde — même garantie d'UNICITÉ que
+// l'ancien Math.random(), sans en être un. Ce n'est PAS secret : jamais utilisé
+// pour un mot de passe ou un jeton (ceux-là exigent crypto et échouent sinon).
+let etatRepli = 0
+const motRepli = () => {
+  if (!etatRepli) {
+    const p = globalThis.performance && typeof performance.now === 'function' ? performance.now() : 0
+    etatRepli = ((Date.now() ^ Math.floor(p * 1e6)) >>> 0) || 0x9e3779b9
+  }
+  etatRepli ^= etatRepli << 13; etatRepli >>>= 0
+  etatRepli ^= etatRepli >>> 17
+  etatRepli ^= etatRepli << 5; etatRepli >>>= 0
+  return etatRepli
+}
+/** `n` octets aléatoires en hexadécimal, via WebCrypto (navigateur, Node, Hermes
+ *  récent), sinon le repli ci-dessus. CodeQL js/insecure-randomness (2026-08-20) :
+ *  Math.random() ne sert plus à forger un identifiant. */
+export function randomHex(n = 8) {
+  const c = globalThis.crypto
+  if (c && typeof c.getRandomValues === 'function') {
+    const a = new Uint8Array(n); c.getRandomValues(a)
+    return Array.from(a, b => b.toString(16).padStart(2, '0')).join('')
+  }
+  let s = ''
+  while (s.length < 2 * n) s += motRepli().toString(16).padStart(8, '0')
+  return s.slice(0, 2 * n)
+}
+
 export function uuid() {
-  try { if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID() } catch { /* fallback */ }
-  // Repli déterministe en format v4 quand crypto.randomUUID manque (RN ancien).
-  let t = Date.now()
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-    const r = (t + Math.random() * 16) % 16 | 0
-    t = Math.floor(t / 16)
-    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
-  })
+  const c = globalThis.crypto
+  if (c && typeof c.randomUUID === 'function') return c.randomUUID()
+  // Repli en FORME v4 quand crypto.randomUUID manque (RN ancien).
+  const h = randomHex(16).split('')
+  h[12] = '4'; h[16] = '89ab'[parseInt(h[16], 16) & 3]
+  const s = h.join('')
+  return `${s.slice(0, 8)}-${s.slice(8, 12)}-${s.slice(12, 16)}-${s.slice(16, 20)}-${s.slice(20)}`
 }
 
 // ── QR ────────────────────────────────────────────────────────────────────────

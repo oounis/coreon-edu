@@ -13,14 +13,20 @@
 import { chromium } from 'playwright-core'
 import http from 'node:http'
 import { readFileSync, existsSync, readdirSync } from 'node:fs'
-import { join, extname, resolve, sep } from 'node:path'
+import { join, extname, resolve, normalize, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const DIST = fileURLToPath(new URL('../app/dist', import.meta.url))
-// CodeQL js/path-injection (2026-08-14) : req.url pilotait directement le chemin
-// lu sur disque. Serveur local, usage E2E seulement — mais confiner au dossier
-// servi coûte trois lignes et ferme le traversal (`..%2f..`, etc.) proprement.
-const dansDist = p => { const r = resolve(p); return r === DIST || r.startsWith(DIST + sep) }
+// CodeQL js/path-injection (2026-08-14, 2026-08-20) : req.url pilotait directement
+// le chemin lu sur disque. Serveur local, usage E2E seulement — mais confiner au
+// dossier servi ferme le traversal (`..%2f..`, etc.). La garde est ÉCRITE EN LIGNE
+// (normalize → resolve → startsWith) : c'est la forme que l'analyse reconnaît,
+// une fonction intermédiaire ne suffisait pas.
+/** Le fichier demandé s'il est bien SOUS `root` et existe, sinon `root/index.html`. */
+export function fichierServi(root, rawUrl) {
+  const candidat = resolve(root, '.' + normalize('/' + String(rawUrl || '/').split('?')[0]))
+  return candidat.startsWith(root + sep) && existsSync(candidat) ? candidat : join(root, 'index.html')
+}
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.woff2': 'font/woff2' }
 
 /** Trouver un Chromium : $CHROME_PATH, sinon le cache Playwright, sinon le système. */
@@ -43,8 +49,7 @@ export function findChrome() {
 export function serveDist(port) {
   if (!existsSync(join(DIST, 'index.html'))) throw new Error('app/dist est vide — lancez d’abord :  npm run build --prefix ../app')
   return http.createServer((req, res) => {
-    let p = join(DIST, req.url.split('?')[0])
-    if (req.url === '/' || !dansDist(p) || !existsSync(p)) p = join(DIST, 'index.html')
+    const p = fichierServi(DIST, req.url)
     res.writeHead(200, { 'content-type': MIME[extname(p)] || 'text/html' })
     res.end(readFileSync(p))
   }).listen(port)
