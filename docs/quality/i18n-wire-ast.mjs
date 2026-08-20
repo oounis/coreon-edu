@@ -231,9 +231,17 @@ for (const p of files) {
   // On découpe DE LA FIN vers le début : les positions d'avant restent valides.
   let out = src
   for (const h of hits.slice().sort((a, b) => b.start - a.start)) {
-    const lit = h.txt.includes("'") && !h.txt.includes('"')
-      ? `"${h.txt}"`
-      : `'${h.txt.replace(/'/g, "\\'")}'`
+    // CodeQL js/incomplete-sanitization : `replace(/'/g, "\\'")` n'échappait QUE
+    // l'apostrophe. L'antislash, lui, passait tel quel — et il est le caractère
+    // d'échappement du littéral. Un texte comme `C:\Users\name` ne produisait
+    // même pas une erreur de syntaxe : il donnait `'C:\Users\name'`, que JS
+    // relit comme `C:Users` + un saut de ligne + `ame`. Corruption silencieuse
+    // du texte traduit, la pire espèce. Les retours ligne et les caractères de
+    // contrôle avaient le même sort.
+    // JSON.stringify échappe l'antislash, les guillemets ET les caractères de
+    // contrôle, et rend toujours un littéral JS valide. On y perd la préférence
+    // pour l'apostrophe : un outil de réécriture doit d'abord être correct.
+    const lit = JSON.stringify(h.txt)
     // dans une EXPRESSION on n'ajoute pas d'accolades : on y est déjà.
     const rep = h.expr ? `${fn}(${lit})` : `{${fn}(${lit})}`
     out = out.slice(0, h.start) + rep + out.slice(h.end)
