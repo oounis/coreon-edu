@@ -27,9 +27,11 @@ import Gallery from './screens/Gallery.js'
 import Canteen from './screens/Canteen.js'
 import Accidents from './screens/Accidents.js'
 import Behavior from './screens/Behavior.js'
+import Admissions from './screens/Admissions.js'
 
 export const SCREENS = {
   '/app': Dashboard,
+  '/app/admissions': Admissions,
   '/app/journal': Journal,
   '/app/gallery': Gallery,
   '/app/canteen': Canteen,
