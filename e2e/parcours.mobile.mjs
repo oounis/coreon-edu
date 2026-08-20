@@ -69,6 +69,16 @@ try {
       } catch { /* entrée non navigable */ }
     }
     ok(visited >= 4, `${label} : ${visited} écrans du menu visités`)
+    // #13 : « Inscriptions » doit être un VRAI écran, pas le placeholder. La
+    // boucle ci-dessus est plafonnée à 12 entrées et la Direction en a bien
+    // plus : on vise celle-ci explicitement, sinon le défaut repasserait inaperçu.
+    if (label === 'direction') {
+      const more = page.getByText('Plus', { exact: true }).last()
+      if (await more.count()) { await more.click(); await page.waitForTimeout(450) }
+      await page.getByText('Inscriptions', { exact: true }).first().click(); await page.waitForTimeout(900)
+      const txt = await page.locator('body').innerText()
+      ok(!txt.includes('Bientôt sur mobile') && /candidature/i.test(txt), 'direction : Inscriptions est un vrai écran, pas « Bientôt sur mobile »')
+    }
     ok(exceptions.length === 0, `${label} : zéro exception (${exceptions[0] || 'RAS'})`)
     await ctx.close()
   }
