@@ -97,10 +97,13 @@ const R=(el,path)=> <Protected el={el} roles={ROUTE_ROLES[path]} path={path}/>
 // part. Le voici, global : la page fautive s'excuse, le reste de l'app survit.
 import { Component } from 'react'
 import { ErrorState } from './components/ui.jsx'
+import { captureException } from './telemetry.js'
 class Boundary extends Component {
   state = { error: null }
   static getDerivedStateFromError(error){ return { error } }
-  componentDidCatch(error){ console.error('[boundary]', error) }
+  // Une erreur de rendu attrapée ici n'est PAS une exception globale : sans cet
+  // appel, Sentry ne la verrait jamais — exactement les pages mortes du 2026-07-29.
+  componentDidCatch(error, info){ console.error('[boundary]', error); captureException(error, { route: this.props.routeKey, componentStack: info?.componentStack }) }
   // ⚠️ QA 2026-07-26 : sans ce réarmement, la PREMIÈRE erreur gelait toute
   // l'application — chaque page suivante restait l'écran d'excuse, sans que
   // rien ne le dise. Une page fautive ne condamne plus les autres.
