@@ -8,6 +8,10 @@ import RemoteGate from './RemoteGate.jsx'
 import { isRemote, remoteMail } from './remote.js'
 import { setMailTransport } from '@core/admissions.js'
 import { mailReady, sendViaWorker } from './mail.js'
+import { initTelemetry } from './telemetry.js'
+// Suivi des erreurs (KOG-86) : en premier, pour voir même un plantage de
+// démarrage. Sans DSN ou sur localhost, cette ligne ne fait strictement rien.
+initTelemetry()
 setAssetBase(import.meta.env.BASE_URL)
 // Emails du candidat (accusé de réception + chaque décision). Par priorité :
 // Worker Cloudflare coreon-mail (envoi réel via Zoho, expéditeur
