@@ -9,6 +9,25 @@ Sur l'écran de connexion, entrez d'un clic dans n'importe quel portail (Directi
 Enseignant, Parent…). La première visite simule une journée de classe (mode démo,
 réversible).
 
+## Où se situe ce produit
+
+```
+KOGIA GROUP → KOGIA EDUCATION → Educational Operations → Coreon EDU
+```
+
+Produit de **[Kogia Education](https://github.com/oounis/kogia-group/blob/main/architecture/divisions/education.md)**,
+l'un des cinq domaines définis dans
+[l'architecture de Kogia Group](https://github.com/oounis/kogia-group/tree/main/architecture),
+adoptée le 2026-09-12.
+
+Coreon EDU porte une marque indépendante, endossée par Kogia — la règle est
+expliquée dans
+[l'architecture de marque](https://github.com/oounis/kogia-group/blob/main/architecture/02-BRAND-ARCHITECTURE.md).
+Le produit se vend à des institutions qui ne connaissent pas forcément Kogia ; il
+doit donc tenir debout tout seul.
+
+⚠️ `coreon-mail-worker` fait partie de ce produit : il sert `edu.kogiagroup.com`.
+
 ## Où est la vérité
 
 | Question | Document |
